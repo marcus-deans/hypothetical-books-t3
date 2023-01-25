@@ -42,7 +42,7 @@ model Book {
 model Genre {
   id    		String    @id @default(cuid())
   name 			String
-  posts 		Book[]
+  books 		Book[]
 }
 
 

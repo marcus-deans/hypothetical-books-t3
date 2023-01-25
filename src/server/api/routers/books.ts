@@ -63,7 +63,6 @@ export const booksRouter = createTRPCRouter({
       return book;
     }),
 
-
   /**
    *  id                String @id @default(cuid())
    *  title            String
@@ -88,41 +87,78 @@ export const booksRouter = createTRPCRouter({
   add: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid().optional(),
-        title: z.string().min(1).max(32),
+        title: z.string(),
         authors: z.string().array(),
         isbn_13: z.string().length(13),
-        isbn_10: z.string().length(10).optional(),
+        isbn_10: z.string().length(10).nullish(),
         publisher: z.string(),
-        publicationYear: z.string(),
-        pageCount: z.number().min(0).int(),
-        width: z.number().min(0),
-        height: z.number().min(0),
-        thickness: z.number().min(0),
-        retail_price: z.number().min(0),
-        genre: z.string(),
+        publicationYear: z.number().int(),
+        pageCount: z.number().int(),
+        width: z.number().gt(0),
+        height: z.number().gt(0),
+        thickness: z.number().gt(0),
+        retail_price: z.number().gt(0),
         genreId: z.string(),
-        purchaseLines: ,
-        saleReconcilitationLines: z.obj.saleReconcilitationLines
-        inventoryCount: z.number().gte(0),
+        purchaseLines: z.string().array(),
+        saleReconciliationLines: z.string().array(),
+        inventoryCount: z.number().int(),
       })
     )
+
+    //   model Author {
+    //   id 				String @id @default(cuid())
+    //   name 			String
+    //   books 		Book[]
+
     .mutation(async ({ input }) => {
+      let authorData: { name: string }[];
+      input.authors.forEach((authorName) =>
+        authorData.push({ name: authorName })
+      );
+
+      //TODO: add proper author implementation
       const book = await prisma.book.create({
-        data: input,
+        data: {
+          title: input.title,
+          authors: {
+            create: [],
+          },
+          isbn_13: input.isbn_13,
+          isbn_10: input.isbn_10,
+          publisher: input.publisher,
+          publicationYear: input.publicationYear,
+          pageCount: input.pageCount,
+          width: input.width,
+          height: input.height,
+          thickness: input.thickness,
+          retail_price: input.retail_price,
+          genreId: input.genreId,
+          purchaseLines: {
+            create: [],
+          },
+          saleReconciliationLines: {
+            create: [],
+          },
+          inventoryCount: input.inventoryCount,
+        },
       });
+
       return book;
     }),
 
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
+  delete: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { id } = input;
+      const book = await prisma.book.delete({
+        where: { id },
+      });
+      if (!book) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No book to delete with id '${id}'`,
+        });
+      }
+      return book;
     }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
 });

@@ -245,7 +245,7 @@ export const GenreArgsSchema: z.ZodType<PrismaClient.Prisma.GenreArgs> = z.objec
 }).strict();
 
 export const GenreIncludeSchema: z.ZodType<PrismaClient.Prisma.GenreInclude> = z.object({
-  posts: z.union([z.boolean(), z.lazy(() => BookFindManyArgsSchema)]).optional(),
+  books: z.union([z.boolean(), z.lazy(() => BookFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => GenreCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -254,13 +254,13 @@ export const GenreCountOutputTypeArgsSchema: z.ZodType<PrismaClient.Prisma.Genre
 }).strict();
 
 export const GenreCountOutputTypeSelectSchema: z.ZodType<PrismaClient.Prisma.GenreCountOutputTypeSelect> = z.object({
-  posts: z.boolean().optional(),
+  books: z.boolean().optional(),
 }).strict();
 
 export const GenreSelectSchema: z.ZodType<PrismaClient.Prisma.GenreSelect> = z.object({
   id: z.boolean().optional(),
   name: z.boolean().optional(),
-  posts: z.union([z.boolean(), z.lazy(() => BookFindManyArgsSchema)]).optional(),
+  books: z.union([z.boolean(), z.lazy(() => BookFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => GenreCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -621,13 +621,13 @@ export const GenreWhereInputSchema: z.ZodType<PrismaClient.Prisma.GenreWhereInpu
   NOT: z.union([z.lazy(() => GenreWhereInputSchema), z.lazy(() => GenreWhereInputSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   name: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
-  posts: z.lazy(() => BookListRelationFilterSchema).optional(),
+  books: z.lazy(() => BookListRelationFilterSchema).optional(),
 }).strict();
 
 export const GenreOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.GenreOrderByWithRelationInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   name: z.lazy(() => SortOrderSchema).optional(),
-  posts: z.lazy(() => BookOrderByRelationAggregateInputSchema).optional(),
+  books: z.lazy(() => BookOrderByRelationAggregateInputSchema).optional(),
 }).strict();
 
 export const GenreWhereUniqueInputSchema: z.ZodType<PrismaClient.Prisma.GenreWhereUniqueInput> = z.object({
@@ -1154,7 +1154,7 @@ export const BookCreateInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateInpu
   height: z.number(),
   thickness: z.number(),
   retail_price: z.number(),
-  genre: z.lazy(() => GenreCreateNestedOneWithoutPostsInputSchema),
+  genre: z.lazy(() => GenreCreateNestedOneWithoutBooksInputSchema),
   purchaseLines: z.lazy(() => PurchaseLineCreateNestedManyWithoutBookInputSchema).optional(),
   saleReconciliationLines: z.lazy(() => SaleLineCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number().int(),
@@ -1192,7 +1192,7 @@ export const BookUpdateInputSchema: z.ZodType<PrismaClient.Prisma.BookUpdateInpu
   height: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   thickness: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   retail_price: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
-  genre: z.lazy(() => GenreUpdateOneRequiredWithoutPostsNestedInputSchema).optional(),
+  genre: z.lazy(() => GenreUpdateOneRequiredWithoutBooksNestedInputSchema).optional(),
   purchaseLines: z.lazy(() => PurchaseLineUpdateManyWithoutBookNestedInputSchema).optional(),
   saleReconciliationLines: z.lazy(() => SaleLineUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
@@ -1267,25 +1267,25 @@ export const BookUncheckedUpdateManyInputSchema: z.ZodType<PrismaClient.Prisma.B
 export const GenreCreateInputSchema: z.ZodType<PrismaClient.Prisma.GenreCreateInput> = z.object({
   id: z.string().cuid().optional(),
   name: z.string(),
-  posts: z.lazy(() => BookCreateNestedManyWithoutGenreInputSchema).optional(),
+  books: z.lazy(() => BookCreateNestedManyWithoutGenreInputSchema).optional(),
 }).strict();
 
 export const GenreUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.GenreUncheckedCreateInput> = z.object({
   id: z.string().cuid().optional(),
   name: z.string(),
-  posts: z.lazy(() => BookUncheckedCreateNestedManyWithoutGenreInputSchema).optional(),
+  books: z.lazy(() => BookUncheckedCreateNestedManyWithoutGenreInputSchema).optional(),
 }).strict();
 
 export const GenreUpdateInputSchema: z.ZodType<PrismaClient.Prisma.GenreUpdateInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   name: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  posts: z.lazy(() => BookUpdateManyWithoutGenreNestedInputSchema).optional(),
+  books: z.lazy(() => BookUpdateManyWithoutGenreNestedInputSchema).optional(),
 }).strict();
 
 export const GenreUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.GenreUncheckedUpdateInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   name: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  posts: z.lazy(() => BookUncheckedUpdateManyWithoutGenreNestedInputSchema).optional(),
+  books: z.lazy(() => BookUncheckedUpdateManyWithoutGenreNestedInputSchema).optional(),
 }).strict();
 
 export const GenreCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.GenreCreateManyInput> = z.object({
@@ -2524,9 +2524,9 @@ export const AuthorCreateNestedManyWithoutBooksInputSchema: z.ZodType<PrismaClie
   connect: z.union([z.lazy(() => AuthorWhereUniqueInputSchema), z.lazy(() => AuthorWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
-export const GenreCreateNestedOneWithoutPostsInputSchema: z.ZodType<PrismaClient.Prisma.GenreCreateNestedOneWithoutPostsInput> = z.object({
-  create: z.union([z.lazy(() => GenreCreateWithoutPostsInputSchema), z.lazy(() => GenreUncheckedCreateWithoutPostsInputSchema)]).optional(),
-  connectOrCreate: z.lazy(() => GenreCreateOrConnectWithoutPostsInputSchema).optional(),
+export const GenreCreateNestedOneWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.GenreCreateNestedOneWithoutBooksInput> = z.object({
+  create: z.union([z.lazy(() => GenreCreateWithoutBooksInputSchema), z.lazy(() => GenreUncheckedCreateWithoutBooksInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => GenreCreateOrConnectWithoutBooksInputSchema).optional(),
   connect: z.lazy(() => GenreWhereUniqueInputSchema).optional(),
 }).strict();
 
@@ -2601,12 +2601,12 @@ export const FloatFieldUpdateOperationsInputSchema: z.ZodType<PrismaClient.Prism
   divide: z.number().optional(),
 }).strict();
 
-export const GenreUpdateOneRequiredWithoutPostsNestedInputSchema: z.ZodType<PrismaClient.Prisma.GenreUpdateOneRequiredWithoutPostsNestedInput> = z.object({
-  create: z.union([z.lazy(() => GenreCreateWithoutPostsInputSchema), z.lazy(() => GenreUncheckedCreateWithoutPostsInputSchema)]).optional(),
-  connectOrCreate: z.lazy(() => GenreCreateOrConnectWithoutPostsInputSchema).optional(),
-  upsert: z.lazy(() => GenreUpsertWithoutPostsInputSchema).optional(),
+export const GenreUpdateOneRequiredWithoutBooksNestedInputSchema: z.ZodType<PrismaClient.Prisma.GenreUpdateOneRequiredWithoutBooksNestedInput> = z.object({
+  create: z.union([z.lazy(() => GenreCreateWithoutBooksInputSchema), z.lazy(() => GenreUncheckedCreateWithoutBooksInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => GenreCreateOrConnectWithoutBooksInputSchema).optional(),
+  upsert: z.lazy(() => GenreUpsertWithoutBooksInputSchema).optional(),
   connect: z.lazy(() => GenreWhereUniqueInputSchema).optional(),
-  update: z.union([z.lazy(() => GenreUpdateWithoutPostsInputSchema), z.lazy(() => GenreUncheckedUpdateWithoutPostsInputSchema)]).optional(),
+  update: z.union([z.lazy(() => GenreUpdateWithoutBooksInputSchema), z.lazy(() => GenreUncheckedUpdateWithoutBooksInputSchema)]).optional(),
 }).strict();
 
 export const PurchaseLineUpdateManyWithoutBookNestedInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUpdateManyWithoutBookNestedInput> = z.object({
@@ -3301,19 +3301,19 @@ export const AuthorCreateOrConnectWithoutBooksInputSchema: z.ZodType<PrismaClien
   create: z.union([z.lazy(() => AuthorCreateWithoutBooksInputSchema), z.lazy(() => AuthorUncheckedCreateWithoutBooksInputSchema)]),
 }).strict();
 
-export const GenreCreateWithoutPostsInputSchema: z.ZodType<PrismaClient.Prisma.GenreCreateWithoutPostsInput> = z.object({
+export const GenreCreateWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.GenreCreateWithoutBooksInput> = z.object({
   id: z.string().optional(),
   name: z.string(),
 }).strict();
 
-export const GenreUncheckedCreateWithoutPostsInputSchema: z.ZodType<PrismaClient.Prisma.GenreUncheckedCreateWithoutPostsInput> = z.object({
+export const GenreUncheckedCreateWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.GenreUncheckedCreateWithoutBooksInput> = z.object({
   id: z.string().optional(),
   name: z.string(),
 }).strict();
 
-export const GenreCreateOrConnectWithoutPostsInputSchema: z.ZodType<PrismaClient.Prisma.GenreCreateOrConnectWithoutPostsInput> = z.object({
+export const GenreCreateOrConnectWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.GenreCreateOrConnectWithoutBooksInput> = z.object({
   where: z.lazy(() => GenreWhereUniqueInputSchema),
-  create: z.union([z.lazy(() => GenreCreateWithoutPostsInputSchema), z.lazy(() => GenreUncheckedCreateWithoutPostsInputSchema)]),
+  create: z.union([z.lazy(() => GenreCreateWithoutBooksInputSchema), z.lazy(() => GenreUncheckedCreateWithoutBooksInputSchema)]),
 }).strict();
 
 export const PurchaseLineCreateWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCreateWithoutBookInput> = z.object({
@@ -3388,17 +3388,17 @@ export const AuthorScalarWhereInputSchema: z.ZodType<PrismaClient.Prisma.AuthorS
   name: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
 }).strict();
 
-export const GenreUpsertWithoutPostsInputSchema: z.ZodType<PrismaClient.Prisma.GenreUpsertWithoutPostsInput> = z.object({
-  update: z.union([z.lazy(() => GenreUpdateWithoutPostsInputSchema), z.lazy(() => GenreUncheckedUpdateWithoutPostsInputSchema)]),
-  create: z.union([z.lazy(() => GenreCreateWithoutPostsInputSchema), z.lazy(() => GenreUncheckedCreateWithoutPostsInputSchema)]),
+export const GenreUpsertWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.GenreUpsertWithoutBooksInput> = z.object({
+  update: z.union([z.lazy(() => GenreUpdateWithoutBooksInputSchema), z.lazy(() => GenreUncheckedUpdateWithoutBooksInputSchema)]),
+  create: z.union([z.lazy(() => GenreCreateWithoutBooksInputSchema), z.lazy(() => GenreUncheckedCreateWithoutBooksInputSchema)]),
 }).strict();
 
-export const GenreUpdateWithoutPostsInputSchema: z.ZodType<PrismaClient.Prisma.GenreUpdateWithoutPostsInput> = z.object({
+export const GenreUpdateWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.GenreUpdateWithoutBooksInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   name: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
-export const GenreUncheckedUpdateWithoutPostsInputSchema: z.ZodType<PrismaClient.Prisma.GenreUncheckedUpdateWithoutPostsInput> = z.object({
+export const GenreUncheckedUpdateWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.GenreUncheckedUpdateWithoutBooksInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   name: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
@@ -3516,7 +3516,7 @@ export const BookUpdateWithWhereUniqueWithoutGenreInputSchema: z.ZodType<PrismaC
 
 export const BookUpdateManyWithWhereWithoutGenreInputSchema: z.ZodType<PrismaClient.Prisma.BookUpdateManyWithWhereWithoutGenreInput> = z.object({
   where: z.lazy(() => BookScalarWhereInputSchema),
-  data: z.union([z.lazy(() => BookUpdateManyMutationInputSchema), z.lazy(() => BookUncheckedUpdateManyWithoutPostsInputSchema)]),
+  data: z.union([z.lazy(() => BookUpdateManyMutationInputSchema), z.lazy(() => BookUncheckedUpdateManyWithoutBooksInputSchema)]),
 }).strict();
 
 export const BookScalarWhereInputSchema: z.ZodType<PrismaClient.Prisma.BookScalarWhereInput> = z.object({
@@ -3550,7 +3550,7 @@ export const BookCreateWithoutAuthorsInputSchema: z.ZodType<PrismaClient.Prisma.
   height: z.number(),
   thickness: z.number(),
   retail_price: z.number(),
-  genre: z.lazy(() => GenreCreateNestedOneWithoutPostsInputSchema),
+  genre: z.lazy(() => GenreCreateNestedOneWithoutBooksInputSchema),
   purchaseLines: z.lazy(() => PurchaseLineCreateNestedManyWithoutBookInputSchema).optional(),
   saleReconciliationLines: z.lazy(() => SaleLineCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
@@ -3725,7 +3725,7 @@ export const BookCreateWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.P
   height: z.number(),
   thickness: z.number(),
   retail_price: z.number(),
-  genre: z.lazy(() => GenreCreateNestedOneWithoutPostsInputSchema),
+  genre: z.lazy(() => GenreCreateNestedOneWithoutBooksInputSchema),
   saleReconciliationLines: z.lazy(() => SaleLineCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
 }).strict();
@@ -3788,7 +3788,7 @@ export const BookUpdateWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.P
   height: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   thickness: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   retail_price: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
-  genre: z.lazy(() => GenreUpdateOneRequiredWithoutPostsNestedInputSchema).optional(),
+  genre: z.lazy(() => GenreUpdateOneRequiredWithoutBooksNestedInputSchema).optional(),
   saleReconciliationLines: z.lazy(() => SaleLineUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
@@ -3881,7 +3881,7 @@ export const BookCreateWithoutSaleReconciliationLinesInputSchema: z.ZodType<Pris
   height: z.number(),
   thickness: z.number(),
   retail_price: z.number(),
-  genre: z.lazy(() => GenreCreateNestedOneWithoutPostsInputSchema),
+  genre: z.lazy(() => GenreCreateNestedOneWithoutBooksInputSchema),
   purchaseLines: z.lazy(() => PurchaseLineCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
 }).strict();
@@ -3940,7 +3940,7 @@ export const BookUpdateWithoutSaleReconciliationLinesInputSchema: z.ZodType<Pris
   height: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   thickness: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   retail_price: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
-  genre: z.lazy(() => GenreUpdateOneRequiredWithoutPostsNestedInputSchema).optional(),
+  genre: z.lazy(() => GenreUpdateOneRequiredWithoutBooksNestedInputSchema).optional(),
   purchaseLines: z.lazy(() => PurchaseLineUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
@@ -4310,7 +4310,7 @@ export const BookUncheckedUpdateWithoutGenreInputSchema: z.ZodType<PrismaClient.
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
-export const BookUncheckedUpdateManyWithoutPostsInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateManyWithoutPostsInput> = z.object({
+export const BookUncheckedUpdateManyWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateManyWithoutBooksInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   title: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   isbn_13: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
@@ -4337,7 +4337,7 @@ export const BookUpdateWithoutAuthorsInputSchema: z.ZodType<PrismaClient.Prisma.
   height: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   thickness: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   retail_price: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
-  genre: z.lazy(() => GenreUpdateOneRequiredWithoutPostsNestedInputSchema).optional(),
+  genre: z.lazy(() => GenreUpdateOneRequiredWithoutBooksNestedInputSchema).optional(),
   purchaseLines: z.lazy(() => PurchaseLineUpdateManyWithoutBookNestedInputSchema).optional(),
   saleReconciliationLines: z.lazy(() => SaleLineUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
@@ -4359,22 +4359,6 @@ export const BookUncheckedUpdateWithoutAuthorsInputSchema: z.ZodType<PrismaClien
   purchaseLines: z.lazy(() => PurchaseLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
   saleReconciliationLines: z.lazy(() => SaleLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
-}).strict();
-
-export const BookUncheckedUpdateManyWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateManyWithoutBooksInput> = z.object({
-  id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  title: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  isbn_13: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  isbn_10: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputSchema)]).optional().nullable(),
-  publisher: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  publicationYear: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
-  pageCount: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
-  width: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
-  height: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
-  thickness: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
-  retail_price: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
-  genreId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  inventoryCount: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const PurchaseOrderCreateManyVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCreateManyVendorInput> = z.object({
