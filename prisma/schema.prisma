@@ -14,6 +14,86 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+generator zod {
+	provider = "zod-prisma-types"
+}
+
+model Book {
+	id          			String @id @default(cuid())
+	title       			String
+	authors     			Author[]
+	isbn_13     			String
+	isbn_10     			String?
+	publisher   			String
+	publicationYear 	Int
+	pageCount  				Int
+	width       			Float
+	height      			Float
+	thickness   			Float
+	retail_price 			Float
+	genre 						Genre @relation(fields: [genreId], references: [id])
+	genreId     			String // relation String field
+	purchaseLines			PurchaseLine[]
+	saleReconciliationLines SaleLine[]
+	//to Be determined
+	inventoryCount 		Int
+}
+
+model Genre {
+  id    		String    @id @default(cuid())
+  name 			String
+  books 		Book[]
+}
+
+
+model Author {
+	id 				String @id @default(cuid())
+	name 			String
+	books 		Book[]
+}
+
+
+model Vendor {
+	id				String @id @default(cuid())
+	name			String
+	purchaseOrder PurchaseOrder[]
+}
+
+model PurchaseOrder{
+	id				String @id @default(cuid())
+	Date			String
+	Vendor		Vendor @relation(fields: [vendorId], references: [id])
+	vendorId	String
+	purchaseLines PurchaseLine[]
+}
+
+model PurchaseLine{
+	id 				String @id @default(cuid())
+	book 			Book @relation(fields: [bookId], references: [id])
+	bookId 		String
+	quantity 	Int
+	unitWholesalePrice Float
+	purchaseOrder		PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+	purchaseOrderId	String
+}
+
+
+model SalesReconciliation{
+	id 				String @id @default(cuid())
+	saleLines SaleLine[]
+}
+
+model SaleLine{
+	id 				String @id @default(cuid())
+	book 			Book @relation(fields: [bookId], references: [id])
+	bookId 		String
+	quantity 	Int
+	unitWholesalePrice Float
+	salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
+	salesReconciliationId	String
+}
+
+
 model Example {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
