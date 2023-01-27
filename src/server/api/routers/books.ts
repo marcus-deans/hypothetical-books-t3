@@ -75,7 +75,7 @@ export const booksRouter = createTRPCRouter({
    *  width            Float
    *  height            Float
    *  thickness        Float
-   *  retail_price      Float
+   *  retailPrice      Float
    *  genre            Genre @relation(fields: [genreId], references: [id])
    *  genreId          String // relation String field
    *  purchaseLines      PurchaseLine[]
@@ -97,7 +97,7 @@ export const booksRouter = createTRPCRouter({
         width: z.number().gt(0),
         height: z.number().gt(0),
         thickness: z.number().gt(0),
-        retail_price: z.number().gt(0),
+        retailPrice: z.number().gt(0),
         genreId: z.string(),
         purchaseLines: z.string().array(),
         saleReconciliationLines: z.string().array(),
@@ -131,7 +131,7 @@ export const booksRouter = createTRPCRouter({
           width: input.width,
           height: input.height,
           thickness: input.thickness,
-          retail_price: input.retail_price,
+          retailPrice: input.retailPrice,
           genreId: input.genreId,
           purchaseLines: {
             create: [],
