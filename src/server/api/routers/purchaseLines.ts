@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 
-export const purchaseOrdersRouter = createTRPCRouter({
+export const purchaseLinesRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
@@ -20,7 +20,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
       const limit = input.limit ?? 50;
       const { cursor } = input;
 
-      const items = await prisma.purchaseOrder.findMany({
+      const items = await prisma.purchaseLine.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
         where: {},
@@ -30,7 +30,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
             }
           : undefined,
         orderBy: {
-          date: "desc",
+          bookId: "desc",
         },
       });
       let nextCursor: typeof cursor | undefined = undefined;
@@ -51,16 +51,16 @@ export const purchaseOrdersRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
-      const purchaseOrder = await prisma.purchaseOrder.findUnique({
+      const purchaseLine = await prisma.purchaseLine.findUnique({
         where: { id },
       });
-      if (!purchaseOrder) {
+      if (!purchaseLine) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No purchase order with id '${id}'`,
+          message: `No purchase line with id '${id}'`,
         });
       }
-      return purchaseOrder;
+      return purchaseLine;
     }),
 
   /**
@@ -92,41 +92,49 @@ export const purchaseOrdersRouter = createTRPCRouter({
   add: publicProcedure
     .input(
       z.object({
-        date: z.date(),
-        vendorId: z.string(),
+        bookId: z.string(),
+        quantity: z.number().gt(0),
+        unitWholesalePrice: z.number().gt(0),
+        purchaseOrderId: z.string(),
       })
     )
 
     //TODO: add proper purchase line implementation
     .mutation(async ({ input }) => {
-      const purchaseOrder = await prisma.purchaseOrder.create({
+      const purchaseLine = await prisma.purchaseLine.create({
         data: {
-          date: input.date,
-          vendor: {
+          book: {
             connect: {
-              id: input.vendorId,
+              id: input.bookId,
+            },
+          },
+          quantity: input.quantity,
+          unitWholesalePrice: input.unitWholesalePrice,
+          purchaseOrder: {
+            connect: {
+              id: input.purchaseOrderId,
             },
           },
         },
       });
 
-      return purchaseOrder;
+      return purchaseLine;
     }),
 
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const purchaseOrder = await prisma.purchaseOrder.delete({
+      const purchaseLine = await prisma.purchaseLine.delete({
         where: { id },
       });
-      if (!purchaseOrder) {
+      if (!purchaseLine) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No purchase order to delete with id '${id}'`,
+          message: `No purchase line to delete with id '${id}'`,
         });
       }
-      return purchaseOrder;
+      return purchaseLine;
     }),
 
   getSecretMessage: protectedProcedure.query(() => {

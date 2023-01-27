@@ -108,6 +108,9 @@ export const purchaseOrdersRouter = createTRPCRouter({
               id: input.vendorId,
             },
           },
+          purchaseLines: {
+            create: [],
+          },
         },
       });
 
