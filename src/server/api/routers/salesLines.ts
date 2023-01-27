@@ -90,7 +90,6 @@ export const salesLinesRouter = createTRPCRouter({
       })
     )
 
-    //TODO: add proper sales lines implementation
     .mutation(async ({ input }) => {
       const salesLine = await prisma.salesLine.create({
         data: {

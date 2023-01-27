@@ -99,7 +99,6 @@ export const purchaseLinesRouter = createTRPCRouter({
       })
     )
 
-    //TODO: add proper purchase line implementation
     .mutation(async ({ input }) => {
       const purchaseLine = await prisma.purchaseLine.create({
         data: {
