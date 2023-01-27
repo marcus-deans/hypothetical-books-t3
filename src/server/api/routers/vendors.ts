@@ -14,18 +14,18 @@ export const vendorsRouter = createTRPCRouter({
       return vendor;
     }),
 
-  connectToBook: publicProcedure
-    .input(z.object({ vendorId: z.string(), bookId: z.string() }))
+  connectToPurchaseOrder: publicProcedure
+    .input(z.object({ vendorId: z.string(), purchaseOrderId: z.string() }))
     .mutation(async ({ input }) => {
-      const { vendorId, bookId } = input;
+      const { vendorId, purchaseOrderId } = input;
       const connectedVendor = await prisma.vendor.update({
         where: {
           id: vendorId,
         },
         data: {
-          books: {
+          purchaseOrder: {
             connect: {
-              id: bookId,
+              id: purchaseOrderId,
             },
           },
         },
