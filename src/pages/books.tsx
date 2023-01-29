@@ -5,6 +5,7 @@ function books() {
     <Head>
       <title>Books</title>
     </Head>
+    <div>Books</div>
     </>
   )
 }
