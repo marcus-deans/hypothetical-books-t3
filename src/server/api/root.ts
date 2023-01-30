@@ -1,5 +1,13 @@
 import { createTRPCRouter } from "./trpc";
 import { exampleRouter } from "./routers/example";
+import { authorsRouter } from "./routers/authors";
+import { booksRouter } from "./routers/books";
+import { genresRouter } from "./routers/genres";
+import { purchaseLinesRouter } from "./routers/purchaseLines";
+import { purchaseOrdersRouter } from "./routers/purchaseOrders";
+import { salesLinesRouter } from "./routers/salesLines";
+import { salesReconciliationsRouter } from "./routers/salesReconciliations";
+import { vendorsRouter } from "./routers/vendors";
 
 /**
  * This is the primary router for your server.
@@ -8,6 +16,14 @@ import { exampleRouter } from "./routers/example";
  */
 export const appRouter = createTRPCRouter({
   example: exampleRouter,
+  authors: authorsRouter,
+  books: booksRouter,
+  genres: genresRouter,
+  purchaseLines: purchaseLinesRouter,
+  purchaseOrders: purchaseOrdersRouter,
+  salesLines: salesLinesRouter,
+  salesReconciliations: salesReconciliationsRouter,
+  vendors: vendorsRouter,
 });
 
 // export type definition of API
