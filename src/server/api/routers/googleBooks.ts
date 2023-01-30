@@ -9,10 +9,12 @@ interface GoogleBookDetails {
   authors: string[];
   publishedDate: string;
   description: string;
-  industryIdentifiers: {
-    type: string;
-    identifier: string;
-  };
+  industryIdentifiers: [
+    {
+      type: string;
+      identifier: string;
+    }
+  ];
   pageCount: number;
   categories: string[];
 }
