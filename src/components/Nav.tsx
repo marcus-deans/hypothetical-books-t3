@@ -12,7 +12,7 @@ function Nav() {
 <nav className="px-2 bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
   <div className="container flex flex-wrap items-center justify-between mx-auto">
     <a href="/" className="flex items-center">
-        <img  className="object-contain" src="" alt="Hypothetical Books Logo" />
+        <img  className="object-cover" src="../../public/Barnes-Noble-Logo.png" alt="Hypothetical Books Logo" />
         <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Hypothetical Books</span>
     </a>
     <div className="hidden w-full md:block md:w-auto" id="navbar-dropdown">
