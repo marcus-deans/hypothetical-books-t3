@@ -6,6 +6,15 @@ import { env } from "../../../env/server.mjs";
 
 interface GoogleBookDetails {
   title: string;
+  authors: string[];
+  publishedDate: string;
+  description: string;
+  industryIdentifiers: {
+    type: string;
+    identifier: string;
+  };
+  pageCount: number;
+  categories: string[];
 }
 export const googleBooksRouter = createTRPCRouter({
   retrieveByISBN: publicProcedure
