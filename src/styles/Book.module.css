@@ -1,0 +1,56 @@
+.container{
+    display: flex;
+    border-radius: 15px;
+    background: #F2EAE1;
+
+}
+
+.row{
+    display:flex;
+    flex-direction:row;
+    justify-items:start;
+    align-items:center;
+    height:80px;
+    width:900px;
+}
+
+.book{
+    display:flex;
+    align-items:center;
+    padding-right:24px;
+    min-width:300px;
+}
+
+.bookh1{
+font-size:16px;
+width:150px;
+}
+
+.bookimg{
+    height: 30px;
+    width: 30px;
+    margin-right: 10px;
+}
+
+
+.bookdata{
+    display:flex;
+    text-align:center;
+    justify-content:space-between;
+    width:100%;
+}
+
+.price{
+    width:110px;
+
+}
+
+.volume{
+    width:155px;
+}
+.marketcap{
+    width:230px;
+}
+.percent{
+    width: 100%;
+}
