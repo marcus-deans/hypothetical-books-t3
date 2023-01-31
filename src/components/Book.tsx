@@ -23,8 +23,8 @@ function Book(props:BookProps) {
                 <div className={styles.bookdata}>
                 <p className={styles.symbol}>{props.authors}</p>
                 <p className={styles.price}>{props.retailPrice}</p>
-                <p className="coin-volume">{props.publisher}</p>
-                <p className="coin-market-cap">{props.genre}</p>
+                <p>{props.publisher}</p>
+                <p>{props.genre}</p>
                 </div>
             </div>
         </div>
