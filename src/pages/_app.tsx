@@ -13,7 +13,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <Layout>
       <Component {...pageProps} />
-      </Layout>
+    </Layout>
   );
 };
 

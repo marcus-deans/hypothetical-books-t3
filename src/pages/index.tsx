@@ -14,6 +14,7 @@ const Home: NextPage = () => {
       <Head>
         <title>Hypothetical Books Corp.</title>
       </Head>
+      <div>Index</div>
 ]    </>
   );
 };
