@@ -1,6 +1,7 @@
 {
   "name": "hypothetical-books-t3",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "build": "next build",
@@ -26,6 +27,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "superjson": "1.9.1",
+    "tslog": "^4.7.1",
     "zod": "^3.20.2",
     "zod-prisma-types": "^1.6.7"
   },

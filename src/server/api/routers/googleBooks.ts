@@ -5,6 +5,7 @@ import { TRPCError } from "@trpc/server";
 import { env } from "../../../env/server.mjs";
 import type { JSONSchemaType } from "ajv";
 import Ajv from "ajv";
+import { Logger } from "tslog";
 
 const ajv = new Ajv();
 
@@ -61,6 +62,7 @@ const schema: JSONSchemaType<GoogleBookDetails> = {
 };
 
 const validate = ajv.compile(schema);
+const logger = new Logger({ name: "googleBooksRouterLogger" });
 
 export const googleBooksRouter = createTRPCRouter({
   retrieveByISBN: publicProcedure
@@ -70,6 +72,7 @@ export const googleBooksRouter = createTRPCRouter({
         url: string,
         config: RequestInit = {}
       ): Promise<TResponse> {
+        logger.info("Fetching book from Google Books API");
         const response = await fetch(url, config);
         if (!response.ok) {
           throw new TRPCError({
@@ -92,6 +95,7 @@ export const googleBooksRouter = createTRPCRouter({
         }
         return retrievedBook;
       } catch (error) {
+        logger.error("Error fetching book from Google Books API");
         throw new TRPCError({
           message: "Book could not be found",
           code: "NOT_FOUND",
