@@ -85,10 +85,10 @@ export const salesReconciliationsRouter = createTRPCRouter({
       z.object({
         date: z.date(),
         vendorId: z.string(),
+        salesLines: z.array(z.string()),
       })
     )
 
-    //TODO: add proper sales lines implementation
     .mutation(async ({ input }) => {
       const salesReconciliation = await prisma.salesReconciliation.create({
         data: {
@@ -98,6 +98,19 @@ export const salesReconciliationsRouter = createTRPCRouter({
           },
         },
       });
+
+      for (const salesLineId of input.salesLines) {
+        await prisma.salesLine.update({
+          where: { id: salesLineId },
+          data: {
+            salesReconciliation: {
+              connect: {
+                id: salesReconciliation.id,
+              },
+            },
+          },
+        });
+      }
 
       return salesReconciliation;
     }),
