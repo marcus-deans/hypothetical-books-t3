@@ -35,6 +35,7 @@ function sales() {
               id={"5436"}
               date={"01-05-2023"}
               title={"Purchase 1"}
+              salesLinesIds={["123", "456", "789"]}
             />
           </tbody>
         </table>

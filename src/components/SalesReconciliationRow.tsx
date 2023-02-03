@@ -30,8 +30,7 @@ function SalesReconciliationRow(props: SalesReconciliationRowProps) {
         </div>
       </th>
       <td className="px-6 py-4">
-        <span
-          className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
+        <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
           <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
           {props.date}
         </span>
@@ -39,28 +38,11 @@ function SalesReconciliationRow(props: SalesReconciliationRowProps) {
       <td className="px-6 py-4">Product Designer</td>
       <td className="px-6 py-4">
         <div className="items-center space-y-2">
-          {salesLines.map((salesLine) => {
-            <div
-              className="w-3/4 gap-1 rounded-full bg-blue-50 px-2 py-1 text-center text-xs font-semibold text-blue-600">
-              {salesLine.data?.id}
-            </div>;
-          }}
-          <div
-            className="w-3/4 gap-1 rounded-full bg-blue-50 px-2 py-1 text-center text-xs font-semibold text-blue-600">
-            SaleLine
-          </div>
-          <div
-            className="w-3/4 gap-1 rounded-full bg-blue-50 px-2 py-1 text-center text-xs font-semibold text-blue-600">
-            SaleLine2
-          </div>
-          <div
-            className="w-3/4 gap-1 rounded-full bg-blue-50 px-2 py-1 text-center text-xs font-semibold text-blue-600">
-            SaleLine3
-          </div>
-          <div
-            className="w-3/4 gap-1 rounded-full bg-blue-50 px-2 py-1 text-center text-xs font-semibold text-blue-600">
-            SaleLine4
-          </div>
+          {salesLines.map((salesLine) => (
+            <div className="w-3/4 gap-1 rounded-full bg-blue-50 px-2 py-1 text-center text-xs font-semibold text-blue-600">
+              {salesLine.data?.id ?? "Loading..."}
+            </div>
+          ))}
         </div>
       </td>
       <td className="px-6 py-4">
