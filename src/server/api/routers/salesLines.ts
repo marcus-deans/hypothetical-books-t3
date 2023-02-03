@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 
@@ -48,7 +48,7 @@ export const salesLinesRouter = createTRPCRouter({
       };
     }),
 
-  byId: publicProcedure
+  getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
