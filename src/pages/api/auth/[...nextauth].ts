@@ -1,10 +1,11 @@
 import NextAuth, { type NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials.js";
+import CredentialsProvider from "next-auth/providers/credentials";
 // Prisma adapter for NextAuth, optional and can be removed
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
-import { env } from "../../../env/server.mjs";
 import { prisma } from "../../../server/db";
+import { usersRouter } from "../../../server/api/routers/users.js";
+import { api } from "../../../utils/api";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -19,15 +20,16 @@ export const authOptions: NextAuthOptions = {
         const { password } = credentials as {
           password: string;
         };
+        const user = api.users.login.useQuery({password: password});
         // perform you login logic
         // find out user from db
-        if (password !== "1234") {
-          throw new Error("invalid credentials");
-        }
 
         // if everything is fine
+        if (true){
+          throw new Error("Hello from error land")
+        }
         return {
-          id: "1",
+          id: "1234",
         };
       },
     }),
@@ -35,6 +37,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
   },
+  /*
   callbacks: {
     jwt(params) {
       // update token
@@ -45,6 +48,7 @@ export const authOptions: NextAuthOptions = {
       return params.token;
     },
   },
+  */
 };
 
 export default NextAuth(authOptions);

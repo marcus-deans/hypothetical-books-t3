@@ -1,35 +1,36 @@
 import { NextPage } from "next";
 import { signIn } from "next-auth/react";
-import { FormEventHandler, useState } from "react";
+import React, { FormEventHandler, useState } from "react";
 
 interface Props {}
 
 const SignIn: NextPage = (props): JSX.Element => {
-  const [userInfo, setUserInfo] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [userInfo, setUserInfo] = useState({password: "" });
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+		setUserInfo({password: ""});
+    setError("");
     // validate your userinfo
     e.preventDefault();
-
-    const res = await signIn("credentials", {
-      email: userInfo.email,
-      password: userInfo.password,
-      redirect: false,
-    });
+		var res
+		try{
+			res = await signIn("credentials", {
+				password: userInfo.password,
+				redirect: false,
+			});
+		} catch(err){
+			res = null
+		}
 
     console.log(res);
   };
+  const handleChange  = (Event: any) =>{
+    setUserInfo(Event.target.value);
+}
   return (
     <div className="sign-in-form">
       <form onSubmit={handleSubmit}>
         <h1>Login</h1>
-        <input
-          value={userInfo.email}
-          onChange={({ target }) =>
-            setUserInfo({ ...userInfo, email: target.value })
-          }
-          type="email"
-          placeholder="john@email.com"
-        />
         <input
           value={userInfo.password}
           onChange={({ target }) =>

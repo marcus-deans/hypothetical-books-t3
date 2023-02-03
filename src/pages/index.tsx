@@ -15,6 +15,15 @@ const Home: NextPage = () => {
         <title>Hypothetical Books Corp.</title>
       </Head>
       <div>Index</div>
+      <main>
+      <button
+          onClick={() => {
+            signIn();
+          }}
+        >
+          Login
+        </button>
+      </main>
 ]    </>
   );
 };
