@@ -1,17 +1,56 @@
 import React from "react";
-import { api } from "../utils/api";
 
 type SalesReconciliationRowProps = {
   id: string;
   date: string;
-  title: string;
-  salesLinesIds: string[];
 };
 
 function SalesReconciliationRow(props: SalesReconciliationRowProps) {
-  const salesLines = props.salesLinesIds.map((salesLineId) => {
-    return api.salesLines.getById.useQuery({ id: salesLineId });
-  });
+  // const salesReconciliation =
+  //   api.salesReconciliations.getByIdWithSalesLineIds.useQuery({
+  //     id: props.id,
+  //   });
+  // const salesLinesIds = salesReconciliation?.data?.salesLines ?? [];
+  //
+  // const salesLines = salesLinesIds.map((salesLineId) => {
+  //   return api.salesLines.getByIdWithBookPrimaries.useQuery(salesLineId);
+  // });
+
+  // model SalesLine{
+  //   id 				String @id @default(cuid())
+  //   book 			Book @relation(fields: [bookId], references: [id])
+  //   bookId 		String
+  //   quantity 	Int
+  //   unitWholesalePrice Float
+  //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
+  //   salesReconciliationId	String
+  // }
+
+  const salesLine1 = {
+    id: "1",
+    bookId: "101",
+    book: {
+      title: "To Kill a Mockingbird",
+      isbn_13: "9780446310789",
+    },
+    quantity: "10",
+    unitWholesalePrice: "10.99",
+    salesReconciliationId: "1",
+  };
+
+  const salesLine2 = {
+    id: "2",
+    bookId: "103",
+    book: {
+      title: "The Hunger Games",
+      isbn_13: "9780439023481",
+    },
+    quantity: "20",
+    unitWholesalePrice: "18.99",
+    salesReconciliationId: "1",
+  };
+
+  const salesLines = [salesLine1, salesLine2];
 
   return (
     <tr className="hover:bg-gray-50">
@@ -25,8 +64,8 @@ function SalesReconciliationRow(props: SalesReconciliationRowProps) {
           <span className="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-400 ring ring-white"></span>
         </div>
         <div className="text-sm">
-          <div className="font-medium text-gray-700">{props.title}</div>
-          <div className="text-gray-400">id: {props.id}</div>
+          <div className="font-medium text-gray-700">{props.id}</div>
+          <div className="text-gray-400">ID</div>
         </div>
       </th>
       <td className="px-6 py-4">
@@ -35,19 +74,57 @@ function SalesReconciliationRow(props: SalesReconciliationRowProps) {
           {props.date}
         </span>
       </td>
-      <td className="px-6 py-4">Product Designer</td>
-      <td className="px-6 py-4">
-        <div className="items-center space-y-2">
-          {salesLines.map((salesLine) => (
-            <div className="w-3/4 gap-1 rounded-full bg-blue-50 px-2 py-1 text-center text-xs font-semibold text-blue-600">
-              {salesLine.data?.id ?? "Loading..."}
-            </div>
-          ))}
-        </div>
+      <td className="px-4 py-2">
+        <table className="w-full border-separate bg-white text-left text-sm text-gray-500">
+          <thead className="space-x-4 bg-gray-50">
+            <tr className="space-x-4 rounded-md">
+              <th scope="col" className="px-4 py-2 font-normal text-gray-900">
+                Book Title
+              </th>
+              <th scope="col" className="px-4 py-2 font-normal text-gray-900">
+                ISBN 13
+              </th>
+              <th scope="col" className="px-4 py-2 font-normal text-gray-900">
+                Wholesale Price
+              </th>
+              <th scope="col" className="px-4 py-2 font-normal text-gray-900">
+                Quantity
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100 border-t border-gray-100">
+            {salesLines.map((salesLine) => (
+              <tr className="hover:bg-gray-150">
+                <td className="px-4 py-2 font-light">{salesLine.book.title}</td>
+                <td className="px-4 py-2 font-light">
+                  {salesLine.book.isbn_13}
+                </td>
+                <td className="px-4 py-2 font-light">
+                  {salesLine.unitWholesalePrice}
+                </td>
+                <td className="px-4 py-2 font-light">{salesLine.quantity}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </td>
       <td className="px-6 py-4">
         <div className="flex justify-end gap-4">
-          {/*TODO:add delete button*/}
+          {/*TODO:add detail button*/}
+          <a x-data="{ tooltip: 'Detail' }" href="#">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="h-6 w-6"
+              x-tooltip="tooltip"
+            >
+              <path d="M15 12c0 1.654-1.346 3-3 3s-3-1.346-3-3 1.346-3 3-3 3 1.346 3 3zm9-.449s-4.252 8.449-11.985 8.449c-7.18 0-12.015-8.449-12.015-8.449s4.446-7.551 12.015-7.551c7.694 0 11.985 7.551 11.985 7.551zm-7 .449c0-2.757-2.243-5-5-5s-5 2.243-5 5 2.243 5 5 5 5-2.243 5-5z" />
+            </svg>
+          </a>
+          {/*TODO: add delete button*/}
           <a x-data="{ tooltip: 'Delete' }" href="#">
             <svg
               xmlns="http://www.w3.org/2000/svg"

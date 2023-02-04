@@ -64,6 +64,31 @@ export const salesLinesRouter = createTRPCRouter({
       return salesLine;
     }),
 
+  getByIdWithBookPrimaries: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const salesLineWithBookPrimaries = await prisma.salesLine.findUnique({
+        where: { id },
+        include: {
+          book: {
+            select: {
+              title: true,
+              authors: true,
+              isbn_13: true,
+            },
+          },
+        },
+      });
+      if (!salesLineWithBookPrimaries) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No sales line with id '${id}'`,
+        });
+      }
+      return salesLineWithBookPrimaries;
+    }),
+
   // model SalesReconciliation{
   //   id 				String @id @default(cuid())
   //   date			DateTime
