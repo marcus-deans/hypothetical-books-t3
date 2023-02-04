@@ -58,10 +58,52 @@ export const salesReconciliationsRouter = createTRPCRouter({
       if (!salesReconciliation) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No sales reconciliation with id '${id}',
+          message: "No sales reconciliation with id '${id}'",
         });
       }
       return salesReconciliation;
+    }),
+
+  getByIdWithOverallMetrics: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const salesReconciliationWithOverallMetrics =
+        await prisma.salesReconciliation.findUnique({
+          where: { id },
+          include: {
+            salesLines: {
+              include: {
+                book: {
+                  select: {
+                    title: true,
+                    isbn_13: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+      if (!salesReconciliationWithOverallMetrics) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No sales reconciliation with id '${id}'`,
+        });
+      }
+      let totalPrice = 0;
+      let totalQuantity = 0;
+      const seenBooks = new Set<string>();
+      for (const salesLine of salesReconciliationWithOverallMetrics.salesLines) {
+        totalPrice += salesLine.quantity * salesLine.unitWholesalePrice;
+        totalQuantity += salesLine.quantity;
+        seenBooks.add(salesLine.book.isbn_13);
+      }
+      return {
+        salesReconciliationWithOverallMetrics,
+        totalPrice,
+        totalQuantity,
+        totalUniqueBooks: seenBooks.size,
+      };
     }),
 
   getByIdWithSalesLineIds: publicProcedure
