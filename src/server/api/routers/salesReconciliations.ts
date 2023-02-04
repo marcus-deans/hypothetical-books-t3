@@ -53,7 +53,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const { id } = input;
       const salesReconciliation = await prisma.salesReconciliation.findUnique({
-        where: { id ,
+        where: { id },
       });
       if (!salesReconciliation) {
         throw new TRPCError({
@@ -74,15 +74,15 @@ export const salesReconciliationsRouter = createTRPCRouter({
           include: {
             salesLines: {
               select: {
-                id: tru,
-              ,
-            ,
-          ,
+                id: true,
+              },
+            },
+          },
         });
       if (!salesReconciliationWithSalesLineIds) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No sales reconciliation with id '${id}',
+          message: `No sales reconciliation with id '${id}'`,
         });
       }
       return salesReconciliationWithSalesLineIds;
@@ -100,17 +100,17 @@ export const salesReconciliationsRouter = createTRPCRouter({
               include: {
                 book: {
                   select: {
-                    title: tru,
-                  ,
-                ,
-              ,
-            ,
-          ,
+                    title: true,
+                  },
+                },
+              },
+            },
+          },
         });
       if (!salesReconciliationWithSalesLineAndBookTitle) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No sales reconciliation with id '${id}',
+          message: `No sales reconciliation with id '${id}'`,
         });
       }
       return salesReconciliationWithSalesLineAndBookTitle;
@@ -182,8 +182,4 @@ export const salesReconciliationsRouter = createTRPCRouter({
       }
       return salesReconciliation;
     }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
 });
