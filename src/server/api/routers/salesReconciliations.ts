@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 
@@ -43,12 +43,12 @@ export const salesReconciliationsRouter = createTRPCRouter({
       }
 
       return {
-        item: items.reverse(),
+        items: items.reverse(),
         nextCursor,
       };
     }),
 
-  byId: publicProcedure
+  getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
@@ -58,10 +58,62 @@ export const salesReconciliationsRouter = createTRPCRouter({
       if (!salesReconciliation) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No sales reconciliation with id '${id}'`,
+          message: `No sales reconciliation with id '${id}',
         });
       }
       return salesReconciliation;
+    }),
+
+  getByIdWithSalesLineIds: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const salesReconciliationWithSalesLineIds =
+        await prisma.salesReconciliation.findUnique({
+          where: { id },
+          include: {
+            salesLines: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        });
+      if (!salesReconciliationWithSalesLineIds) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No sales reconciliation with id '${id}'`,
+        });
+      }
+      return salesReconciliationWithSalesLineIds;
+    }),
+
+  getByIdWithSalesLineAndBookTitle: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const salesReconciliationWithSalesLineAndBookTitle =
+        await prisma.salesReconciliation.findUnique({
+          where: { id },
+          include: {
+            salesLines: {
+              include: {
+                book: {
+                  select: {
+                    title: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+      if (!salesReconciliationWithSalesLineAndBookTitle) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No sales reconciliation with id '${id}'`,
+        });
+      }
+      return salesReconciliationWithSalesLineAndBookTitle;
     }),
 
   // model SalesReconciliation{
@@ -130,8 +182,4 @@ export const salesReconciliationsRouter = createTRPCRouter({
       }
       return salesReconciliation;
     }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
 });
