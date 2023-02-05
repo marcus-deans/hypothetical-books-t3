@@ -30,11 +30,11 @@ model Book {
 	width       			Float
 	height      			Float
 	thickness   			Float
-	retail_price 			Float
+	retailPrice 			Float
 	genre 						Genre @relation(fields: [genreId], references: [id])
 	genreId     			String // relation String field
 	purchaseLines			PurchaseLine[]
-	saleReconciliationLines SaleLine[]
+	saleReconciliationLines SalesLine[]
 	//to Be determined
 	inventoryCount 		Int
 }
@@ -61,8 +61,8 @@ model Vendor {
 
 model PurchaseOrder{
 	id				String @id @default(cuid())
-	Date			String
-	Vendor		Vendor @relation(fields: [vendorId], references: [id])
+	date			DateTime
+	vendor		Vendor @relation(fields: [vendorId], references: [id])
 	vendorId	String
 	purchaseLines PurchaseLine[]
 }
@@ -80,10 +80,11 @@ model PurchaseLine{
 
 model SalesReconciliation{
 	id 				String @id @default(cuid())
-	saleLines SaleLine[]
+	date			DateTime
+	salesLines SalesLine[]
 }
 
-model SaleLine{
+model SalesLine{
 	id 				String @id @default(cuid())
 	book 			Book @relation(fields: [bookId], references: [id])
 	bookId 		String
