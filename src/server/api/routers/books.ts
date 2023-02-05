@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 export const booksRouter = createTRPCRouter({
@@ -111,10 +111,10 @@ export const booksRouter = createTRPCRouter({
     //   books 		Book[]
 
     .mutation(async ({ input }) => {
-      let authorData: { name: string }[];
-      input.authors.forEach((authorName) =>
-        authorData.push({ name: authorName })
-      );
+      // let authorData: { name: string }[];
+      // input.authors.forEach((authorName) =>
+      //   authorData.push({ name: authorName })
+      // );
 
       //TODO: add proper author implementation
       const book = await prisma.book.create({
@@ -142,6 +142,17 @@ export const booksRouter = createTRPCRouter({
           inventoryCount: input.inventoryCount,
         },
       });
+
+      for (const authorId of input.authors) {
+        await prisma.book.update({
+          where: { id: book.id },
+          data: {
+            authors: {
+              connect: { id: authorId },
+            },
+          },
+        });
+      }
 
       return book;
     }),

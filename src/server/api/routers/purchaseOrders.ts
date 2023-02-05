@@ -95,10 +95,10 @@ export const purchaseOrdersRouter = createTRPCRouter({
       z.object({
         date: z.date(),
         vendorId: z.string(),
+        purchaseLines: z.array(z.string()),
       })
     )
 
-    //TODO: add proper purchase line implementation
     .mutation(async ({ input }) => {
       const purchaseOrder = await prisma.purchaseOrder.create({
         data: {
@@ -113,6 +113,19 @@ export const purchaseOrdersRouter = createTRPCRouter({
           },
         },
       });
+
+      for (const purchaseLineId of input.purchaseLines) {
+        await prisma.purchaseLine.update({
+          where: { id: purchaseLineId },
+          data: {
+            purchaseOrder: {
+              connect: {
+                id: purchaseOrder.id,
+              },
+            },
+          },
+        });
+      }
 
       return purchaseOrder;
     }),

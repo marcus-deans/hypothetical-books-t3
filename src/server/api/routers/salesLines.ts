@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 
@@ -48,7 +48,7 @@ export const salesLinesRouter = createTRPCRouter({
       };
     }),
 
-  byId: publicProcedure
+  getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
@@ -62,6 +62,31 @@ export const salesLinesRouter = createTRPCRouter({
         });
       }
       return salesLine;
+    }),
+
+  getByIdWithBookPrimaries: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const salesLineWithBookPrimaries = await prisma.salesLine.findUnique({
+        where: { id },
+        include: {
+          book: {
+            select: {
+              title: true,
+              authors: true,
+              isbn_13: true,
+            },
+          },
+        },
+      });
+      if (!salesLineWithBookPrimaries) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No sales line with id '${id}'`,
+        });
+      }
+      return salesLineWithBookPrimaries;
     }),
 
   // model SalesReconciliation{
