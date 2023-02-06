@@ -95,7 +95,7 @@ export default function Detail(props: DetailProps) {
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function getStaticPaths() {
   const salesReconciliations =
-    api.salesReconciliations.getAll.useQuery({ cursor: "1", limit: 50 })?.data
+    api.salesReconciliations.getAll.useQuery({ cursor: null, limit: 50 })?.data
       ?.items ?? [];
 
   const paths = salesReconciliations.map((salesReconciliation) => ({
