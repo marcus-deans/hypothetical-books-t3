@@ -24,9 +24,6 @@ export default function Books(
 
   const books = booksQuery?.data?.items ?? [];
 
-  // salesReconciliationWithMetrics?.data?.totalQuantity.toString() ??
-  // ("0");
-
   const tableHeaders = [
     "Title",
     "Author",
@@ -57,12 +54,13 @@ export default function Books(
             {books.map((book) => (
               <BookRow
                 key={book.id}
+                id={book.id}
                 title={book.title}
                 isbn_13={book.isbn_13}
                 retailPrice={book.retailPrice}
-                authors={book.authors}
+                authors={book.authors.map((author) => author.name)}
                 genre={book.genre.name}
-                inventoryCounts={book.inventoryCount}
+                inventoryCount={book.inventoryCount}
               />
             ))}
           </tbody>

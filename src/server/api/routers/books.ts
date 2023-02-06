@@ -44,7 +44,7 @@ export const booksRouter = createTRPCRouter({
 
       return {
         items: items.reverse(),
-        nextCursor
+        nextCursor,
       };
     }),
 
@@ -52,7 +52,7 @@ export const booksRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
-        cursor: z.string().nullish()
+        cursor: z.string().nullish(,
       })
     )
     .query(async ({ input }) => {
@@ -70,9 +70,15 @@ export const booksRouter = createTRPCRouter({
         where: {},
         include: {
           authors: {
-            select: {}
+            select: {
+              name: true
+            }
+          },
+          genre: {
+            select: {
+              name: true
+            }
           }
-          genre: true
         },
         cursor: cursor
           ? {
@@ -235,8 +241,8 @@ export const booksRouter = createTRPCRouter({
           purchaseLines: {
             create: [],
           },
-          saleReconciliationLines: {
-            create: [],
+          salesReconciliationLines: {
+            create: []
           },
           inventoryCount: input.inventoryCount,
         },
