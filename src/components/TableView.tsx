@@ -1,3 +1,5 @@
+import { REACT_LOADABLE_MANIFEST } from "next/dist/shared/lib/constants"
+
 interface TableViewProps{
     labels: String[]
 }
@@ -9,7 +11,7 @@ export const TableView = (props:TableViewProps) => {
     <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
       <thead className="bg-gray-50">
         <tr>
-            {props.labels.map((label)=>      <th scope="col" className="px-6 py-4 font-medium text-gray-900">
+            {props.labels.map((label)=>      <th  key = {label.toString()} scope="col" className="px-6 py-4 font-medium text-gray-900">
             <div className="flex items-center">
               {label}
               <a href="src/pages#">
