@@ -13,20 +13,27 @@ test("add an author", async () => {
     };
   
     const expectedResult = {
-      id: "1",
       name: "John Smith",
     };
 
     const result = await caller.add(input);
-    expect(result).toEqual(expectedResult);
+    // only check if names are equal
+    expect(result.name).toEqual(expectedResult.name);
 });
   
 test("connect author to a book", async () => {
     const caller = authorsRouter.createCaller({ session: null, prisma: prisma });
   
+    type addInput = inferProcedureInput<typeof authorsRouter["add"]>;
+    const addForInput: addInput = {
+      name: "John Smith",
+    };
+
+    const addResult = await caller.add(addForInput);
+    
     type Input = inferProcedureInput<typeof authorsRouter["connectToBook"]>;
     const input: Input = {
-      authorId: "1",
+      authorId: addResult.id,
       bookId: "1",
     };
   
@@ -47,17 +54,19 @@ test("connect author to a book", async () => {
   
 test("delete an author", async () => {
     const caller = authorsRouter.createCaller({ session: null, prisma: prisma });
-  
+
+    type addInput = inferProcedureInput<typeof authorsRouter["add"]>;
+    const addinput: addInput = {
+      name: "John Smith",
+    };
+
+    const addResult = await caller.add(addinput);
+
     type Input = inferProcedureInput<typeof authorsRouter["delete"]>;
     const input: Input = {
-      id: "1",
-    };
-  
-    const expectedResult = {
-      id: "1",
-      name: "Jane Doe",
+      id: addResult.id,
     };
 
     const result = await caller.delete(input);
-    expect(result).toEqual(expectedResult);
+    expect(result).toEqual(addResult);
 });
