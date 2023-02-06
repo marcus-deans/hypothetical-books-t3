@@ -12,16 +12,12 @@ const ISBNSearchesWrapper = (input:string) => {setISBNSearches(input)
 }
 const searchCompleteWrapper = () => {
     setSearchComplete(true);
-  };  
-  let ISBNArr;
-  if(SearchComplete){
-    ISBNArr = ISBNSearches.split(",");
-  }
+  }; 
     return (
     <>
     {SearchComplete ? (         
     <div>
-            <TableView labels={["Title", "Author", "ISBN", "Retail Price", "Genre","Inventory Count"] }></TableView>
+            <TableView labels={["Title", "Author", "ISBN", "Retail Price", "Genre","Inventory Count"] } ISBNQueries = {ISBNSearches.replace(/ /g, '').split(",")}></TableView>
             {}
         </div>
 ) : (<>

@@ -2,6 +2,7 @@ import { REACT_LOADABLE_MANIFEST } from "next/dist/shared/lib/constants"
 
 interface TableViewProps{
     labels: String[]
+    ISBNQueries: string[]
 }
 
 
@@ -30,7 +31,7 @@ export const TableView = (props:TableViewProps) => {
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-        {}
+        {props.ISBNQueries}
       </tbody>
     </table>
   </div>
