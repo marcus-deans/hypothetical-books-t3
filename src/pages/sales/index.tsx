@@ -2,11 +2,16 @@ import React from "react";
 import Head from "next/head";
 import SalesReconciliationRow from "../../components/SalesReconciliationRow";
 import { api } from "../../utils/api";
+import { Logger } from "tslog";
 
 function sales() {
   const salesReconciliations =
-    api.salesReconciliations.getAll.useQuery({ cursor: "1", limit: 50 })?.data
+    api.salesReconciliations.getAll.useQuery({ cursor: null, limit: 50 })?.data
       ?.items ?? [];
+
+  const logger = new Logger({ name: "salesReconciliationsLogger" });
+  logger.info("salesReconciliations", salesReconciliations); // This is the only line that is different from the Books page
+  console.log("salesReconciliations", salesReconciliations);
 
   return (
     <>
@@ -106,10 +111,10 @@ function sales() {
             {salesReconciliations.map((salesReconciliation) => (
               <SalesReconciliationRow
                 id={salesReconciliation.id}
+                key={salesReconciliation.id}
                 date={salesReconciliation.date.toString()}
               />
             ))}
-            <SalesReconciliationRow id={"5436"} date={"01-05-2023"} />
           </tbody>
         </table>
       </div>

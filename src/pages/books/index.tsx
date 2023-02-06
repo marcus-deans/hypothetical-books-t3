@@ -3,13 +3,17 @@ import Searchbar from "../../components/Searchbar";
 import { useState } from "react";
 import {TableView} from "../../components/TableView";
 import { AddBooksView } from "../../components/AddBooksView";
+import { api } from "../../utils/api";
 
 export default function Books() {
+  const books =
+    api.books.getAll.useQuery({ cursor: "1", limit: 50 })?.data?.items ?? [];
   const [searchQuery, setSearchQuery] = useState("");
   const [checkBoxState, setCheckBoxState] = useState(false);
   const stateUpdateWrapper = (input: string) => {
     setSearchQuery(input);
   };
+
   return (
     <>
       <Head>
