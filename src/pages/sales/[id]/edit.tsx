@@ -212,7 +212,8 @@ export default function Edit(
             if (index === rowIndex) {
               return {
                 ...old[rowIndex]!,
-                [columnId]: vale,
+                //eslint-disable-next-line
+                [columnId]: value,
               };
             }
             return row;
