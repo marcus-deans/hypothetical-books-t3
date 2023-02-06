@@ -2,19 +2,33 @@ import React from "react";
 import { useRouter } from "next/router";
 import { api } from "../../../utils/api";
 import type { SalesLine } from "@prisma/client";
+import type { GetStaticPaths, GetStaticPropsContext, InferGetStaticPropsType } from "next";
+import { prisma } from "../../../server/db";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { appRouter } from "../../../server/api/root";
+import { createInnerTRPCContext } from "../../../server/api/trpc";
 
 type DetailProps = {
   totalPrice: string;
   salesLines: (SalesLine & { book: { title: string; isbn_13: string } })[];
   // salesLines: (typeof SalesLine)[];
 };
-export default function Detail(props: DetailProps) {
+export default function Detail(
+  props: InferGetStaticPropsType<typeof getStaticProps>
+) {
   const router = useRouter();
   // const { saleId } = router.query;
 
-  if (router.isFallback) {
+  const { id } = props;
+  const salesDetailsQuery =
+    api.salesReconciliations.getByIdWithOverallMetrics.useQuery({ id });
+
+  // if (router.isFallback) {
+  if (salesDetailsQuery.status !== "success") {
     return <div>Loading...</div>;
   }
+
+  const { data } = salesDetailsQuery;
 
   return (
     <table className="w-full border-separate bg-white text-left text-sm text-gray-500">
@@ -73,50 +87,67 @@ export default function Detail(props: DetailProps) {
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-        {props.salesLines.map((salesLine) => (
-          <tr key={salesLine.id} className="hover:bg-gray-150">
-            <td className="px-4 py-2 font-light">{salesLine.book.title}</td>
-            <td className="px-4 py-2 font-light">{salesLine.book.isbn_13}</td>
-            <td className="px-4 py-2 font-light">
-              {salesLine.unitWholesalePrice}
-            </td>
-            <td className="px-4 py-2 font-light">{salesLine.quantity}</td>
-          </tr>
-        ))}
+        {data.salesReconciliationWithOverallMetrics.salesLines.map(
+          (salesLine) => (
+            <tr key={salesLine.id} className="hover:bg-gray-150">
+              <td className="px-4 py-2 font-light">{salesLine.book.title}</td>
+              <td className="px-4 py-2 font-light">{salesLine.book.isbn_13}</td>
+              <td className="px-4 py-2 font-light">
+                {salesLine.unitWholesalePrice}
+              </td>
+              <td className="px-4 py-2 font-light">{salesLine.quantity}</td>
+            </tr>
+          )
+        )}
         <tr className="hover:bg-gray-350">
           <td className="px-4 py-2 font-semibold">Grand Total</td>
-          <td className="px-4 py-2 font-medium">{props.totalPrice}</td>
+          <td className="px-4 py-2 font-medium">{data.totalPrice}</td>
         </tr>
       </tbody>
     </table>
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function getStaticPaths() {
-  const salesReconciliations =
-    api.salesReconciliations.getAll.useQuery({ cursor: "1", limit: 50 })?.data
-      ?.items ?? [];
+export const getStaticPaths: GetStaticPaths = async () => {
+  const salesReconciliations = await prisma.salesReconciliation.findMany({
+    select: {
+      id: true,
+    },
+  });
 
   const paths = salesReconciliations.map((salesReconciliation) => ({
-    params: { salesReconciliation: salesReconciliation.id },
+    params: { id: salesReconciliation.id },
   }));
 
+  console.log(paths);
+
   return { paths, fallback: true };
-}
+};
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function getStaticProps(params: { id: string }) {
-  const salesReconciliation =
-    api.salesReconciliations.getByIdWithOverallMetrics.useQuery({
-      id: params.id,
-    });
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ id: string }>
+) {
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+    transformer: superjon,
+  });
+  const id = context.params?.id as string;
 
-  const totalPrice = salesReconciliation?.data?.totalPrice.toString();
+  await ssg.salesReconciliations.getByIdWithOverallMetrics.prefetch({ id });
 
-  const salesLines =
-    salesReconciliation?.data?.salesReconciliationWithOverallMetrics
-      ?.salesLines ?? [];
+  // const totalPrice = salesReconciliation?.data?.totalPrice.toString();
 
-  return { props: { totalPrice, salesLines }, revalidate: 20 };
+  // const salesLines =
+  //   salesReconciliation?.data?.salesReconciliationWithOverallMetrics
+  //     ?.salesLines ?? [];
+  //
+  // return { props: { totalPrice, salesLines }, revalidate: 20 };
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+     id,
+    },
+    revalidate 1,
+  };
 }
