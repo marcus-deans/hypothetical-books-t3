@@ -142,6 +142,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: createInnerTRPCContext({ session: null }),
+    //eslint-disable-next-line
     transformer: superjson,
   });
   // const id = context.params?.id as string;
