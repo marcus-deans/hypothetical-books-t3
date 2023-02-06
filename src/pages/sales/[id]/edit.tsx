@@ -25,6 +25,7 @@ import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../utils/api";
+import { logger } from "../../../utils/logger";
 
 export type SalesLine = {
   bookTitle: string;
@@ -175,18 +176,24 @@ export default function Edit(
     bookTitle: salesLine.book.title,
     isbn13: salesLine.book.isbn_13,
     unitWholesalePrice: salesLine.unitWholesalePrice,
-    quantity: salesLine.quant,
+    quantity: salesLine.quantity,
   }));
 
   const [data, setData] = useState(initialDataValue);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 
-  const table = useReactTable({
+  const saveChanges = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    logger.info(data);
+  };
+
+  const table: Table<RowData> = useReactTable({
     data,
     columns,
     state: {
-      sorti,
+      //eslint-disable-next-line
+      sorting,
     },
     onSortingChange: setSorting,
     defaultColumn,
@@ -197,7 +204,7 @@ export default function Edit(
     autoResetPageIndex,
     // Provide our updateData function to our table meta
     meta: {
-      updateData: (rowIndex, columnId, value) => {
+      updateData: (rowIndex: number, columnId: string, value: unknown) => {
         // Skip age index reset until after next rerender
         skipAutoResetPageIndex();
         setData((old) =>
@@ -205,7 +212,7 @@ export default function Edit(
             if (index === rowIndex) {
               return {
                 ...old[rowIndex]!,
-                [columnId]: value,
+                [columnId]: vale,
               };
             }
             return row;
@@ -344,7 +351,10 @@ export default function Edit(
           </select>
         </div>
         {/*TODO: implement button functionality and DB call*/}
-        <button className="items-left text-red-350 col-span-1 rounded-sm">
+        <button
+          className="items-left text-red-350 col-span-1 rounded-sm"
+          onClick={saveChanges}
+        >
           Save Changes
         </button>
       </div>
