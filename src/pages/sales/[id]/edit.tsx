@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 
 //
-import type { Column, Table, ColumnDef, RowData } from "@tanstack/react-table";
+import type { Column, ColumnDef, RowData, Table } from "@tanstack/react-table";
 import {
-  useReactTable,
+  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  flexRender,
+  useReactTable,
 } from "@tanstack/react-table";
 
 export type SalesLine = {
@@ -193,7 +193,7 @@ export default function Edit() {
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
-                    className="px-4 py-2 font-normal text-gray-900"
+                    className="font- px-6 py-4 text-base font-medium text-gray-900"
                   >
                     {header.isPlaceholder ? null : (
                       <div>
@@ -234,7 +234,7 @@ export default function Edit() {
         </tbody>
       </table>
       <div className="h-2" />
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 bg-white">
         <button
           className="rounded border p-1"
           onClick={() => table.setPageIndex(0)}

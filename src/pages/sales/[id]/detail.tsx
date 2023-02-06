@@ -1,7 +1,5 @@
 import React from "react";
-import { useRouter } from "next/router";
 import { api } from "../../../utils/api";
-import type { SalesLine } from "@prisma/client";
 import type {
   GetStaticPaths,
   GetStaticPropsContext,
@@ -14,17 +12,9 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
 
-type DetailProps = {
-  totalPrice: string;
-  salesLines: (SalesLine & { book: { title: string; isbn_13: string } })[];
-  // salesLines: (typeof SalesLine)[];
-};
 export default function Detail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
-  const router = useRouter();
-  // const { saleId } = router.query;
-
   const { id } = props;
   const salesDetailsQuery =
     api.salesReconciliations.getByIdWithOverallMetrics.useQuery({ id });
@@ -72,7 +62,10 @@ export default function Detail(
               </svg>
             </Link>
             {/*TODO: Add edit button*/}
-            <Link x-data="{ tooltip: 'Edite' }" href="/edit">
+            <Link
+              x-data="{ tooltip: 'Edite' }"
+              href={`/sales/${encodeURIComponent(props.id)}/edit`}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
