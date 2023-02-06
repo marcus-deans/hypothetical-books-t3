@@ -1,11 +1,15 @@
 import { REACT_LOADABLE_MANIFEST } from "next/dist/shared/lib/constants"
+import { api } from "../utils/api"
 
 interface TableViewProps{
     labels: String[]
     ISBNQueries: string[]
 }
-
-
+const fetchBookObjects = () => {
+  let res = api.googleBooks.retrieveByISBN.useQuery({isbn:"9782221064573"})  
+  console.log(res);
+}
+fetchBookObjects();
 export const TableView = (props:TableViewProps) => {
   return (
     <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
@@ -31,7 +35,6 @@ export const TableView = (props:TableViewProps) => {
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-        {props.ISBNQueries}
       </tbody>
     </table>
   </div>
