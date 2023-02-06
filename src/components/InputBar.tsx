@@ -7,7 +7,7 @@ interface InputBarProps{
 export const InputBar = (props:InputBarProps) => {
 const[ISBNSearches, setISBNSearches] = useState([])
 const handleISBNSubmit = () =>{props.setSearchComplete()
-    let searchSplit = ",";
+    let searchSplit = .split(",");
     for (let i = 0; i < searchSplit.length; i++) {
         setISBNSearches(ISBNSearches.concat(searchSplit[i]))
       }
