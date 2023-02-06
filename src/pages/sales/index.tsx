@@ -3,11 +3,27 @@ import Head from "next/head";
 import SalesReconciliationRow from "../../components/SalesReconciliationRow";
 import { api } from "../../utils/api";
 import { Logger } from "tslog";
+import { createInnerTRPCContext } from "../../server/api/trpc";
+import { appRouter } from "../../server/api/root";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
+import superjson from "superjson";
 
-function sales() {
-  const salesReconciliations =
-    api.salesReconciliations.getAll.useQuery({ cursor: null, limit: 50 })?.data
-      ?.items ?? [];
+export default function sales(
+  props: InferGetServerSidePropsType<typeof getServerSideProps>
+) {
+  // const salesReconciliations =
+  //   api.salesReconciliations.getAll.useQuery({ cursor: null, limit: 50 })?.data
+  //     ?.items ?? [];
+  const salesReconciliationsQuery = api.salesReconciliations.getAll.useQuery({
+    cursor: null,
+    limit: 50,
+  });
+
+  const salesReconciliations = salesReconciliationsQuery?.data?.items ?? [];
 
   const logger = new Logger({ name: "salesReconciliationsLogger" });
   logger.info("salesReconciliations", salesReconciliations); // This is the only line that is different from the Books page
@@ -122,4 +138,23 @@ function sales() {
   );
 }
 
-export default sales;
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+    transformer: superjson,
+  });
+  // const id = context.params?.id as string;
+  /*
+   * Prefetching the `post.byId` query here.
+   * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
+   */
+  await ssg.salesReconciliations.getAll.prefetch({ cursor: null, limit: 50 });
+  // Make sure to return { props: { trpcState: ssg.dehydrate() } }
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      // id,
+    },
+  };
+}
