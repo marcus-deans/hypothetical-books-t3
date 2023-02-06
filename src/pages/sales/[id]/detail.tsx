@@ -7,7 +7,7 @@ import { prisma } from "../../../server/db";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
-
+import superjson from "superjson";
 type DetailProps = {
   totalPrice: string;
   salesLines: (SalesLine & { book: { title: string; isbn_13: string } })[];
@@ -130,7 +130,7 @@ export async function getStaticProps(
   const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: createInnerTRPCContext({ session: null }),
-    transformer: superjon,
+    transformer: superjson,
   });
   const id = context.params?.id as string;
 
@@ -148,6 +148,6 @@ export async function getStaticProps(
       trpcState: ssg.dehydrate(),
      id,
     },
-    revalidate 1,
+    revalidate: 1,
   };
 }
