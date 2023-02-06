@@ -6,9 +6,15 @@ import { Logger } from "tslog";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import { appRouter } from "../../server/api/root";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import type { GetServerSidePropsContext } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
+import superjson from "superjson";
 
-export default function sales() {
+export default function sales(
+  props: InferGetServerSidePropsType<typeof getServerSideProps>
+) {
   // const salesReconciliations =
   //   api.salesReconciliations.getAll.useQuery({ cursor: null, limit: 50 })?.data
   //     ?.items ?? [];
@@ -136,7 +142,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: createInnerTRPCContext({ session: null }),
-    transformer: superjso,
+    transformer: superjson,
   });
   // const id = context.params?.id as string;
   /*
@@ -147,8 +153,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {
-      trpcState: ssg.dehydrate(,
+      trpcState: ssg.dehydrate(),
       // id,
-    ,
+    },
   };
 }

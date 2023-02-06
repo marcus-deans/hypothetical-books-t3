@@ -37,6 +37,42 @@ function Nav() {
             </li>
             <li>
               <Link
+                href="/purchases"
+                className={currentRoute === "/purchases" ? active : nonActive}
+                aria-current="page"
+              >
+                Purchases
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/vendors"
+                className={currentRoute === "/vendors" ? active : nonActive}
+                aria-current="page"
+              >
+                Vendors
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/authors"
+                className={currentRoute === "/authors" ? active : nonActive}
+                aria-current="page"
+              >
+                Authors
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/genres"
+                className={currentRoute === "/genres" ? active : nonActive}
+                aria-current="page"
+              >
+                Genres
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/report"
                 className={currentRoute === "/report" ? active : nonActive}
                 aria-current="page"

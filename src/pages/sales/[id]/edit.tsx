@@ -1,19 +1,35 @@
 import React, { useEffect, useState } from "react";
 
 //
-import type { Column, ColumnDef, RowData, Table } from "@tanstack/react-table";
+import type {
+  Column,
+  ColumnDef,
+  RowData,
+  SortingState,
+  Table,
+} from "@tanstack/react-table";
 import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { appRouter } from "../../../server/api/root";
+import { createInnerTRPCContext } from "../../../server/api/trpc";
+import superjson from "superjson";
+import { api } from "../../../utils/api";
 
 export type SalesLine = {
   bookTitle: string;
-  isbn_13: string;
-  wholesalePrice: number;
+  isbn13: string;
+  unitWholesalePrice: number;
   quantity: number;
 };
 
@@ -68,24 +84,25 @@ function useSkipper() {
   return [shouldSkip, skip] as const;
 }
 
-export default function Edit() {
+export default function Edit(
+  props: InferGetServerSidePropsType<typeof getServerSideProps>
+) {
   // const rerender = React.useReducer(() => ({}), {})[1];
-
   const columns = React.useMemo<ColumnDef<SalesLine>[]>(
     () => [
       {
         accessorKey: "bookTitle",
         header: () => <span>Book Title</span>,
-        footer: (props) => props.column.id,
+        footer: (props) => props.coluid,
       },
       {
-        accessorFn: (row) => row.isbn_13,
+        accessorFn: (row) => row.isbn13,
         id: "isbn_13",
         header: () => <span>ISBN 13</span>,
-        footer: (props) => props.column.id,
+        footer: (props) => props.coluid,
       },
       {
-        accessorKey: "wholesalePrice",
+        accessorKey: "unitWholesalePrice",
         header: () => <span>Wholesale Price</span>,
         footer: (props) => props.column.id,
       },
@@ -133,31 +150,49 @@ export default function Edit() {
 
   // const [data, setData] = React.useState(() => makeData(1000));
   // const refreshData = () => setData(() => makeData(1000));
-  const initialDataValue = [
-    {
-      bookTitle: "The Hobbit",
-      isbn_13: "9780547928227",
-      wholesalePrice: 10,
-      quantity: 1,
-    },
-    {
-      bookTitle: "The Lord of the Rings",
-      isbn_13: "9780547928227",
-      wholesalePrice: 20,
-      quantity: 15,
-    },
-  ];
+  // const initialDataValue = [
+  //   {
+  //     bookTitle: "The Hobbit",
+  //     isbn_13: "9780547928227",
+  //     wholesalePrice: 10,
+  //     quantity: 1,
+  //   },
+  //   {
+  //     bookTitle: "The Lord of the Rings",
+  //     isbn_13: "9780547928227",
+  //     wholesalePrice: 20,
+  //     quantity: 15,
+  //   },
+  // ];
+
+  const { id } = props;
+  const salesQuery =
+    api.salesReconciliations.getByIdWithOverallMetrics.useQuery({ id });
+  const totalPrice = salesQuery?.data?.totalPrice.toString();
+  const retrievedSalesLines =
+    salesQuery?.data?.salesReconciliationWithOverallMetrics?.salesLines ?? [];
+  const initialDataValue = retrievedSalesLines.map((salesLine) => ({
+    bookTitle: salesLine.book.title,
+    isbn13: salesLine.book.isbn_13,
+    unitWholesalePrice: salesLine.unitWholesalePrice,
+    quantity: salesLine.quant,
+  }));
 
   const [data, setData] = useState(initialDataValue);
-
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 
   const table = useReactTable({
     data,
     columns,
+    state: {
+      sorti,
+    },
+    onSortingChange: setSorting,
     defaultColumn,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     autoResetPageIndex,
     // Provide our updateData function to our table meta
@@ -196,11 +231,22 @@ export default function Edit() {
                     className="font- px-6 py-4 text-base font-medium text-gray-900"
                   >
                     {header.isPlaceholder ? null : (
-                      <div>
+                      <div
+                        {...{
+                          className: header.column.getCanSort()
+                            ? "cursor-pointer select-none"
+                            : "",
+                          onClick: header.column.getToggleSortingHandler(),
+                        }}
+                      >
                         {flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
+                        {{
+                          asc: " ▲",
+                          desc: " ▼",
+                        }[header.column.getIsSorted() as string] ?? null}
                         {header.column.getCanFilter() ? (
                           <div>
                             <Filter column={header.column} table={table} />
@@ -220,7 +266,7 @@ export default function Edit() {
               <tr key={row.id} className="hover:bg-gray-150">
                 {row.getVisibleCells().map((cell) => {
                   return (
-                    <td key={cell.id} className="px-4 py-2 font-light">
+                    <td key={cell.id} className="px-4 py-2 font-normal">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -234,66 +280,76 @@ export default function Edit() {
         </tbody>
       </table>
       <div className="h-2" />
-      <div className="flex items-center gap-2 bg-white">
-        <button
-          className="rounded border p-1"
-          onClick={() => table.setPageIndex(0)}
-          disabled={!table.getCanPreviousPage()}
-        >
-          {"<<"}
-        </button>
-        <button
-          className="rounded border p-1"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          {"<"}
-        </button>
-        <button
-          className="rounded border p-1"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          {">"}
-        </button>
-        <button
-          className="rounded border p-1"
-          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-          disabled={!table.getCanNextPage()}
-        >
-          {">>"}
-        </button>
-        <span className="flex items-center gap-1">
-          <div>Page</div>
-          <strong>
-            {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
-          </strong>
-        </span>
-        <span className="flex items-center gap-1">
-          | Go to page:
-          <input
-            type="number"
-            defaultValue={table.getState().pagination.pageIndex + 1}
+      <div className="grid grid-cols-5 items-center gap-2 bg-white">
+        <div className="col-span-4 flex items-center">
+          <button
+            className="rounded border p-1"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {"<<"}
+          </button>
+          <button
+            className="rounded border p-1"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {"<"}
+          </button>
+          <button
+            className="rounded border p-1"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {">"}
+          </button>
+          <button
+            className="rounded border p-1"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            {">>"}
+          </button>
+          <span className="flex items-center gap-1 px-3">
+            <div>Page</div>
+            <strong>
+              {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </strong>
+          </span>
+          <span className="flex items-center gap-1">
+            | Go to page:
+            <input
+              type="number"
+              defaultValue={table.getState().pagination.pageIndex + 1}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                table.setPageIndex(page);
+              }}
+              className="w-16 rounded border p-1"
+            />
+          </span>
+          <select
+            value={table.getState().pagination.pageSize}
             onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
-              table.setPageIndex(page);
+              table.setPageSize(Number(e.target.value));
             }}
-            className="w-16 rounded border p-1"
-          />
-        </span>
-        <select
-          value={table.getState().pagination.pageSize}
-          onChange={(e) => {
-            table.setPageSize(Number(e.target.value));
-          }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
+            className="pl-4"
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
+        {/*TODO: implement button functionality and DB call*/}
+        <button className="items-left text-red-350 col-span-1 rounded-sm">
+          Save Changes
+        </button>
+      </div>
+      <div className="place-items-center bg-white px-6 text-green-500">
+        Total Cost {totalPrice}
       </div>
       <div>{table.getRowModel().rows.length} Rows</div>
     </div>
@@ -348,6 +404,29 @@ function Filter({
       className="w-36 rounded border shadow"
     />
   );
+}
+
+export async function getServerSideProps(
+  context: GetServerSidePropsContext<{ id: string }>
+) {
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+    transformer: superjson,
+  });
+  const id = context.params?.id as string;
+  /*
+   * Prefetching the `post.byId` query here.
+   * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
+   */
+  await ssg.salesReconciliations.getByIdWithOverallMetrics.prefetch({ id });
+  // Make sure to return { props: { trpcState: ssg.dehydrate() } }
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      id,
+    },
+  };
 }
 
 // import { useState } from "react";
