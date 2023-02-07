@@ -11,8 +11,6 @@ export default function signin(){
       password: userInfo.password,
       redirect: true,
     });
-
-    console.log(res);
   };
 
   return (

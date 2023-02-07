@@ -1,4 +1,3 @@
-import { InferGetServerSidePropsType, NextPage } from "next";
 import React, { FormEventHandler, useState } from "react";
 import { api } from "../../utils/api";
 
@@ -6,12 +5,14 @@ export default function register(){
   const [userInfo, setUserInfo] = useState({password: "", confirm: ""});
   const mutation = api.users.setPassword.useMutation();
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
-    console.log("Start")
     // validate your userinfo
     e.preventDefault();
-    mutation.mutate({password: userInfo.password});
-
-    console.log("We made it");
+    if (userInfo.password !== userInfo.confirm) {
+      alert("Passwords must match");
+    } else {
+      mutation.mutate({password: userInfo.password});
+      alert("Password Successfully Set \n Please Return to Home Page and Log In");
+    }
   };
   return (
     <div className="sign-up-form">
