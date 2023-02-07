@@ -10,44 +10,67 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-type DetailProps = {
-  totalPrice: string;
-  salesLines: (SalesLine & { book: { title: string; isbn_13: string } })[];
-  // salesLines: (typeof SalesLine)[];
-};
+
 import Link from "next/link";
 import { SalesLine } from "@prisma/client";
+import TableHeader from "../../../components/TableHeader";
+import BookRow from "../../../components/BookRow";
+import BookDetailRow from "../../../components/BookDetailRow";
 
 export default function Detail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const salesDetailsQuery =
-    api.salesReconciliations.getByIdWithOverallMetrics.useQuery({ id });
+  const bookDetailsQuery = api.books.getByIdWithAuthorAndGenre.useQuery({ id });
 
   // if (router.isFallback) {
-  if (salesDetailsQuery.status !== "success") {
+  if (bookDetailsQuery.status !== "success") {
     return <div>Loading...</div>;
   }
 
-  const { data } = salesDetailsQuery;
+  const { data } = bookDetailsQuery;
+
+  // id          			String @id @default(cuid())
+  // title       			String
+  // authors     			Author[]
+  // isbn_13     			String
+  // isbn_10                  String?
+  //   publisher                String
+  // publicationYear          Int
+  // pageCount                Int
+  // width                    Float
+  // height                   Float
+  // thickness                Float
+  // retailPrice              Float
+  // genre                    Genre @relation(fields: [genreId], references: [id])
+  // genreId                  String // relation String field
+  // purchaseLines            PurchaseLine[]
+  // salesReconciliationLines SalesLine[]
+  // //to Be determined
+  // inventoryCount           Int
+
+  const tableHeaders = [
+    "Title",
+    "Author",
+    "ISBN-13",
+    "ISBN-10",
+    "Retail Price",
+    "Genre",
+    "Inventory Count",
+    "Publisher",
+    "Page Count",
+    "Publication Year",
+    "Dimensions (W*H*T)",
+    "Actions",
+  ];
 
   return (
     <table className="w-full border-separate bg-white text-left text-sm text-gray-500">
       <thead className="space-x-4 bg-gray-50">
         <tr className="space-x-4 rounded-md">
-          <th scope="col" className="px-4 py-2 font-normal text-gray-900">
-            Book Title
-          </th>
-          <th scope="col" className="px-4 py-2 font-normal text-gray-900">
-            ISBN 13
-          </th>
-          <th scope="col" className="px-4 py-2 font-normal text-gray-900">
-            Wholesale Price
-          </th>
-          <th scope="col" className="px-4 py-2 font-normal text-gray-900">
-            Quantity
-          </th>
+          {tableHeaders.map((tableHeader) => (
+            <TableHeader text={tableHeader} key={tableHeader} />
+          ))}
           <th scope="col" className="px-4 py-2 font-normal text-gray-900">
             {/*TODO: add delete button*/}
             <Link x-data="{ tooltip: 'Delete' }" href="#">
@@ -92,36 +115,39 @@ export default function Detail(
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-        {data.salesReconciliationWithOverallMetrics.salesLines.map(
-          (salesLine) => (
-            <tr key={salesLine.id} className="hover:bg-gray-150">
-              <td className="px-4 py-2 font-light">{salesLine.book.title}</td>
-              <td className="px-4 py-2 font-light">{salesLine.book.isbn_13}</td>
-              <td className="px-4 py-2 font-light">
-                {salesLine.unitWholesalePrice}
-              </td>
-              <td className="px-4 py-2 font-light">{salesLine.quantity}</td>
-            </tr>
-          )
-        )}
-        <tr className="hover:bg-gray-350">
-          <td className="px-4 py-2 font-semibold">Grand Total</td>
-          <td className="px-4 py-2 font-medium">{data.totalPrice}</td>
-        </tr>
+        <BookDetailRow
+          key={data.id}
+          id={data.id}
+          title={data.title}
+          isbn_13={data.isbn_13}
+          isbn_10={data?.isbn_10 ?? "N/A"}
+          retailPrice={data.retailPrice}
+          authors={data.authors.map((author) => author.name)}
+          genre={data.genre.name}
+          inventoryCount={data.inventoryCount}
+          publisher={data.publisher}
+          pageCount={data.pageCount}
+          publicationYear={data.publicationYear}
+          dimensions={
+            data.width == 0 || data.height == 0 || data.thickness == 0
+              ? "Unknown"
+              : `${data.width} x ${data.height} x ${data.thickness}`
+          }
+        />
       </tbody>
     </table>
   );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const salesReconciliations = await prisma.salesReconciliation.findMany({
+  const books = await prisma.book.findMany({
     select: {
       id: true,
     },
   });
 
-  const paths = salesReconciliations.map((salesReconciliation) => ({
-    params: { id: salesReconciliation.id },
+  const paths = books.map((book) => ({
+    params: { id: book.id },
   }));
 
   console.log(paths);
@@ -135,19 +161,13 @@ export async function getStaticProps(
   const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: createInnerTRPCContext({ session: null }),
+    //eslint-disable-next-line
     transformer: superjson,
   });
   const id = context.params?.id as string;
 
-  await ssg.salesReconciliations.getByIdWithOverallMetrics.prefetch({ id });
+  await ssg.books.getByIdWithAuthorAndGenre.prefetch({ id });
 
-  // const totalPrice = salesReconciliation?.data?.totalPrice.toString();
-
-  // const salesLines =
-  //   salesReconciliation?.data?.salesReconciliationWithOverallMetrics
-  //     ?.salesLines ?? [];
-  //
-  // return { props: { totalPrice, salesLines }, revalidate: 20 };
   return {
     props: {
       trpcState: ssg.dehydrate(),

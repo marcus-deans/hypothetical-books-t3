@@ -120,9 +120,11 @@ function Searchbar({ updateSearch }: SearchBarProps) {
             <span className="sr-only">Search</span>
           </button>
         </div>
-      </div>
-    </form>
-  );
+ 
+    </div>
+</form>
+
+  )
 }
 
 export default Searchbar;
