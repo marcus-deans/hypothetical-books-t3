@@ -55,7 +55,7 @@ export default function Authors(
         </table>
       </div>
       <div className="items-end  bg-white">
-        <Link className="items-end px-6" href="/genres/add">
+        <Link className="items-end px-6" href="/authors/add">
           Add Author
         </Link>
       </div>
