@@ -1,5 +1,4 @@
 import { ReactSearchAutocomplete } from "react-search-autocomplete";
-import { ReactSearchAutocompleteProps } from "react-search-autocomplete/dist/components/ReactSearchAutocomplete";
 import Head from "next/head";
 import React from "react";
 import type { SalesReconciliation } from ".prisma/client";
@@ -8,12 +7,11 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { appRouter } from "../../server/api/root";
-import { createInnerTRPCContext } from "../../server/api/trpc";
+import { appRouter } from "../../../server/api/root";
+import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-import { api } from "../../utils/api";
+import { api } from "../../../utils/api";
 import { getBindingIdentifiers } from "@babel/types";
-import keys = getBindingIdentifiers.keys;
 
 export default function AddSaleLine(
   props: InferGetServerSidePropsType<typeof getServerSideProps>

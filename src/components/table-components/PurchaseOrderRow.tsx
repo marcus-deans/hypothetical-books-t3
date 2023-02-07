@@ -1,6 +1,6 @@
 import React from "react";
-import Link from "next/link";
 import TableCell from "./TableCell";
+import DetailLink from "./DetailLink";
 
 type PurchaseOrderRowProps = {
   id: string;
@@ -49,46 +49,9 @@ export default function PurchaseOrderRow(props: PurchaseOrderRowProps) {
       ))}
       <td className="px-6 py-4">
         <div className="flex justify-start gap-4">
-          <Link
-            x-data="{ tooltip: 'Detail' }"
-            href={`/purchases/${encodeURIComponent(props.id)}/detail`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="h-6 w-6"
-              x-tooltip="tooltip"
-            >
-              <path d="M15 12c0 1.654-1.346 3-3 3s-3-1.346-3-3 1.346-3 3-3 3 1.346 3 3zm9-.449s-4.252 8.449-11.985 8.449c-7.18 0-12.015-8.449-12.015-8.449s4.446-7.551 12.015-7.551c7.694 0 11.985 7.551 11.985 7.551zm-7 .449c0-2.757-2.243-5-5-5s-5 2.243-5 5 2.243 5 5 5 5-2.243 5-5z" />
-            </svg>
-          </Link>
-        </div>
-      </td>
-      <td className="px-6 py-4">
-        <div className="flex justify-start gap-4">
-          <Link
-            x-data="{ tooltip: 'Edit' }"
-            href={`/purchases/${encodeURIComponent(props.id)}/edit`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="h-6 w-6"
-              x-tooltip="tooltip"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
-              />
-            </svg>
-          </Link>
+          <DetailLink
+            url={`/purchases/${encodeURIComponent(props.id)}/detail`}
+          />
         </div>
       </td>
     </tr>

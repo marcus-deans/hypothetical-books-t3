@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 
@@ -126,7 +126,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
       };
     }),
 
-  byId: publicProcedure
+  getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
@@ -140,6 +140,53 @@ export const purchaseOrdersRouter = createTRPCRouter({
         });
       }
       return purchaseOrder;
+    }),
+
+  getByIdWithOverallMetrics: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const purchaseOrderWithOverallMetrics =
+        await prisma.purchaseOrder.findUnique({
+          where: { id },
+          include: {
+            purchaseLines: {
+              include: {
+                book: {
+                  select: {
+                    title: true,
+                    isbn_13: true,
+                  },
+                },
+              },
+            },
+            vendor: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        });
+      if (!purchaseOrderWithOverallMetrics) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No sales reconciliation with id '${id}'`,
+        });
+      }
+      let totalPrice = 0;
+      let totalQuantity = 0;
+      const seenBooks = new Set<string>();
+      for (const purchaseLine of purchaseOrderWithOverallMetrics.purchaseLines) {
+        totalPrice += purchaseLine.quantity * purchaseLine.unitWholesalePrice;
+        totalQuantity += purchaseLine.quantity;
+        seenBooks.add(purchaseLine.book.isbn_13);
+      }
+      return {
+        purchaseOrderWithOverallMetrics: purchaseOrderWithOverallMetrics,
+        totalPrice,
+        totalQuantity,
+        totalUniqueBooks: seenBooks.size,
+      };
     }),
 
   /**

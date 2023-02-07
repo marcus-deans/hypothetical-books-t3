@@ -52,9 +52,6 @@ export default function sales(
               <th scope="col" className="px-6 py-4 font-medium text-gray-900">
                 <div className="flex items-center">Detail</div>
               </th>
-              <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-                <div className="flex items-center">Edit</div>
-              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 border-t border-gray-100">
@@ -73,10 +70,10 @@ export default function sales(
         </table>
       </div>
       <div className="flex items-center  bg-white">
-        <Link className="px-6" href="/sales/add-purchaseline">
+        <Link className="px-6" href="/purchases/add/line">
           Add Purchase Line
         </Link>
-        <Link className="px-6" href="/sales/add-purchaseorder">
+        <Link className="px-6" href="/purchases/add/order">
           Add Purchase Order
         </Link>
       </div>
