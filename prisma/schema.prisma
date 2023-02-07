@@ -23,20 +23,20 @@ model Book {
 	title       			String
 	authors     			Author[]
 	isbn_13     			String
-	isbn_10     			String?
-	publisher   			String
-	publicationYear 	Int
-	pageCount  				Int
-	width       			Float
-	height      			Float
-	thickness   			Float
-	retailPrice 			Float
-	genre 						Genre @relation(fields: [genreId], references: [id])
-	genreId     			String // relation String field
-	purchaseLines			PurchaseLine[]
-	saleReconciliationLines SalesLine[]
+	isbn_10                  String?
+	publisher                String
+	publicationYear          Int
+	pageCount                Int
+	width                    Float
+	height                   Float
+	thickness                Float
+	retailPrice              Float
+	genre                    Genre @relation(fields: [genreId], references: [id])
+	genreId                  String // relation String field
+	purchaseLines            PurchaseLine[]
+	salesReconciliationLines SalesLine[]
 	//to Be determined
-	inventoryCount 		Int
+	inventoryCount           Int
 }
 
 model Genre {

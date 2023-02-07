@@ -13,23 +13,24 @@ import Link from "next/link";
 import TableHeader from "../../components/TableHeader";
 import VendorRow from "../../components/VendorRow";
 import GenreRow from "../../components/table-components/GenreRow";
+import AuthorRow from "../../components/table-components/AuthorRow";
 
-export default function Genres(
+export default function Authors(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const genreQuery = api.genres.getAll.useQuery({
+  const authorQuery = api.authors.getAll.useQuery({
     cursor: null,
     limit: 50,
   });
 
-  const genres = genreQuery?.data?.items ?? [];
+  const authors = authorQuery?.data?.items ?? [];
 
   const tableHeaders = ["Name", "ID"];
 
   return (
     <>
       <Head>
-        <title>Genres</title>
+        <title>Authors</title>
       </Head>
       <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
         <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
@@ -47,15 +48,15 @@ export default function Genres(
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-            {genres.map((genre) => (
-              <GenreRow key={genre.id} id={genre.id} name={genre.name} />
+            {authors.map((author) => (
+              <AuthorRow key={author.id} id={author.id} name={author.name} />
             ))}
           </tbody>
         </table>
       </div>
       <div className="items-end  bg-white">
         <Link className="items-end px-6" href="/genres/add">
-          Add Genre
+          Add Author
         </Link>
       </div>
     </>
@@ -73,7 +74,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.genres.getAll.prefetch({ cursor: null, limit: 50 });
+  await ssg.authors.getAll.prefetch({ cursor: null, limit: 50 });
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {
