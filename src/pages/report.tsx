@@ -1,19 +1,30 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import Head from 'next/head'
 import { Template, BLANK_PDF, generate} from '@pdfme/generator';
 
 function report() {
+  const [date, setDate] = useState('');
+    const dateInputRef = useRef(null);
+  
+    const handleChange = (e) => {
+      setDate(e.target.value);
+    };
+
   return (
-    <>
-    <Head>
-    <title>Report</title>
-    </Head>
-    <div class="flex items-center justify-center">
-      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={generate_report}>
-        Generate Report
-      </button>
-    </div>
-    </>
+    <><Head>
+      <title>Report</title>
+    </Head><div>
+        <input
+          type="date"
+          onChange={handleChange}
+          ref={dateInputRef} />
+        <p>Selected Date: {date}</p>
+        <div class="flex items-center justify-center">
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={generate_report}>
+            Generate Report
+          </button>
+        </div>
+      </></>
   )
 }
 
