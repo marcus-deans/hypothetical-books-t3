@@ -48,6 +48,79 @@ export const purchaseOrdersRouter = createTRPCRouter({
       };
     }),
 
+  getAllWithOverallMetrics: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      /**
+       * For pagination docs you can have a look here
+       * @see https://trpc.io/docs/useInfiniteQuery
+       * @see https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+       */
+      const limit = input.limit ?? 50;
+      const { cursor } = input;
+
+      const items = await prisma.purchaseOrder.findMany({
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: {},
+        include: {
+          purchaseLines: {
+            include: {
+              book: {
+                select: {
+                  title: true,
+                  isbn_13: true,
+                },
+              },
+            },
+          },
+        },
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        orderBy: {
+          date: "desc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        // Remove the last item and use it as next cursor
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const nextItem = items.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      const purchaseOrderWithOverallMetrics = [];
+      for (const purchaseOrder of items.reverse()) {
+        let totalPrice = 0;
+        let totalQuantity = 0;
+        const seenBooks = new Set<string>();
+        for (const purchaseLine of purchaseOrder.purchaseLines) {
+          totalPrice += purchaseLine.quantity * purchaseLine.unitWholesalePrice;
+          totalQuantity += purchaseLine.quantity;
+          seenBooks.add(purchaseLine.book.isbn_13);
+        }
+        purchaseOrderWithOverallMetrics.push({
+          purchaseOrder,
+          totalPrice,
+          totalQuantity,
+          totalUniqueBooks: seenBooks.size,
+        });
+      }
+
+      return {
+        items: purchaseOrderWithOverallMetrics,
+        nextCursor,
+      };
+    }),
+
   byId: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
