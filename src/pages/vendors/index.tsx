@@ -13,7 +13,7 @@ import Link from "next/link";
 import TableHeader from "../../components/TableHeader";
 import VendorRow from "../../components/VendorRow";
 
-export default function Books(
+export default function Vendors(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
   const vendorQuery = api.vendors.getAll.useQuery({
