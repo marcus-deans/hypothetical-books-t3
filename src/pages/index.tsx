@@ -7,7 +7,7 @@ import { getSession, signIn, signOut, useSession } from "next-auth/react";
 import { api } from "../utils/api";
 
 const Home: NextPage = () => {
-  const yoa = api.users.doesUserExist.useQuery();
+  const exist = api.users.doesUserExist.useQuery();
   const session = useSession();
   const auth = session.status === "authenticated" ;
   return (
@@ -22,7 +22,7 @@ const Home: NextPage = () => {
               signIn();
           }}
         >
-          {!auth  && !yoa.error && "Login"}
+          {!auth  && !exist.error && "Login"}
       </button>
       <a 
           href="/auth/changePassword"
@@ -39,7 +39,7 @@ const Home: NextPage = () => {
         <a 
           href="/auth/register"
         >
-          {yoa.error && "Set Password"}
+          {exist.error && "Set Password"}
         </a>
       </main>
     </>
