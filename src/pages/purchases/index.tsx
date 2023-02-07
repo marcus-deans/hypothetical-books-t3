@@ -1,6 +1,5 @@
 import React from "react";
 import Head from "next/head";
-import SalesReconciliationRow from "../../components/table-components/SalesReconciliationRow";
 import { api } from "../../utils/api";
 import { Logger } from "tslog";
 import { createInnerTRPCContext } from "../../server/api/trpc";
@@ -51,7 +50,10 @@ export default function sales(
                 <TableHeader text={tableHeader} key={tableHeader} />
               ))}
               <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-                <div className="flex items-center">View Detail</div>
+                <div className="flex items-center">Detail</div>
+              </th>
+              <th scope="col" className="px-6 py-4 font-medium text-gray-900">
+                <div className="flex items-center">Edit</div>
               </th>
             </tr>
           </thead>

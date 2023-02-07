@@ -1,53 +1,29 @@
 import React from "react";
 import Link from "next/link";
-import { api } from "../../utils/api";
+import TableCell from "./TableCell";
 
-type SalesReconciliationRowProps = {
+type PurchaseOrderRowProps = {
   id: string;
   date: string;
+  totalQuantity: number;
+  totalPrice: number;
+  totalUniqueBooks: number;
 };
 
-function SalesReconciliationRow(props: SalesReconciliationRowProps) {
-  const salesReconciliationWithMetrics =
-    api.salesReconciliations.getByIdWithOverallMetrics.useQuery({
-      id: props.id,
-    });
-
-  // model SalesLine{
-  //   id 				String @id @default(cuid())
-  //   book 			Book @relation(fields: [bookId], references: [id])
-  //   bookId 		String
-  //   quantity 	Int
-  //   unitWholesalePrice Float
-  //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
-  //   salesReconciliationId	String
-  // }
-
-  // const salesLine1 = {
-  //   id: "1",
-  //   bookId: "101",
-  //   book: {
-  //     title: "To Kill a Mockingbird",
-  //     isbn_13: "9780446310789",
-  //   },
-  //   quantity: "10",
-  //   unitWholesalePrice: "10.99",
-  //   salesReconciliationId: "1",
-  // };
-  //
-  // const salesLine2 = {
-  //   id: "2",
-  //   bookId: "103",
-  //   book: {
-  //     title: "The Hunger Games",
-  //     isbn_13: "9780439023481",
-  //   },
-  //   quantity: "20",
-  //   unitWholesalePrice: "18.99",
-  //   salesReconciliationId: "1",
-  // };
-  //
-  // const salesLines = [salesLine1, salesLine2];
+// const tableHeaders = [
+//   "ID",
+//   "Date",
+//   "Total Quantity",
+//   "Total Price",
+//   "Unique Books",
+// ];
+export default function PurchaseOrderRow(props: PurchaseOrderRowProps) {
+  const desiredCells = [
+    props.id,
+    props.totalQuantity,
+    props.totalPrice,
+    props.totalUniqueBooks,
+  ];
 
   return (
     <tr className="hover:bg-gray-50">
@@ -61,36 +37,13 @@ function SalesReconciliationRow(props: SalesReconciliationRowProps) {
           <span className="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-400 ring ring-white"></span>
         </div>
         <div className="text-sm">
-          <div className="font-medium text-gray-700">{props.id}</div>
-          <div className="text-gray-400">ID</div>
+          <div className="font-medium text-gray-700">{props.date}</div>
+          <div className="text-gray-400">Date</div>
         </div>
       </th>
-      <td className="px-6 py-4">
-        <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-          <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-          {props.date}
-        </span>
-      </td>
-      <td className="px-6 py-4">
-        <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-          <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-          {salesReconciliationWithMetrics?.data?.totalQuantity.toString() ??
-            "0"}
-        </span>
-      </td>
-      <td className="px-6 py-4">
-        <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-          <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-          {salesReconciliationWithMetrics?.data?.totalPrice.toString() ?? "0"}
-        </span>
-      </td>
-      <td className="px-6 py-4">
-        <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-          <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-          {salesReconciliationWithMetrics?.data?.totalUniqueBooks.toString() ??
-            "0"}
-        </span>
-      </td>
+      {desiredCells.map((cell) => (
+        <TableCell text={cell.toString()} key={cell} />
+      ))}
       <td className="px-6 py-4">
         <div className="flex justify-start gap-4">
           <Link
@@ -111,8 +64,30 @@ function SalesReconciliationRow(props: SalesReconciliationRowProps) {
           </Link>
         </div>
       </td>
+      <td className="px-6 py-4">
+        <div className="flex justify-start gap-4">
+          <Link
+            x-data="{ tooltip: 'Edit' }"
+            href={`/sales/${encodeURIComponent(props.id)}/edit`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="h-6 w-6"
+              x-tooltip="tooltip"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
+              />
+            </svg>
+          </Link>
+        </div>
+      </td>
     </tr>
   );
 }
-
-export default SalesReconciliationRow;
