@@ -60,7 +60,7 @@ export default function sales(
               <PurchaseOrderRow
                 id={purchaseOrder.purchaseOrder.id}
                 key={purchaseOrder.purchaseOrder.id}
-                date={purchaseOrder.purchaseOrder.date.toString()}
+                date={purchaseOrder.purchaseOrder.date.toDateString()}
                 vendor={purchaseOrder.purchaseOrder.vendor.name}
                 totalQuantity={purchaseOrder.totalQuantity}
                 totalPrice={purchaseOrder.totalPrice}
