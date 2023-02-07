@@ -65,7 +65,11 @@ export default function Books(
           </tbody>
         </table>
       </div>
-      <Link href="/books/add">Add Book</Link>
+      <div className="items-end  bg-white">
+        <Link className="items-end px-6" href="/books/add">
+          Add Book
+        </Link>
+      </div>
     </>
   );
 }
@@ -88,7 +92,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.books.getAll.prefetch({ cursor: null, limit: 50 });
+  await ssg.books.getAllWithAuthorsAndGenre.prefetch({
+    cursor: null,
+    limit: 50,
+  });
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {
