@@ -12,7 +12,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Hypothetical Books Corp.</title>
+        <title>Vendors</title>
       </Head>
       <div>Index</div>
 ]    </>
