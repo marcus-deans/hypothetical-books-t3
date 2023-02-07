@@ -13,9 +13,9 @@ import superjson from "superjson";
 
 import Link from "next/link";
 import { SalesLine } from "@prisma/client";
-import TableHeader from "../../../components/TableHeader";
-import BookRow from "../../../components/BookRow";
-import BookDetailRow from "../../../components/BookDetailRow";
+import TableHeader from "../../../components/table-components/TableHeader";
+import BookRow from "../../../components/table-components/BookRow";
+import BookDetailRow from "../../../components/table-components/BookDetailRow";
 
 export default function Detail(
   props: InferGetStaticPropsType<typeof getStaticProps>

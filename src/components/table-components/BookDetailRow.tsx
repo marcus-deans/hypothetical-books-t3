@@ -73,7 +73,7 @@ export default function BookDetailRow(props: BookDetailRowProps) {
       ))}
       <td className="px-6 py-4">
         {/*TODO: add delete button*/}
-        <Link x-data="{ tooltip: 'Delete' }" href="#">
+        <Link x-data="{ tooltip: 'Delete' }" href="src/components#">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

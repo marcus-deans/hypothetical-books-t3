@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import SalesReconciliationRow from "../../components/SalesReconciliationRow";
+import SalesReconciliationRow from "../../components/table-components/SalesReconciliationRow";
 import { api } from "../../utils/api";
 import { Logger } from "tslog";
 import { createInnerTRPCContext } from "../../server/api/trpc";
@@ -11,7 +11,8 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import superjson from "superjson";
-import TableHeader from "../../components/TableHeader";
+import TableHeader from "../../components/table-components/TableHeader";
+import Link from "next/link";
 
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -65,6 +66,14 @@ export default function sales(
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="flex items-center  bg-white">
+        <Link className="px-6" href="/sales/add-saleline">
+          Add Sale Line
+        </Link>
+        <Link className="px-6" href="/sales/add-salereconciliation">
+          Add Sale Reconciliation
+        </Link>
       </div>
     </>
   );

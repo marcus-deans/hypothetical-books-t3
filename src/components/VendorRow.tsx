@@ -7,7 +7,7 @@
 
 import React from "react";
 import Link from "next/link";
-import TableCell from "./TableCell";
+import TableCell from "./table-components/TableCell";
 
 type VendorRowProps = {
   id: string;
