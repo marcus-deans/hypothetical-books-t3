@@ -9,11 +9,22 @@ import { passwordSchema } from "../../../schema/user.schema";
 import { contextProps } from "@trpc/react-query/shared";
 
 export const usersRouter = createTRPCRouter({
+  getUser: publicProcedure
+    .query(async () =>{
+      const user = await prisma.user.findFirst();
+        
+      return user;
+    }
+      ),
 	setPassword: publicProcedure
 		.input(passwordSchema)
 		.mutation(async ({input}) => {
 			const newPassword  = input.password;
 			const password = await hash(newPassword);
+      const user = {
+        password: password,
+      }
+      prisma.user.
 			prisma.user.create({data: {password}});
 			return {
 				status: 201,
