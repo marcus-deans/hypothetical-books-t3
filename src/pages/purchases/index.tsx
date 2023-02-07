@@ -13,13 +13,11 @@ import type {
 import superjson from "superjson";
 import TableHeader from "../../components/table-components/TableHeader";
 import Link from "next/link";
+import PurchaseOrderRow from "../../components/table-components/PurchaseOrderRow";
 
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  // const purchaseOrders =
-  //   api.purchaseOrders.getAll.useQuery({ cursor: null, limit: 50 })?.data
-  //     ?.items ?? [];
   const purchaseOrderQuery =
     api.purchaseOrders.getAllWithOverallMetrics.useQuery({
       cursor: null,
@@ -32,8 +30,8 @@ export default function sales(
   logger.info("purchaseOrders", purchaseOrders); // This is the only line that is different from the Books page
 
   const tableHeaders = [
-    "ID",
     "Date",
+    "ID",
     "Vendor",
     "Total Quantity",
     "Total Price",
@@ -43,7 +41,7 @@ export default function sales(
   return (
     <>
       <Head>
-        <title>Sales</title>
+        <title>Purchases</title>
       </Head>
       <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
         <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
@@ -58,22 +56,26 @@ export default function sales(
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-            {purchaseOrders.map((salesReconciliation) => (
-              <SalesReconciliationRow
-                id={salesReconciliation.id}
-                key={salesReconciliation.id}
-                date={salesReconciliation.date.toString()}
+            {purchaseOrders.map((purchaseOrder) => (
+              <PurchaseOrderRow
+                id={purchaseOrder.purchaseOrder.id}
+                key={purchaseOrder.purchaseOrder.id}
+                date={purchaseOrder.purchaseOrder.date.toString()}
+                vendor={purchaseOrder.purchaseOrder.vendor.name}
+                totalQuantity={purchaseOrder.totalQuantity}
+                totalPrice={purchaseOrder.totalPrice}
+                totalUniqueBooks={purchaseOrder.totalUniqueBooks}
               />
             ))}
           </tbody>
         </table>
       </div>
       <div className="flex items-center  bg-white">
-        <Link className="px-6" href="/sales/add-saleline">
-          Add Sale Line
+        <Link className="px-6" href="/sales/add-purchaseline">
+          Add Purchase Line
         </Link>
-        <Link className="px-6" href="/sales/add-salereconciliation">
-          Add Sale Reconciliation
+        <Link className="px-6" href="/sales/add-purchaseorder">
+          Add Purchase Order
         </Link>
       </div>
     </>
