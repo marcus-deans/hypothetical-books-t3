@@ -10,7 +10,7 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import TableHeader from "../../components/TableHeader";
+import TableHeader from "../../components/table-components/TableHeader";
 import VendorRow from "../../components/VendorRow";
 
 export default function Vendors(

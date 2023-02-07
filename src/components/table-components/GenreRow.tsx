@@ -7,7 +7,7 @@
 
 import React from "react";
 import Link from "next/link";
-import TableCell from "../TableCell";
+import TableCell from "./TableCell";
 
 type GenreRowProps = {
   id: string;

@@ -10,8 +10,8 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-import type { SalesLine } from "@prisma/client";
 import TableHeader from "../../../components/table-components/TableHeader";
+import type { SalesLine } from "@prisma/client";
 import DeleteLink from "../../../components/table-components/DeleteLink";
 import EditLink from "../../../components/table-components/EditLink";
 
@@ -21,19 +21,19 @@ type DetailProps = {
   // salesLines: (typeof SalesLine)[];
 };
 
-export default function SalesOrderDetail(
+export default function PurchaseOrderDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const salesDetailsQuery =
-    api.salesReconciliations.getByIdWithOverallMetrics.useQuery({ id });
+  const purchaseOrderDetailsQuery =
+    api.purchaseOrders.getByIdWithOverallMetrics.useQuery({ id });
 
   // if (router.isFallback) {
-  if (salesDetailsQuery.status !== "success") {
+  if (purchaseOrderDetailsQuery.status !== "success") {
     return <div>Loading...</div>;
   }
 
-  const { data } = salesDetailsQuery;
+  const { data } = purchaseOrderDetailsQuery;
 
   const tableHeaders = [
     "Book Title",
@@ -67,38 +67,44 @@ export default function SalesOrderDetail(
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-        {data.salesReconciliationWithOverallMetrics.salesLines.map(
-          (salesLine) => (
-            <tr key={salesLine.id} className="hover:bg-gray-150">
-              <td className="px-4 py-2 font-light">{salesLine.book.title}</td>
-              <td className="px-4 py-2 font-light">{salesLine.book.isbn_13}</td>
+        {data.purchaseOrderWithOverallMetrics.purchaseLines.map(
+          (purchaseLine) => (
+            <tr key={purchaseLine.id} className="hover:bg-gray-150">
               <td className="px-4 py-2 font-light">
-                {salesLine.unitWholesalePrice}
+                {purchaseLine.book.title}
               </td>
-              <td className="px-4 py-2 font-light">{salesLine.quantity}</td>
               <td className="px-4 py-2 font-light">
-                {salesLine.unitWholesalePrice * salesLine.quantity}
+                {purchaseLine.book.isbn_13}
+              </td>
+              <td className="px-4 py-2 font-light">
+                {purchaseLine.unitWholesalePrice}
+              </td>
+              <td className="px-4 py-2 font-light">{purchaseLine.quantity}</td>
+              <td className="px-4 py-2 font-light">
+                {purchaseLine.unitWholesalePrice * purchaseLine.quantity}
               </td>
               <td className="px-4 py-2 font-light">
                 <EditLink
                   url={`/sales/${encodeURIComponent(
                     props.id
-                  )}/${encodeURIComponent(salesLine.id)}/edit`}
+                  )}/${encodeURIComponent(purchaseLine.id)}/edit`}
                 />
               </td>
               <td className="px-4 py-2 font-light">
                 <DeleteLink
                   url={`/sales/${encodeURIComponent(
                     props.id
-                  )}/${encodeURIComponent(salesLine.id)}/delete`}
+                  )}/${encodeURIComponent(purchaseLine.id)}/delete`}
                 />
               </td>
             </tr>
           )
         )}
         <tr className="hover:bg-gray-350">
-          <td></td>
-          <td></td>
+          <td className="px-4 py-2 font-semibold">Vendor</td>
+          <td className="px-4 py-2 font-semibold">
+            {data.purchaseOrderWithOverallMetrics.vendor.name}
+          </td>
           <td></td>
           <td className="px-4 py-2 font-semibold">Grand Total</td>
           <td className="px-4 py-2 font-medium">{data.totalPrice}</td>
@@ -109,14 +115,14 @@ export default function SalesOrderDetail(
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const salesReconciliations = await prisma.salesReconciliation.findMany({
+  const purchaseOrders = await prisma.purchaseOrder.findMany({
     select: {
       id: true,
     },
   });
 
-  const paths = salesReconciliations.map((salesReconciliation) => ({
-    params: { id: salesReconciliation.id },
+  const paths = purchaseOrders.map((purchaseOrder) => ({
+    params: { id: purchaseOrder.id },
   }));
 
   console.log(paths);
@@ -134,7 +140,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.salesReconciliations.getByIdWithOverallMetrics.prefetch({ id });
+  await ssg.purchaseOrders.getByIdWithOverallMetrics.prefetch({ id });
 
   // const totalPrice = salesReconciliation?.data?.totalPrice.toString();
 

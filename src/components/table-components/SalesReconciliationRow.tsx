@@ -1,22 +1,29 @@
-// const tableHeaders = [
-//   "ID",
-//   "Name",
-//   "Edit",
-//   "Delete"
-// ];
-
 import React from "react";
 import TableCell from "./TableCell";
-import DeleteLink from "./DeleteLink";
-import EditLink from "./EditLink";
+import DetailLink from "./DetailLink";
 
-type AuthorRowProps = {
+type PurchaseOrderRowProps = {
   id: string;
-  name: string;
+  date: string;
+  totalQuantity: number;
+  totalPrice: number;
+  totalUniqueBooks: number;
 };
 
-export default function AuthorRow(props: AuthorRowProps) {
-  const desiredCells = [props.id];
+// const tableHeaders = [
+//   "ID",
+//   "Date",
+//   "Total Quantity",
+//   "Total Price",
+//   "Unique Books",
+// ];
+export default function PurchaseOrderRow(props: PurchaseOrderRowProps) {
+  const desiredCells = [
+    props.id,
+    props.totalQuantity,
+    props.totalPrice,
+    props.totalUniqueBooks,
+  ];
 
   return (
     <tr className="hover:bg-gray-50">
@@ -30,20 +37,17 @@ export default function AuthorRow(props: AuthorRowProps) {
           <span className="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-400 ring ring-white"></span>
         </div>
         <div className="text-sm">
-          <div className="font-medium text-gray-700">{props.name}</div>
-          <div className="text-gray-400">Name</div>
+          <div className="font-medium text-gray-700">{props.date}</div>
+          <div className="text-gray-400">Date</div>
         </div>
       </th>
       {desiredCells.map((cell) => (
         <TableCell text={cell.toString()} key={cell} />
       ))}
       <td className="px-6 py-4">
-        {/*TODO: Add edit button*/}
-        <EditLink url={`/authors/${encodeURIComponent(props.id)}/edit`} />
-      </td>
-      <td className="px-6 py-4">
-        {/*TODO: add delete button*/}
-        <DeleteLink url={`/authors/${encodeURIComponent(props.id)}/delete`} />
+        <div className="flex justify-start gap-4">
+          <DetailLink url={`/sales/${encodeURIComponent(props.id)}/detail`} />
+        </div>
       </td>
     </tr>
   );
