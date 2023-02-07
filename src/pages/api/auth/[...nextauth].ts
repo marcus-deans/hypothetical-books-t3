@@ -3,13 +3,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 // Prisma adapter for NextAuth, optional and can be removed
 //import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from '@prisma/client'
-import { compare }  from "bcrypt";
-
-import { usersRouter } from "../../../server/api/routers/users.js";
-import { api } from "../../../utils/api";
+import { compare, hash }  from "bcrypt";
 
 const prisma = new PrismaClient();
-const bcrypt = require('bcrpyt');
 
 
 const confirmPasswordwithHash = (plain: string, hashed: string) => {
@@ -30,10 +26,12 @@ export const authOptions: NextAuthOptions = {
       credentials: {},
       async authorize(credentials: any, req) {
         try{
+          console.log(hash(credentials.password, 10));
           const user = await prisma.user.findFirst({});
           if (user !== null){
             //compare the hash
             const res = await confirmPasswordwithHash(credentials.password, user.password);
+            console.log(hash(credentials.password, 10));
             if(res === true){
               const userAccount = {
                 id: user.id,
@@ -41,6 +39,7 @@ export const authOptions: NextAuthOptions = {
                 email: null,
                 image: null
               };
+              console.log("returning");
               return userAccount
             }
             else{
@@ -65,6 +64,12 @@ export const authOptions: NextAuthOptions = {
     // error: '/auth/error',
     // signOut: '/auth/signout'
   },
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      console.log(baseUrl)
+      return baseUrl
+    }
+  }
 };
 
 export default NextAuth(authOptions);

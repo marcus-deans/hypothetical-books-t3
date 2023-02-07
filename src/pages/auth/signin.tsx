@@ -2,14 +2,14 @@ import { NextPage } from "next";
 import { signIn } from "next-auth/react";
 import React, { FormEventHandler, useState } from "react";
 
-const SignIn: NextPage = (): JSX.Element => {
+export default function signin(){
   const [userInfo, setUserInfo] = useState({password: "" });
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     // validate your userinfo
     e.preventDefault();
     const res = await signIn("credentials", {
       password: userInfo.password,
-      redirect: false,
+      redirect: true,
     });
 
     console.log(res);
@@ -32,8 +32,3 @@ const SignIn: NextPage = (): JSX.Element => {
     </div>
   );
 };
-
-
-
-
-export default SignIn;

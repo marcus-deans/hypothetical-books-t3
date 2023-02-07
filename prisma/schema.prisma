@@ -130,7 +130,7 @@ model Session {
 
 model User {
     id            String    @id @default(cuid())
-    password	  String
+	password	  String
     accounts      Account[]
     sessions      Session[]
 }

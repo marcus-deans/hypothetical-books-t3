@@ -2,13 +2,14 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import Nav from '../components/Nav'
-import { signIn, signOut, useSession } from "next-auth/react";
+import { getSession, signIn, signOut, useSession } from "next-auth/react";
 
 import { api } from "../utils/api";
 
 const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
+  const yoa = api.users.doesUserExist.useQuery();
+  const session = useSession();
+  const auth = session.status === "authenticated" ;
   return (
     <>
       <Head>
@@ -16,17 +17,36 @@ const Home: NextPage = () => {
       </Head>
       <div>Index</div>
       <main>
-      <button
+      <button 
           onClick={() => {
-            signIn();
+              signIn();
           }}
         >
-          Login
-        </button>
+          {!auth  && !yoa.error && "Login"}
+      </button>
+      <a 
+          href="/auth/changePassword"
+        >
+          {auth && "Change Password"}
+      </a>
+      <button 
+          onClick={()=>{
+            signOut();
+          }}
+        >
+          {auth && "LogOut"}
+      </button>
+        <a 
+          href="/auth/register"
+        >
+          {yoa.error && "Set Password"}
+        </a>
       </main>
-]    </>
+    </>
   );
 };
+
+
 
 export default Home;
 

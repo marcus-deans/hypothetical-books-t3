@@ -1,27 +1,15 @@
-import { NextPage } from "next";
-import { signIn } from "next-auth/react";
+import { InferGetServerSidePropsType, NextPage } from "next";
 import React, { FormEventHandler, useState } from "react";
-import { api } from "../utils/api"
+import { api } from "../../utils/api";
 
-interface Props {}
-
-export default function Register() {
+export default function register(){
   const [userInfo, setUserInfo] = useState({password: "", confirm: ""});
+  const mutation = api.users.changePassword.useMutation();
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+    console.log("Start")
     // validate your userinfo
-    const pass = userInfo.password
     e.preventDefault();
-    /*
-    const res = await api.users.setPassword.useMutation({
-        password: pass,
-    })
-    */
-   const infoWrapper = (input: {
-    password: string,
-    confirm: string
-   }) => {
-    setUserInfo(input);
-   }
+    mutation.mutate({password: userInfo.password});
 
     console.log("We made it");
   };
@@ -46,6 +34,8 @@ export default function Register() {
           placeholder="********"
         />
         <input type="submit" value="Register" />
+        {mutation.error && <p>Something went wrong! {mutation.error.message}</p>}
+        {mutation.isLoading && <p>Loading!</p>}
       </form>
     </div>
   );
