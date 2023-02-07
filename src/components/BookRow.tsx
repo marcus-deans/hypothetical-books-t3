@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import { api } from "../utils/api";
 import TableCell from "./TableCell";
 
 type BookRowProps = {
@@ -56,19 +55,19 @@ export default function BookRow(props: BookRowProps) {
           <span className="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-400 ring ring-white"></span>
         </div>
         <div className="text-sm">
-          <div className="font-medium text-gray-700">{props.id}</div>
-          <div className="text-gray-400">ID</div>
+          <div className="font-medium text-gray-700">{props.title}</div>
+          <div className="text-gray-400">Title</div>
         </div>
       </th>
-      {desiredCells.map((cell) => (
-        <TableCell text={cell.toString()} key={cell} />
-      ))}
       <td className="px-6 py-4">
         <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
           <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
           {[...props.authors]}
         </span>
       </td>
+      {desiredCells.map((cell) => (
+        <TableCell text={cell.toString()} key={cell} />
+      ))}
       <td className="px-6 py-4">
         <div className="flex justify-start gap-4">
           <Link

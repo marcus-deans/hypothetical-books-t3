@@ -52,7 +52,7 @@ export const booksRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
-        cursor: z.string().nullish(,
+        cursor: z.string().nullish(),
       })
     )
     .query(async ({ input }) => {
@@ -71,23 +71,23 @@ export const booksRouter = createTRPCRouter({
         include: {
           authors: {
             select: {
-              name: true
-            }
+              name: true,
+            },
           },
           genre: {
             select: {
-              name: true
-            }
-          }
+              name: true,
+            },
+          },
         },
         cursor: cursor
           ? {
-            id: cursor
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
-          title: "desc"
-        }
+          title: "asc",
+        },
       });
       let nextCursor: typeof cursor | undefined = undefined;
       if (items.length > limit) {
@@ -99,7 +99,7 @@ export const booksRouter = createTRPCRouter({
 
       return {
         items: items.reverse(),
-        nextCursor
+        nextCursor,
       };
     }),
 
@@ -107,7 +107,7 @@ export const booksRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
-        cursor: z.string().nullish()
+        cursor: z.string().nullish(),
       })
     )
     .query(async ({ input }) => {
@@ -127,16 +127,16 @@ export const booksRouter = createTRPCRouter({
           authors: true,
           genre: true,
           purchaseLines: true,
-          salesReconciliationLines: true
+          salesReconciliationLines: true,
         },
         cursor: cursor
           ? {
-            id: cursor
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
-          title: "desc"
-        }
+          title: "desc",
+        },
       });
       let nextCursor: typeof cursor | undefined = undefined;
       if (items.length > limit) {
@@ -148,16 +148,66 @@ export const booksRouter = createTRPCRouter({
 
       return {
         items: items.reverse(),
-        nextCursor
+        nextCursor,
       };
     }),
 
-  byId: publicProcedure
+  getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
       const book = await prisma.book.findUnique({
-        where: { id }
+        where: { id },
+      });
+      if (!book) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No book with id '${id}'`,
+        });
+      }
+      return book;
+    }),
+
+  getByIdWithAuthorAndGenre: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const book = await prisma.book.findUnique({
+        where: { id },
+        include: {
+          authors: {
+            select: {
+              name: true,
+            },
+          },
+          genre: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+      if (!book) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No book with id '${id}'`,
+        });
+      }
+      return book;
+    }),
+
+  getByIdWithAllDetails: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const book = await prisma.book.findUnique({
+        where: { id },
+        include: {
+          authors: true,
+          genre: true,
+          purchaseLines: true,
+          salesReconciliationLines: true,
+        },
       });
       if (!book) {
         throw new TRPCError({
@@ -242,7 +292,7 @@ export const booksRouter = createTRPCRouter({
             create: [],
           },
           salesReconciliationLines: {
-            create: []
+            create: [],
           },
           inventoryCount: input.inventoryCount,
         },

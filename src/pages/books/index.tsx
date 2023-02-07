@@ -1,5 +1,5 @@
 import Head from "next/head";
-import React, { useState } from "react";
+import React from "react";
 import { api } from "../../utils/api";
 import type {
   GetServerSidePropsContext,
@@ -10,7 +10,6 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import SalesReconciliationRow from "../../components/SalesReconciliationRow";
 import TableHeader from "../../components/TableHeader";
 import BookRow from "../../components/BookRow";
 
@@ -69,16 +68,14 @@ export default function Books(
       <Link href="/books/add">Add Book</Link>
     </>
   );
-
-  // id: string;
-  // title: string;
-  // authors: string[];
-  // isbn_13: string;
-  // retailPrice: number;
-  // genre: string;
-  // inventoryCount: number;
 }
-
+// id: string;
+// title: string;
+// authors: string[];
+// isbn_13: string;
+// retailPrice: number;
+// genre: string;
+// inventoryCount: number;
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
