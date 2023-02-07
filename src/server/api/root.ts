@@ -9,6 +9,7 @@ import { purchaseOrdersRouter } from "./routers/purchaseOrders";
 import { salesLinesRouter } from "./routers/salesLines";
 import { salesReconciliationsRouter } from "./routers/salesReconciliations";
 import { vendorsRouter } from "./routers/vendors";
+import { usersRouter } from "./routers/users";
 
 /**
  * This is the primary router for your server.
@@ -26,6 +27,7 @@ export const appRouter = createTRPCRouter({
   salesReconciliations: salesReconciliationsRouter,
   vendors: vendorsRouter,
   googleBooks: googleBooksRouter,
+  users: usersRouter,
 });
 
 // export type definition of API
