@@ -31,7 +31,7 @@ export const vendorsRouter = createTRPCRouter({
             }
           : undefined,
         orderBy: {
-          name: "asc",
+          name: "desc",
         },
       });
       let nextCursor: typeof cursor | undefined = undefined;

@@ -53,7 +53,7 @@ export default function Books(
         </table>
       </div>
       <div className="items-end  bg-white">
-        <Link className="items-end px-6" href="/books/add">
+        <Link className="items-end px-6" href="/vendors/add">
           Add Vendor
         </Link>
       </div>
