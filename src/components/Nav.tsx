@@ -21,7 +21,7 @@ function Nav() {
             <li>
               <Link
                 href="/books"
-                className={currentRoute === "/books" ? active : nonActive}
+                className={/books\/*/.test(currentRoute) ? active : nonActive}
               >
                 Books
               </Link>
@@ -29,7 +29,7 @@ function Nav() {
             <li>
               <Link
                 href="/sales"
-                className={currentRoute === "/sales" ? active : nonActive}
+                className={/sales\/*/.test(currentRoute) ? active : nonActive}
                 aria-current="page"
               >
                 Sales
@@ -38,7 +38,9 @@ function Nav() {
             <li>
               <Link
                 href="/purchases"
-                className={currentRoute === "/purchases" ? active : nonActive}
+                className={
+                  /purchases\/*/.test(currentRoute) ? active : nonActive
+                }
                 aria-current="page"
               >
                 Purchases
@@ -47,7 +49,7 @@ function Nav() {
             <li>
               <Link
                 href="/vendors"
-                className={currentRoute === "/vendors" ? active : nonActive}
+                className={/vendors\/*/.test(currentRoute) ? active : nonActive}
                 aria-current="page"
               >
                 Vendors
@@ -56,7 +58,7 @@ function Nav() {
             <li>
               <Link
                 href="/authors"
-                className={currentRoute === "/authors" ? active : nonActive}
+                className={/authors\/*/.test(currentRoute) ? active : nonActive}
                 aria-current="page"
               >
                 Authors
@@ -65,7 +67,7 @@ function Nav() {
             <li>
               <Link
                 href="/genres"
-                className={currentRoute === "/genres" ? active : nonActive}
+                className={/genres\/*/.test(currentRoute) ? active : nonActive}
                 aria-current="page"
               >
                 Genres
@@ -74,7 +76,7 @@ function Nav() {
             <li>
               <Link
                 href="/report"
-                className={currentRoute === "/report" ? active : nonActive}
+                className={/report\/*/.test(currentRoute) ? active : nonActive}
                 aria-current="page"
               >
                 Reports
