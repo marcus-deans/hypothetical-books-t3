@@ -6,8 +6,8 @@ interface TableViewProps{
     ISBNQueries: string[]
 }
 const fetchBookObjects = () => {
-  let res = api.googleBooks.retrieveByISBN.useQuery({isbn:"9782221064573"})  
-  console.log(res);
+  //let res = api.googleBooks.retrieveByISBN.useQuery({isbn:"9782221064573"})  
+  //console.log(res);
 }
 fetchBookObjects();
 export const TableView = (props:TableViewProps) => {
