@@ -199,18 +199,18 @@ export const purchaseOrdersRouter = createTRPCRouter({
    * model PurchaseOrder{
    * 	id				String @id @default(cuid())
    * 	date			DateTime
-   * 	vendor		Vendor @relation(fields: [vendorId], references: [id])
+   * 	vendor		Vendor @relation(fields: [vendorId], references: [lineId])
    * 	vendorId	String
    * 	purchaseLines PurchaseLine[]
    * }
    *
    * model PurchaseLine{
    * 	id 				String @id @default(cuid())
-   * 	book 			Book @relation(fields: [bookId], references: [id])
+   * 	book 			Book @relation(fields: [bookId], references: [lineId])
    * 	bookId 		String
    * 	quantity 	Int
    * 	unitWholesalePrice Float
-   * 	purchaseOrder		PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+   * 	purchaseOrder		PurchaseOrder @relation(fields: [purchaseOrderId], references: [lineId])
    * 	purchaseOrderId	String
    * }
    */

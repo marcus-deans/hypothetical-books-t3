@@ -239,11 +239,11 @@ export const salesReconciliationsRouter = createTRPCRouter({
   //
   // model SaleLine{
   //   id 				String @id @default(cuid())
-  //   book 			Book @relation(fields: [bookId], references: [id])
+  //   book 			Book @relation(fields: [bookId], references: [lineId])
   //   bookId 		String
   //   quantity 	Int
   //   unitWholesalePrice Float
-  //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
+  //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [lineId])
   //   salesReconciliationId	String
   // }
 

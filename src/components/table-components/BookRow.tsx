@@ -28,7 +28,7 @@ export default function BookRow(props: BookRowProps) {
   //   height      			Float
   //   thickness   			Float
   //   retailPrice 			Float
-  //   genre 						Genre @relation(fields: [genreId], references: [id])
+  //   genre 						Genre @relation(fields: [genreId], references: [lineId])
   //   genreId     			String // relation String field
   //   purchaseLines			PurchaseLine[]
   //   saleReconciliationLines SalesLine[]
