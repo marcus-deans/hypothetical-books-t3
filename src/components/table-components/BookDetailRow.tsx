@@ -73,10 +73,10 @@ export default function BookDetailRow(props: BookDetailRowProps) {
         <TableCell text={cell.toString()} key={cell} />
       ))}
       <td className="px-6 py-4">
-        {/*TODO: add delete button*/}
-        <DeleteLink url={`/books/${encodeURIComponent(props.id)}/edit`} />
-        {/*TODO: Add edit button*/}
         <EditLink url={`/books/${encodeURIComponent(props.id)}/edit`} />
+      </td>
+      <td className="px-6 py-4">
+        <DeleteLink url={`/books/${encodeURIComponent(props.id)}/edit`} />
       </td>
     </tr>
   );

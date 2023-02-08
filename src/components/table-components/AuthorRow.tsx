@@ -38,11 +38,9 @@ export default function AuthorRow(props: AuthorRowProps) {
         <TableCell text={cell.toString()} key={cell} />
       ))}
       <td className="px-6 py-4">
-        {/*TODO: Add edit button*/}
         <EditLink url={`/authors/${encodeURIComponent(props.id)}/edit`} />
       </td>
       <td className="px-6 py-4">
-        {/*TODO: add delete button*/}
         <DeleteLink url={`/authors/${encodeURIComponent(props.id)}/delete`} />
       </td>
     </tr>

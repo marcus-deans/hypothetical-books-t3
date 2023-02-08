@@ -59,7 +59,6 @@ export default function Detail(
     "Page Count",
     "Publication Year",
     "Dimensions (W*H*T)",
-    "Actions",
   ];
 
   return (
@@ -69,11 +68,17 @@ export default function Detail(
           {tableHeaders.map((tableHeader) => (
             <TableHeader text={tableHeader} key={tableHeader} />
           ))}
+          <th scope="col" className="px-6 py-4 font-medium text-gray-900">
+            <div className="flex items-center">Edit</div>
+          </th>
+          <th scope="col" className="px-6 py-4 font-medium text-gray-900">
+            <div className="flex items-center">Delete</div>
+          </th>
           <th scope="col" className="px-4 py-2 font-normal text-gray-900">
-            {/*TODO: add delete button*/}
-            <DeleteLink url={`/sales/${encodeURIComponent(props.id)}/edit`} />
-            {/*TODO: Add edit button*/}
             <EditLink url={`/sales/${encodeURIComponent(props.id)}/edit`} />
+          </th>
+          <th>
+            <DeleteLink url={`/sales/${encodeURIComponent(props.id)}/edit`} />
           </th>
         </tr>
       </thead>
