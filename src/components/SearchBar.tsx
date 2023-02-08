@@ -1,19 +1,28 @@
-import { useState } from "react";
+import type { ReactEventHandler } from "react";
+import React, { useState } from "react";
 
 interface SearchBarProps {
-  updateSearch: (input: string) => void;
+  // updateSearch: (input: string) => void;
+  submissionHandler: (input: string) => void;
 }
 
-function Searchbar({ updateSearch }: SearchBarProps) {
+function SearchBar(props: SearchBarProps) {
   const [searchInput, setSearchInput] = useState("");
   const [open, setOpen] = useState(false);
 
-  const handleChange = (Event: any) => {
+  const handleChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(Event.target.value);
-    updateSearch(Event.target.value);
+    // updateSearch(Event.target.value);
   };
-  const dropdDownClick = (Event: any) => {
+  const handleDropdownClick = (Event: React.MouseEvent<HTMLElement>) => {
+    console.log(`Dropdown clicked with ${open.toString()}`);
     setOpen(!open);
+  };
+
+  const handleSubmit = (Event: React.FormEvent<HTMLElement>) => {
+    Event.preventDefault();
+    console.log(`Submit clicked with data ${searchInput}`);
+    props.submissionHandler(searchInput);
   };
 
   return (
@@ -21,7 +30,7 @@ function Searchbar({ updateSearch }: SearchBarProps) {
       <div className="flex">
         <button
           id="dropdown-button"
-          onClick={dropdDownClick}
+          onClick={handleDropdownClick}
           data-dropdown-toggle="dropdown"
           className="z-10 inline-flex flex-shrink-0 items-center border border-gray-300 bg-gray-100 py-2.5 px-4 text-center text-sm font-medium text-gray-900  hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-700"
           type="button"
@@ -35,16 +44,16 @@ function Searchbar({ updateSearch }: SearchBarProps) {
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              fill-rule="evenodd"
+              fillRule="evenodd"
               d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              clip-rule="evenodd"
+              clipRule="evenodd"
             ></path>
           </svg>
         </button>
         {open ? (
           <div
             id="dropdown"
-            className="z-10 hidden w-44 divide-y divide-gray-100 bg-white shadow dark:bg-gray-700"
+            className="z-10 w-44 divide-y divide-gray-100 bg-white shadow dark:bg-gray-700"
           >
             <ul
               className="py-2 text-sm text-gray-700 dark:text-gray-200"
@@ -54,32 +63,18 @@ function Searchbar({ updateSearch }: SearchBarProps) {
                 <button
                   type="button"
                   className="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                  onClick={handleDropdownClick}
                 >
-                  Book Val1
+                  Title
                 </button>
               </li>
               <li>
                 <button
                   type="button"
                   className="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                  onClick={handleDropdownClick}
                 >
-                  Book Val2
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >
-                  BookVal3
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >
-                  Logos
+                  ISBN13
                 </button>
               </li>
             </ul>
@@ -89,9 +84,7 @@ function Searchbar({ updateSearch }: SearchBarProps) {
         )}
         <div className="relative w-full">
           <input
-            onChange={(e) => {
-              updateSearch(e.target.value);
-            }}
+            onChange={handleChange}
             type="search"
             id="search-dropdown"
             className="z-20 block w-full border border-l-2 border-gray-300 border-l-gray-50  bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:border-l-gray-700  dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500"
@@ -101,6 +94,7 @@ function Searchbar({ updateSearch }: SearchBarProps) {
           <button
             type="submit"
             className="border-blue absolute top-0 right-0 border p-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            onClick={handleSubmit}
           >
             <svg
               aria-hidden="true"
@@ -120,11 +114,9 @@ function Searchbar({ updateSearch }: SearchBarProps) {
             <span className="sr-only">Search</span>
           </button>
         </div>
- 
-    </div>
-</form>
-
-  )
+      </div>
+    </form>
+  );
 }
 
-export default Searchbar;
+export default SearchBar;

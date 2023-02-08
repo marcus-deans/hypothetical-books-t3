@@ -1,5 +1,5 @@
 import { REACT_LOADABLE_MANIFEST } from "next/dist/shared/lib/constants";
-import { api } from "../utils/api";
+import { api } from "../../utils/api";
 
 interface TableViewProps {
   labels: string[];

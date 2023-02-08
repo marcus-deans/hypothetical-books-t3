@@ -10,9 +10,9 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import TableHeader from "../../components/TableHeader";
-import BookRow from "../../components/BookRow";
 import { Button } from "@mui/material";
+import TableHeader from "../../components/table-components/TableHeader";
+import BookRow from "../../components/table-components/BookRow";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>

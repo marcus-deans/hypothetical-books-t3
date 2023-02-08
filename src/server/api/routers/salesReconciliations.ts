@@ -48,6 +48,79 @@ export const salesReconciliationsRouter = createTRPCRouter({
       };
     }),
 
+  getAllWithOverallMetrics: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      /**
+       * For pagination docs you can have a look here
+       * @see https://trpc.io/docs/useInfiniteQuery
+       * @see https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+       */
+      const limit = input.limit ?? 50;
+      const { cursor } = input;
+
+      const items = await prisma.salesReconciliation.findMany({
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: {},
+        include: {
+          salesLines: {
+            include: {
+              book: {
+                select: {
+                  title: true,
+                  isbn_13: true,
+                },
+              },
+            },
+          },
+        },
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        orderBy: {
+          date: "desc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        // Remove the last item and use it as next cursor
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const nextItem = items.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      const salesReconciliationWithOverallMetrics = [];
+      for (const salesReconciliation of items.reverse()) {
+        let totalPrice = 0;
+        let totalQuantity = 0;
+        const seenBooks = new Set<string>();
+        for (const salesLine of salesReconciliation.salesLines) {
+          totalPrice += salesLine.quantity * salesLine.unitWholesalePrice;
+          totalQuantity += salesLine.quantity;
+          seenBooks.add(salesLine.book.isbn_13);
+        }
+        salesReconciliationWithOverallMetrics.push({
+          salesReconciliation,
+          totalPrice,
+          totalQuantity,
+          totalUniqueBooks: seenBooks.size,
+        });
+      }
+
+      return {
+        items: salesReconciliationWithOverallMetrics,
+        nextCursor,
+      };
+    }),
+
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
@@ -166,11 +239,11 @@ export const salesReconciliationsRouter = createTRPCRouter({
   //
   // model SaleLine{
   //   id 				String @id @default(cuid())
-  //   book 			Book @relation(fields: [bookId], references: [id])
+  //   book 			Book @relation(fields: [bookId], references: [lineId])
   //   bookId 		String
   //   quantity 	Int
   //   unitWholesalePrice Float
-  //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
+  //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [lineId])
   //   salesReconciliationId	String
   // }
 
