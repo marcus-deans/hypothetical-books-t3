@@ -13,33 +13,41 @@ import { createInnerTRPCContext } from "../../../../server/api/trpc";
 import DeletePane from "../../../../components/DeletePane";
 import { useRouter } from "next/router";
 import { prisma } from "../../../../server/db";
+import { getHTTPStatusCodeFromError } from "@trpc/server/http";
+import { TRPCError } from "@trpc/server";
 
-export default function DeleteSalesReconciliation(
+export default function DeleteSalesLine(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const id = props.id;
   const lineId = props.lineId;
-  const salesDetailsQuery = api.salesLines.getByIdWithBookPrimaries.useQuery({
-    id: lineId,
-  });
+  const salesLineDetailsQuery =
+    api.salesLines.getByIdWithBookPrimaries.useQuery({
+      id: lineId,
+    });
   const deleteMutation = api.salesLines.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   // if (router.isFallback) {
-  if (salesDetailsQuery.status !== "success") {
+  if (salesLineDetailsQuery.status !== "success") {
     return <div>Loading...</div>;
   }
-  const { data } = salesDetailsQuery;
+  const { data } = salesLineDetailsQuery;
 
   const handleDelete = () => {
     setIsDeleting(true);
     try {
       const deleteResult = deleteMutation.mutate({ id: lineId });
+      // if (deleteResult?.error instanceof TRPCError) {
+      //   const httpCode = getHTTPStatusCodeFromError(deleteResult);
+      //   console.log(httpCode);
+      //   setIsDeleting(false);
+      // }
       setTimeout(() => {
         void router.push(`/sales/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setIsDeleting(false);
     }
   };
