@@ -71,12 +71,16 @@ export default function sales(
         </table>
       </div>
       <Link className="items-end px-6" href="/purchases/add/line" passHref>
-      <Button variant="contained" color="primary">Add Purchase Line</Button>
-        </Link>
+        <Button variant="contained" color="primary">
+          Add Purchase Line
+        </Button>
+      </Link>
 
-        <Link className="items-end px-6" href="/purchases/add/order" passHref>
-      <Button variant="contained" color="primary">Add Purchase Order</Button>
-        </Link>
+      <Link className="items-end px-6" href="/purchases/add/order" passHref>
+        <Button variant="contained" color="primary">
+          Add Purchase Order
+        </Button>
+      </Link>
     </>
   );
 }

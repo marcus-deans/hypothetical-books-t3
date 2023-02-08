@@ -1,4 +1,19 @@
+import React, { useState } from "react";
+import { api } from "../../utils/api";
+
 export default function AddVendor() {
+  const [vendorName, setVendorName] = useState("");
+  const addMutation = api.vendors.add.useMutation();
+
+  const inputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const enteredName = event.target.value;
+    setVendorName(enteredName);
+  };
+  const handleSubmit = () => {
+    console.log(vendorName);
+    addMutation.mutate({ name: vendorName });
+  };
+
   return (
     <div className="w-full max-w-xs items-center ">
       <form className="mb-4 rounded bg-white px-8 pt-6 pb-8 shadow-md">
@@ -11,12 +26,14 @@ export default function AddVendor() {
             id="genre"
             type="text"
             placeholder="Vendor Name"
+            onChange={inputHandler}
           />
         </div>
         <div className="flex items-center justify-between">
           <button
             className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
             type="button"
+            onClick={handleSubmit}
           >
             Submit
           </button>

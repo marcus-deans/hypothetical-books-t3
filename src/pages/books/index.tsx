@@ -66,11 +66,12 @@ export default function Books(
           </tbody>
         </table>
       </div>
-      <div className="items-end  bg-white">
-      </div>
+      <div className="items-end  bg-white"></div>
       <Link className="items-end px-6" href="/books/add" passHref>
-      <Button variant="contained" color="primary">Add Book</Button>
-        </Link>
+        <Button variant="contained" color="primary">
+          Add Book
+        </Button>
+      </Link>
     </>
   );
 }

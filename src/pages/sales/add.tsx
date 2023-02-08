@@ -6,7 +6,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useState } from "react";
 import { ReactSearchAutocomplete } from "react-search-autocomplete";
 
-const add = () => {
+export default function AddSales {
   const [dateValue, setDateValue] = useState<Dayjs | null>();
   const handleDatePickChange = (newValue: Dayjs | null) => {
     setDateValue(newValue);
@@ -26,7 +26,9 @@ const add = () => {
                 inputFormat="MM/DD/YYYY"
                 value={dateValue}
                 onChange={handleDatePickChange}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params: JSX.IntrinsicAttributes) => (
+                  <TextField {...params} />
+                )}
               />
             </LocalizationProvider>
             <ReactSearchAutocomplete items={[]} placeholder="Enter Book" />
@@ -56,4 +58,3 @@ const add = () => {
     </div>
   );
 };
-export default add;

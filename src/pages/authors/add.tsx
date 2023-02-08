@@ -1,5 +1,18 @@
+import { useState } from "react";
+import { api } from "../../utils/api";
+
 export default function AddAuthor() {
-  const handleSubmit = () => {};
+  const [authorName, setAuthorName] = useState("");
+  const addMutation = api.authors.add.useMutation();
+
+  const inputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const enteredName = event.target.value;
+    setAuthorName(enteredName);
+  };
+  const handleSubmit = () => {
+    console.log(authorName);
+    addMutation.mutate({ name: authorName });
+  };
 
   return (
     <div className="w-full max-w-xs items-center ">
@@ -13,12 +26,14 @@ export default function AddAuthor() {
             id="genre"
             type="text"
             placeholder="Author Name"
+            onChange={inputHandler}
           />
         </div>
         <div className="flex items-center justify-between">
           <button
             className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
             type="button"
+            onClick={handleSubmit}
           >
             Submit
           </button>

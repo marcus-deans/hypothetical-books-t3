@@ -1,11 +1,3 @@
-// const tableHeaders = [
-//   "Title",
-//   "Date",
-//   "Total Quantity",
-//   "Total Price",
-//   "Unique Books",
-// ];
-
 import React from "react";
 import Head from "next/head";
 import SalesReconciliationRow from "../../components/table-components/SalesReconciliationRow";
@@ -22,6 +14,7 @@ import superjson from "superjson";
 import TableHeader from "../../components/table-components/TableHeader";
 import Link from "next/link";
 import { Button } from "@mui/material";
+
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
@@ -34,7 +27,7 @@ export default function sales(
   const salesReconciliations = salesReconciliationQuery?.data?.items ?? [];
 
   const logger = new Logger({ name: "salesReconciliationsogger" });
-  logger.info("salesReconcilations", salesReconciliations); // This is the only line that is different from the Books page
+  logger.info("salesReconciliations", salesReconciliations); // This is the only line that is different from the Books page
 
   const tableHeaders = [
     "Title",
@@ -75,12 +68,20 @@ export default function sales(
           </tbody>
         </table>
       </div>
-            <Link className="items-end px-6" href="/sales/add/line" passHref>
-      <Button variant="contained" color="primary">Add Sales Line</Button>
-        </Link>
-        <Link className="items-end px-6" href="/sales/add/reconciliation" passHref>
-      <Button variant="contained" color="primary">Add Sales Reconciliation</Button>
-        </Link>
+      <Link className="items-end px-6" href="/sales/add/line" passHref>
+        <Button variant="contained" color="primary">
+          Add Sales Line
+        </Button>
+      </Link>
+      <Link
+        className="items-end px-6"
+        href="/sales/add/reconciliation"
+        passHref
+      >
+        <Button variant="contained" color="primary">
+          Add Sales Reconciliation
+        </Button>
+      </Link>
     </>
   );
 }
