@@ -60,6 +60,18 @@ export const vendorsRouter = createTRPCRouter({
       return vendor;
     }),
 
+  edit: publicProcedure
+    .input(z.object({ id: z.string(), name: z.string() }))
+    .mutation(async ({ input }) => {
+      const vendor = await prisma.vendor.update({
+        where: { id: input.id },
+        data: {
+          name: input.vendor,
+        },
+      });
+      return vendor;
+    }),
+
   connectToPurchaseOrder: publicProcedure
     .input(z.object({ vendorId: z.string(), purchaseOrderId: z.string() }))
     .mutation(async ({ input }) => {

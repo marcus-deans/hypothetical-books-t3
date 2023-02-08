@@ -57,6 +57,18 @@ export const authorsRouter = createTRPCRouter({
       return author;
     }),
 
+  edit: publicProcedure
+    .input(z.object({ id: z.string(), name: z.string() }))
+    .mutation(async ({ input }) => {
+      const author = await prisma.author.update({
+        where: { id: input.id },
+        data: {
+          name: input.name,
+        },
+      });
+      return author;
+    }),
+
   connectToBook: publicProcedure
     .input(z.object({ authorId: z.string(), bookId: z.string() }))
     .mutation(async ({ input }) => {

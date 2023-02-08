@@ -76,6 +76,18 @@ export const genresRouter = createTRPCRouter({
       return genre;
     }),
 
+  edit: publicProcedure
+    .input(z.object({ id: z.string(), name: z.string() }))
+    .mutation(async ({ input }) => {
+      const genre = await prisma.genre.update({
+        where: { id: input.id },
+        data: {
+          name: input.name,
+        },
+      });
+      return genre;
+    }),
+
   connectToBook: publicProcedure
     .input(z.object({ genreId: z.string(), bookId: z.string() }))
     .mutation(async ({ input }) => {
