@@ -12,12 +12,7 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../utils/api";
 import type { Dayjs } from "dayjs";
-import { router } from "next/client";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import TextField from "@mui/material/TextField";
-import { z } from "zod";
+import { router } from "next/router";
 
 export default function AddSalesLine(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -72,11 +67,14 @@ export default function AddSalesLine(
   };
 
   const handleOnSelectSalesReconciliation = (item: SalesReconciliation) => {
+    console.log(item.id);
     // the item selected
     setState({ ...state, salesReconciliationId: item.id });
   };
 
   const handleOnSelectBook = (item: Book) => {
+    console.log(item.title);
+    console.log(item.id);
     // the item selected
     setState({ ...state, bookId: item.id });
   };
@@ -122,6 +120,7 @@ export default function AddSalesLine(
                 fuseOptions={{ keys: ["id", "date"] }}
                 placeholder="Search for a sales reconciliation"
                 onSelect={handleOnSelectSalesReconciliation}
+                styling={{ zIndex: 4 }} //allowing results to extend over box below
                 autoFocus
                 formatResult={formatResultSalesReconciliation}
               />
@@ -129,7 +128,7 @@ export default function AddSalesLine(
             <div className="col-span-4">
               <ReactSearchAutocomplete<Book>
                 items={books}
-                fuseOptions={{ keys: ["title", "isbn"] }}
+                fuseOptions={{ keys: ["title", "isbn_13"] }}
                 placeholder="Search for a book"
                 onSelect={handleOnSelectBook}
                 autoFocus
