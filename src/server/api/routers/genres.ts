@@ -48,6 +48,22 @@ export const genresRouter = createTRPCRouter({
       };
     }),
 
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const genre = await prisma.genre.findUnique({
+        where: { id },
+      });
+      if (!genre) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No genre with id '${id}'`,
+        });
+      }
+      return genre;
+    }),
+
   add: publicProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ input }) => {

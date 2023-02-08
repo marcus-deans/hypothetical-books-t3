@@ -18,24 +18,24 @@ export default function DeleteVendor(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const vendorDetailsQuery = api.vendors.getById.useQuery({
+  const authorDetailsQuery = api.authors.getById.useQuery({
     id,
   });
-  const deleteMutation = api.vendors.delete.useMutation();
+  const deleteMutation = api.authors.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   // if (router.isFallback) {
-  if (vendorDetailsQuery.status !== "success") {
+  if (authorDetailsQuery.status !== "success") {
     return <div>Loading...</div>;
   }
-  const { data } = vendorDetailsQuery;
+  const { data } = authorDetailsQuery;
 
   const handleDelete = () => {
     setIsDeleting(true);
     try {
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
-        void router.push("/vendors");
+        void router.push("/authors");
       }, 500);
     } catch (error) {
       console.log(error);
@@ -46,29 +46,29 @@ export default function DeleteVendor(
   return (
     <div className="flex flex-col items-center justify-center py-2">
       <Head>
-        <title>Delete Vendor</title>
+        <title>Delete Author</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DeletePane
         itemIdentifier={data?.name ?? id}
-        itemName={"Vendor"}
+        itemName={"Author"}
         isDeleting={isDeleting}
         handleDelete={handleDelete}
-        cancelUrl={`/vendors/`}
+        cancelUrl={`/authors/`}
       />
     </div>
   );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const vendors = await prisma.vendor.findMany({
+  const authors = await prisma.author.findMany({
     select: {
       id: true,
     },
   });
 
-  const paths = vendors.map((vendor) => ({
-    params: { id: vendor.id },
+  const paths = authors.map((author) => ({
+    params: { id: author.id },
   }));
 
   return { paths, fallback: true };
@@ -84,7 +84,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.vendors.getById.prefetch({ id });
+  await ssg.authors.getById.prefetch({ id });
 
   return {
     props: {

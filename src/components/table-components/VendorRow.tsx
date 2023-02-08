@@ -7,15 +7,15 @@
 
 import React from "react";
 import TableCell from "./TableCell";
-import DeleteLink from "./DeleteLink";
 import EditLink from "./EditLink";
+import DeleteLink from "./DeleteLink";
 
-type GenreRowProps = {
+type VendorRowProps = {
   id: string;
   name: string;
 };
 
-export default function GenreRow(props: GenreRowProps) {
+export default function VendorRow(props: VendorRowProps) {
   const desiredCells = [props.id];
 
   return (
@@ -38,10 +38,10 @@ export default function GenreRow(props: GenreRowProps) {
         <TableCell text={cell.toString()} key={cell} />
       ))}
       <td className="px-6 py-4">
-        <EditLink url={`/genres/${encodeURIComponent(props.id)}/edit`} />
+        <EditLink url={`/vendors/${encodeURIComponent(props.id)}/edit`} />
       </td>
       <td className="px-6 py-4">
-        <DeleteLink url={`/genres/${encodeURIComponent(props.id)}/delete`} />
+        <DeleteLink url={`/vendors/${encodeURIComponent(props.id)}/delete`} />
       </td>
     </tr>
   );

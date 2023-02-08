@@ -76,6 +76,22 @@ export const authorsRouter = createTRPCRouter({
       return connectedAuthor;
     }),
 
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const author = await prisma.author.findUnique({
+        where: { id },
+      });
+      if (!author) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No author with id '${id}'`,
+        });
+      }
+      return author;
+    }),
+
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {

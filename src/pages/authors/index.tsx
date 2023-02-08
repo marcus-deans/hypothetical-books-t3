@@ -11,8 +11,6 @@ import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
 import TableHeader from "../../components/table-components/TableHeader";
-import VendorRow from "../../components/VendorRow";
-import GenreRow from "../../components/table-components/GenreRow";
 import AuthorRow from "../../components/table-components/AuthorRow";
 
 export default function Authors(
