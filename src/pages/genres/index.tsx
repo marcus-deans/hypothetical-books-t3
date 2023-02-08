@@ -12,6 +12,7 @@ import superjson from "superjson";
 import Link from "next/link";
 import TableHeader from "../../components/table-components/TableHeader";
 import GenreRow from "../../components/table-components/GenreRow";
+import { Button } from "@mui/material";
 
 export default function Genres(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -53,10 +54,10 @@ export default function Genres(
         </table>
       </div>
       <div className="items-end  bg-white">
-        <Link className="items-end px-6" href="/genres/add">
-          Add Genre
-        </Link>
       </div>
+      <Link className="items-end px-6" href="/genres/add" passHref>
+      <Button variant="contained" color="primary">Add Genre</Button>
+        </Link>
     </>
   );
 }

@@ -12,6 +12,7 @@ import superjson from "superjson";
 import Link from "next/link";
 import TableHeader from "../../components/table-components/TableHeader";
 import AuthorRow from "../../components/table-components/AuthorRow";
+import { Button } from "@mui/material";
 
 export default function Authors(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -53,10 +54,10 @@ export default function Authors(
         </table>
       </div>
       <div className="items-end  bg-white">
-        <Link className="items-end px-6" href="/genres/add">
-          Add Author
-        </Link>
       </div>
+      <Link className="items-end px-6" href="/authors/add" passHref>
+      <Button variant="contained" color="primary">Add Author</Button>
+        </Link>
     </>
   );
 }
