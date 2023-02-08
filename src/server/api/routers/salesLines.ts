@@ -24,7 +24,7 @@ export const salesLinesRouter = createTRPCRouter({
       const items = await prisma.salesLine.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -43,7 +43,7 @@ export const salesLinesRouter = createTRPCRouter({
       }
 
       return {
-        item: items.reverse(),
+        items: items.reverse(),
         nextCursor,
       };
     }),
@@ -55,7 +55,7 @@ export const salesLinesRouter = createTRPCRouter({
       const salesLine = await prisma.salesLine.findUnique({
         where: { id },
       });
-      if (!salesLine) {
+      if (!salesLine || !salesLine.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales line with id '${id}'`,
@@ -80,7 +80,7 @@ export const salesLinesRouter = createTRPCRouter({
           },
         },
       });
-      if (!salesLineWithBookPrimaries) {
+      if (!salesLineWithBookPrimaries || !salesLineWithBookPrimaries.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales line with id '${id}'`,
@@ -97,11 +97,11 @@ export const salesLinesRouter = createTRPCRouter({
   //
   // model SaleLine{
   //   id 				String @id @default(cuid())
-  //   book 			Book @relation(fields: [bookId], references: [id])
+  //   book 			Book @relation(fields: [bookId], references: [lineId])
   //   bookId 		String
   //   quantity 	Int
   //   unitWholesalePrice Float
-  //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
+  //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [lineId])
   //   salesReconciliationId	String
   // }
 
@@ -116,6 +116,20 @@ export const salesLinesRouter = createTRPCRouter({
     )
 
     .mutation(async ({ input }) => {
+      const bookInventoryCount = await prisma.book.findUnique({
+        where: { id: input.bookId },
+        select: {
+          inventoryCount: true,
+        },
+      });
+
+      if ((bookInventoryCount?.inventoryCount ?? 0) < input.quantity) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `Not enough inventory for sale of ${input.quantity} books with id '${input.bookId}'`,
+        });
+      }
+
       const salesLine = await prisma.salesLine.create({
         data: {
           book: {
@@ -130,9 +144,17 @@ export const salesLinesRouter = createTRPCRouter({
               id: input.salesReconciliationId,
             },
           },
+          display: true,
         },
       });
-
+      await prisma.book.update({
+        where: { id: input.bookId },
+        data: {
+          inventoryCount: {
+            decrement: input.quantity,
+          },
+        },
+      });
       return salesLine;
     }),
 
@@ -140,15 +162,44 @@ export const salesLinesRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const salesLine = await prisma.salesLine.delete({
+
+      const currentSalesLine = await prisma.salesLine.findUnique({
         where: { id },
+        include: {
+          book: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      // const salesLine = await prisma.salesLine.delete({
+      //   where: { id },
+      // });
+      const salesLine = await prisma.salesLine.update({
+        where: { id },
+        data: {
+          display: false,
+        },
       });
       if (!salesLine) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No sales line to delete with id '${id}'`,
+          message: `No sales line to delete withid '${id}'`,
         });
       }
+      if (currentSalesLine !== null) {
+        await prisma.book.update({
+          where: { id: currentSalesLine.book.id },
+          data: {
+            inventoryCount: {
+              increment: currentSalesLine.quantity,
+            },
+          },
+        });
+      }
+
       return salesLine;
     }),
 

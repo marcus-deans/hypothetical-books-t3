@@ -5,11 +5,66 @@ import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 
 export const authorsRouter = createTRPCRouter({
+  getAll: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      /**
+       * For pagination docs you can have a look here
+       * @see https://trpc.io/docs/useInfiniteQuery
+       * @see https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+       */
+      const limit = input.limit ?? 50;
+      const { cursor } = input;
+
+      const items = await prisma.author.findMany({
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: { display: true },
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        orderBy: {
+          name: "desc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        // Remove the last item and use it as next cursor
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const nextItem = items.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      return {
+        items: items.reverse(),
+        nextCursor,
+      };
+    }),
+
   add: publicProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ input }) => {
       const author = await prisma.author.create({
         data: input,
+      });
+      return author;
+    }),
+
+  edit: publicProcedure
+    .input(z.object({ id: z.string(), name: z.string() }))
+    .mutation(async ({ input }) => {
+      const author = await prisma.author.update({
+        where: { id: input.id },
+        data: {
+          name: input.name,
+        },
       });
       return author;
     }),
@@ -33,13 +88,51 @@ export const authorsRouter = createTRPCRouter({
       return connectedAuthor;
     }),
 
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const author = await prisma.author.findUnique({
+        where: { id },
+      });
+      if (!author) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No author with id '${id}'`,
+        });
+      }
+      return author;
+    }),
+
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const author = await prisma.author.delete({
+      // const author = await prisma.author.delete({
+      //   where: { id },
+      // });
+      const currentAuthor = await prisma.author.findUnique({
         where: { id },
+        include: {
+          books: true,
+        },
       });
+      if ((currentAuthor?.books.length ?? 1) > 0) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `Author '${
+            currentAuthor?.name ?? ""
+          }' has books associated with it. Please delete those books first.`,
+        });
+      }
+
+      const author = await prisma.author.update({
+        where: { id },
+        data: {
+          display: false,
+        },
+      });
+
       if (!author) {
         throw new TRPCError({
           code: "NOT_FOUND",
