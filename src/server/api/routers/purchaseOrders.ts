@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
+import { purchaseOrderSchema } from "../../../schema/purchase";
 
 export const purchaseOrdersRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -63,14 +64,13 @@ export const purchaseOrdersRouter = createTRPCRouter({
       }
       return purchaseOrder;
     }),
-    /*
   byDate: publicProcedure
-    .input(z.object({date: z.date()}))
+    .input(z.date())
     .query(async ({ input }) =>{
-      const { date } = input;
+      const date  = input;
       const purchaseOrders = await prisma.purchaseOrder.findMany({
-        where: {date},
-        include: {purchaseLines}
+        where: {date: date.toISOString(),
+        }
       });
       if (!purchaseOrders) {
         throw new TRPCError({
@@ -78,18 +78,8 @@ export const purchaseOrdersRouter = createTRPCRouter({
           message: `No purchase order with date '${date}'`,
         });
       }
-      purchaseOrders.forEach(function(value){
-        const singularOrder = prisma.purchaseLine.findMany({
-          where: {}
-        })
-
-      })
-      const allPurchases = await prisma.purchaseLine.findMany({
-        where: {}
-      })
       return purchaseOrders;
     }),
-    */
   /**
    * model Vendor {
    * 	id				String @id @default(cuid())

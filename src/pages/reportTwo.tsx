@@ -5,16 +5,30 @@ import Head from 'next/head'
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { api } from '../utils/api';
+import { purchaseOrder } from '../schema/purchase';
+import { QueryKey } from '@trpc/react-query/dist/internals/getArrayQueryKey';
 
 export default function reportTwo() {
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
+    const day = new Date();
+    //day.setFullYear(2022, 4, 3);
+    day.setTime(1648944000000);
+    console.log(day.toISOString());
+    const purchases = api.purchaseOrders.byDate;
+    const p1 = api.purchaseOrders.getAll.useQuery({cursor: null, limit: 10});
+    console.log("All", p1.data)
+    console.log("Child", Child({day, purchases}).data)
+    //console.log("P " + purchases);
+    //console.log(startDate);
+    
+    //console.log("purchases" + purchases);
 
     const handleGenerate: MouseEventHandler<HTMLButtonElement> = async (e) => {
         if (startDate.valueOf() > endDate.valueOf() + 1000*60){
         alert("End Date must be later than Start Date, or the same as Start Date");
         } else{
-        generateReport(startDate, endDate)
+        generateReport(startDate, endDate, purchases)
         }
     };
 
@@ -39,7 +53,7 @@ export default function reportTwo() {
 
 
 
-function generateReport(startDate: Date, endDate: Date){
+function generateReport(startDate: Date, endDate: Date, purchases: any){
     const daysArray = getDaysArray(startDate, endDate);
 
     const doc = new jsPDF();
@@ -134,7 +148,8 @@ function generateReport(startDate: Date, endDate: Date){
         const revenue = getRevenue(value);
         runningRevenue += revenue
         insideInput.push(revenue);
-        const cost = getCost(value);
+        //const cost = getCost(value, purchases);
+        const cost = 6;
         runningCosts += cost
         insideInput.push(cost);
         insideInput.push((revenue - cost).toFixed(2));
@@ -265,7 +280,19 @@ function generateReport(startDate: Date, endDate: Date){
     return Number((Math.random() * 1000).toFixed(2));
   }
 
-  function getCost(day: Date): number {
-    //const returns = api.purchaseOrders.byDate.useQuery({date: day});
-    return Number((Math.random() * 500).toFixed(2));
+
+  const Child = (props: {day: Date, purchases: any}) => {
+    return props.purchases.useQuery(props.day);
+  }
+
+  function getCost(day: Date, purchases: any): number {
+    var runningCost = 0;
+    /*
+    //const purchaseOrders: purchaseOrder = purchases.useQuery(day);
+    const lines = purchaseOrders.purchaseLines;
+    lines.forEach(function(value){
+        runningCost += (value.quantity * value.unitWholesalePrice);
+    })
+    */
+    return runningCost;
   }
