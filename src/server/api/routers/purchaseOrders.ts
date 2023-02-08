@@ -145,12 +145,13 @@ export const purchaseOrdersRouter = createTRPCRouter({
       }
       return purchaseOrder;
     }),
-  byDate: publicProcedure
+  getByDate: publicProcedure
     .input(z.date())
     .query(async ({ input }) =>{
-      const date  = input;
+      const {inputDate}: Date = input;
       const purchaseOrders = await prisma.purchaseOrder.findMany({
-        where: {date: date.toISOString(),
+        where: {
+          date: inputDate
         }
       });
       if (!purchaseOrders) {

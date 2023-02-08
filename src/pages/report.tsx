@@ -1,276 +1,335 @@
 import React, { MouseEventHandler, useState } from 'react'
+import jsPDF from 'jspdf';
+import autoTable, { RowInput } from 'jspdf-autotable';
 import Head from 'next/head'
-import { TextSchema, Template, BLANK_PDF, generate, Schema} from '@pdfme/generator';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import { api } from '../utils/api';
+import { createInnerTRPCContext } from "../server/api/trpc";
+import { appRouter } from "../server/api/root";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
+import superjson from "superjson";
 
-export default function report() {
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+export default function report(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
+    
+
+    const day : Date = new Date("Thu Mar 03 2022");
+    console.log("Day Selected: " + day.toISOString());
+    const purchaseOrderQuery = api.purchaseOrders.getByDate.useQuery(day);
+    const purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
+    console.log(purchaseOrders);
+
+    
+    //console.log("P " + purchases);
+    //console.log(startDate);
+    
+    //console.log("purchases" + purchases);
+
+    const handleGenerate: MouseEventHandler<HTMLButtonElement> = async (e) => {
+        if (startDate.valueOf() > endDate.valueOf() + 1000*60){
+            alert("End Date must be later than Start Date, or the same as Start Date");
+        } else{
+            generateReport(startDate, endDate, purchases)
+        }
+    };
+
+    return (
+        <><Head>
+            <title>Report</title>
+        </Head>
+        <div className="flex-col justify-center absolute bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
+            <div>
+                <h2>Start Date:</h2>
+                <div className="text-black">
+                <DatePicker selected={startDate} onChange={(date) => setStartDate(date!)} />
+                </div>
+            </div>
+            <div>
+                <h2>End Date:</h2>
+                <div className="text-black">
+                    <DatePicker selected={endDate} onChange={(date) => setEndDate(date!)} />
+                </div>
+            </div>
+            <button className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded" onClick={handleGenerate}>
+                Generate Report
+            </button>
+        </div></>
+    )
+}
+
+
+
+function generateReport(startDate: Date, endDate: Date, purchases: any){
+    const daysArray = getDaysArray(startDate, endDate);
+
+    const doc = new jsPDF();
+
+    autoTable(doc, {
+        body: [
+        [
+            {
+            content: 'Hypothetical Books',
+            styles: {
+                halign: 'left',
+                fontSize: 20,
+                textColor: '#ffffff'
+            }
+            },
+            {
+            content: 'Sales Report',
+            styles: {
+                halign: 'right',
+                fontSize: 20,
+                textColor: '#ffffff'
+            }
+            }
+        ],
+        ],
+        theme: 'plain',
+        styles: {
+        fillColor: '#3366ff'
+        }
+    });
+
+    autoTable(doc, {
+        body: [
+        [
+            {
+            content: 
+            'Date:' + new Date().toLocaleDateString(),
+            styles: {
+                halign: 'right'
+            }
+            }
+        ],
+        ],
+        theme: 'plain'
+    });
+
+    autoTable(doc, {
+        body: [
+        [
+            {
+            content: 'Start Date: \n'
+            + startDate.toLocaleDateString(),
+            styles: {
+                halign: 'left'
+            }
+            },
+            {
+            content: 'End Date: \n'
+            + endDate.toLocaleDateString(),
+            styles: {
+                halign: 'left'
+            }
+            }
+        ],
+        ],
+        theme: 'plain'
+    });
+
+    autoTable(doc, {
+        body: [
+        [
+            {
+            content: 'Days for Report',
+            styles: {
+                halign:'left',
+                fontSize: 14
+            }
+            }
+        ]
+        ],
+        theme: 'plain'
+    });
+
+    var runningRevenue: number = 0;
+    var runningCosts: number = 0;
+
+    var trueArray: RowInput[] = [];
+
+    daysArray.forEach(function(value, index){
+        var insideInput: RowInput = [];
+        insideInput.push(value.toDateString());
+        const revenue = getRevenue(value);
+        runningRevenue += revenue
+        insideInput.push(revenue);
+        //const cost = getCost(value, purchases);
+        const cost = 6;
+        runningCosts += cost
+        insideInput.push(cost);
+        insideInput.push((revenue - cost).toFixed(2));
+        trueArray.push(insideInput);
+    })
+
+
+    autoTable(doc, {
+        head: [['Date', 'Daily Revenue', 'Daily Costs', 'Daily Profit']],
+        body: trueArray,
+        theme: 'striped',
+        headStyles:{
+        fillColor: '#343a40'
+        }
+    });
+
+    autoTable(doc, {
+        body: [
+        [
+            {
+            content: 'Total Revenue:',
+            styles:{
+                halign:'right'
+            }
+            },
+            {
+            content: runningRevenue,
+            styles:{
+                halign:'right'
+            }
+            },
+        ],
+        [
+            {
+            content: 'Total Costs:',
+            styles:{
+                halign:'right'
+            }
+            },
+            {
+            content: runningCosts,
+            styles:{
+                halign:'right'
+            }
+            },
+        ],
+        [
+            {
+            content: 'Total Profit:',
+            styles:{
+                halign:'right'
+            }
+            },
+            {
+            content: (runningRevenue - runningCosts).toFixed(2),
+            styles:{
+                halign:'right'
+            }
+            },
+        ],
+        ],
+        theme: 'plain'
+    });
+
+    autoTable(doc, {
+        body: [
+        [
+            {
+            content: 'Terms & notes',
+            styles: {
+                halign: 'left',
+                fontSize: 14
+            }
+            }
+        ],
+        [
+            {
+            content: 'orem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia'
+            +'molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum'
+            +'numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium',
+            styles: {
+                halign: 'left'
+            }
+            }
+        ],
+        ],
+        theme: "plain"
+    });
+
+    autoTable(doc, {
+        body: [
+        [
+            {
+            content: 'This is a centered footer',
+            styles: {
+                halign: 'center'
+            }
+            }
+        ]
+        ],
+        theme: "plain"
+    });
+
+    return doc.output("dataurlnewwindow")
+
+}
+
+  function calculateAmountOfDays(startDate: Date, endDate: Date): number {
   
-  const handleGenerate: MouseEventHandler<HTMLButtonElement> = async (e) => {
-    if (startDate.valueOf() > endDate.valueOf() + 1000*60){
-      alert("End Date must be later than Start Date, or the same as Start Date" + startDate.valueOf() + endDate.valueOf());
-    } else{
-      generate_report(startDate, endDate)
+    const millis = endDate.valueOf() - startDate.valueOf();
+    const days = millis / (1000 * 3600 * 24);
+    console.log(days);
+    return Math.round(days + 1);
+  }
+  
+  function getDaysArray(start: Date, end: Date): Array<Date> {
+    if(start.toLocaleDateString() == end.toLocaleDateString()){
+      const arr = new Array<Date>(start);
+      return arr;
     }
+    for(var arr=[],dt=new Date(start); dt<=new Date(end.valueOf()+(1000 * 3600 * 24)); dt.setDate(dt.getDate()+1)){
+        arr.push(new Date(dt));
+    }
+    return arr;
   };
 
-  return (
-    <><Head>
-      <title>Report</title>
-    </Head><div>
-      <h2>Start Date:</h2>
-        <DatePicker
-          selected={startDate}
-          onChange={(date) => setStartDate(date!)} />
-          <h2>End Date:</h2>
-        <DatePicker
-          selected={endDate}
-          onChange={(date) => setEndDate(date!)} />
-        <button onClick={handleGenerate}>
-          Generate Report
-        </button>
-      </div></>
-  )
-}
-
-async function generate_report(startDate: Date, endDate: Date) {
-
-
-  const dates = calculateAmountOfDays(startDate, endDate);
-
-  const inputNames = new Array<String>("title", "date", "reportperiod", "day1", "day2", "day3", "day4", "day5", "day6", "day7", "day8", "day9");
-
-  const inputDetails = new Array<String>("Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:")
-
-  var newInputs = new Array<Record<string, string>>(inputNames.length);
-  
-  newInputs.forEach(function (record, index){
-    record[inputNames.at(index)]=inputDetails.at(index);
-  })
-  
-
-
-
-  const inputs = [
-    {
-      "title": "Hypothetical Books Sales Report",
-      "date": "Report Generated: " + new Date().toLocaleDateString(),
-      "reportperiod": "Report Period: From 2/6/23 to 2/7/23",
-      "day1": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-      "day2": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-      "day3": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-      "day4": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-      "day5": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-      "day6": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-      "day7": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-      "day8": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-      "day9": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-    },
-  ];
-
-  
-  generate({ template, inputs }).then((pdf) => {
-    console.log(pdf);
-    const blob = new Blob([pdf.buffer], { type: 'application/pdf' });
-    window.open(URL.createObjectURL(blob), "_blank");
-  });
-}
-
-const inputs = [
-  {
-    "title": "Hypothetical Books Sales Report",
-    "date": "Report Generated: " + new Date().toLocaleDateString(),
-    "reportperiod": "Report Period: From 2/6/23 to 2/7/23",
-    "day1": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-    "day2": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-    "day3": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-    "day4": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-    "day5": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-    "day6": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-    "day7": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-    "day8": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-    "day9": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-  },
-  {
-    "topbooksheader": "Top 10 Best Selling Books -- From 2/7/23 to 2/9/23",
-    "book1": "1. Title1\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
-    "book2": "2. Title2\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:", 
-    "book3": "3. Title3\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
-    "book4": "4. Title4\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
-    "book5": "5. Title5\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
-    "book6": "6. Title6\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
-    "book7": "7. Title7\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
-    "book8": "8. Title8\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
-    "book9": "9. Title9\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
-    "book10": "10. Title10\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
+  function getRevenue(day: Date): number{
+    return Number((Math.random() * 1000).toFixed(2));
   }
-];
-
-// ------------------ Formulas for Calculating Day Review and Top Books Spacing and Dimensions ------------------
-// Day Width: 170, Height: 20
-// Day X Constant: 22.93
-// Day Y Height Formula: ((Day# - 1) * 22) + 47
-// Limit: 9 days per page
-// Start: 47
-// End: 47 + ((9 - 1) * 22) = 245
-
-// Book Width: 170, Height: 20
-// Book X Constant: 22.93
-// Book Y Height Formula: ((Book# - 1) * 23) + 35
-// Limit: 10 books per page
-// Start: 35
-// End: 35 + ((10 - 1) * 23) = 242
 
 
-const days = 5;
-
-let a = new Array<TextSchema>(days);
-
-a.forEach(function (day, index){
-  day.height = 20;
-  day.width = 170;
-  day.type = "text";
-  day.alignment = "left";
-  day.fontSize = 11,
-  day.characterSpacing = 0;
-  day.lineHeight = 1.2,
-  day.backgroundColor = ""
-  day.position = {
-    x: (22.93),
-    y: (47 + 22 * index)
+  const Child = (props: {day: Date, purchases: any}) => {
+    return props.purchases.useQuery(props.day);
   }
-})
 
-
-const dynamicSchemaDays:Array<Schema> = Array.from({length: days}, (_, i) => ({
-  [`day${i + 1}`]: {
-    type: "text",
-    position: {
-      x: (22.93),
-      y: (47 + 22 * i)
-    },
-    width: 170,
-    height: 20,
-    alignment: "left",
-    fontSize: 11,
-    characterSpacing: 0,
-    lineHeight: 1.2,
-    backgroundColor: ""
+  function getCost(day: Date, purchases: any): number {
+    var runningCost = 0;
+    /*
+    //const purchaseOrders: purchaseOrder = purchases.useQuery(day);
+    const lines = purchaseOrders.purchaseLines;
+    lines.forEach(function(value){
+        runningCost += (value.quantity * value.unitWholesalePrice);
+    })
+    */
+    return runningCost;
   }
-}));
 
-const books = 2;
-const dynamicSchemaBooks:Array<Schema> = Array.from({length: books}, (_, i) => ({
-  [`book${i + 1}`]: {
-    type: "text",
-    position: {
-      x: 22.93,
-      y: 35 + 23 * i
-    },
-    width: 170,
-    height: 20,
-    alignment: "left",
-    fontSize: 11,
-    characterSpacing: 0,
-    lineHeight: 1.2,
-    backgroundColor: ""
-  }
-}));
-
-let template: Template = {
-  basePdf: BLANK_PDF,
-  schemas: [
-    {
-      "title": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 10
-        },
-        "width": 170,
-        "height": 13,
-        "fontSize": 30,
-        "fontColor": "#5088e2",
-        "alignment": "center"
+  export async function getServerSideProps(context: GetServerSidePropsContext) {
+    const ssg = createProxySSGHelpers({
+      router: appRouter,
+      ctx: createInnerTRPCContext({ session: null }),
+      //eslint-disable-next-line
+      transformer: superjson,
+    });
+    // const id = context.params?.id as string;
+    /*
+     * Prefetching the `post.byId` query here.
+     * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
+     */
+    await ssg.purchaseOrders.getAllWithOverallMetrics.prefetch({
+      cursor: null,
+      limit: 50,
+    });
+    // Make sure to return { props: { trpcState: ssg.dehydrate() } }
+    return {
+      props: {
+        trpcState: ssg.dehydrate(),
+        // id,
       },
-      "date": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 24
-        },
-        "width": 170,
-        "height": 8,
-        "fontSize": 20,
-        "fontColor": "#000000",
-        "alignment": "center"
-      },
-      "reportperiod": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 36
-        },
-        "width": 170,
-        "height": 6,
-        "alignment": "left",
-        "fontSize": 12,
-        "characterSpacing": 0,
-        "lineHeight": 1,
-        "backgroundColor": ""
-      },
-      "topbooksheader": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 24
-        },
-        "width": 170,
-        "height": 7,
-        "alignment": "left",
-        "fontSize": 14,
-        "characterSpacing": 0,
-        "lineHeight": 1.2
-      },
-    },
-  ],
-};
-
-
-Object.assign(template.schemas.at(0), ...dynamicSchemaDays);
-Object.assign(template.schemas.at(0), ...dynamicSchemaBooks);
-
-function calculateAmountOfDays(startDate: Date, endDate: Date): number {
-  
-  const millis = endDate.valueOf() - startDate.valueOf();
-  const days = millis / (1000 * 3600 * 24);
-  console.log(days);
-  return Math.round(days + 1);
-}
-
-function getDaysArray(start: Date, end: Date): Array<Date> {
-  if(start.toLocaleDateString() == end.toLocaleDateString()){
-    const arr = new Array<Date>(start);
-    return arr;
+    };
   }
-  for(var arr=[],dt=new Date(start); dt<=new Date(end.valueOf()+(1000 * 3600 * 24)); dt.setDate(dt.getDate()+1)){
-      arr.push(new Date(dt));
-  }
-  return arr;
-};
-
-function createDayLine(day: Date): string {
-  
-}
-
-
