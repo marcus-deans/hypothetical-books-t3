@@ -35,12 +35,15 @@ export default function AddSalesLine(
     quantity: 1,
     unitWholesalePrice: 0,
     salesReconciliationId: "",
+    salesSearchString: "",
+    bookSearchString: "",
   });
 
   const handleOnSearchBook = (string: string, results: Book[]) => {
     // onSearch will have as the first callback parameter
     // the string searched and for the second the results.
     console.log(string, results);
+    setState({ ...state, bookSearchString: string });
   };
 
   const handleOnSearchSalesReconciliation = (
@@ -50,6 +53,7 @@ export default function AddSalesLine(
     // onSearch will have as the first callback parameter
     // the string searched and for the second the results.
     console.log(string, results);
+    setState({ ...state, salesSearchString: string });
   };
 
   const handleOnHover = () => {
@@ -96,12 +100,15 @@ export default function AddSalesLine(
   const handleOnSelectSalesReconciliation = (item: SalesReconciliation) => {
     console.log(item.id);
     // the item selected
+    setState({ ...state, salesSearchString: " " });
     setState({ ...state, salesReconciliationId: item.id });
   };
 
   const handleOnSelectBook = (item: Book) => {
     console.log(item.title);
     console.log(item.id);
+    setState({ ...state, bookSearchString: " " });
+
     // the item selected
     setState({ ...state, bookId: item.id });
   };
@@ -146,6 +153,7 @@ export default function AddSalesLine(
                 items={salesReconciliations}
                 fuseOptions={{ keys: ["id", "date"] }}
                 placeholder="Search for a sales reconciliation"
+                inputSearchString={state.salesSearchString}
                 onSelect={handleOnSelectSalesReconciliation}
                 onSearch={handleOnSearchSalesReconciliation}
                 onFocus={handleOnFocus}
@@ -156,20 +164,21 @@ export default function AddSalesLine(
                 formatResult={formatResultSalesReconciliation}
               />
             </div>
-            <div className="col-span-4">
-              <ReactSearchAutocomplete<Book>
-                items={books}
-                fuseOptions={{ keys: ["title", "isbn_13"] }}
-                placeholder="Search for a book"
-                onSelect={handleOnSelectBook}
-                onSearch={handleOnSearchBook}
-                onFocus={handleOnFocus}
-                onClear={handleOnClear}
-                onHover={handleOnHover}
-                autoFocus
-                formatResult={formatResultBook}
-              />
-            </div>
+            {/*<div className="col-span-4">*/}
+            {/*  <ReactSearchAutocomplete<Book>*/}
+            {/*    items={books}*/}
+            {/*    fuseOptions={{ keys: ["title", "isbn_13"] }}*/}
+            {/*    placeholder="Search for a book"*/}
+            {/*    inputSearchString={state.bookSearchString}*/}
+            {/*    onSelect={handleOnSelectBook}*/}
+            {/*    onSearch={handleOnSearchBook}*/}
+            {/*    onFocus={handleOnFocus}*/}
+            {/*    onClear={handleOnClear}*/}
+            {/*    onHover={handleOnHover}*/}
+            {/*    autoFocus*/}
+            {/*    formatResult={formatResultBook}*/}
+            {/*  />*/}
+            {/*</div>*/}
             <input
               className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
               id="quantity"
