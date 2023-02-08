@@ -70,8 +70,14 @@ export const purchaseOrdersRouter = createTRPCRouter({
         where: { display: true },
         include: {
           purchaseLines: {
+            where: {
+              display: true,
+            },
             include: {
               book: {
+                where: {
+                  display: true,
+                },
                 select: {
                   title: true,
                   isbn_13: true,
@@ -151,8 +157,14 @@ export const purchaseOrdersRouter = createTRPCRouter({
           where: { id },
           include: {
             purchaseLines: {
+              where: {
+                display: true,
+              },
               include: {
                 book: {
+                  where: {
+                    display: true,
+                  },
                   select: {
                     title: true,
                     isbn_13: true,

@@ -19,25 +19,25 @@ generator zod {
 }
 
 model Book {
-  id                       String         @id @default(cuid())
-  title                    String
-  authors                  Author[]
-  isbn_13                  String
-  isbn_10                  String?
-  publisher                String
-  publicationYear          Int
-  pageCount                Int
-  width                    Float
-  height                   Float
-  thickness                Float
-  retailPrice              Float
-  genre                    Genre          @relation(fields: [genreId], references: [id])
-  genreId                  String // relation String field
-  purchaseLines            PurchaseLine[]
-  salesReconciliationLines SalesLine[]
+  id              String         @id @default(cuid())
+  title           String
+  authors         Author[]
+  isbn_13         String
+  isbn_10         String?
+  publisher       String
+  publicationYear Int
+  pageCount       Int
+  width           Float
+  height          Float
+  thickness       Float
+  retailPrice     Float
+  genre           Genre          @relation(fields: [genreId], references: [id])
+  genreId         String // relation String field
+  purchaseLines   PurchaseLine[]
+  salesLines      SalesLine[]
   //to Be determined
-  inventoryCount           Int
-  display                  Boolean        @default(true)
+  inventoryCount  Int
+  display         Boolean        @default(true)
 }
 
 model Genre {
@@ -96,7 +96,7 @@ model SalesLine {
   unitWholesalePrice    Float
   salesReconciliation   SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
   salesReconciliationId String
-  display               Boolean @default(true)
+  display               Boolean             @default(true)
 }
 
 model Example {

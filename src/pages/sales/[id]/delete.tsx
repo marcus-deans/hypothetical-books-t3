@@ -32,7 +32,9 @@ export default function DeleteSalesReconciliation(
     setIsDeleting(true);
     try {
       const deleteResult = deleteMutation.mutate({ id: id });
-      if (deleteResult) void router.push("/sales");
+      setTimeout(() => {
+        void router.push("/sales");
+      }, 500);
     } catch (error) {
       console.log(error);
       setIsDeleting(false);

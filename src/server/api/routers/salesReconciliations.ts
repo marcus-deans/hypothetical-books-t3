@@ -70,6 +70,9 @@ export const salesReconciliationsRouter = createTRPCRouter({
         where: { display: true },
         include: {
           salesLines: {
+            where: {
+              display: true,
+            },
             include: {
               book: {
                 select: {
@@ -146,6 +149,9 @@ export const salesReconciliationsRouter = createTRPCRouter({
           where: { id },
           include: {
             salesLines: {
+              where: {
+                display: true,
+              },
               include: {
                 book: {
                   select: {
@@ -191,6 +197,9 @@ export const salesReconciliationsRouter = createTRPCRouter({
           where: { id },
           include: {
             salesLines: {
+              where: {
+                display: true,
+              },
               select: {
                 id: true,
               },
@@ -218,6 +227,9 @@ export const salesReconciliationsRouter = createTRPCRouter({
           where: { id },
           include: {
             salesLines: {
+              where: {
+                display: true,
+              },
               include: {
                 book: {
                   select: {
