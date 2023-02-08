@@ -63,7 +63,33 @@ export const purchaseOrdersRouter = createTRPCRouter({
       }
       return purchaseOrder;
     }),
+    /*
+  byDate: publicProcedure
+    .input(z.object({date: z.date()}))
+    .query(async ({ input }) =>{
+      const { date } = input;
+      const purchaseOrders = await prisma.purchaseOrder.findMany({
+        where: {date},
+        include: {purchaseLines}
+      });
+      if (!purchaseOrders) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No purchase order with date '${date}'`,
+        });
+      }
+      purchaseOrders.forEach(function(value){
+        const singularOrder = prisma.purchaseLine.findMany({
+          where: {}
+        })
 
+      })
+      const allPurchases = await prisma.purchaseLine.findMany({
+        where: {}
+      })
+      return purchaseOrders;
+    }),
+    */
   /**
    * model Vendor {
    * 	id				String @id @default(cuid())

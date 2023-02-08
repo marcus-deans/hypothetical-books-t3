@@ -7,11 +7,10 @@ import "react-datepicker/dist/react-datepicker.css";
 export default function report() {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  console.log(endDate.getDate());
   
   const handleGenerate: MouseEventHandler<HTMLButtonElement> = async (e) => {
-    if(startDate > endDate){
-      alert("End Date must be later than Start Date, or the same as Start Date");
+    if (startDate.valueOf() > endDate.valueOf() + 1000*60){
+      alert("End Date must be later than Start Date, or the same as Start Date" + startDate.valueOf() + endDate.valueOf());
     } else{
       generate_report(startDate, endDate)
     }
@@ -36,19 +35,47 @@ export default function report() {
   )
 }
 
-function generate_report(startDate: Date, endDate: Date) {
+async function generate_report(startDate: Date, endDate: Date) {
 
+
+  const dates = calculateAmountOfDays(startDate, endDate);
+
+  const inputNames = new Array<String>("title", "date", "reportperiod", "day1", "day2", "day3", "day4", "day5", "day6", "day7", "day8", "day9");
+
+  const inputDetails = new Array<String>("Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+  "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:")
+
+  var newInputs = new Array<Record<string, string>>(inputNames.length);
   
+  newInputs.forEach(function (record, index){
+    record[inputNames.at(index)]=inputDetails.at(index);
+  })
+  
+
+
 
   const inputs = [
     {
       "title": "Hypothetical Books Sales Report",
       "date": "Report Generated: " + new Date().toLocaleDateString(),
-      "reportperiod": "Report Period: From "+ startDate.toDateString() + " to " + endDate.toDateString() + ".",
-      "day1": "Date: 2/6/23 ----------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
-      "day2": "Date: 2/7/23 ----------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:\n",
-      "topbooks": "Top 10 Selling Books ----------------------------------------------------------------------------\n1. Title1\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:\n\n2. Title2\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:\n\n3. Title3\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:\n\n4. Title4\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:"
-    }
+      "reportperiod": "Report Period: From 2/6/23 to 2/7/23",
+      "day1": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+      "day2": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+      "day3": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+      "day4": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+      "day5": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+      "day6": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+      "day7": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+      "day8": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+      "day9": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+    },
   ];
 
   
@@ -222,4 +249,28 @@ let template: Template = {
 
 Object.assign(template.schemas.at(0), ...dynamicSchemaDays);
 Object.assign(template.schemas.at(0), ...dynamicSchemaBooks);
+
+function calculateAmountOfDays(startDate: Date, endDate: Date): number {
+  
+  const millis = endDate.valueOf() - startDate.valueOf();
+  const days = millis / (1000 * 3600 * 24);
+  console.log(days);
+  return Math.round(days + 1);
+}
+
+function getDaysArray(start: Date, end: Date): Array<Date> {
+  if(start.toLocaleDateString() == end.toLocaleDateString()){
+    const arr = new Array<Date>(start);
+    return arr;
+  }
+  for(var arr=[],dt=new Date(start); dt<=new Date(end.valueOf()+(1000 * 3600 * 24)); dt.setDate(dt.getDate()+1)){
+      arr.push(new Date(dt));
+  }
+  return arr;
+};
+
+function createDayLine(day: Date): string {
+  
+}
+
 
