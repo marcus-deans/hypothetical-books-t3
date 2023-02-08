@@ -9,8 +9,9 @@ export default function AddGenre() {
     const enteredName = event.target.value;
     setGenreName(enteredName);
   };
-  const handleSubmit = () => {
+  const handleSubmit = (e:any) => {
     console.log(genreName);
+    setGenreName("")
     addMutation.mutate({ name: genreName });
   };
 
@@ -32,7 +33,7 @@ export default function AddGenre() {
         <div className="flex items-center justify-between">
           <button
             className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
-            type="button"
+            type="submit"
             onClick={handleSubmit}
           >
             Submit
