@@ -1,6 +1,6 @@
 import React, { MouseEventHandler, useState } from 'react'
 import Head from 'next/head'
-import { Template, BLANK_PDF, generate} from '@pdfme/generator';
+import { TextSchema, Template, BLANK_PDF, generate} from '@pdfme/generator';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -37,6 +37,9 @@ export default function report() {
 }
 
 function generate_report(startDate: Date, endDate: Date) {
+
+  
+
   const inputs = [
     {
       "title": "Hypothetical Books Sales Report",
@@ -102,7 +105,26 @@ const inputs = [
 // End: 35 + ((10 - 1) * 23) = 242
 
 const days = 5;
-const dynamicSchemaDays = Array.from({length: days}, (_, i) => ({
+
+let a = new Array<TextSchema>(days);
+
+a.forEach(function (day, index){
+  day.height = 20;
+  day.width = 170;
+  day.type = "text";
+  day.alignment = "left";
+  day.fontSize = 11,
+  day.characterSpacing = 0;
+  day.lineHeight = 1.2,
+  day.backgroundColor = ""
+  day.position = {
+    x: (22.93),
+    y: (47 + 22 * index)
+  }
+})
+
+
+const dynamicSchemaDays: Array<TextSchema> = Array.from({length: days}, (_, i) => ({
   [`day${i + 1}`]: {
     type: "text",
     position: {
@@ -203,8 +225,9 @@ for (let obj in dynamicSchemaDays) {
 }
 
 for (let obj in dynamicSchemaBooks) {
-  template.push(dynamicSchemaBooks[obj]);
+  template.schemas.push(dynamicSchemaBooks[obj]);
 }
+template.schemas
 
 console.log(template.schemas);
 
