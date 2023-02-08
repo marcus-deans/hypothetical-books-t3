@@ -102,6 +102,21 @@ export const genresRouter = createTRPCRouter({
       // const genre = await prisma.genre.delete({
       //   where: { id },
       // });
+      const currentGenre = await prisma.genre.findUnique({
+        where: { id },
+        include: {
+          books: true,
+        },
+      });
+      if ((currentGenre?.books.length ?? 1) > 0) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `Genre '${
+            currentGenre?.name ?? ""
+          }' has books associated with it. Please delete those books first.`,
+        });
+      }
+
       const genre = await prisma.genre.update({
         where: { id },
         data: { display: false },

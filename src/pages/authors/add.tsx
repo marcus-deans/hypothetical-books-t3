@@ -1,20 +1,29 @@
-const add = () => {
+export default function AddAuthor() {
+  const handleSubmit = () => {};
+
   return (
     <div className="w-full max-w-xs items-center ">
-    <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" >
-          Author's Name
-        </label>
-        <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="genre" type="text" placeholder="Author Name" />
-      </div>
-      <div className="flex items-center justify-between">
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline align-middle" type="button">
-          Submit
-        </button>
-      </div>
-    </form>
-  </div>
-  )
+      <form className="mb-4 rounded bg-white px-8 pt-6 pb-8 shadow-md">
+        <div className="mb-4">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            {"Author's Name"}
+          </label>
+          <input
+            className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+            id="genre"
+            type="text"
+            placeholder="Author Name"
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <button
+            className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+            type="button"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }
-export default add

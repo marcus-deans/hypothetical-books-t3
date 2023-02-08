@@ -99,6 +99,21 @@ export const authorsRouter = createTRPCRouter({
       // const author = await prisma.author.delete({
       //   where: { id },
       // });
+      const currentAuthor = await prisma.author.findUnique({
+        where: { id },
+        include: {
+          books: true,
+        },
+      });
+      if ((currentAuthor?.books.length ?? 1) > 0) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `Author '${
+            currentAuthor?.name ?? ""
+          }' has books associated with it. Please delete those books first.`,
+        });
+      }
+
       const author = await prisma.author.update({
         where: { id },
         data: {

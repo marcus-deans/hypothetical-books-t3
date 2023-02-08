@@ -102,6 +102,21 @@ export const vendorsRouter = createTRPCRouter({
       // const vendor = await prisma.vendor.delete({
       //   where: { id },
       // });
+      const currentVendor = await prisma.vendor.findUnique({
+        where: { id },
+        include: {
+          purchaseOrder: true,
+        },
+      });
+      if ((currentVendor?.purchaseOrder.length ?? 1) > 0) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `Vendor '${
+            currentVendor?.name ?? ""
+          }' has purchase orders associated with it. Please delete those purchase orders first.`,
+        });
+      }
+
       const vendor = await prisma.vendor.update({
         where: { id },
         data: {
