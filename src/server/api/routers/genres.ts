@@ -24,7 +24,7 @@ export const genresRouter = createTRPCRouter({
       const items = await prisma.genre.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -52,7 +52,10 @@ export const genresRouter = createTRPCRouter({
     .input(z.object({ name: z.string() }))
     .mutation(async ({ input }) => {
       const genre = await prisma.genre.create({
-        data: input,
+        data: {
+          name: input.name,
+          display: true,
+        },
       });
       return genre;
     }),
@@ -80,8 +83,12 @@ export const genresRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const genre = await prisma.genre.delete({
+      // const genre = await prisma.genre.delete({
+      //   where: { id },
+      // });
+      const genre = await prisma.genre.update({
         where: { id },
+        data: { display: false },
       });
       if (!genre) {
         throw new TRPCError({

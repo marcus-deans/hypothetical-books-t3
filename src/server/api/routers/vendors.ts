@@ -24,7 +24,7 @@ export const vendorsRouter = createTRPCRouter({
       const items = await prisma.vendor.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -52,7 +52,10 @@ export const vendorsRouter = createTRPCRouter({
     .input(z.object({ name: z.string() }))
     .mutation(async ({ input }) => {
       const vendor = await prisma.vendor.create({
-        data: input,
+        data: {
+          name: input.name,
+          display: true,
+        },
       });
       return vendor;
     }),
@@ -80,8 +83,14 @@ export const vendorsRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const vendor = await prisma.vendor.delete({
+      // const vendor = await prisma.vendor.delete({
+      //   where: { id },
+      // });
+      const vendor = await prisma.vendor.update({
         where: { id },
+        data: {
+          display: false,
+        },
       });
       if (!vendor) {
         throw new TRPCError({

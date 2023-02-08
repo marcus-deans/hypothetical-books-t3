@@ -24,7 +24,7 @@ export const booksRouter = createTRPCRouter({
       const items = await prisma.book.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -67,7 +67,7 @@ export const booksRouter = createTRPCRouter({
       const items = await prisma.book.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         include: {
           authors: {
             select: {
@@ -122,7 +122,7 @@ export const booksRouter = createTRPCRouter({
       const items = await prisma.book.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         include: {
           authors: true,
           genre: true,
@@ -159,7 +159,7 @@ export const booksRouter = createTRPCRouter({
       const book = await prisma.book.findUnique({
         where: { id },
       });
-      if (!book) {
+      if (!book || !book.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No book with id '${id}'`,
@@ -187,7 +187,7 @@ export const booksRouter = createTRPCRouter({
           },
         },
       });
-      if (!book) {
+      if (!book || !book.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No book with id '${id}'`,
@@ -209,7 +209,7 @@ export const booksRouter = createTRPCRouter({
           salesReconciliationLines: true,
         },
       });
-      if (!book) {
+      if (!book || !book.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No book with id '${id}'`,
@@ -295,6 +295,7 @@ export const booksRouter = createTRPCRouter({
             create: [],
           },
           inventoryCount: input.inventoryCount,
+          display: true,
         },
       });
 
@@ -316,8 +317,14 @@ export const booksRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const book = await prisma.book.delete({
+      // const book = await prisma.book.delete({
+      //   where: { id },
+      // });
+      const book = await prisma.book.update({
         where: { id },
+        data: {
+          display: false,
+        },
       });
       if (!book) {
         throw new TRPCError({

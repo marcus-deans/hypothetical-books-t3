@@ -24,7 +24,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
       const items = await prisma.purchaseOrder.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -67,7 +67,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
       const items = await prisma.purchaseOrder.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         include: {
           purchaseLines: {
             include: {
@@ -133,7 +133,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
       const purchaseOrder = await prisma.purchaseOrder.findUnique({
         where: { id },
       });
-      if (!purchaseOrder) {
+      if (!purchaseOrder || !purchaseOrder.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No purchase order with id '${id}'`,
@@ -167,7 +167,10 @@ export const purchaseOrdersRouter = createTRPCRouter({
             },
           },
         });
-      if (!purchaseOrderWithOverallMetrics) {
+      if (
+        !purchaseOrderWithOverallMetrics ||
+        !purchaseOrderWithOverallMetrics.display
+      ) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales reconciliation with id '${id}'`,
@@ -236,6 +239,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
           purchaseLines: {
             create: [],
           },
+          display: true,
         },
       });
 
@@ -259,8 +263,62 @@ export const purchaseOrdersRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const purchaseOrder = await prisma.purchaseOrder.delete({
+      // const purchaseOrder = await prisma.purchaseOrder.delete({
+      //   where: { id },
+      // });
+
+      const currentPurchaseOrder = await prisma.purchaseOrder.findUnique({
         where: { id },
+        include: {
+          purchaseLines: {
+            include: {
+              book: {
+                select: {
+                  id: true,
+                  inventoryCount: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      for (const purchaseLine of currentPurchaseOrder?.purchaseLines ?? []) {
+        const purchasedCount = purchaseLine?.quantity ?? 0;
+        const bookInventoryCount = purchaseLine?.book.inventoryCount ?? 100000;
+        if (bookInventoryCount < purchasedCount) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: `Cannot delete purchase order of ${purchasedCount} boks`,
+          });
+        }
+        const deletedPurchaseLine = await prisma.purchaseLine.update({
+          where: { id: purchaseLine.id },
+          data: {
+            display: false,
+          },
+        });
+        if (!deletedPurchaseLine) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `No purchase line to delete with id '${id}'`,
+          });
+        }
+        await prisma.book.update({
+          where: { id: purchaseLine?.book.id },
+          data: {
+            inventoryCount: {
+              decrement: purchasedCount,
+            },
+          },
+        });
+      }
+
+      const purchaseOrder = await prisma.purchaseOrder.update({
+        where: { id },
+        data: {
+          display: false,
+        },
       });
       if (!purchaseOrder) {
         throw new TRPCError({

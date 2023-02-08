@@ -23,7 +23,7 @@ export const purchaseLinesRouter = createTRPCRouter({
       const items = await prisma.purchaseLine.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -54,7 +54,7 @@ export const purchaseLinesRouter = createTRPCRouter({
       const purchaseLine = await prisma.purchaseLine.findUnique({
         where: { id },
       });
-      if (!purchaseLine) {
+      if (!purchaseLine || !purchaseLine.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No purchase line with id '${id}'`,
@@ -79,7 +79,7 @@ export const purchaseLinesRouter = createTRPCRouter({
           },
         },
       });
-      if (!salesLineWithBookPrimaries) {
+      if (!salesLineWithBookPrimaries || !salesLineWithBookPrimaries.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales line with id '${id}'`,
@@ -139,6 +139,7 @@ export const purchaseLinesRouter = createTRPCRouter({
               id: input.purchaseOrderId,
             },
           },
+          display: true,
         },
       });
       await prisma.book.update({
@@ -163,6 +164,7 @@ export const purchaseLinesRouter = createTRPCRouter({
           book: {
             select: {
               id: true,
+              inventoryCount: true,
             },
           },
         },
@@ -170,22 +172,24 @@ export const purchaseLinesRouter = createTRPCRouter({
 
       const purchasedCount = currentPurchaseLine?.quantity ?? 0;
 
-      const bookInventoryCount = await prisma.book.findUnique({
-        where: { id: currentPurchaseLine?.book.id },
-        select: {
-          inventoryCount: true,
-        },
-      });
+      const bookInventoryCount =
+        currentPurchaseLine?.book.inventoryCount ?? 100000;
 
-      if ((bookInventoryCount?.inventoryCount ?? 100000) < purchasedCount) {
+      if (bookInventoryCount < purchasedCount) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
           message: `Cannot delete purchase order of ${purchasedCount} boks`,
         });
       }
 
-      const purchaseLine = await prisma.purchaseLine.delete({
+      // const purchaseLine = await prisma.purchaseLine.delete({
+      //   where: { id },
+      // });
+      const purchaseLine = await prisma.purchaseLine.update({
         where: { id },
+        data: {
+          display: false,
+        },
       });
       if (!purchaseLine) {
         throw new TRPCError({

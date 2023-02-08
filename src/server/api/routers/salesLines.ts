@@ -24,7 +24,7 @@ export const salesLinesRouter = createTRPCRouter({
       const items = await prisma.salesLine.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -55,7 +55,7 @@ export const salesLinesRouter = createTRPCRouter({
       const salesLine = await prisma.salesLine.findUnique({
         where: { id },
       });
-      if (!salesLine) {
+      if (!salesLine || !salesLine.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales line with id '${id}'`,
@@ -80,7 +80,7 @@ export const salesLinesRouter = createTRPCRouter({
           },
         },
       });
-      if (!salesLineWithBookPrimaries) {
+      if (!salesLineWithBookPrimaries || !salesLineWithBookPrimaries.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales line with id '${id}'`,
@@ -144,6 +144,7 @@ export const salesLinesRouter = createTRPCRouter({
               id: input.salesReconciliationId,
             },
           },
+          display: true,
         },
       });
       await prisma.book.update({
@@ -173,8 +174,14 @@ export const salesLinesRouter = createTRPCRouter({
         },
       });
 
-      const salesLine = await prisma.salesLine.delete({
+      // const salesLine = await prisma.salesLine.delete({
+      //   where: { id },
+      // });
+      const salesLine = await prisma.salesLine.update({
         where: { id },
+        data: {
+          display: false,
+        },
       });
       if (!salesLine) {
         throw new TRPCError({

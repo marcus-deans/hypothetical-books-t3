@@ -24,7 +24,7 @@ export const authorsRouter = createTRPCRouter({
       const items = await prisma.author.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -80,9 +80,16 @@ export const authorsRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const author = await prisma.author.delete({
+      // const author = await prisma.author.delete({
+      //   where: { id },
+      // });
+      const author = await prisma.author.update({
         where: { id },
+        data: {
+          display: false,
+        },
       });
+
       if (!author) {
         throw new TRPCError({
           code: "NOT_FOUND",

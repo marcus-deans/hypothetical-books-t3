@@ -24,7 +24,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
       const items = await prisma.salesReconciliation.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -67,7 +67,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
       const items = await prisma.salesReconciliation.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         include: {
           salesLines: {
             include: {
@@ -128,7 +128,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
       const salesReconciliation = await prisma.salesReconciliation.findUnique({
         where: { id },
       });
-      if (!salesReconciliation) {
+      if (!salesReconciliation || !salesReconciliation.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "No sales reconciliation with id '${id}'",
@@ -157,7 +157,10 @@ export const salesReconciliationsRouter = createTRPCRouter({
             },
           },
         });
-      if (!salesReconciliationWithOverallMetrics) {
+      if (
+        !salesReconciliationWithOverallMetrics ||
+        !salesReconciliationWithOverallMetrics.display
+      ) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales reconciliation with id '${id}'`,
@@ -194,7 +197,10 @@ export const salesReconciliationsRouter = createTRPCRouter({
             },
           },
         });
-      if (!salesReconciliationWithSalesLineIds) {
+      if (
+        !salesReconciliationWithSalesLineIds ||
+        !salesReconciliationWithSalesLineIds.display
+      ) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales reconciliation with id '${id}'`,
@@ -222,7 +228,10 @@ export const salesReconciliationsRouter = createTRPCRouter({
             },
           },
         });
-      if (!salesReconciliationWithSalesLineAndBookTitle) {
+      if (
+        !salesReconciliationWithSalesLineAndBookTitle ||
+        !salesReconciliationWithSalesLineAndBookTitle.display
+      ) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales reconciliation with id '${id}'`,
@@ -251,7 +260,6 @@ export const salesReconciliationsRouter = createTRPCRouter({
     .input(
       z.object({
         date: z.date(),
-        vendorId: z.string(),
         salesLines: z.array(z.string()),
       })
     )
@@ -286,15 +294,64 @@ export const salesReconciliationsRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const salesReconciliation = await prisma.salesReconciliation.delete({
-        where: { id },
-      });
-      if (!salesReconciliation) {
+      // const salesReconciliation = await prisma.salesReconciliation.delete({
+      //   where: { id },
+      // });
+      const currentSalesReconciliation =
+        await prisma.salesReconciliation.findUnique({
+          where: { id },
+          include: {
+            salesLines: {
+              include: {
+                book: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+      if (!currentSalesReconciliation) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales reconcilitation to delete with id '${id}'`,
         });
       }
-      return salesReconciliation;
+
+      for (const salesLine of currentSalesReconciliation.salesLines) {
+        const updatedSalesLine = await prisma.salesLine.update({
+          where: { id: salesLine.id },
+          data: {
+            display: false,
+          },
+        });
+        if (!updatedSalesLine) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `No sales line to delete with id '${salesLine.id}'`,
+          });
+        }
+        if (salesLine !== null) {
+          await prisma.book.update({
+            where: { id: salesLine.book.id },
+            data: {
+              inventoryCount: {
+                increment: salesLine.quantity,
+              },
+            },
+          });
+        }
+      }
+
+      const updatedSalesReconciliation =
+        await prisma.salesReconciliation.update({
+          where: { id },
+          data: {
+            display: false,
+          },
+        });
+
+      return updatedSalesReconciliation;
     }),
 });
