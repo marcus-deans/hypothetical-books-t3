@@ -21,7 +21,7 @@ import type {
 import superjson from "superjson";
 import TableHeader from "../../components/table-components/TableHeader";
 import Link from "next/link";
-
+import { Button } from "@mui/material";
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
@@ -75,14 +75,12 @@ export default function sales(
           </tbody>
         </table>
       </div>
-      <div className="flex items-center  bg-white">
-        <Link className="px-6" href="/sales/add/line">
-          Add Sales Line
+            <Link className="items-end px-6" href="/sales/add/line" passHref>
+      <Button variant="contained" color="primary">Add Sales Line</Button>
         </Link>
-        <Link className="px-6" href="/sales/add/reconciliation">
-          Add Sales Reconciliation
+        <Link className="items-end px-6" href="/sales/add/reconciliation" passHref>
+      <Button variant="contained" color="primary">Add Sales Reconciliation</Button>
         </Link>
-      </div>
     </>
   );
 }

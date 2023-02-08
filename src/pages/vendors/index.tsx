@@ -12,6 +12,7 @@ import superjson from "superjson";
 import Link from "next/link";
 import TableHeader from "../../components/table-components/TableHeader";
 import VendorRow from "../../components/VendorRow";
+import { Button } from "@mui/material";
 
 export default function Vendors(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -53,10 +54,10 @@ export default function Vendors(
         </table>
       </div>
       <div className="items-end  bg-white">
-        <Link className="items-end px-6" href="/vendors/add">
-          Add Vendor
-        </Link>
       </div>
+      <Link className="items-end px-6" href="/vendors/add" passHref>
+      <Button variant="contained" color="primary">Add Vendor</Button>
+        </Link>
     </>
   );
 }
