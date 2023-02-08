@@ -47,7 +47,7 @@ function generate_report(startDate: Date, endDate: Date) {
       "topbooks": "Top 10 Selling Books ----------------------------------------------------------------------------\n1. Title1\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:\n\n2. Title2\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:\n\n3. Title3\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:\n\n4. Title4\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:"
     }
   ];
-  
+
   
   generate({ template, inputs }).then((pdf) => {
     console.log(pdf);
@@ -55,6 +55,86 @@ function generate_report(startDate: Date, endDate: Date) {
     window.open(URL.createObjectURL(blob), "_blank");
   });
 }
+
+const inputs = [
+  {
+    "title": "Hypothetical Books Sales Report",
+    "date": "Report Generated: " + new Date().toLocaleDateString(),
+    "reportperiod": "Report Period: From 2/6/23 to 2/7/23",
+    "day1": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+    "day2": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+    "day3": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+    "day4": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+    "day5": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+    "day6": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+    "day7": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+    "day8": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+    "day9": "Date: 2/6/23 -------------------------------------------------------------------------------------------------------\nTotal Revenue: \nTotal Costs: \nTotal Profit:",
+  },
+  {
+    "topbooksheader": "Top 10 Best Selling Books -- From 2/7/23 to 2/9/23",
+    "book1": "1. Title1\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
+    "book2": "2. Title2\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:", 
+    "book3": "3. Title3\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
+    "book4": "4. Title4\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
+    "book5": "5. Title5\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
+    "book6": "6. Title6\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
+    "book7": "7. Title7\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
+    "book8": "8. Title8\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
+    "book9": "9. Title9\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
+    "book10": "10. Title10\nQuantity Sold: \nTotal Revenue:\nTotal Cost Most-Recent:",
+  }
+];
+
+// ------------------ Formulas for Calculating Day Review and Top Books Spacing and Dimensions ------------------
+// Day Width: 170, Height: 20
+// Day X Constant: 22.93
+// Day Y Height Formula: ((Day# - 1) * 22) + 47
+// Limit: 9 days per page
+// Start: 47
+// End: 47 + ((9 - 1) * 22) = 245
+
+// Book Width: 170, Height: 20
+// Book X Constant: 22.93
+// Book Y Height Formula: ((Book# - 1) * 23) + 35
+// Limit: 10 books per page
+// Start: 35
+// End: 35 + ((10 - 1) * 23) = 242
+
+const days = 5;
+const dynamicSchemaDays = Array.from({length: days}, (_, i) => ({
+  [`day${i + 1}`]: {
+    type: "text",
+    position: {
+      x: (22.93),
+      y: (47 + 22 * i)
+    },
+    width: 170,
+    height: 20,
+    alignment: "left",
+    fontSize: 11,
+    characterSpacing: 0,
+    lineHeight: 1.2,
+    backgroundColor: ""
+  }
+}));
+
+const books = 10;
+const dynamicSchemaBooks = Array.from({length: books}, (_, i) => ({
+  [`book${i + 1}`]: {
+    type: "text",
+    position: {
+      x: 22.93,
+      y: 35 + 23 * i},
+    width: 170,
+    height: 20,
+    alignment: "left",
+    fontSize: 11,
+    characterSpacing: 0,
+    lineHeight: 1.2,
+    backgroundColor: ""
+  }
+}));
 
 const template: Template = {
   basePdf: BLANK_PDF,
@@ -76,7 +156,7 @@ const template: Template = {
         "type": "text",
         "position": {
           "x": 22.93,
-          "y": 23.7
+          "y": 24
         },
         "width": 170,
         "height": 8,
@@ -88,7 +168,7 @@ const template: Template = {
         "type": "text",
         "position": {
           "x": 22.93,
-          "y": 33.28
+          "y": 36
         },
         "width": 170,
         "height": 6,
@@ -98,48 +178,33 @@ const template: Template = {
         "lineHeight": 1,
         "backgroundColor": ""
       },
-      "day1": {
+      
+      
+      
+      "topbooksheader": {
         "type": "text",
         "position": {
           "x": 22.93,
-          "y": 41.01
+          "y": 24
         },
         "width": 170,
-        "height": 22,
+        "height": 7,
         "alignment": "left",
-        "fontSize": 12,
+        "fontSize": 14,
         "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
+        "lineHeight": 1.2
       },
-      "day2": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 66.62
-        },
-        "width": 170,
-        "height": 22,
-        "alignment": "left",
-        "fontSize": 12,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
-      "topbooks": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 93.61
-        },
-        "width": 170,
-        "height": 170,
-        "alignment": "left",
-        "fontSize": 12,
-        "characterSpacing": 0,
-        "lineHeight": 1.5,
-        "backgroundColor": ""
-      }
     },
   ],
 };
+
+for (let obj in dynamicSchemaDays) {
+  template.schemas.push(dynamicSchemaDays[obj]);
+}
+
+for (let obj in dynamicSchemaBooks) {
+  template.push(dynamicSchemaBooks[obj]);
+}
+
+console.log(template.schemas);
+
