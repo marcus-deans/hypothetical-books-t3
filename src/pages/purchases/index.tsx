@@ -13,6 +13,7 @@ import superjson from "superjson";
 import TableHeader from "../../components/table-components/TableHeader";
 import Link from "next/link";
 import PurchaseOrderRow from "../../components/table-components/PurchaseOrderRow";
+import { Button } from "@mui/material";
 
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -69,14 +70,13 @@ export default function sales(
           </tbody>
         </table>
       </div>
-      <div className="flex items-center  bg-white">
-        <Link className="px-6" href="/purchases/add/line">
-          Add Purchase Line
+      <Link className="items-end px-6" href="/purchases/add/line" passHref>
+      <Button variant="contained" color="primary">Add Purchase Line</Button>
         </Link>
-        <Link className="px-6" href="/purchases/add/order">
-          Add Purchase Order
+
+        <Link className="items-end px-6" href="/purchases/add/order" passHref>
+      <Button variant="contained" color="primary">Add Purchase Order</Button>
         </Link>
-      </div>
     </>
   );
 }

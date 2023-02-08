@@ -75,17 +75,12 @@ export default function sales(
           </tbody>
         </table>
       </div>
-      <Link className="items-end px-6" href="/sales/add" passHref>
-      <Button variant="contained" color="primary">Add Sale</Button>
+            <Link className="items-end px-6" href="/sales/add/line" passHref>
+      <Button variant="contained" color="primary">Add Sales Line</Button>
         </Link>
-      <div className="flex items-center  bg-white">
-        <Link className="px-6" href="/sales/add/line">
-          Add Sales Line
+        <Link className="items-end px-6" href="/sales/add/reconciliation" passHref>
+      <Button variant="contained" color="primary">Add Sales Reconciliation</Button>
         </Link>
-        <Link className="px-6" href="/sales/add/reconciliation">
-          Add Sales Reconciliation
-        </Link>
-      </div>
     </>
   );
 }
