@@ -37,6 +37,33 @@ export default function AddSalesLine(
     salesReconciliationId: "",
   });
 
+  const handleOnSearchBook = (string: string, results: Book[]) => {
+    // onSearch will have as the first callback parameter
+    // the string searched and for the second the results.
+    console.log(string, results);
+  };
+
+  const handleOnSearchSalesReconciliation = (
+    string: string,
+    results: SalesReconciliation[]
+  ) => {
+    // onSearch will have as the first callback parameter
+    // the string searched and for the second the results.
+    console.log(string, results);
+  };
+
+  const handleOnHover = () => {
+    console.log("hovered");
+  };
+
+  const handleOnFocus = () => {
+    console.log("Focused");
+  };
+
+  const handleOnClear = () => {
+    console.log("Cleared");
+  };
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setState({ ...state, [event.target.name]: event.target.value });
   };
@@ -120,6 +147,10 @@ export default function AddSalesLine(
                 fuseOptions={{ keys: ["id", "date"] }}
                 placeholder="Search for a sales reconciliation"
                 onSelect={handleOnSelectSalesReconciliation}
+                onSearch={handleOnSearchSalesReconciliation}
+                onFocus={handleOnFocus}
+                onClear={handleOnClear}
+                onHover={handleOnHover}
                 styling={{ zIndex: 4 }} //allowing results to extend over box below
                 autoFocus
                 formatResult={formatResultSalesReconciliation}
@@ -131,6 +162,10 @@ export default function AddSalesLine(
                 fuseOptions={{ keys: ["title", "isbn_13"] }}
                 placeholder="Search for a book"
                 onSelect={handleOnSelectBook}
+                onSearch={handleOnSearchBook}
+                onFocus={handleOnFocus}
+                onClear={handleOnClear}
+                onHover={handleOnHover}
                 autoFocus
                 formatResult={formatResultBook}
               />
