@@ -1,6 +1,6 @@
 import React, { MouseEventHandler, useState } from 'react'
 import Head from 'next/head'
-import { TextSchema, Template, BLANK_PDF, generate} from '@pdfme/generator';
+import { TextSchema, Template, BLANK_PDF, generate, Schema} from '@pdfme/generator';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -104,6 +104,7 @@ const inputs = [
 // Start: 35
 // End: 35 + ((10 - 1) * 23) = 242
 
+
 const days = 5;
 
 let a = new Array<TextSchema>(days);
@@ -124,7 +125,7 @@ a.forEach(function (day, index){
 })
 
 
-const dynamicSchemaDays: Array<TextSchema> = Array.from({length: days}, (_, i) => ({
+const dynamicSchemaDays:Array<Schema> = Array.from({length: days}, (_, i) => ({
   [`day${i + 1}`]: {
     type: "text",
     position: {
@@ -141,13 +142,14 @@ const dynamicSchemaDays: Array<TextSchema> = Array.from({length: days}, (_, i) =
   }
 }));
 
-const books = 10;
-const dynamicSchemaBooks = Array.from({length: books}, (_, i) => ({
+const books = 2;
+const dynamicSchemaBooks:Array<Schema> = Array.from({length: books}, (_, i) => ({
   [`book${i + 1}`]: {
     type: "text",
     position: {
       x: 22.93,
-      y: 35 + 23 * i},
+      y: 35 + 23 * i
+    },
     width: 170,
     height: 20,
     alignment: "left",
@@ -158,7 +160,7 @@ const dynamicSchemaBooks = Array.from({length: books}, (_, i) => ({
   }
 }));
 
-const template: Template = {
+let template: Template = {
   basePdf: BLANK_PDF,
   schemas: [
     {
@@ -200,9 +202,6 @@ const template: Template = {
         "lineHeight": 1,
         "backgroundColor": ""
       },
-      
-      
-      
       "topbooksheader": {
         "type": "text",
         "position": {
@@ -220,14 +219,7 @@ const template: Template = {
   ],
 };
 
-for (let obj in dynamicSchemaDays) {
-  template.schemas.push(dynamicSchemaDays[obj]);
-}
 
-for (let obj in dynamicSchemaBooks) {
-  template.schemas.push(dynamicSchemaBooks[obj]);
-}
-template.schemas
-
-console.log(template.schemas);
+Object.assign(template.schemas.at(0), ...dynamicSchemaDays);
+Object.assign(template.schemas.at(0), ...dynamicSchemaBooks);
 
