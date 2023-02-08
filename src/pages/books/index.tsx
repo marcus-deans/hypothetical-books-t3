@@ -12,6 +12,7 @@ import superjson from "superjson";
 import Link from "next/link";
 import TableHeader from "../../components/TableHeader";
 import BookRow from "../../components/BookRow";
+import { Button } from "@mui/material";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -66,10 +67,10 @@ export default function Books(
         </table>
       </div>
       <div className="items-end  bg-white">
-        <Link className="items-end px-6" href="/books/add">
-          Add Book
-        </Link>
       </div>
+      <Link className="items-end px-6" href="/books/add" passHref>
+      <Button variant="contained" color="primary">Add Book</Button>
+        </Link>
     </>
   );
 }
