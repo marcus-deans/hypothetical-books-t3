@@ -70,6 +70,41 @@ const inputs = [
 // Start: 35
 // End: 35 + ((10 - 1) * 23) = 242
 
+const days = 5;
+const dynamicSchemaDays = Array.from({length: days}, (_, i) => ({
+  [`day${i + 1}`]: {
+    type: "text",
+    position: {
+      x: (22.93),
+      y: (47 + 22 * i)
+    },
+    width: 170,
+    height: 20,
+    alignment: "left",
+    fontSize: 11,
+    characterSpacing: 0,
+    lineHeight: 1.2,
+    backgroundColor: ""
+  }
+}));
+
+const books = 10;
+const dynamicSchemaBooks = Array.from({length: books}, (_, i) => ({
+  [`book${i + 1}`]: {
+    type: "text",
+    position: {
+      x: 22.93,
+      y: 35 + 23 * i},
+    width: 170,
+    height: 20,
+    alignment: "left",
+    fontSize: 11,
+    characterSpacing: 0,
+    lineHeight: 1.2,
+    backgroundColor: ""
+  }
+}));
+
 const template: Template = {
   basePdf: BLANK_PDF,
   schemas: [
@@ -112,132 +147,6 @@ const template: Template = {
         "lineHeight": 1,
         "backgroundColor": ""
       },
-      "day1": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 47
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
-      "day2": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 69
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
-      "day3": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 91
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
-      "day4": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 113
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
-      "day5": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 135
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
-      "day6": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 157
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
-      "day7": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 179
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
-      "day8": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 201
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
-      "day9": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 223
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
       
       
       
@@ -254,140 +163,19 @@ const template: Template = {
         "characterSpacing": 0,
         "lineHeight": 1.2
       },
-      "book1": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 35
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2
-      },
-      "book2": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 58
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2
-      },
-      "book3": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 81
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2
-      },
-      "book4": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 104
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2
-      },
-      "book5": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 127
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2
-      },
-      "book6": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 150
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2
-      },
-      "book7": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 173
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2
-      },
-      "book8": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 196
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2,
-        "backgroundColor": ""
-      },
-      "book9": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 219
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2
-      },
-      "book10": {
-        "type": "text",
-        "position": {
-          "x": 22.93,
-          "y": 242
-        },
-        "width": 170,
-        "height": 20,
-        "alignment": "left",
-        "fontSize": 11,
-        "characterSpacing": 0,
-        "lineHeight": 1.2
-      },
     },
   ],
 };
+
+for (let obj in dynamicSchemaDays) {
+  template.schemas.push(dynamicSchemaDays[obj]);
+}
+
+for (let obj in dynamicSchemaBooks) {
+  template.push(dynamicSchemaBooks[obj]);
+}
+
+console.log(template.schemas);
 
 
 export default report
