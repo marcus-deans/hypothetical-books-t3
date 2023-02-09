@@ -37,7 +37,6 @@ export default function Report(props: InferGetServerSidePropsType<typeof getServ
     const salesReconciliations: salesReconciliation = salesQuery?.data?.items ?? [];
 
     //console.log(purchaseOrders);
-    //console.log("bruh")
 
     //console.log("Purchases\n",purchaseOrders);
     //console.log("Sales\n", salesReconciliations);
@@ -65,6 +64,7 @@ export default function Report(props: InferGetServerSidePropsType<typeof getServ
             <div>
                 <h2>End Date:</h2>
                 <div className="text-black">
+                    
                     <DatePicker selected={endDate} onChange={(date) => setEndDate(date!)} />
                 </div>
             </div>
@@ -314,14 +314,16 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
 }
   
   function getDaysArray(start: Date, end: Date): Array<string> {
-    const arr = new Array<string>();
+    let arr: Array<string>;
+    let dt: Date;
     if(start.toLocaleDateString() == end.toLocaleDateString()){
       const arr = new Array<string>(start.toLocaleDateString());
       return arr;
     }
-    for(const arr = new Array<string>(),dt=new Date(start); dt<=new Date(end.valueOf()); dt.setDate(dt.getDate()+1)){
+    for(arr = new Array<string>(),dt=new Date(start); dt<=new Date(end.valueOf()); dt.setDate(dt.getDate()+1)){
         arr.push(new Date(dt).toLocaleDateString());
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return arr;
   }
 
