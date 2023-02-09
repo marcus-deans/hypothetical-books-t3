@@ -73,6 +73,7 @@ export const salesLinesRouter = createTRPCRouter({
         include: {
           book: {
             select: {
+              id: true,
               title: true,
               authors: true,
               isbn_13: true,
@@ -87,6 +88,38 @@ export const salesLinesRouter = createTRPCRouter({
         });
       }
       return salesLineWithBookPrimaries;
+    }),
+
+  getByIdWithRelations: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const purchaseLineWithRelations = await prisma.salesLine.findUnique({
+        where: { id },
+        include: {
+          book: {
+            select: {
+              id: true,
+              title: true,
+              authors: true,
+              isbn_13: true,
+            },
+          },
+          salesReconciliation: {
+            select: {
+              id: true,
+              date: true,
+            },
+          },
+        },
+      });
+      if (!purchaseLineWithRelations || !purchaseLineWithRelations.display) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No sales line with id '${id}'`,
+        });
+      }
+      return purchaseLineWithRelations;
     }),
 
   // model SalesReconciliation{
@@ -104,6 +137,84 @@ export const salesLinesRouter = createTRPCRouter({
   //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [lineId])
   //   salesReconciliationId	String
   // }
+
+  update: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        bookId: z.string(),
+        quantity: z.number().gt(0),
+        unitWholesalePrice: z.number().gt(0),
+        salesReconciliationId: z.string(),
+      })
+    )
+
+    .mutation(async ({ input }) => {
+      const currentSalesLine = await prisma.salesLine.findUnique({
+        where: { id: input.id },
+        include: {
+          book: {
+            select: {
+              id: true,
+              inventoryCount: true,
+            },
+          },
+        },
+      });
+
+      const futureBookInventoryCount = await prisma.book.findUnique({
+        where: { id: input.bookId },
+        select: {
+          inventoryCount: true,
+        },
+      });
+
+      if ((futureBookInventoryCount?.inventoryCount ?? 0) < input.quantity) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `Not enough inventory for sale of ${input.quantity} books with id '${input.bookId}'`,
+        });
+      }
+
+      const updatedSalesLine = await prisma.salesLine.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          book: {
+            connect: {
+              id: input.bookId,
+            },
+          },
+          quantity: input.quantity,
+          unitWholesalePrice: input.unitWholesalePrice,
+          salesReconciliation: {
+            connect: {
+              id: input.salesReconciliationId,
+            },
+          },
+          display: true,
+        },
+      });
+      await prisma.book.update({
+        where: { id: input.bookId },
+        data: {
+          inventoryCount: {
+            decrement: input.quantity,
+          },
+        },
+      });
+      await prisma.book.update({
+        where: { id: currentSalesLine?.book.id },
+        data: {
+          inventoryCount: {
+            increment: currentSalesLine?.quantity,
+          },
+        },
+      });
+
+      return updatedSalesLine;
+    }),
 
   add: publicProcedure
     .input(
