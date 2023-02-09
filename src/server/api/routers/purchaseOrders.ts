@@ -43,7 +43,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
       }
 
       return {
-        item: items.reverse(),
+        items: items.reverse(),
         nextCursor,
       };
     }),
@@ -169,6 +169,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
             vendor: {
               select: {
                 name: true,
+                id: true,
               },
             },
           },
@@ -223,6 +224,35 @@ export const purchaseOrdersRouter = createTRPCRouter({
    * 	purchaseOrderId	String
    * }
    */
+
+  edit: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        date: z.date(),
+        vendorId: z.string(),
+        purchaseLines: z.array(z.string()),
+      })
+    )
+
+    .mutation(async ({ input }) => {
+      const editedPurchaseOrder = await prisma.purchaseOrder.update({
+        where: { id: input.id },
+        data: {
+          date: input.date,
+          vendor: {
+            connect: {
+              id: input.vendorId,
+            },
+          },
+          purchaseLines: {
+            create: [],
+          },
+          display: true,
+        },
+      });
+      return editedPurchaseOrder;
+    }),
 
   add: publicProcedure
     .input(

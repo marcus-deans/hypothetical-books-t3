@@ -57,11 +57,9 @@ export default function SalesOrderDetail(
             <div className="flex items-center">Delete</div>
           </th>
           <th>
-            {/*TODO: Add edit button*/}
             <EditLink url={`/sales/${encodeURIComponent(props.id)}/edit`} />
           </th>
           <th scope="col" className="px-4 py-2 font-normal text-gray-900">
-            {/*TODO: add delete button*/}
             <DeleteLink url={`/sales/${encodeURIComponent(props.id)}/delete`} />
           </th>
         </tr>
