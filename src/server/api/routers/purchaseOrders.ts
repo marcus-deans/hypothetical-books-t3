@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
-import { purchaseOrderSchema } from "../../../schema/purchase.schema";
+import { purchaseOrderSchema } from "../../../schema/purchases.schema";
 
 export const purchaseOrdersRouter = createTRPCRouter({
   getAll: publicProcedure

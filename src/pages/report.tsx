@@ -13,28 +13,32 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import superjson from "superjson";
-import { purchaseOrder } from '../schema/purchase.schema';
+import { purchaseOrders } from '../schema/purchases.schema';
+import { salesReconciliation } from '../schema/sales.schema';
 
 export default function report(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
-  
+    console.log("Start Date Locale: ", startDate.toLocaleDateString());
+    console.log("Start Date: ", startDate.toDateString());
     const purchaseOrderQuery = api.purchaseOrders.getAllWithOverallMetrics.useQuery({
       cursor: null,
       limit: 50,
     });
-    const purchaseOrders: purchaseOrder = purchaseOrderQuery?.data?.items ?? [];
-
     const salesQuery = api.salesReconciliations.getAllWithOverallMetrics.useQuery({
       cursor: null,
       limit: 50,
     });
-    const salesReconciliations = salesQuery?.data?.items ?? [];
-    console.log("Purchases\n",purchaseOrders);
-    console.log("Sales\n", salesReconciliations);
+
+    const purchaseOrders: purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
+    const salesReconciliations: salesReconciliation = salesQuery?.data?.items ?? [];
+
+    //console.log(purchaseOrders);
+    //console.log("bruh")
+
+    //console.log("Purchases\n",purchaseOrders);
+    //console.log("Sales\n", salesReconciliations);
     
-    '{ purchaseOrder: PurchaseOrder; totalPrice: number; totalQuantity: number; totalUniqueBooks: number; }[]'
-    '{ purchaseLines: { bookId: string; quantity: number; unitWholesalePrice: number; }[]; date: Date; }[]'
 
     const handleGenerate: MouseEventHandler<HTMLButtonElement> = async (e) => {
         if (startDate.valueOf() > endDate.valueOf() + 1000*60){
@@ -70,7 +74,7 @@ export default function report(props: InferGetServerSidePropsType<typeof getServ
 
 
 
-function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchaseOrder, salesReconciliations: any[]){
+function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchaseOrders, salesReconciliations: salesReconciliation){
     const daysArray = getDaysArray(startDate, endDate);
 
     const doc = new jsPDF();
@@ -158,8 +162,9 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
     var runningCosts: number = 0;
     //Now we do the purchase oredrs
 
-    var periodOrders = [];
-    var periodSales = [];
+    var periodOrders: purchaseOrders = [];
+
+    var periodSales: salesReconciliation = [];
 
     //forEach calculates total cost
     purchaseOrders.forEach(function(value){
@@ -168,48 +173,46 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
         //not in day range
         return;
       }
-      periodOrders.push(value.purchaseOrder);
+      periodOrders.push(value);
       //get total cost
       runningCosts += value.totalPrice;
     })
-
+    
     //forEach calculates total revenue
     salesReconciliations.forEach(function(value){
       //determine if date is in period
-      if(!daysArray.includes(value.date.toLocaleDateString())){
+      if(!daysArray.includes(value.salesReconciliation.date.toLocaleDateString())){
         //not in day range
         return;
       }
-      periodSales.push(value.salesReconciliation);
+      periodSales.push(value);
       //get total cost
       runningRevenue += value.totalPrice;
     })
 
-
-
-
-    var trueArray: RowInput[] = [];
-
-    /*
-    daysArray.forEach(function(value, index){
-        var insideInput: RowInput = [];
-        insideInput.push(value.toString());
-        const revenue = getRevenue(value);
-        runningRevenue += revenue
-        insideInput.push(revenue);
-        //const cost = getCost(value, purchases);
-        const cost = 6;
-        runningCosts += cost
-        insideInput.push(cost);
-        insideInput.push((revenue - cost).toFixed(2));
-        trueArray.push(insideInput);
+    var perDayList: RowInput[] = [];
+    
+    //per day forloop
+    daysArray.forEach(function(value){
+      //get all of "x" for this day
+      //aggregate cost
+      //aggregate revenue
+      //calculate profit
+      //create input for perDayList
+      var insideInput: RowInput = [];
+      insideInput.push(value.toString());
+      const revenue = getRevenue(value, periodSales);
+      insideInput.push(revenue.toFixed(2));
+      const cost = getCost(value, periodOrders);
+      insideInput.push(cost.toFixed(2));
+      insideInput.push((revenue - cost).toFixed(2));
+      perDayList.push(insideInput);
     })
-    */
 
 
     autoTable(doc, {
         head: [['Date', 'Daily Revenue', 'Daily Costs', 'Daily Profit']],
-        body: trueArray,
+        body: perDayList,
         theme: 'striped',
         headStyles:{
         fillColor: '#343a40'
@@ -226,7 +229,7 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
             }
             },
             {
-            content: runningRevenue,
+            content: (runningRevenue - 0).toFixed(2),
             styles:{
                 halign:'right'
             }
@@ -240,7 +243,7 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
             }
             },
             {
-            content: runningCosts,
+            content: (runningCosts - 0).toFixed(2),
             styles:{
                 halign:'right'
             }
@@ -320,14 +323,20 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
       const arr = new Array<String>(start.toLocaleDateString());
       return arr;
     }
-    for(var arr=[],dt=new Date(start); dt<=new Date(end.valueOf()+(1000 * 3600 * 24)); dt.setDate(dt.getDate()+1)){
+    for(var arr=[],dt=new Date(start); dt<=new Date(end.valueOf()); dt.setDate(dt.getDate()+1)){
         arr.push(new Date(dt).toLocaleDateString());
     }
     return arr;
   };
 
-  function getRevenue(day: Date): number{
-    return Number((Math.random() * 1000).toFixed(2));
+  function getRevenue(day: String, periodSales: salesReconciliation): number{
+    var dailyRevenue: number = 0;
+    periodSales.forEach(function(saleReconciliation){
+      if(day === saleReconciliation.salesReconciliation.date.toLocaleDateString()){
+        dailyRevenue += saleReconciliation.totalPrice;
+      }
+    })
+    return dailyRevenue;
   }
 
 
@@ -335,16 +344,14 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
     return props.purchases.useQuery(props.day);
   }
 
-  function getCost(day: Date, purchases: any): number {
-    var runningCost = 0;
-    /*
-    //const purchaseOrders: purchaseOrder = purchases.useQuery(day);
-    const lines = purchaseOrders.purchaseLines;
-    lines.forEach(function(value){
-        runningCost += (value.quantity * value.unitWholesalePrice);
+  function getCost(day: String, periodOrders: purchaseOrders): number{
+    var dailyCost: number = 0;
+    periodOrders.forEach(function(purchaseOrder){
+      if(day === purchaseOrder.purchaseOrder.date.toLocaleDateString()){
+        dailyCost += purchaseOrder.totalPrice;
+      }
     })
-    */
-    return runningCost;
+    return dailyCost;
   }
 
   export async function getServerSideProps(context: GetServerSidePropsContext) {
