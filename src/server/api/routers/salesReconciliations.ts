@@ -268,6 +268,24 @@ export const salesReconciliationsRouter = createTRPCRouter({
   //   salesReconciliationId	String
   // }
 
+  update: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        date: z.date(),
+        salesLines: z.array(z.string()),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const updatedSalesReconciliation =
+        await prisma.salesReconciliation.update({
+          where: { id: input.id },
+          data: {
+            date: input.date,
+          },
+        });
+    }),
+
   add: publicProcedure
     .input(
       z.object({
