@@ -43,7 +43,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
       }
 
       return {
-        item: items.reverse(),
+        items: items.reverse(),
         nextCursor,
       };
     }),
