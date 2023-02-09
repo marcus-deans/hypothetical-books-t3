@@ -127,7 +127,7 @@ export const booksRouter = createTRPCRouter({
           authors: true,
           genre: true,
           purchaseLines: true,
-          salesReconciliationLines: true,
+          salesLines: true,
         },
         cursor: cursor
           ? {
@@ -206,7 +206,7 @@ export const booksRouter = createTRPCRouter({
           authors: true,
           genre: true,
           purchaseLines: true,
-          salesReconciliationLines: true,
+          salesLines: true,
         },
       });
       if (!book || !book.display) {
@@ -255,7 +255,7 @@ export const booksRouter = createTRPCRouter({
         retailPrice: z.number().gt(0),
         genreId: z.string(),
         purchaseLines: z.string().array(),
-        saleReconciliationLines: z.string().array(),
+        salesLines: z.string().array(),
         inventoryCount: z.number().int(),
       })
     )
@@ -291,7 +291,7 @@ export const booksRouter = createTRPCRouter({
           purchaseLines: {
             create: [],
           },
-          salesReconciliationLines: {
+          salesLines: {
             create: [],
           },
           inventoryCount: input.inventoryCount,

@@ -38,7 +38,7 @@ const industryIdentifiersSchema: JSONSchemaType<
   },
 };
 
-const schema: JSONSchemaType<GoogleBookDetails> = {
+const detailSchema: JSONSchemaType<GoogleBookDetails> = {
   type: "object",
   properties: {
     title: { type: "string" },
@@ -61,13 +61,84 @@ const schema: JSONSchemaType<GoogleBookDetails> = {
   additionalProperties: false,
 };
 
-const validate = ajv.compile(schema);
+interface GoogleBookItems {
+  kind: string;
+  id: string;
+  etag: string;
+  selfLink: string;
+  volumeInfo: GoogleBookDetails;
+}
+
+const itemsSchema: JSONSchemaType<GoogleBookItems> = {
+  type: "object",
+  properties: {
+    kind: { type: "string" },
+    id: { type: "string" },
+    etag: { type: "string" },
+    selfLink: { type: "string" },
+    volumeInfo: detailSchema,
+  },
+  required: ["kind", "id", "etag", "selfLink", "volumeInfo"],
+  additionalProperties: false,
+};
+
+interface GoogleBookResponse {
+  kind: string;
+  totalItems: number;
+  items: GoogleBookItems[];
+}
+
+const responseSchema: JSONSchemaType<GoogleBookResponse> = {
+  type: "object",
+  properties: {
+    kind: { type: "string" },
+    totalItems: { type: "number" },
+    items: itemsSchema,
+  },
+  required: ["kind", "totalItems", "items"],
+  additionalProperties: false,
+};
+
+const validate = ajv.compile(responseSchema);
 const logger = new Logger({ name: "googleBooksRouterLogger" });
 
 export const googleBooksRouter = createTRPCRouter({
+  simpleRetrieveByISBN: publicProcedure
+    .input(z.object({ isbn: z.string().min(10) }))
+    .mutation(async ({ input }) => {
+      logger.info("Fetching book from Google Books API");
+      console.log("Fetching book from Google Books API");
+      const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${input.isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
+      return fetch(queryURL)
+        .then((response) => response.json())
+        .then((response) => {
+          const googleBookResponse = response as GoogleBookResponse;
+          const volumeInfo = googleBookResponse.items.map((item) => {
+            return item.volumeInfo;
+          });
+          console.log(volumeInfo);
+          return googleBookResponse;
+        });
+
+      // const retrievedBook = await fetch(queryURL);
+
+      // console.log(retrievedBook);
+      // if (!retrievedBook.ok) {
+      //   throw new TRPCError({
+      //     message: "Book could not be found",
+      //     code: "NOT_FOUND",
+      //   });
+      // }
+      // 9780747573630, 9781514682050
+      // 9781514682050
+      // const jsonified: any = await retrievedBook.json();
+      // console.log(jsonified);
+      // return jsonified;
+    }),
+
   retrieveByISBN: publicProcedure
     .input(z.object({ isbn: z.string().min(10) }))
-    .query(async ({ input }) => {
+    .mutation(async ({ input }) => {
       async function request<TResponse>(
         url: string,
         config: RequestInit = {}
@@ -87,12 +158,12 @@ export const googleBooksRouter = createTRPCRouter({
       try {
         const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${input.isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
         const retrievedBook = await request<GoogleBookDetails>(queryURL);
-        if (!validate(retrievedBook)) {
-          throw new TRPCError({
-            message: "Book could not be found",
-            code: "NOT_FOUND",
-          });
-        }
+        // if (!validate(retrievedBook)) {
+        //   throw new TRPCError({
+        //     message: "Book could not be found",
+        //     code: "NOT_FOUND",
+        //   });
+        // }
         return retrievedBook;
       } catch (error) {
         logger.error("Error fetching book from Google Books API");
