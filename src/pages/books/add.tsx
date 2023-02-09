@@ -4,6 +4,7 @@ import { api } from "../../utils/api";
 import TableHeader from "../../components/table-components/TableHeader";
 import BookAddRow from "../../components/table-components/BookAddRow";
 import { Button } from "@mui/material";
+import { useRouter } from "next/router";
 
 interface GoogleBookResponse {
   kind: string;
@@ -43,7 +44,7 @@ export default function AddBook() {
   // const retrieveMutation = api.googleBooks.simpleRetrieveByISBN.useMutation();
   const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
   const addMutation = api.books.add.useMutation();
-
+  const router = useRouter();
   const handleType = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -121,20 +122,33 @@ export default function AddBook() {
     retrievedBooks.map((book) => {
       let isbn_10 = null;
       let isbn_13 = null;
-      if (book.industryIdentifiers[1] === undefined) {
+      if (
+        book.industryIdentifiers[1] === undefined ||
+        book.industryIdentifiers[0]?.identifier.length === 13
+      ) {
         isbn_13 = book?.industryIdentifiers[0]?.identifier ?? "ISBN13";
       } else {
         isbn_13 = book?.industryIdentifiers[1]?.identifier ?? "ISBN13";
         isbn_10 = book?.industryIdentifiers[0]?.identifier ?? "ISBN10";
       }
+      let publicationYear = Number(book.publishedDate);
+      let pageCount = Number(book.pageCount);
+      if (isNaN(publicationYear)) {
+        publicationYear = 0;
+      }
+      if (isNaN(pageCount)) {
+        pageCount = 0;
+      }
+      console.log("dding book");
+      console.log(book);
       addMutation.mutate({
         title: book.title,
         authors: book.authors,
         isbn_13: isbn_13,
         isbn_10: isbn_10,
         publisher: book.publisher ?? "",
-        publicationYear: Number(book.publishedDate),
-        pageCount: Number(book.pageCount),
+        publicationYear: publicationYear,
+        pageCount: pageCount,
         width: 0,
         height: 0,
         thickness: 0,
@@ -145,6 +159,9 @@ export default function AddBook() {
         inventoryCount: 0,
       });
     });
+    setTimeout(() => {
+      void router.push(`/books/`);
+    }, 500);
     setIsLoaded(false);
   };
 

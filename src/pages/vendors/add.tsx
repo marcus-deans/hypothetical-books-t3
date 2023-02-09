@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { api } from "../../utils/api";
+import { useRouter } from "next/router";
 
 export default function AddVendor() {
   const [vendorName, setVendorName] = useState("");
@@ -12,8 +13,13 @@ export default function AddVendor() {
   const handleSubmit = () => {
     console.log(vendorName);
     addMutation.mutate({ name: vendorName });
-    setVendorName("")
+    setVendorName("");
+    setTimeout(() => {
+      void router.push(`/vendors/`);
+    }, 500);
   };
+
+  const router = useRouter();
 
   return (
     <div className="flex w-full items-center">

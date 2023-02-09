@@ -249,10 +249,10 @@ export const booksRouter = createTRPCRouter({
         publisher: z.string(),
         publicationYear: z.number().int(),
         pageCount: z.number().int(),
-        width: z.number().gt(0),
-        height: z.number().gt(0),
-        thickness: z.number().gt(0),
-        retailPrice: z.number().gt(0),
+        width: z.number().gte(0),
+        height: z.number().gte(0),
+        thickness: z.number().gte(0),
+        retailPrice: z.number().gte(0),
         genreId: z.string(),
         purchaseLines: z.string().array(),
         salesLines: z.string().array(),
@@ -299,12 +299,23 @@ export const booksRouter = createTRPCRouter({
         },
       });
 
-      for (const authorId of input.authors) {
+      for (const author of input.authors) {
+        const ifAuthorExists = await prisma.author.findFirst({
+          where: { name: author },
+        });
+
         await prisma.book.update({
           where: { id: book.id },
           data: {
             authors: {
-              connect: { id: authorId },
+              connectOrCreate: {
+                where: {
+                  id: ifAuthorExists?.id ?? "",
+                },
+                create: {
+                  name: author,
+                },
+              },
             },
           },
         });
