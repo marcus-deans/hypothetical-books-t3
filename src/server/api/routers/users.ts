@@ -9,26 +9,26 @@ import { passwordSchema } from "../../../schema/user.schema";
 import { contextProps } from "@trpc/react-query/shared";
 
 export const usersRouter = createTRPCRouter({
-	setPassword: publicProcedure
-		.input(passwordSchema)
-		.mutation(async ({input}) => {
+  setPassword: publicProcedure
+    .input(passwordSchema)
+    .mutation(async ({ input }) => {
       input.password = await hash(input.password, 10);
-			await prisma.user.create({data: input});
-			return {
-				status: 201,
-				message: "Account Created Successfully"
-			}
-		}),
+      await prisma.user.create({ data: input });
+      return {
+        status: 201,
+        message: "Account Created Successfully",
+      };
+    }),
   changePassword: publicProcedure
-		.input(passwordSchema)
-		.mutation(async ({input}) => {
+    .input(passwordSchema)
+    .mutation(async ({ input }) => {
       input.password = await hash(input.password, 10);
       const user = await prisma.user.findFirst();
-      if(user?.id === undefined){
+      if (user?.id === undefined) {
         return {
           status: 404,
-          message: "Account not Found"
-        }
+          message: "Account not Found",
+        };
       }
       await prisma.user.update({
         where: {
@@ -36,36 +36,37 @@ export const usersRouter = createTRPCRouter({
         },
         data: {
           password: input.password,
-        }
+        },
       });
-			return {
-				status: 201,
-				message: "Password Edited Successfully"
-			}
-		}),
-  getUser: publicProcedure
-    .query(async () => {
-      return await prisma.user.findFirst();
-    }),
-  doesUserExist: publicProcedure
-    .output(z.object({
-      status: z.number(),
-      message: z.string(),
-    }))
-    .query(async () =>{
-      const egg = await prisma.user.findFirst();
-      if (egg == undefined){
-        return{
-          status: 404,
-          message: "No user found"
-        }
-      } else{
       return {
-        status: 200,
-        message: "User Found"
-      }
+        status: 201,
+        message: "Password Edited Successfully",
       };
-    })
+    }),
+  getUser: publicProcedure.query(async () => {
+    return await prisma.user.findFirst();
+  }),
+  doesUserExist: publicProcedure
+    .output(
+      z.object({
+        status: z.number(),
+        message: z.string(),
+      })
+    )
+    .query(async () => {
+      const egg = await prisma.user.findFirst();
+      if (egg == undefined) {
+        return {
+          status: 404,
+          message: "No user found",
+        };
+      } else {
+        return {
+          status: 200,
+          message: "User Found",
+        };
+      }
+    }),
   /*
 	login: publicProcedure
 		.input(passwordSchema)
