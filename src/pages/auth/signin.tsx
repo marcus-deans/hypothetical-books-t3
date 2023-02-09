@@ -7,6 +7,9 @@ export default function Signin(){
   const [userInfo, setUserInfo] = useState({password: "" });
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     // validate your userinfo
+    if(userInfo.password.length === 0){
+      alert("Please Enter a Password")
+    }
     e.preventDefault();
        await signIn("credentials", {
         password: userInfo.password,
