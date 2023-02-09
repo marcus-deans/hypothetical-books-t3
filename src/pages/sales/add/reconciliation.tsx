@@ -5,7 +5,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
 import { api } from "../../../utils/api";
-import { router } from "next/client";
+import { useRouter } from "next/router";
 
 export default function AddSalesReconciliation() {
   const [dateValue, setDateValue] = useState<Dayjs | null>();
@@ -15,15 +15,7 @@ export default function AddSalesReconciliation() {
   const handleDatePickChange = (newValue: Dayjs | null) => {
     setDateValue(newValue);
   };
-
-  const [state, setState] = useState({
-    quantity: 1,
-    price: 0,
-  });
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setState({ ...state, [event.target.name]: event.target.value });
-  };
+  const router = useRouter();
 
   const handleSubmit = () => {
     setIsSubmitting(true);
