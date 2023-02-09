@@ -1,6 +1,8 @@
-import React, { MouseEventHandler, useState } from 'react'
+import type { MouseEventHandler} from 'react';
+import React, { useState } from 'react'
 import jsPDF from 'jspdf';
-import autoTable, { RowInput } from 'jspdf-autotable';
+import type { RowInput } from 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import Head from 'next/head'
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
@@ -13,10 +15,11 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import superjson from "superjson";
-import { purchaseOrders } from '../schema/purchases.schema';
-import { salesReconciliation } from '../schema/sales.schema';
+import type { purchaseOrders } from '../schema/purchases.schema';
+import type { salesReconciliation } from '../schema/sales.schema';
 
-export default function report(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function Report(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     console.log("Start Date Locale: ", startDate.toLocaleDateString());
@@ -40,7 +43,7 @@ export default function report(props: InferGetServerSidePropsType<typeof getServ
     //console.log("Sales\n", salesReconciliations);
     
 
-    const handleGenerate: MouseEventHandler<HTMLButtonElement> = async (e) => {
+    const handleGenerate: MouseEventHandler<HTMLButtonElement> = () => {
         if (startDate.valueOf() > endDate.valueOf() + 1000*60){
             alert("End Date must be later than Start Date, or the same as Start Date");
         } else{
@@ -158,13 +161,13 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
         theme: 'plain'
     });
 
-    var runningRevenue: number = 0;
-    var runningCosts: number = 0;
+    let runningRevenue = 0;
+    let runningCosts = 0;
     //Now we do the purchase oredrs
 
-    var periodOrders: purchaseOrders = [];
+    const periodOrders: purchaseOrders = [];
 
-    var periodSales: salesReconciliation = [];
+    const periodSales: salesReconciliation = [];
 
     //forEach calculates total cost
     purchaseOrders.forEach(function(value){
@@ -190,7 +193,7 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
       runningRevenue += value.totalPrice;
     })
 
-    var perDayList: RowInput[] = [];
+    const perDayList: RowInput[] = [];
     
     //per day forloop
     daysArray.forEach(function(value){
@@ -199,7 +202,7 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
       //aggregate revenue
       //calculate profit
       //create input for perDayList
-      var insideInput: RowInput = [];
+      const insideInput: RowInput = [];
       insideInput.push(value.toString());
       const revenue = getRevenue(value, periodSales);
       insideInput.push(revenue.toFixed(2));
@@ -309,28 +312,21 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
     return doc.output("dataurlnewwindow")
 
 }
-
-  function calculateAmountOfDays(startDate: Date, endDate: Date): number {
   
-    const millis = endDate.valueOf() - startDate.valueOf();
-    const days = millis / (1000 * 3600 * 24);
-    console.log(days);
-    return Math.round(days + 1);
-  }
-  
-  function getDaysArray(start: Date, end: Date): Array<String> {
+  function getDaysArray(start: Date, end: Date): Array<string> {
+    const arr = new Array<string>();
     if(start.toLocaleDateString() == end.toLocaleDateString()){
-      const arr = new Array<String>(start.toLocaleDateString());
+      const arr = new Array<string>(start.toLocaleDateString());
       return arr;
     }
-    for(var arr=[],dt=new Date(start); dt<=new Date(end.valueOf()); dt.setDate(dt.getDate()+1)){
+    for(const arr = new Array<string>(),dt=new Date(start); dt<=new Date(end.valueOf()); dt.setDate(dt.getDate()+1)){
         arr.push(new Date(dt).toLocaleDateString());
     }
     return arr;
-  };
+  }
 
-  function getRevenue(day: String, periodSales: salesReconciliation): number{
-    var dailyRevenue: number = 0;
+  function getRevenue(day: string, periodSales: salesReconciliation): number{
+    let dailyRevenue = 0;
     periodSales.forEach(function(saleReconciliation){
       if(day === saleReconciliation.salesReconciliation.date.toLocaleDateString()){
         dailyRevenue += saleReconciliation.totalPrice;
@@ -340,12 +336,8 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
   }
 
 
-  const Child = (props: {day: Date, purchases: any}) => {
-    return props.purchases.useQuery(props.day);
-  }
-
-  function getCost(day: String, periodOrders: purchaseOrders): number{
-    var dailyCost: number = 0;
+  function getCost(day: string, periodOrders: purchaseOrders): number{
+    let dailyCost = 0;
     periodOrders.forEach(function(purchaseOrder){
       if(day === purchaseOrder.purchaseOrder.date.toLocaleDateString()){
         dailyCost += purchaseOrder.totalPrice;
@@ -354,6 +346,7 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
     return dailyCost;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export async function getServerSideProps(context: GetServerSidePropsContext) {
     const ssg = createProxySSGHelpers({
       router: appRouter,
