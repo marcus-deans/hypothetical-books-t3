@@ -64,6 +64,23 @@ export const genresRouter = createTRPCRouter({
       return genre;
     }),
 
+  getByName: publicProcedure
+    .input(z.object({ name: z.string() }))
+    .query(async ({ input }) => {
+      const genre = await prisma.genre.findFirst({
+        where: {
+          name: input.name,
+        },
+      });
+      if (!genre) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No genre with name '${input.name}'`,
+        });
+      }
+      return genre;
+    }),
+
   add: publicProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ input }) => {
