@@ -5,42 +5,30 @@ import Head from 'next/head'
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { api } from '../utils/api';
-import { createInnerTRPCContext } from "../server/api/trpc";
-import { appRouter } from "../server/api/root";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import type {
-  GetServerSidePropsContext,
-  InferGetServerSidePropsType,
-} from "next";
-import superjson from "superjson";
 import { purchaseOrder } from '../schema/purchase.schema';
+import { QueryKey } from '@trpc/react-query/dist/internals/getArrayQueryKey';
 
-export default function report(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function reportTwo() {
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
-  
-    const purchaseOrderQuery = api.purchaseOrders.getAllWithOverallMetrics.useQuery({
-      cursor: null,
-      limit: 50,
-    });
-    const purchaseOrders: purchaseOrder = purchaseOrderQuery?.data?.items ?? [];
-
-    const salesQuery = api.salesReconciliations.getAllWithOverallMetrics.useQuery({
-      cursor: null,
-      limit: 50,
-    });
-    const salesReconciliations = salesQuery?.data?.items ?? [];
-    console.log("Purchases\n",purchaseOrders);
-    console.log("Sales\n", salesReconciliations);
+    const day = new Date();
+    //day.setFullYear(2022, 4, 3);
+    day.setTime(1648944000000);
+    console.log(day.toISOString());
+    const purchases = api.purchaseOrders.byDate;
+    const p1 = api.purchaseOrders.getAll.useQuery({cursor: null, limit: 10});
+    console.log("All", p1.data)
+    console.log("Child", Child({day, purchases}).data)
+    //console.log("P " + purchases);
+    //console.log(startDate);
     
-    '{ purchaseOrder: PurchaseOrder; totalPrice: number; totalQuantity: number; totalUniqueBooks: number; }[]'
-    '{ purchaseLines: { bookId: string; quantity: number; unitWholesalePrice: number; }[]; date: Date; }[]'
+    //console.log("purchases" + purchases);
 
     const handleGenerate: MouseEventHandler<HTMLButtonElement> = async (e) => {
         if (startDate.valueOf() > endDate.valueOf() + 1000*60){
-            alert("End Date must be later than Start Date, or the same as Start Date");
+        alert("End Date must be later than Start Date, or the same as Start Date");
         } else{
-            generateReport(startDate, endDate, purchaseOrders, salesReconciliations)
+        generateReport(startDate, endDate, purchases)
         }
     };
 
@@ -48,20 +36,20 @@ export default function report(props: InferGetServerSidePropsType<typeof getServ
         <><Head>
             <title>Report</title>
         </Head>
-        <div className="flex-col justify-center absolute bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
+        <div class="flex-col justify-center absolute bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
             <div>
                 <h2>Start Date:</h2>
-                <div className="text-black">
+                <div class="text-black">
                 <DatePicker selected={startDate} onChange={(date) => setStartDate(date!)} />
                 </div>
             </div>
             <div>
                 <h2>End Date:</h2>
-                <div className="text-black">
+                <div class="text-black">
                     <DatePicker selected={endDate} onChange={(date) => setEndDate(date!)} />
                 </div>
             </div>
-            <button className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded" onClick={handleGenerate}>
+            <button class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded" onClick={handleGenerate}>
                 Generate Report
             </button>
         </div></>
@@ -70,7 +58,7 @@ export default function report(props: InferGetServerSidePropsType<typeof getServ
 
 
 
-function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchaseOrder, salesReconciliations: any[]){
+function generateReport(startDate: Date, endDate: Date, purchases: any){
     const daysArray = getDaysArray(startDate, endDate);
 
     const doc = new jsPDF();
@@ -156,44 +144,12 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
 
     var runningRevenue: number = 0;
     var runningCosts: number = 0;
-    //Now we do the purchase oredrs
-
-    var periodOrders = [];
-    var periodSales = [];
-
-    //forEach calculates total cost
-    purchaseOrders.forEach(function(value){
-      //determine if date is in period
-      if(!daysArray.includes(value.purchaseOrder.date.toLocaleDateString())){
-        //not in day range
-        return;
-      }
-      periodOrders.push(value.purchaseOrder);
-      //get total cost
-      runningCosts += value.totalPrice;
-    })
-
-    //forEach calculates total revenue
-    salesReconciliations.forEach(function(value){
-      //determine if date is in period
-      if(!daysArray.includes(value.date.toLocaleDateString())){
-        //not in day range
-        return;
-      }
-      periodSales.push(value.salesReconciliation);
-      //get total cost
-      runningRevenue += value.totalPrice;
-    })
-
-
-
 
     var trueArray: RowInput[] = [];
 
-    /*
     daysArray.forEach(function(value, index){
         var insideInput: RowInput = [];
-        insideInput.push(value.toString());
+        insideInput.push(value.toDateString());
         const revenue = getRevenue(value);
         runningRevenue += revenue
         insideInput.push(revenue);
@@ -204,7 +160,6 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
         insideInput.push((revenue - cost).toFixed(2));
         trueArray.push(insideInput);
     })
-    */
 
 
     autoTable(doc, {
@@ -315,13 +270,13 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
     return Math.round(days + 1);
   }
   
-  function getDaysArray(start: Date, end: Date): Array<String> {
+  function getDaysArray(start: Date, end: Date): Array<Date> {
     if(start.toLocaleDateString() == end.toLocaleDateString()){
-      const arr = new Array<String>(start.toLocaleDateString());
+      const arr = new Array<Date>(start);
       return arr;
     }
     for(var arr=[],dt=new Date(start); dt<=new Date(end.valueOf()+(1000 * 3600 * 24)); dt.setDate(dt.getDate()+1)){
-        arr.push(new Date(dt).toLocaleDateString());
+        arr.push(new Date(dt));
     }
     return arr;
   };
@@ -345,34 +300,4 @@ function generateReport(startDate: Date, endDate: Date, purchaseOrders: purchase
     })
     */
     return runningCost;
-  }
-
-  export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const ssg = createProxySSGHelpers({
-      router: appRouter,
-      ctx: createInnerTRPCContext({ session: null }),
-      //eslint-disable-next-line
-      transformer: superjson,
-    });
-    // const id = context.params?.id as string;
-    /*
-     * Prefetching the `post.byId` query here.
-     * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
-     */
-    await ssg.purchaseOrders.getAllWithOverallMetrics.prefetch({
-      cursor: null,
-      limit: 50,
-    });
-
-    await ssg.salesReconciliations.getAllWithOverallMetrics.prefetch({
-      cursor: null,
-      limit: 50,
-    });
-    // Make sure to return { props: { trpcState: ssg.dehydrate() } }
-    return {
-      props: {
-        trpcState: ssg.dehydrate(),
-        // id,
-      },
-    };
   }
