@@ -2,57 +2,64 @@ import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 // Prisma adapter for NextAuth, optional and can be removed
 //import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from '@prisma/client'
-import { compare, hash }  from "bcrypt";
+import { PrismaClient } from "@prisma/client";
+import { compare, hash } from "bcrypt";
 
 const prisma = new PrismaClient();
 
-
 const confirmPasswordwithHash = (plain: string, hashed: string) => {
-  return new Promise(resolve =>{
-    compare(plain, hashed, function(err, res) {
+  return new Promise((resolve) => {
+    compare(plain, hashed, function (err, res) {
       resolve(res);
+    });
   });
-  })
-}
+};
 
 export const authOptions: NextAuthOptions = {
   session: {
-    strategy: 'jwt'
+    strategy: "jwt",
   },
   providers: [
     CredentialsProvider({
       type: "credentials",
       credentials: {},
       async authorize(credentials, req) {
-        try{
-          console.log(hash(credentials.password as string, 10));
+        try {
+          if (!credentials) {
+            console.log("No credentials");
+            return null;
+          }
+          // console.log(hash(credentials.password as string, 10));
           const user = await prisma.user.findFirst({});
-          if (user !== null){
+          if (user !== null) {
             //compare the hash
-            const res = await confirmPasswordwithHash(credentials.password, user.password);
-            console.log(hash(credentials.password, 10));
-            if(res === true){
+
+            const res = await confirmPasswordwithHash(
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+              credentials.password,
+              user.password
+            );
+            // console.log(hash(credentials.password, 10));
+            if (res === true) {
               const userAccount = {
                 id: user.id,
                 name: null,
                 email: null,
-                image: null
+                image: null,
               };
               console.log("returning");
-              return userAccount
-            }
-            else{
+              return userAccount;
+            } else {
               console.log("Hash not matched logging in");
               return null;
             }
-          }
-          else {
-            console.log("No account registered")
+          } else {
+            console.log("No account registered");
             return null;
           }
-        }
-        catch (err){
+        } catch (err) {
           console.log("Authorize error:", err);
           return null;
         }
@@ -66,10 +73,10 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     redirect({ baseUrl }) {
-      console.log(baseUrl)
-      return baseUrl
-    }
-  }
+      console.log(baseUrl);
+      return baseUrl;
+    },
+  },
 };
 
 export default NextAuth(authOptions);

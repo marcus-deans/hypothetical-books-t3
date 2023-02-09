@@ -40,7 +40,7 @@ export default function AddBook() {
   const [dataRetrieved, setDataRetrieved] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
-  const retrieveMutation = api.googleBooks.simpleRetrieveByISBN.useMutation();
+  // const retrieveMutation = api.googleBooks.simpleRetrieveByISBN.useMutation();
   const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
   const addMutation = api.books.add.useMutation();
 

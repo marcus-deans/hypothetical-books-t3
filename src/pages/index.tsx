@@ -19,7 +19,7 @@ const Home: NextPage = () => {
         <button
           className="rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
           onClick={() => {
-            signIn();
+            void signIn();
           }}
         >
           {!auth && !exist.error && "Login"}
@@ -27,7 +27,7 @@ const Home: NextPage = () => {
         <Link href="/auth/changePassword">{auth && "Change Password"}</Link>
         <button
           onClick={() => {
-            signOut();
+            void signOut();
           }}
         >
           {auth && "LogOut"}
