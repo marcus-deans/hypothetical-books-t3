@@ -43,7 +43,7 @@ export default function AddPurchaseOrder(
     setIsSubmitting(true);
     try {
       if (!dateValue || !vendorValue) {
-        throw new Error("Date and vendor arerequired");
+        throw new Error("Date and vendor are required");
       }
       const addResult = addMutation.mutate({
         date: dateValue.toDate(),

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { api } from "../../utils/api";
+import { useRouter } from "next/router";
 
 export default function AddAuthor() {
   const [authorName, setAuthorName] = useState("");
   const addMutation = api.authors.add.useMutation();
-
+  const router = useRouter();
   const inputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enteredName = event.target.value;
     setAuthorName(enteredName);
@@ -13,6 +14,9 @@ export default function AddAuthor() {
     console.log(authorName);
     setAuthorName("");
     addMutation.mutate({ name: authorName });
+    setTimeout(() => {
+      void router.push(`/authors`);
+    }, 500);
   };
 
   return (

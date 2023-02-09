@@ -1,18 +1,23 @@
 import { useState } from "react";
 import { api } from "../../utils/api";
+import { useRouter } from "next/router";
 
 export default function AddGenre() {
   const [genreName, setGenreName] = useState("");
   const addMutation = api.genres.add.useMutation();
 
+  const router = useRouter();
   const inputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enteredName = event.target.value;
     setGenreName(enteredName);
   };
-  const handleSubmit = (e:any) => {
+  const handleSubmit = (e: any) => {
     console.log(genreName);
-    setGenreName("")
+    setGenreName("");
     addMutation.mutate({ name: genreName });
+    setTimeout(() => {
+      void router.push(`/genres/`);
+    }, 500);
   };
 
   return (

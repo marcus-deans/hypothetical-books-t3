@@ -65,7 +65,7 @@ export default function AddSalesLine(
         salesReconciliationId: salesValue.id,
       });
       setTimeout(() => {
-        void router.push(`/sales/${encodeURIComponent(salesValue.id)}`);
+        void router.push(`/sales/${encodeURIComponent(salesValue.id)}/detail`);
       }, 500);
     } catch (error) {
       console.log(error);

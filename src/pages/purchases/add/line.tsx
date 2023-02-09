@@ -65,7 +65,9 @@ export default function AddPurchaseLine(
         purchaseOrderId: purchaseValue.id,
       });
       setTimeout(() => {
-        void router.push(`/purchases/${encodeURIComponent(purchaseValue.id)}`);
+        void router.push(
+          `/purchases/${encodeURIComponent(purchaseValue.id)}/detail`
+        );
       }, 500);
     } catch (error) {
       console.log(error);
