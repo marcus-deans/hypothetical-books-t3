@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { NextPage } from "next";
 import { signIn } from "next-auth/react";
 import React, { FormEventHandler, useState } from "react";
 
-export default function signin(){
+export default function Signin(){
   const [userInfo, setUserInfo] = useState({password: "" });
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     // validate your userinfo
     e.preventDefault();
-    const res = await signIn("credentials", {
-      password: userInfo.password,
-      redirect: true,
-    });
+       await signIn("credentials", {
+        password: userInfo.password,
+        redirect: true,
+      }).catch().then()
   };
 
   return (
@@ -29,4 +30,5 @@ export default function signin(){
       </form>
     </div>
   );
-};
+}
+

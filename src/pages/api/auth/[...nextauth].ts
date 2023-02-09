@@ -1,4 +1,4 @@
-import NextAuth, { User, type NextAuthOptions } from "next-auth";
+import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 // Prisma adapter for NextAuth, optional and can be removed
 //import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -24,9 +24,9 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       type: "credentials",
       credentials: {},
-      async authorize(credentials: any, req) {
+      async authorize(credentials, req) {
         try{
-          console.log(hash(credentials.password, 10));
+          console.log(hash(credentials.password as string, 10));
           const user = await prisma.user.findFirst({});
           if (user !== null){
             //compare the hash
@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
     // signOut: '/auth/signout'
   },
   callbacks: {
-    async redirect({ url, baseUrl }) {
+    redirect({ baseUrl }) {
       console.log(baseUrl)
       return baseUrl
     }
