@@ -6,10 +6,13 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
 import { api } from "../../../utils/api";
 import { router } from "next/client";
+import Autocomplete from "@mui/joy/Autocomplete";
+
 
 export default function AddSalesReconciliation() {
   const [dateValue, setDateValue] = useState<Dayjs | null>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookSearch, setBookSearch] = useState("");
 
   const addMutation = api.salesReconciliations.add.useMutation();
   const handleDatePickChange = (newValue: Dayjs | null) => {
@@ -17,12 +20,14 @@ export default function AddSalesReconciliation() {
   };
 
   const [state, setState] = useState({
-    quantity: 1,
+    quantity: 0,
     price: 0,
+    book: 1
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setState({ ...state, [event.target.name]: event.target.value });
+    console.log(state)
   };
 
   const handleSubmit = () => {
@@ -64,6 +69,50 @@ export default function AddSalesReconciliation() {
                 )}
               />
             </LocalizationProvider>
+
+        <form className="mb-4 rounded bg-white px-8 pt-6 pb-8 shadow-md">
+        <div className="mb-4">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Unit Retail Price
+          </label>
+          <input
+            className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+            id="genre"
+            type="text"
+            name="price"
+            placeholder="Unit Retail Price"
+            onChange={handleChange}
+          />
+                    <label className="mb-2 block text-sm font-bold text-gray-700">
+            Quantity
+          </label>
+          <input
+            className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+            id="genre"
+            type="text"
+            name="quantity"
+            placeholder="Quantity"
+            onChange={handleChange}
+          />
+        </div>
+      </form>
+      <Autocomplete
+                      options={[]}
+                      name = "book"
+                      placeholder={"Search for Book"}
+                      onChange={(
+                        event,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setBookSearch(newValue[]);
+                      }}
+                      onInputChange={(event, newSalesInputValue: string) => {
+                        setSalesInputValue(newSalesInputValue);
+                      }}
+                      sx={{ width: 425 }}
+                    />
+
+
           </div>
           <div className="flex items-center justify-between">
             <button
