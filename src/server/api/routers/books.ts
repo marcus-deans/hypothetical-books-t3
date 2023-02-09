@@ -1,8 +1,9 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
+
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
@@ -23,7 +24,7 @@ export const booksRouter = createTRPCRouter({
       const items = await prisma.book.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -42,19 +43,173 @@ export const booksRouter = createTRPCRouter({
       }
 
       return {
-        item: items.reverse(),
+        items: items.reverse(),
         nextCursor,
       };
     }),
 
-  byId: publicProcedure
+  getAllWithAuthorsAndGenre: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      /**
+       * For pagination docs you can have a look here
+       * @see https://trpc.io/docs/useInfiniteQuery
+       * @see https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+       */
+      const limit = input.limit ?? 50;
+      const { cursor } = input;
+
+      const items = await prisma.book.findMany({
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: { display: true },
+        include: {
+          authors: {
+            select: {
+              name: true,
+            },
+          },
+          genre: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        orderBy: {
+          title: "asc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        // Remove the last item and use it as next cursor
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const nextItem = items.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      return {
+        items: items.reverse(),
+        nextCursor,
+      };
+    }),
+
+  getAllWithDetails: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      /**
+       * For pagination docs you can have a look here
+       * @see https://trpc.io/docs/useInfiniteQuery
+       * @see https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+       */
+      const limit = input.limit ?? 50;
+      const { cursor } = input;
+
+      const items = await prisma.book.findMany({
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: { display: true },
+        include: {
+          authors: true,
+          genre: true,
+          purchaseLines: true,
+          salesReconciliationLines: true,
+        },
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        orderBy: {
+          title: "desc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        // Remove the last item and use it as next cursor
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const nextItem = items.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      return {
+        items: items.reverse(),
+        nextCursor,
+      };
+    }),
+
+  getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
       const book = await prisma.book.findUnique({
         where: { id },
       });
-      if (!book) {
+      if (!book || !book.display) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No book with id '${id}'`,
+        });
+      }
+      return book;
+    }),
+
+  getByIdWithAuthorAndGenre: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const book = await prisma.book.findUnique({
+        where: { id },
+        include: {
+          authors: {
+            select: {
+              name: true,
+            },
+          },
+          genre: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+      if (!book || !book.display) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No book with id '${id}'`,
+        });
+      }
+      return book;
+    }),
+
+  getByIdWithAllDetails: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const book = await prisma.book.findUnique({
+        where: { id },
+        include: {
+          authors: true,
+          genre: true,
+          purchaseLines: true,
+          salesReconciliationLines: true,
+        },
+      });
+      if (!book || !book.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No book with id '${id}'`,
@@ -76,7 +231,7 @@ export const booksRouter = createTRPCRouter({
    *  height            Float
    *  thickness        Float
    *  retailPrice      Float
-   *  genre            Genre @relation(fields: [genreId], references: [id])
+   *  genre            Genre @relation(fields: [genreId], references: [lineId])
    *  genreId          String // relation String field
    *  purchaseLines      PurchaseLine[]
    *  saleReconciliationLines SaleLine[]
@@ -111,10 +266,10 @@ export const booksRouter = createTRPCRouter({
     //   books 		Book[]
 
     .mutation(async ({ input }) => {
-      let authorData: { name: string }[];
-      input.authors.forEach((authorName) =>
-        authorData.push({ name: authorName })
-      );
+      // let authorData: { name: string }[];
+      // input.authors.forEach((authorName) =>
+      //   authorData.push({ name: authorName })
+      // );
 
       //TODO: add proper author implementation
       const book = await prisma.book.create({
@@ -136,12 +291,24 @@ export const booksRouter = createTRPCRouter({
           purchaseLines: {
             create: [],
           },
-          saleReconciliationLines: {
+          salesReconciliationLines: {
             create: [],
           },
           inventoryCount: input.inventoryCount,
+          display: true,
         },
       });
+
+      for (const authorId of input.authors) {
+        await prisma.book.update({
+          where: { id: book.id },
+          data: {
+            authors: {
+              connect: { id: authorId },
+            },
+          },
+        });
+      }
 
       return book;
     }),
@@ -150,8 +317,32 @@ export const booksRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const book = await prisma.book.delete({
+      // const book = await prisma.book.delete({
+      //   where: { id },
+      // });
+      const currentBook = await prisma.book.findUnique({
         where: { id },
+        include: {
+          purchaseLines: true,
+          salesLines: true,
+        },
+      });
+
+      if (
+        (currentBook?.purchaseLines?.length ?? 1) > 0 ||
+        (currentBook?.salesLines?.length ?? 1) > 0
+      ) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `Book with id '${id}' has associated purchase or sales lines`,
+        });
+      }
+
+      const book = await prisma.book.update({
+        where: { id },
+        data: {
+          display: false,
+        },
       });
       if (!book) {
         throw new TRPCError({

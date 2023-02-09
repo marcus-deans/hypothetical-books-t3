@@ -2,146 +2,147 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
 }
 
 generator zod {
-	provider = "zod-prisma-types"
+  provider = "zod-prisma-types"
 }
 
 model Book {
-	id          			String @id @default(cuid())
-	title       			String
-	authors     			Author[]
-	isbn_13     			String
-	isbn_10     			String?
-	publisher   			String
-	publicationYear 	Int
-	pageCount  				Int
-	width       			Float
-	height      			Float
-	thickness   			Float
-	retailPrice 			Float
-	genre 						Genre @relation(fields: [genreId], references: [id])
-	genreId     			String // relation String field
-	purchaseLines			PurchaseLine[]
-	saleReconciliationLines SalesLine[]
-	//to Be determined
-	inventoryCount 		Int
+  id              String         @id @default(cuid())
+  title           String
+  authors         Author[]
+  isbn_13         String
+  isbn_10         String?
+  publisher       String
+  publicationYear Int
+  pageCount       Int
+  width           Float
+  height          Float
+  thickness       Float
+  retailPrice     Float
+  genre           Genre          @relation(fields: [genreId], references: [id])
+  genreId         String // relation String field
+  purchaseLines   PurchaseLine[]
+  salesLines      SalesLine[]
+  //to Be determined
+  inventoryCount  Int
+  display         Boolean        @default(true)
 }
 
 model Genre {
-  id    		String    @id @default(cuid())
-  name 			String
-  books 		Book[]
+  id      String  @id @default(cuid())
+  name    String
+  books   Book[]
+  display Boolean @default(true)
 }
-
 
 model Author {
-	id 				String @id @default(cuid())
-	name 			String
-	books 		Book[]
+  id      String  @id @default(cuid())
+  name    String
+  books   Book[]
+  display Boolean @default(true)
 }
-
 
 model Vendor {
-	id				String @id @default(cuid())
-	name			String
-	purchaseOrder PurchaseOrder[]
+  id            String          @id @default(cuid())
+  name          String
+  purchaseOrder PurchaseOrder[]
+  display       Boolean         @default(true)
 }
 
-model PurchaseOrder{
-	id				String @id @default(cuid())
-	date			DateTime
-	vendor		Vendor @relation(fields: [vendorId], references: [id])
-	vendorId	String
-	purchaseLines PurchaseLine[]
+model PurchaseOrder {
+  id            String         @id @default(cuid())
+  date          DateTime
+  vendor        Vendor         @relation(fields: [vendorId], references: [id])
+  vendorId      String
+  purchaseLines PurchaseLine[]
+  display       Boolean        @default(true)
 }
 
-model PurchaseLine{
-	id 				String @id @default(cuid())
-	book 			Book @relation(fields: [bookId], references: [id])
-	bookId 		String
-	quantity 	Int
-	unitWholesalePrice Float
-	purchaseOrder		PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
-	purchaseOrderId	String
+model PurchaseLine {
+  id                 String        @id @default(cuid())
+  book               Book          @relation(fields: [bookId], references: [id])
+  bookId             String
+  quantity           Int
+  unitWholesalePrice Float
+  purchaseOrder      PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrderId    String
+  display            Boolean       @default(true)
 }
 
-
-model SalesReconciliation{
-	id 				String @id @default(cuid())
-	date			DateTime
-	salesLines SalesLine[]
+model SalesReconciliation {
+  id         String      @id @default(cuid())
+  date       DateTime
+  salesLines SalesLine[]
+  display    Boolean     @default(true)
 }
 
-model SalesLine{
-	id 				String @id @default(cuid())
-	book 			Book @relation(fields: [bookId], references: [id])
-	bookId 		String
-	quantity 	Int
-	unitWholesalePrice Float
-	salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
-	salesReconciliationId	String
+model SalesLine {
+  id                    String              @id @default(cuid())
+  book                  Book                @relation(fields: [bookId], references: [id])
+  bookId                String
+  quantity              Int
+  unitWholesalePrice    Float
+  salesReconciliation   SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
+  salesReconciliationId String
+  display               Boolean             @default(true)
 }
-
 
 model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? @db.Text
-    access_token      String? @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
+  id       String    @id @default(cuid())
+  password String
+  accounts Account[]
+  sessions Session[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }

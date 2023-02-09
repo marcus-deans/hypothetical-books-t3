@@ -23,7 +23,7 @@ export const purchaseLinesRouter = createTRPCRouter({
       const items = await prisma.purchaseLine.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: {},
+        where: { display: true },
         cursor: cursor
           ? {
               id: cursor,
@@ -47,20 +47,82 @@ export const purchaseLinesRouter = createTRPCRouter({
       };
     }),
 
-  byId: publicProcedure
+  getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
       const purchaseLine = await prisma.purchaseLine.findUnique({
         where: { id },
       });
-      if (!purchaseLine) {
+      if (!purchaseLine || !purchaseLine.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No purchase line with id '${id}'`,
         });
       }
       return purchaseLine;
+    }),
+
+  getByIdWithBookPrimaries: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const purchaseLineWithBookPrimaries =
+        await prisma.purchaseLine.findUnique({
+          where: { id },
+          include: {
+            book: {
+              select: {
+                id: true,
+                title: true,
+                authors: true,
+                isbn_13: true,
+              },
+            },
+          },
+        });
+      if (
+        !purchaseLineWithBookPrimaries ||
+        !purchaseLineWithBookPrimaries.display
+      ) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No sales line with id '${id}'`,
+        });
+      }
+      return purchaseLineWithBookPrimaries;
+    }),
+
+  getByIdWithRelations: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const purchaseLineWithRelations = await prisma.purchaseLine.findUnique({
+        where: { id },
+        include: {
+          book: {
+            select: {
+              id: true,
+              title: true,
+              authors: true,
+              isbn_13: true,
+            },
+          },
+          purchaseOrder: {
+            select: {
+              id: true,
+              date: true,
+            },
+          },
+        },
+      });
+      if (!purchaseLineWithRelations || !purchaseLineWithRelations.display) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No sales line with id '${id}'`,
+        });
+      }
+      return purchaseLineWithRelations;
     }),
 
   /**
@@ -73,21 +135,95 @@ export const purchaseLinesRouter = createTRPCRouter({
    * model PurchaseOrder{
    * 	id				String @id @default(cuid())
    * 	date			DateTime
-   * 	vendor		Vendor @relation(fields: [vendorId], references: [id])
+   * 	vendor		Vendor @relation(fields: [vendorId], references: [lineId])
    * 	vendorId	String
    * 	purchaseLines PurchaseLine[]
    * }
    *
    * model PurchaseLine{
    * 	id 				String @id @default(cuid())
-   * 	book 			Book @relation(fields: [bookId], references: [id])
+   * 	book 			Book @relation(fields: [bookId], references: [lineId])
    * 	bookId 		String
    * 	quantity 	Int
    * 	unitWholesalePrice Float
-   * 	purchaseOrder		PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+   * 	purchaseOrder		PurchaseOrder @relation(fields: [purchaseOrderId], references: [lineId])
    * 	purchaseOrderId	String
    * }
    */
+
+  update: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        bookId: z.string(),
+        quantity: z.number().gt(0),
+        unitWholesalePrice: z.number().gt(0),
+        purchaseOrderId: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const currentPurchaseLine = await prisma.purchaseLine.findUnique({
+        where: { id: input.id },
+        include: {
+          book: {
+            select: {
+              id: true,
+              inventoryCount: true,
+            },
+          },
+        },
+      });
+
+      const purchasedCount = currentPurchaseLine?.quantity ?? 0;
+
+      const bookInventoryCount =
+        currentPurchaseLine?.book.inventoryCount ?? 100000;
+
+      if (bookInventoryCount < purchasedCount) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `Cannot modify purchase line of ${purchasedCount} boks`,
+        });
+      }
+
+      const updatedPurchaseLine = await prisma.purchaseLine.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          book: {
+            connect: {
+              id: input.bookId,
+            },
+          },
+          quantity: input.quantity,
+          unitWholesalePrice: input.unitWholesalePrice,
+          purchaseOrder: {
+            connect: {
+              id: input.purchaseOrderId,
+            },
+          },
+          display: true,
+        },
+      });
+      await prisma.book.update({
+        where: { id: input.bookId },
+        data: {
+          inventoryCount: {
+            increment: input.quantity,
+          },
+        },
+      });
+      await prisma.book.update({
+        where: { id: currentPurchaseLine?.book.id },
+        data: {
+          inventoryCount: {
+            decrement: currentPurchaseLine?.quantity,
+          },
+        },
+      });
+      return updatedPurchaseLine;
+    }),
 
   add: publicProcedure
     .input(
@@ -114,9 +250,17 @@ export const purchaseLinesRouter = createTRPCRouter({
               id: input.purchaseOrderId,
             },
           },
+          display: true,
         },
       });
-
+      await prisma.book.update({
+        where: { id: input.bookId },
+        data: {
+          inventoryCount: {
+            increment: input.quantity,
+          },
+        },
+      });
       return purchaseLine;
     }),
 
@@ -124,8 +268,39 @@ export const purchaseLinesRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const purchaseLine = await prisma.purchaseLine.delete({
+
+      const currentPurchaseLine = await prisma.purchaseLine.findUnique({
         where: { id },
+        include: {
+          book: {
+            select: {
+              id: true,
+              inventoryCount: true,
+            },
+          },
+        },
+      });
+
+      const purchasedCount = currentPurchaseLine?.quantity ?? 0;
+
+      const bookInventoryCount =
+        currentPurchaseLine?.book.inventoryCount ?? 100000;
+
+      if (bookInventoryCount < purchasedCount) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `Cannot delete purchase order of ${purchasedCount} boks`,
+        });
+      }
+
+      // const purchaseLine = await prisma.purchaseLine.delete({
+      //   where: { id },
+      // });
+      const purchaseLine = await prisma.purchaseLine.update({
+        where: { id },
+        data: {
+          display: false,
+        },
       });
       if (!purchaseLine) {
         throw new TRPCError({
@@ -133,6 +308,16 @@ export const purchaseLinesRouter = createTRPCRouter({
           message: `No purchase line to delete with id '${id}'`,
         });
       }
+
+      await prisma.book.update({
+        where: { id: currentPurchaseLine?.book.id },
+        data: {
+          inventoryCount: {
+            decrement: purchasedCount,
+          },
+        },
+      });
+
       return purchaseLine;
     }),
 
