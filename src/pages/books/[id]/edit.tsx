@@ -34,7 +34,7 @@ export default function EditBook(
   const genres = genreDetailsQuery?.data?.items ?? [];
   ``;
   const editMutation = api.books.edit.useMutation();
-  const [retailPrice, setRetailPrice] = useState(0);
+  const [retailPrice, setRetailPrice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [genreValue, setGenreValue] = useState<{
     label: string;
@@ -47,7 +47,7 @@ export default function EditBook(
 
   const inputPriceHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enteredName = event.target.value;
-    setRetailPrice(Number(enteredName));
+    setRetailPrice(enteredName);
   };
 
   const handleSubmit = () => {
@@ -56,12 +56,12 @@ export default function EditBook(
       if (!genreValue) {
         throw new Error("Genre is required");
       }
-      if (!retailPrice && !isNaN(retailPrice)) {
+      if (!retailPrice && !isNaN(Number(retailPrice))) {
         throw new Error("Retail price is required");
       }
       const addResult = editMutation.mutate({
         id: id,
-        retailPrice: retailPrice,
+        retailPrice: Number(retailPrice),
         genreId: genreValue.id,
         purchaseLineIds: [],
         salesLineIds: [],
