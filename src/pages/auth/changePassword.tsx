@@ -1,16 +1,20 @@
-import React, { FormEventHandler, useState } from "react";
+import type { FormEventHandler } from "react";
+import React, { useState } from "react";
 import { api } from "../../utils/api";
 
-export default function register(){
-  const [userInfo, setUserInfo] = useState({password: "", confirm: ""});
+export default function ChangePassword() {
+  const [userInfo, setUserInfo] = useState<{
+    password: string;
+    confirm: string;
+  }>({ password: "", confirm: "" });
   const mutation = api.users.changePassword.useMutation();
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     // validate your userinfo
     e.preventDefault();
     if (userInfo.password !== userInfo.confirm) {
       alert("Passwords must match");
     } else {
-      mutation.mutate({password: userInfo.password});
+      mutation.mutate({ password: userInfo.password });
       alert("Password Successfully Changed \n Please Return to Home Page");
     }
   };
@@ -35,9 +39,11 @@ export default function register(){
           placeholder="********"
         />
         <input type="submit" value="Submit New Password" />
-        {mutation.error && <p>Something went wrong! {mutation.error.message}</p>}
+        {mutation.error && (
+          <p>Something went wrong! {mutation.error.message}</p>
+        )}
         {mutation.isLoading && <p>Loading!</p>}
       </form>
     </div>
   );
-};
+}

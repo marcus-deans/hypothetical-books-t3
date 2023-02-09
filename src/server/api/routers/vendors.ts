@@ -66,7 +66,7 @@ export const vendorsRouter = createTRPCRouter({
       const vendor = await prisma.vendor.update({
         where: { id: input.id },
         data: {
-          name: input.vendor,
+          name: input.name,
         },
       });
       return vendor;
