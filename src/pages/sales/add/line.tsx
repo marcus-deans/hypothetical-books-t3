@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import Autocomplete from "@mui/joy/Autocomplete";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { matchSorter } from "match-sorter";
+
 export default function AddSalesLine(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
@@ -104,10 +105,11 @@ export default function AddSalesLine(
                       options={salesReconciliationOptions}
                       placeholder={"Search sales reconciliations by date"}
                       value={salesValue}
-                      onChange={(event, newValue) => {
-                        if (newValue !== null) {
-                          setSalesValue(newValue);
-                        }
+                      onChange={(
+                        event,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setSalesValue(newValue);
                       }}
                       onInputChange={(event, newSalesInputValue: string) => {
                         setSalesInputValue(newSalesInputValue);
@@ -122,10 +124,11 @@ export default function AddSalesLine(
                       options={bookOptions}
                       placeholder={"Search books by title"}
                       value={bookValue}
-                      onChange={(event, newValue) => {
-                        if (newValue !== null) {
-                          setBookValue(newValue);
-                        }
+                      onChange={(
+                        event,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setBookValue(newValue);
                       }}
                       onInputChange={(event, newBookInputValue: string) => {
                         setBookInputValue(newBookInputValue);
