@@ -1,6 +1,5 @@
 import React from "react";
 import Head from "next/head";
-import SalesReconciliationRow from "../../components/table-components/SalesReconciliationRow";
 import { api } from "../../utils/api";
 import { Logger } from "tslog";
 import { createInnerTRPCContext } from "../../server/api/trpc";
@@ -11,9 +10,13 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import superjson from "superjson";
-import TableHeader from "../../components/table-components/TableHeader";
 import Link from "next/link";
 import { Button } from "@mui/material";
+import Box from "@mui/material/Box";
+import StripedDataGrid from "../../components/table-components/StripedDataGrid";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { GridToolbar } from "@mui/x-data-grid";
+import DetailLink from "../../components/table-components/DetailLink";
 
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -29,44 +32,94 @@ export default function sales(
   const logger = new Logger({ name: "salesReconciliationsogger" });
   logger.info("salesReconciliations", salesReconciliations); // This is the only line that is different from the Books page
 
-  const tableHeaders = [
-    "Title",
-    "Date",
-    "Total Quantity",
-    "Total Price",
-    "Unique Books",
+  const columns: GridColDef[] = [
+    {
+      field: "id",
+      headerName: "Sales Reconciliation ID",
+      headerClassName: "header-theme",
+      width: 250,
+    },
+    {
+      field: "date",
+      headerName: "Reconciliation Date",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "totalQuantity",
+      headerName: "Total Quantity",
+      headerClassName: "header-theme",
+      width: 150,
+    },
+    {
+      field: "totalPrice",
+      headerName: "Total Price",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "totalUniqueBooks",
+      headerName: "Total Unique Books",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "detail",
+      headerName: "Detail",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DetailLink url={`/sales/${params.id}/detail`} />
+      ),
+    },
   ];
+
+  const rows = salesReconciliations.map((salesReconciliation) => {
+    return {
+      id: salesReconciliation.salesReconciliation.id,
+      date: salesReconciliation.salesReconciliation.date.toLocaleDateString(),
+      totalQuantity: salesReconciliation.totalQuantity,
+      totalPrice: `$${salesReconciliation.totalPrice.toFixed(2)}`,
+      totalUniqueBooks: salesReconciliation.totalUniqueBooks,
+    };
+  });
 
   return (
     <>
       <Head>
         <title>Sales</title>
       </Head>
-      <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
-        <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
-          <thead className="bg-gray-50">
-            <tr>
-              {tableHeaders.map((tableHeader) => (
-                <TableHeader text={tableHeader} key={tableHeader} />
-              ))}
-              <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-                <div className="flex items-center">Detail</div>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-            {salesReconciliations.map((salesReconciliation) => (
-              <SalesReconciliationRow
-                id={salesReconciliation.salesReconciliation.id}
-                key={salesReconciliation.salesReconciliation.id}
-                date={salesReconciliation.salesReconciliation.date.toDateString()}
-                totalQuantity={salesReconciliation.totalQuantity}
-                totalPrice={salesReconciliation.totalPrice}
-                totalUniqueBooks={salesReconciliation.totalUniqueBooks}
-              />
-            ))}
-          </tbody>
-        </table>
+      <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+        <Box
+          sx={{
+            height: 400,
+            width: "100%",
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+          }}
+        >
+          <StripedDataGrid
+            rows={rows}
+            columns={columns}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={10}
+            // rowsPerPageOptions={[5]}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
       </div>
       <Link className="items-end px-6" href="/sales/add/line" passHref>
         <Button variant="contained" color="primary">

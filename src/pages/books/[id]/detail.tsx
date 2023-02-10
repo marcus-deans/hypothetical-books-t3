@@ -10,12 +10,14 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-import TableHeader from "../../../components/table-components/TableHeader";
-import BookDetailRow from "../../../components/table-components/BookDetailRow";
 import EditLink from "../../../components/table-components/EditLink";
 import DeleteLink from "../../../components/table-components/DeleteLink";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { GridToolbar } from "@mui/x-data-grid";
+import Box from "@mui/material/Box";
+import StripedDataGrid from "../../../components/table-components/StripedDataGrid";
 
-export default function Detail(
+export default function BookDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
@@ -28,6 +30,110 @@ export default function Detail(
 
   const { data } = bookDetailsQuery;
 
+  const columns: GridColDef[] = [
+    {
+      field: "title",
+      headerName: "Book Title",
+      headerClassName: "header-theme",
+      width: 300,
+    },
+    {
+      field: "author",
+      headerName: "Author",
+      headerClassName: "header-theme",
+      width: 300,
+    },
+    {
+      field: "isbn_13",
+      headerName: "ISBN 13",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "isbn_10",
+      headerName: "ISBN 10",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "publisher",
+      headerName: "Publisher",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "inventoryCount",
+      headerName: "Inventory",
+      headerClassName: "header-theme",
+      width: 150,
+    },
+    {
+      field: "retailPrice",
+      headerName: "Retail Price",
+      headerClassName: "header-theme",
+      width: 150,
+    },
+    {
+      field: "genre",
+      headerName: "Genre",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "publicationYear",
+      headerName: "Publication Year",
+      headerClassName: "header-theme",
+      width: 150,
+    },
+    {
+      field: "pageCount",
+      headerName: "Page Count",
+      headerClassName: "header-theme",
+      width: 150,
+    },
+    {
+      field: "width",
+      headerName: "Width",
+      headerClassName: "header-theme",
+      width: 100,
+    },
+    {
+      field: "height",
+      headerName: "Height",
+      headerClassName: "header-theme",
+      width: 100,
+    },
+    {
+      field: "thickness",
+      headerName: "Thickness",
+      headerClassName: "header-theme",
+      width: 100,
+    },
+    {
+      field: "edit",
+      headerName: "Edit",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <EditLink url={`/books/${id}/${params.id}/edit`} />
+      ),
+    },
+    {
+      field: "delete",
+      headerName: "Delete",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DeleteLink url={`/books/${id}/${params.id}/delete`} />
+      ),
+    },
+  ];
   // id          			String @id @default(cuid())
   // title       			String
   // authors     			Author[]
@@ -47,63 +153,52 @@ export default function Detail(
   // //to Be determined
   // inventoryCount           Int
 
-  const tableHeaders = [
-    "Title",
-    "Author",
-    "ISBN-13",
-    "ISBN-10",
-    "Retail Price",
-    "Genre",
-    "Inventory Count",
-    "Publisher",
-    "Page Count",
-    "Publication Year",
-    "Dimensions (W*H*T)",
+  const rows = [
+    {
+      id: data.id,
+      title: data.title,
+      isbn_13: data.isbn_13,
+      genre: data.genre.name,
+      retailPrice: `$${data.retailPrice.toFixed(2)}`,
+      inventoryCount: data.inventoryCount,
+      isbn_10: data.isbn_10,
+      publisher: data.publisher,
+      publicationYear: data.publicationYear,
+      pageCount: data.pageCount,
+      author: data.authors.map((author) => author.name).join(", "),
+    },
   ];
 
   return (
-    <table className="w-full border-separate bg-white text-left text-sm text-gray-500">
-      <thead className="space-x-4 bg-gray-50">
-        <tr className="space-x-4 rounded-md">
-          {tableHeaders.map((tableHeader) => (
-            <TableHeader text={tableHeader} key={tableHeader} />
-          ))}
-          <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-            <div className="flex items-center">Edit</div>
-          </th>
-          <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-            <div className="flex items-center">Delete</div>
-          </th>
-          <th scope="col" className="px-4 py-2 font-normal text-gray-900">
-            <EditLink url={`/books/${encodeURIComponent(props.id)}/edit`} />
-          </th>
-          <th>
-            <DeleteLink url={`/books/${encodeURIComponent(props.id)}/delete`} />
-          </th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-        <BookDetailRow
-          key={data.id}
-          id={data.id}
-          title={data.title}
-          isbn_13={data.isbn_13}
-          isbn_10={data?.isbn_10 ?? "N/A"}
-          retailPrice={data.retailPrice}
-          authors={data.authors.map((author) => author.name)}
-          genre={data.genre.name}
-          inventoryCount={data.inventoryCount}
-          publisher={data.publisher}
-          pageCount={data.pageCount}
-          publicationYear={data.publicationYear}
-          dimensions={
-            data.width == 0 || data.height == 0 || data.thickness == 0
-              ? "Unknown"
-              : `${data.width} x ${data.height} x ${data.thickness}`
+    <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+      <Box
+        sx={{
+          height: 400,
+          width: "100%",
+          "& .header-theme": {
+            backgroundColor: "rgba(56, 116, 203, 0.35)",
+          },
+        }}
+      >
+        <StripedDataGrid
+          rows={rows}
+          columns={columns}
+          components={{
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            Toolbar: GridToolbar,
+          }}
+          pageSize={10}
+          // rowsPerPageOptions={[5]}
+          checkboxSelection
+          disableSelectionOnClick
+          experimentalFeatures={{ newEditingApi: true }}
+          getRowClassName={(params) =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
           }
         />
-      </tbody>
-    </table>
+      </Box>
+    </div>
   );
 }
 

@@ -10,16 +10,15 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-import TableHeader from "../../../components/table-components/TableHeader";
-import type { SalesLine } from "@prisma/client";
 import DeleteLink from "../../../components/table-components/DeleteLink";
 import EditLink from "../../../components/table-components/EditLink";
-
-type DetailProps = {
-  totalPrice: string;
-  salesLines: (SalesLine & { book: { title: string; isbn_13: string } })[];
-  // salesLines: (typeof SalesLine)[];
-};
+import Box from "@mui/material/Box";
+import StripedDataGrid from "../../../components/table-components/StripedDataGrid";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { GridToolbar } from "@mui/x-data-grid";
+import Head from "next/head";
+import Link from "next/link";
+import { Button } from "@mui/material";
 
 export default function PurchaseOrderDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -35,82 +34,128 @@ export default function PurchaseOrderDetail(
 
   const { data } = purchaseOrderDetailsQuery;
 
-  const tableHeaders = [
-    "Book Title",
-    "ISBN 13",
-    "Wholesale Price",
-    "Quantity",
-    "Subtotal",
+  const columns: GridColDef[] = [
+    {
+      field: "title",
+      headerName: "Book Title",
+      headerClassName: "header-theme",
+      width: 300,
+    },
+    {
+      field: "isbn_13",
+      headerName: "ISBN 13",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "unitWholesalePrice",
+      headerName: "Unit Wholesale Price",
+      headerClassName: "header-theme",
+      width: 150,
+    },
+    {
+      field: "quantity",
+      headerName: "Quantity",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "subtotal",
+      headerName: "Subtotal",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "edit",
+      headerName: "Edit",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <EditLink url={`/purchases/${id}/${params.id}/edit`} />
+      ),
+    },
+    {
+      field: "delete",
+      headerName: "Delete",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DeleteLink url={`/purchases/${id}/${params.id}/delete`} />
+      ),
+    },
   ];
+  const rows = data.purchaseOrderWithOverallMetrics.purchaseLines.map(
+    (purchaseLine) => {
+      return {
+        id: purchaseLine.id,
+        title: purchaseLine.book.title,
+        isbn_13: purchaseLine.book.isbn_13,
+        unitWholesalePrice: `$${purchaseLine.unitWholesalePrice.toFixed(2)}`,
+        quantity: purchaseLine.quantity,
+        subtotal: `$${(
+          purchaseLine.unitWholesalePrice * purchaseLine.quantity
+        ).toFixed(2)}`,
+      };
+    }
+  );
 
   return (
-    <table className="w-full border-separate bg-white text-left text-sm text-gray-500">
-      <thead className="bg-gray-50">
-        <tr>
-          {tableHeaders.map((tableHeader) => (
-            <TableHeader text={tableHeader} key={tableHeader} />
-          ))}
-          <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-            <div className="flex items-center">Edit</div>
-          </th>
-          <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-            <div className="flex items-center">Delete</div>
-          </th>
-          <th>
-            <EditLink url={`/purchases/${encodeURIComponent(props.id)}/edit`} />
-          </th>
-          <th scope="col" className="px-4 py-2 font-normal text-gray-900">
-            <DeleteLink
-              url={`/purchases/${encodeURIComponent(props.id)}/delete`}
-            />
-          </th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-        {data.purchaseOrderWithOverallMetrics.purchaseLines.map(
-          (purchaseLine) => (
-            <tr key={purchaseLine.id} className="hover:bg-gray-150">
-              <td className="px-4 py-2 font-light">
-                {purchaseLine.book.title}
-              </td>
-              <td className="px-4 py-2 font-light">
-                {purchaseLine.book.isbn_13}
-              </td>
-              <td className="px-4 py-2 font-light">
-                {purchaseLine.unitWholesalePrice}
-              </td>
-              <td className="px-4 py-2 font-light">{purchaseLine.quantity}</td>
-              <td className="px-4 py-2 font-light">
-                {purchaseLine.unitWholesalePrice * purchaseLine.quantity}
-              </td>
-              <td className="px-4 py-2 font-light">
-                <EditLink
-                  url={`/purchases/${encodeURIComponent(
-                    props.id
-                  )}/${encodeURIComponent(purchaseLine.id)}/edit`}
-                />
-              </td>
-              <td className="px-4 py-2 font-light">
-                <DeleteLink
-                  url={`/purchases/${encodeURIComponent(
-                    props.id
-                  )}/${encodeURIComponent(purchaseLine.id)}/delete`}
-                />
-              </td>
-            </tr>
-          )
-        )}
-        <tr className="hover:bg-gray-350">
-          <td className="px-4 py-2 font-semibold">Vendor</td>
-          <td className="px-4 py-2 font-semibold">
-            {data.purchaseOrderWithOverallMetrics.vendor.name}
-          </td>
-          <td></td>
-          <td className="px-4 py-2 font-semibold">Grand Total</td>
-          <td className="px-4 py-2 font-medium">{data.totalPrice}</td>
-        </tr>
-      </tbody>
-    </table>
+    <>
+      <Head>
+        <title>Purchases</title>
+      </Head>
+      <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+        <Box
+          sx={{
+            height: 400,
+            width: "100%",
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+          }}
+        >
+          <StripedDataGrid
+            rows={rows}
+            columns={columns}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={10}
+            // rowsPerPageOptions={[5]}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
+      </div>
+      <div className="flex space-x-5 bg-white px-3">
+        <div className="text-large px-15 ">{`Grand Total: $${data.totalPrice.toFixed(
+          2
+        )}`}</div>
+        <div className="text-large px-15 ">{`Vendor Name: ${data.purchaseOrderWithOverallMetrics.vendor.name}`}</div>
+      </div>
+      <Link className="items-end px-6" href={`/sales/${id}/edit`} passHref>
+        <Button variant="contained" color="primary">
+          Edit Purchase Order
+        </Button>
+      </Link>
+      <Link className="items-end px-6" href={`/sales/${id}/delete`} passHref>
+        <Button variant="contained" color="primary">
+          Delete Sales Order
+        </Button>
+      </Link>
+    </>
   );
 }
 
@@ -142,13 +187,6 @@ export async function getStaticProps(
 
   await ssg.purchaseOrders.getByIdWithOverallMetrics.prefetch({ id });
 
-  // const totalPrice = salesReconciliation?.data?.totalPrice.toString();
-
-  // const salesLines =
-  //   salesReconciliation?.data?.salesReconciliationWithOverallMetrics
-  //     ?.salesLines ?? [];
-  //
-  // return { props: { totalPrice, salesLines }, revalidate: 20 };
   return {
     props: {
       trpcState: ssg.dehydrate(),

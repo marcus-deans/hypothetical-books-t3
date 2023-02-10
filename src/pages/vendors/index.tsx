@@ -10,9 +10,13 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import TableHeader from "../../components/table-components/TableHeader";
-import VendorRow from "../../components/table-components/VendorRow";
 import { Button } from "@mui/material";
+import Box from "@mui/material/Box";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { GridToolbar } from "@mui/x-data-grid";
+import EditLink from "../../components/table-components/EditLink";
+import DeleteLink from "../../components/table-components/DeleteLink";
+import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 
 export default function Vendors(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -24,43 +28,98 @@ export default function Vendors(
 
   const vendors = vendorQuery?.data?.items ?? [];
 
-  const tableHeaders = ["Name", "ID"];
+  const columns: GridColDef[] = [
+    {
+      field: "id",
+      headerName: "Vendor ID",
+      headerClassName: "header-theme",
+      width: 250,
+    },
+    {
+      field: "name",
+      headerName: "Vendor Name",
+      headerClassName: "header-theme",
+      width: 250,
+    },
+    {
+      field: "edit",
+      headerName: "Edit",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <EditLink url={`/vendors/${params.id}/edit`} />
+      ),
+    },
+    {
+      field: "delete",
+      headerName: "Delete",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DeleteLink url={`/vendors/${params.id}/delete`} />
+      ),
+    },
+  ];
+
+  const rows = vendors.map((vendor) => {
+    return {
+      id: vendor.id,
+      name: vendor.name,
+    };
+  });
+
+  console.log(rows);
 
   return (
     <>
       <Head>
         <title>Vendors</title>
       </Head>
-      <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
-        <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
-          <thead className="bg-gray-50">
-            <tr>
-              {tableHeaders.map((tableHeader) => (
-                <TableHeader text={tableHeader} key={tableHeader} />
-              ))}
-              <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-                <div className="flex items-center">Edit</div>
-              </th>
-              <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-                <div className="flex items-center">Delete</div>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-            {vendors.map((vendor) => (
-              <VendorRow key={vendor.id} id={vendor.id} name={vendor.name} />
-            ))}
-          </tbody>
-        </table>
+      <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+        <Box
+          sx={{
+            height: 400,
+            width: "100%",
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+          }}
+        >
+          <StripedDataGrid
+            rows={rows}
+            columns={columns}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={10}
+            // rowsPerPageOptions={[5]}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
       </div>
-      <div className="items-end  bg-white">
-      </div>
+      <div className="items-end  bg-white"></div>
       <Link className="items-end px-6" href="/vendors/add" passHref>
-      <Button variant="contained" color="primary">Add Vendor</Button>
-        </Link>
+        <Button variant="contained" color="primary">
+          Add Vendor
+        </Button>
+      </Link>
     </>
   );
 }
+
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,

@@ -10,10 +10,13 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import superjson from "superjson";
-import TableHeader from "../../components/table-components/TableHeader";
 import Link from "next/link";
-import PurchaseOrderRow from "../../components/table-components/PurchaseOrderRow";
 import { Button } from "@mui/material";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { GridToolbar } from "@mui/x-data-grid";
+import DetailLink from "../../components/table-components/DetailLink";
+import Box from "@mui/material/Box";
+import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -29,46 +32,101 @@ export default function sales(
   const logger = new Logger({ name: "purchaseOrdersLogger" });
   logger.info("purchaseOrders", purchaseOrders); // This is the only line that is different from the Books page
 
-  const tableHeaders = [
-    "Date",
-    "ID",
-    "Vendor",
-    "Total Quantity",
-    "Total Price",
-    "Unique Books",
+  const columns: GridColDef[] = [
+    {
+      field: "id",
+      headerName: "Purchase Order ID",
+      headerClassName: "header-theme",
+      width: 250,
+    },
+    {
+      field: "date",
+      headerName: "Order Date",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "vendor",
+      headerName: "Vendor",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "totalQuantity",
+      headerName: "Total Quantity",
+      headerClassName: "header-theme",
+      width: 150,
+    },
+    {
+      field: "totalPrice",
+      headerName: "Total Price",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "totalUniqueBooks",
+      headerName: "Total Unique Books",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "detail",
+      headerName: "Detail",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DetailLink url={`/purchases/${params.id}/detail`} />
+      ),
+    },
   ];
+
+  const rows = purchaseOrders.map((purchaseOrder) => {
+    return {
+      id: purchaseOrder.purchaseOrder.id,
+      date: purchaseOrder.purchaseOrder.date.toLocaleDateString(),
+      totalQuantity: purchaseOrder.totalQuantity,
+      vendor: purchaseOrder.purchaseOrder.vendor.name,
+      totalPrice: `$${purchaseOrder.totalPrice.toFixed(2)}`,
+      totalUniqueBooks: purchaseOrder.totalUniqueBooks,
+    };
+  });
 
   return (
     <>
       <Head>
         <title>Purchases</title>
       </Head>
-      <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
-        <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
-          <thead className="bg-gray-50">
-            <tr>
-              {tableHeaders.map((tableHeader) => (
-                <TableHeader text={tableHeader} key={tableHeader} />
-              ))}
-              <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-                <div className="flex items-center">Detail</div>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-            {purchaseOrders.map((purchaseOrder) => (
-              <PurchaseOrderRow
-                id={purchaseOrder.purchaseOrder.id}
-                key={purchaseOrder.purchaseOrder.id}
-                date={purchaseOrder.purchaseOrder.date.toDateString()}
-                vendor={purchaseOrder.purchaseOrder.vendor.name}
-                totalQuantity={purchaseOrder.totalQuantity}
-                totalPrice={purchaseOrder.totalPrice}
-                totalUniqueBooks={purchaseOrder.totalUniqueBooks}
-              />
-            ))}
-          </tbody>
-        </table>
+      <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+        <Box
+          sx={{
+            height: 400,
+            width: "100%",
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+          }}
+        >
+          <StripedDataGrid
+            rows={rows}
+            columns={columns}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={10}
+            // rowsPerPageOptions={[5]}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
       </div>
       <Link className="items-end px-6" href="/purchases/add/line" passHref>
         <Button variant="contained" color="primary">

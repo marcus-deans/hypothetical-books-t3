@@ -13,6 +13,11 @@ import Link from "next/link";
 import { Button } from "@mui/material";
 import TableHeader from "../../components/table-components/TableHeader";
 import BookRow from "../../components/table-components/BookRow";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import DetailLink from "../../components/table-components/DetailLink";
+import Box from "@mui/material/Box";
+import StripedDataGrid from "../../components/table-components/StripedDataGrid";
+import { GridToolbar } from "@mui/x-data-grid";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -24,49 +29,103 @@ export default function Books(
 
   const books = booksQuery?.data?.items ?? [];
 
-  const tableHeaders = [
-    "Title",
-    "Author",
-    "ISBN",
-    "Retail Price",
-    "Genre",
-    "Inventory Count",
+  const columns: GridColDef[] = [
+    {
+      field: "title",
+      headerName: "Book Title",
+      headerClassName: "header-theme",
+      width: 350,
+    },
+    {
+      field: "author",
+      headerName: "author",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "isbn_13",
+      headerName: "ISBN-13",
+      headerClassName: "header-theme",
+      width: 150,
+    },
+    {
+      field: "retailPrice",
+      headerName: "Retail Price",
+      headerClassName: "header-theme",
+      width: 100,
+    },
+    {
+      field: "genre",
+      headerName: "Genre",
+      headerClassName: "header-theme",
+      width: 150,
+    },
+    {
+      field: "inventoryCount",
+      headerName: "Inventory Count",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "detail",
+      headerName: "Detail",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DetailLink url={`/books/${params.id}/detail`} />
+      ),
+    },
   ];
+
+  const rows = books.map((book) => {
+    return {
+      id: book.id,
+      title: book.title,
+      author: book.authors.map((author) => author.name).join(", "),
+      isbn_13: book.isbn_13,
+      retailPrice: `$${book.retailPrice.toFixed(2)}`,
+      genre: book.genre.name,
+      inventoryCount: book.inventoryCount,
+    };
+  });
 
   return (
     <>
       <Head>
         <title>Books</title>
       </Head>
-      <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
-        <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
-          <thead className="bg-gray-50">
-            <tr>
-              {tableHeaders.map((tableHeader) => (
-                <TableHeader text={tableHeader} key={tableHeader} />
-              ))}
-              <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-                <div className="flex items-center">View Detail</div>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-            {books.map((book) => (
-              <BookRow
-                key={book.id}
-                id={book.id}
-                title={book.title}
-                isbn_13={book.isbn_13}
-                retailPrice={book.retailPrice}
-                authors={book.authors.map((author) => author.name)}
-                genre={book.genre.name}
-                inventoryCount={book.inventoryCount}
-              />
-            ))}
-          </tbody>
-        </table>
+      <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+        <Box
+          sx={{
+            height: 400,
+            width: "100%",
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+          }}
+        >
+          <StripedDataGrid
+            rows={rows}
+            columns={columns}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={10}
+            // rowsPerPageOptions={[5]}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
       </div>
-      <div className="items-end  bg-white"></div>
       <Link className="items-end px-6" href="/books/add" passHref>
         <Button variant="contained" color="primary">
           Add Book

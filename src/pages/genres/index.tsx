@@ -10,9 +10,13 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import TableHeader from "../../components/table-components/TableHeader";
-import GenreRow from "../../components/table-components/GenreRow";
 import { Button } from "@mui/material";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { GridToolbar } from "@mui/x-data-grid";
+import EditLink from "../../components/table-components/EditLink";
+import DeleteLink from "../../components/table-components/DeleteLink";
+import Box from "@mui/material/Box";
+import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 
 export default function Genres(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -24,40 +28,92 @@ export default function Genres(
 
   const genres = genreQuery?.data?.items ?? [];
 
-  const tableHeaders = ["Name", "ID"];
+  const columns: GridColDef[] = [
+    {
+      field: "id",
+      headerName: "Genre ID",
+      headerClassName: "header-theme",
+      width: 250,
+    },
+    {
+      field: "name",
+      headerName: "Genre Name",
+      headerClassName: "header-theme",
+      width: 250,
+    },
+    {
+      field: "edit",
+      headerName: "Edit",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <EditLink url={`/genres/${params.id}/edit`} />
+      ),
+    },
+    {
+      field: "delete",
+      headerName: "Delete",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DeleteLink url={`/genres/${params.id}/delete`} />
+      ),
+    },
+  ];
+
+  const rows = genres.map((genre) => {
+    return {
+      id: genre.id,
+      name: genre.name,
+    };
+  });
 
   return (
     <>
       <Head>
         <title>Genres</title>
       </Head>
-      <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
-        <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
-          <thead className="bg-gray-50">
-            <tr>
-              {tableHeaders.map((tableHeader) => (
-                <TableHeader text={tableHeader} key={tableHeader} />
-              ))}
-              <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-                <div className="flex items-center">Edit</div>
-              </th>
-              <th scope="col" className="px-6 py-4 font-medium text-gray-900">
-                <div className="flex items-center">Delete</div>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-            {genres.map((genre) => (
-              <GenreRow key={genre.id} id={genre.id} name={genre.name} />
-            ))}
-          </tbody>
-        </table>
+      <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+        <Box
+          sx={{
+            height: 400,
+            width: "100%",
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+          }}
+        >
+          <StripedDataGrid
+            rows={rows}
+            columns={columns}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={10}
+            // rowsPerPageOptions={[5]}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
       </div>
-      <div className="items-end  bg-white">
-      </div>
+      <div className="items-end bg-white"></div>
       <Link className="items-end px-6" href="/genres/add" passHref>
-      <Button variant="contained" color="primary">Add Genre</Button>
-        </Link>
+        <Button variant="contained" color="primary">
+          Add Genre
+        </Button>
+      </Link>
     </>
   );
 }
