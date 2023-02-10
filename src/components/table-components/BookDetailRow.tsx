@@ -76,7 +76,7 @@ export default function BookDetailRow(props: BookDetailRowProps) {
         <EditLink url={`/books/${encodeURIComponent(props.id)}/edit`} />
       </td>
       <td className="px-6 py-4">
-        <DeleteLink url={`/books/${encodeURIComponent(props.id)}/edit`} />
+        <DeleteLink url={`/books/${encodeURIComponent(props.id)}/delete`} />
       </td>
     </tr>
   );

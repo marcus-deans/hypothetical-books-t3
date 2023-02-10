@@ -75,10 +75,10 @@ export default function Detail(
             <div className="flex items-center">Delete</div>
           </th>
           <th scope="col" className="px-4 py-2 font-normal text-gray-900">
-            <EditLink url={`/sales/${encodeURIComponent(props.id)}/edit`} />
+            <EditLink url={`/books/${encodeURIComponent(props.id)}/edit`} />
           </th>
           <th>
-            <DeleteLink url={`/sales/${encodeURIComponent(props.id)}/edit`} />
+            <DeleteLink url={`/books/${encodeURIComponent(props.id)}/delete`} />
           </th>
         </tr>
       </thead>
