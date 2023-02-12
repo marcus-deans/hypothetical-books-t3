@@ -118,7 +118,7 @@ export default function BookDetail(
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <EditLink url={`/books/${id}/${params.id}/edit`} />
+        <EditLink url={`/books/${id}/edit`} />
       ),
     },
     {
@@ -130,7 +130,7 @@ export default function BookDetail(
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DeleteLink url={`/books/${id}/${params.id}/delete`} />
+        <DeleteLink url={`/books/${id}/delete`} />
       ),
     },
   ];
@@ -188,7 +188,7 @@ export default function BookDetail(
             Toolbar: GridToolbar,
           }}
           pageSize={10}
-          // rowsPerPageOptions={[5]}
+          rowsPerPageOptions={[10]}
           checkboxSelection
           disableSelectionOnClick
           experimentalFeatures={{ newEditingApi: true }}

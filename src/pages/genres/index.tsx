@@ -17,16 +17,17 @@ import EditLink from "../../components/table-components/EditLink";
 import DeleteLink from "../../components/table-components/DeleteLink";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
+import DetailLink from "../../components/table-components/DetailLink";
 
 export default function Genres(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const genreQuery = api.genres.getAll.useQuery({
+  const genreQuery = api.genres.getAllWithOverallMetrics.useQuery({
     cursor: null,
     limit: 50,
   });
 
-  const genres = genreQuery?.data?.items ?? [];
+  const genresWithOverallMetrics = genreQuery?.data?.items ?? [];
 
   const columns: GridColDef[] = [
     {
@@ -40,6 +41,24 @@ export default function Genres(
       headerName: "Genre Name",
       headerClassName: "header-theme",
       width: 250,
+    },
+    {
+      field: "bookCount",
+      headerName: "Book Count",
+      headerClassName: "header-theme",
+      width: 100,
+    },
+    {
+      field: "detail",
+      headerName: "Detail",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DetailLink url={`/genres/${params.id}/detail`} />
+      ),
     },
     {
       field: "edit",
@@ -67,10 +86,11 @@ export default function Genres(
     },
   ];
 
-  const rows = genres.map((genre) => {
+  const rows = genresWithOverallMetrics.map((genreWithOverallMetrics) => {
     return {
-      id: genre.id,
-      name: genre.name,
+      id: genreWithOverallMetrics.genre.id,
+      name: genreWithOverallMetrics.genre.name,
+      bookCount: genreWithOverallMetrics.bookCount,
     };
   });
 
@@ -97,7 +117,7 @@ export default function Genres(
               Toolbar: GridToolbar,
             }}
             pageSize={10}
-            // rowsPerPageOptions={[5]}
+            rowsPerPageOptions={[10]}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
@@ -129,7 +149,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.genres.getAll.prefetch({ cursor: null, limit: 50 });
+  await ssg.genres.getAllWithOverallMetrics.prefetch({
+    cursor: null,
+    limit: 50,
+  });
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {

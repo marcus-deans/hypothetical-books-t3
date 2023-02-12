@@ -129,7 +129,7 @@ export default function SalesOrderDetail(
               Toolbar: GridToolbar,
             }}
             pageSize={10}
-            // rowsPerPageOptions={[5]}
+            rowsPerPageOptions={[10]}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}

@@ -1,10 +1,12 @@
 import Head from "next/head";
 import React, { useState } from "react";
 import { api } from "../../utils/api";
-import TableHeader from "../../components/table-components/TableHeader";
-import BookAddRow from "../../components/table-components/BookAddRow";
 import { Button } from "@mui/material";
 import { useRouter } from "next/router";
+import type { GridColDef } from "@mui/x-data-grid";
+import StripedDataGrid from "../../components/table-components/StripedDataGrid";
+import { GridToolbar } from "@mui/x-data-grid";
+import Box from "@mui/material/Box";
 
 interface GoogleBookResponse {
   kind: string;
@@ -24,7 +26,7 @@ interface GoogleBookDetails {
   title: string;
   authors: string[];
   publishedDate: string;
-  description: string;
+  description: string | null;
   industryIdentifiers: {
     type: string;
     identifier: string;
@@ -108,6 +110,7 @@ export default function AddBook() {
       fetchedBooks.map((book) => {
         console.log(book);
         setRetrievedBooks([...retrievedBooks, book]);
+        console.log(book.authors.join(", "));
         console.log(retrievedBooks);
       });
       if (index === isbnSearchList.length - 1) {
@@ -122,20 +125,25 @@ export default function AddBook() {
     retrievedBooks.map((book) => {
       let isbn_10 = null;
       let isbn_13 = null;
-      if (
-        book.industryIdentifiers[1] === undefined ||
-        book.industryIdentifiers[0]?.identifier.length === 13
-      ) {
-        isbn_13 = book?.industryIdentifiers[0]?.identifier ?? "ISBN13";
-      } else {
-        isbn_13 = book?.industryIdentifiers[1]?.identifier ?? "ISBN13";
-        isbn_10 = book?.industryIdentifiers[0]?.identifier ?? "ISBN10";
+      if (book?.industryIdentifiers[0]?.type === "ISBN_13") {
+        isbn_13 = book.industryIdentifiers[0].identifier;
+        if (book?.industryIdentifiers[1]?.type === "ISBN_10") {
+          isbn_10 = book.industryIdentifiers[1].identifier;
+        }
       }
-      let publicationYear = Number(book.publishedDate);
-      let pageCount = Number(book.pageCount);
+      if (book?.industryIdentifiers[0]?.type === "ISBN_13") {
+        isbn_13 = book.industryIdentifiers[0].identifier;
+        if (book?.industryIdentifiers[1]?.type === "ISBN_10") {
+          isbn_10 = book.industryIdentifiers[1].identifier;
+        }
+      }
+
+      let publicationYear = Number(new Date(book.publishedDate).getFullYear());
       if (isNaN(publicationYear)) {
         publicationYear = 0;
       }
+
+      let pageCount = Number(book.pageCount);
       if (isNaN(pageCount)) {
         pageCount = 0;
       }
@@ -144,7 +152,7 @@ export default function AddBook() {
       addMutation.mutate({
         title: book.title,
         authors: book.authors,
-        isbn_13: isbn_13,
+        isbn_13: isbn_13 ?? "Unknown",
         isbn_10: isbn_10,
         publisher: book.publisher ?? "",
         publicationYear: publicationYear,
@@ -165,15 +173,85 @@ export default function AddBook() {
     setIsLoaded(false);
   };
 
-  const tableHeaders = [
-    "Title",
-    "Author",
-    "Published Date",
-    "ISBN-13",
-    "Page Count",
-    "Publisher",
-    "Categories",
+  const columns: GridColDef[] = [
+    {
+      field: "title",
+      headerName: "Book Title",
+      headerClassName: "header-theme",
+      width: 250,
+    },
+    {
+      field: "authors",
+      headerName: "Authors",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "isbn_13",
+      headerName: "ISBN-13",
+      headerClassName: "header-theme",
+      width: 125,
+    },
+    {
+      field: "isbn_10",
+      headerName: "ISBN-10",
+      headerClassName: "header-theme",
+      width: 110,
+    },
+    {
+      field: "publicationYear",
+      headerName: "Publication Year",
+      headerClassName: "header-theme",
+      width: 150,
+    },
+    {
+      field: "pageCount",
+      headerName: "Page Count",
+      headerClassName: "header-theme",
+      width: 100,
+    },
+    {
+      field: "publisher",
+      headerName: "Publisher",
+      headerClassName: "header-theme",
+      width: 200,
+    },
+    {
+      field: "genre",
+      headerName: "Genre",
+      headerClassName: "header-theme",
+      width: 150,
+    },
   ];
+
+  const rows = retrievedBooks.map((retrievedBook, index) => {
+    let isbn_10 = null;
+    let isbn_13 = null;
+    if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
+      isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
+      if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
+        isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
+      }
+    }
+    if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
+      isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
+      if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
+        isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
+      }
+    }
+
+    return {
+      id: index,
+      title: retrievedBook.title,
+      authors: retrievedBook.authors.join(", "),
+      isbn_13: isbn_13 ?? "N/A",
+      isbn_10: isbn_10 ?? "N/A",
+      publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
+      pageCount: retrievedBook.pageCount,
+      publisher: retrievedBook.publisher ?? "N/A",
+      genre: retrievedBook?.categories?.join(", ") ?? "N/A",
+    };
+  });
 
   if (isLoaded) {
     return (
@@ -181,69 +259,69 @@ export default function AddBook() {
         <Head>
           <title>Books</title>
         </Head>
-        <div className="p-y-10 flex justify-center rounded-lg bg-white">
-          <div className="flex grid grid-cols-2 items-center">
-            <div className="col-span-2 mb-3 flex items-end xl:w-96">
-              <div className="input-group p-y-5 relative mb-4 flex w-full flex-wrap items-stretch space-y-5">
-                <input
-                  type="search"
-                  className="form-control relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none"
-                  placeholder="Enter ISBNs (Comma Separated)"
-                  aria-label="Search"
-                  aria-describedby="button-addon2"
-                  value={searchQuery}
-                  onChange={handleType}
-                />
-                <button
-                  className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
-                  type="button"
-                  id="button-addon2"
-                  onClick={handleSubmit}
+        <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+          <div className="mb-3 flex w-max">
+            <div className="input-group p-y-5 mb-4 flex w-full items-stretch space-y-5 space-x-3">
+              <input
+                type="search"
+                className="form-control min-w-600 relative m-0 block w-full flex-auto rounded border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none"
+                placeholder="Enter ISBNs (Comma Separated)"
+                aria-label="Search"
+                aria-describedby="button-addon2"
+                value={searchQuery}
+                onChange={handleType}
+              />
+              <button
+                className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
+                type="button"
+                id="button-addon2"
+                onClick={handleSubmit}
+              >
+                <svg
+                  aria-hidden="true"
+                  focusable="false"
+                  data-prefix="fas"
+                  data-icon="search"
+                  className="w-4"
+                  role="img"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
                 >
-                  <svg
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fas"
-                    data-icon="search"
-                    className="w-4"
-                    role="img"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                    ></path>
-                  </svg>
-                </button>
-              </div>
+                  <path
+                    fill="currentColor"
+                    d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                  ></path>
+                </svg>
+              </button>
             </div>
-            <table className="col-span-2 w-full border-collapse bg-white text-left text-sm text-gray-500">
-              <thead className="bg-gray-50">
-                <tr>
-                  {tableHeaders.map((tableHeader) => (
-                    <TableHeader text={tableHeader} key={tableHeader} />
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-                {retrievedBooks.map((retrievedBook, index) => (
-                  <BookAddRow
-                    key={`${retrievedBook.title}:${index}`}
-                    title={retrievedBook.title}
-                    authors={retrievedBook.authors}
-                    isbn_13={
-                      retrievedBook?.industryIdentifiers[1]?.identifier ?? ""
-                    }
-                    pageCount={retrievedBook.pageCount}
-                    publisher={retrievedBook.publisher}
-                    publishedDate={retrievedBook.publishedDate}
-                    categories={retrievedBook.categories}
-                  />
-                ))}
-              </tbody>
-            </table>
           </div>
+          <Box
+            sx={{
+              height: 400,
+              width: "100%",
+              "& .header-theme": {
+                backgroundColor: "rgba(56, 116, 203, 0.35)",
+              },
+            }}
+          >
+            <StripedDataGrid
+              rows={rows}
+              columns={columns}
+              components={{
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                Toolbar: GridToolbar,
+              }}
+              pageSize={10}
+              rowsPerPageOptions={[10]}
+              checkboxSelection
+              disableSelectionOnClick
+              experimentalFeatures={{ newEditingApi: true }}
+              getRowClassName={(params) =>
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+              }
+            />
+          </Box>
           <Button variant="contained" color="primary" onClick={handleConfirm}>
             Confirm Add Books
           </Button>
