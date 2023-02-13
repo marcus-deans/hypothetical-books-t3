@@ -17,6 +17,7 @@ import type {
 import superjson from "superjson";
 import type { purchaseOrders } from "../schema/purchases.schema";
 import type { salesReconciliation } from "../schema/sales.schema";
+import GenerateReport from "../components/GenerateReport";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function Report(
@@ -24,28 +25,30 @@ export default function Report(
 ) {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  console.log("Start Date Locale: ", startDate.toLocaleDateString());
-  console.log("Start Date: ", startDate.toDateString());
-  const purchaseOrderQuery =
-    api.purchaseOrders.getAllWithOverallMetrics.useQuery({
+  const purchaseOrderQuery = api.purchaseOrders.getByDateWithOverallMetrics.useQuery({
+      startDate: startDate,
+      endDate: endDate,
       cursor: null,
       limit: 50,
-    });
-  const salesQuery = api.salesReconciliations.getAllWithOverallMetrics.useQuery(
-    {
+    }, 
+    {enabled: !!startDate && !!endDate}
+  );
+  const salesQuery = api.salesReconciliations.getByDateWithOverallMetrics.useQuery({
+      startDate: startDate,
+      endDate: endDate,
       cursor: null,
       limit: 50,
-    }
+    },
+     {enabled: !!startDate && !!endDate}
   );
 
   const purchaseOrders: purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
-  const salesReconciliations: salesReconciliation =
-    salesQuery?.data?.items ?? [];
+  const salesReconciliations: salesReconciliation = salesQuery?.data?.items ?? [];
 
   //console.log(purchaseOrders);
 
-  //console.log("Purchases\n",purchaseOrders);
-  //console.log("Sales\n", salesReconciliations);
+  console.log("Purchases\n",purchaseOrders);
+  console.log("Sales\n", salesReconciliations);
 
   const handleGenerate: MouseEventHandler<HTMLButtonElement> = () => {
     if (startDate.valueOf() > endDate.valueOf() + 1000 * 60) {
@@ -68,7 +71,7 @@ export default function Report(
           <div className="text-black">
             <DatePicker
               selected={startDate}
-              onChange={(date) => setStartDate(date ?? new Date()!)}
+              onChange={(date) => setStartDate(date ?? new Date())}
             />
           </div>
         </div>
@@ -228,7 +231,9 @@ function generateReport(
     const cost = getCost(value, periodOrders);
     insideInput.push(cost.toFixed(2));
     insideInput.push((revenue - cost).toFixed(2));
-    perDayList.push(insideInput);
+    if((revenue != 0) || cost != 0){
+      perDayList.push(insideInput);
+    }
   });
 
   autoTable(doc, {
@@ -384,12 +389,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.purchaseOrders.getAllWithOverallMetrics.prefetch({
+  await ssg.purchaseOrders.getByDateWithOverallMetrics.prefetch({
     cursor: null,
     limit: 50,
   });
 
-  await ssg.salesReconciliations.getAllWithOverallMetrics.prefetch({
+  await ssg.salesReconciliations.getByDateWithOverallMetrics.prefetch({
     cursor: null,
     limit: 50,
   });

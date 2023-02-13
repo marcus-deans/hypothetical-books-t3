@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { NextPage } from "next";
 import { signIn } from "next-auth/react";
-import React, { FormEventHandler, useState } from "react";
+import type {FormEventHandler} from "react";
+import React, { useState } from "react";
 
 export default function Signin(){
   const [userInfo, setUserInfo] = useState({password: "" });

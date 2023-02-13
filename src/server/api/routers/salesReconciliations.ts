@@ -123,6 +123,90 @@ export const salesReconciliationsRouter = createTRPCRouter({
         nextCursor,
       };
     }),
+  getByDateWithOverallMetrics: publicProcedure
+    .input(
+      z.object({
+        startDate: z.date().nullish(),
+        endDate: z.date().nullish(),
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      /**
+       * For pagination docs you can have a look here
+       * @see https://trpc.io/docs/useInfiniteQuery
+       * @see https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+       */
+      const limit = input.limit ?? 50;
+      const { cursor } = input;
+      const start = input.startDate ?? new Date(2023, 0, 1);
+      const end = input.endDate ?? new Date(2023, 3, 30);
+
+      const items = await prisma.salesReconciliation.findMany({
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: { display: true,
+          date: {
+            lte: end,
+            gte: start
+          }
+        },
+        include: {
+          salesLines: {
+            where: {
+              display: true,
+            },
+            include: {
+              book: {
+                select: {
+                  title: true,
+                  isbn_13: true,
+                },
+              },
+            },
+          },
+        },
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        orderBy: {
+          date: "desc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        // Remove the last item and use it as next cursor
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const nextItem = items.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      const salesReconciliationWithOverallMetrics = [];
+      for (const salesReconciliation of items.reverse()) {
+        let totalPrice = 0;
+        let totalQuantity = 0;
+        const seenBooks = new Set<string>();
+        for (const salesLine of salesReconciliation.salesLines) {
+          totalPrice += salesLine.quantity * salesLine.unitWholesalePrice;
+          totalQuantity += salesLine.quantity;
+          seenBooks.add(salesLine.book.isbn_13);
+        }
+        salesReconciliationWithOverallMetrics.push({
+          salesReconciliation,
+          totalPrice,
+          totalQuantity,
+          totalUniqueBooks: seenBooks.size,
+        });
+      }
+
+      return {
+        items: salesReconciliationWithOverallMetrics,
+        nextCursor,
+      };
+    }),
 
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
