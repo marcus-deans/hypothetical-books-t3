@@ -17,6 +17,7 @@ import { GridToolbar } from "@mui/x-data-grid";
 import EditLink from "../../components/table-components/EditLink";
 import DeleteLink from "../../components/table-components/DeleteLink";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
+import DetailLink from "../../components/table-components/DetailLink";
 
 export default function Vendors(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -40,6 +41,18 @@ export default function Vendors(
       headerName: "Vendor Name",
       headerClassName: "header-theme",
       width: 250,
+    },
+    {
+      field: "detail",
+      headerName: "Detail",
+      headerClassName: "header-theme",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DetailLink url={`/vendors/${params.id}/detail`} />
+      ),
     },
     {
       field: "edit",

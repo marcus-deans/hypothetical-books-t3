@@ -48,6 +48,41 @@ export const vendorsRouter = createTRPCRouter({
       };
     }),
 
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const vendor = await prisma.vendor.findUnique({
+        where: { id },
+      });
+      if (!vendor) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No vendor with id '${id}'`,
+        });
+      }
+      return vendor;
+    }),
+
+  getByIdWithPurchaseOrders: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const vendor = await prisma.vendor.findUnique({
+        where: { id },
+        include: {
+          purchaseOrder: true,
+        },
+      });
+      if (!vendor) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No vendor with id '${id}'`,
+        });
+      }
+      return vendor;
+    }),
+
   add: publicProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ input }) => {
@@ -89,22 +124,6 @@ export const vendorsRouter = createTRPCRouter({
         },
       });
       return connectedVendor;
-    }),
-
-  getById: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ input }) => {
-      const { id } = input;
-      const vendor = await prisma.vendor.findUnique({
-        where: { id },
-      });
-      if (!vendor) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `No vendor with id '${id}'`,
-        });
-      }
-      return vendor;
     }),
 
   delete: publicProcedure
