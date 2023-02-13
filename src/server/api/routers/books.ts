@@ -384,24 +384,15 @@ export const booksRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      // const book = await prisma.book.delete({
-      //   where: { id },
-      // });
+
       const currentBook = await prisma.book.findUnique({
         where: { id },
-        include: {
-          purchaseLines: true,
-          salesLines: true,
-        },
       });
 
-      if (
-        (currentBook?.purchaseLines?.length ?? 1) > 0 ||
-        (currentBook?.salesLines?.length ?? 1) > 0
-      ) {
+      if (currentBook?.inventoryCount ?? 1 > 0) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
-          message: `Book with id '${id}' has associated purchase or sales lines`,
+          message: `Book with id '${id}' has inventory greater than 0`,
         });
       }
 
