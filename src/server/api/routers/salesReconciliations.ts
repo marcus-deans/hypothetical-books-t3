@@ -140,8 +140,8 @@ export const salesReconciliationsRouter = createTRPCRouter({
        */
       const limit = input.limit ?? 50;
       const { cursor } = input;
-      const start = input.startDate ?? new Date(2023, 0, 1);
-      const end = input.endDate ?? new Date(2023, 3, 30);
+      const start = input.startDate ?? new Date(1970, 0, 1);
+      const end = input.endDate ?? new Date(2100, 0, 1);
 
       const items = await prisma.salesReconciliation.findMany({
         // get an extra item at the end which we'll use as next cursor
