@@ -17,7 +17,9 @@ import type {
 import superjson from "superjson";
 import type { purchaseOrders } from "../schema/purchases.schema";
 import type { salesReconciliation } from "../schema/sales.schema";
+import type { book } from "../schema/books.schema";
 import GenerateReport from "../components/GenerateReport";
+import { exit } from "process";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function Report(
@@ -235,6 +237,50 @@ function generateReport(
       perDayList.push(insideInput);
     }
   });
+
+  /*
+  Then we add all of this information into an input array to the autotable
+  Create Autotable with Headers
+  */
+
+  const bookIdToQuantity = new Map<book, number>();
+  const bookIdToRevenue = new Map<book, number>();
+
+  salesReconciliations.forEach(function (value) {
+    value.salesReconciliation.salesLines.forEach(function (saleLine){
+      const bookToAdd: book = saleLine.book;
+      bookIdToQuantity.set(bookToAdd, saleLine.quantity);
+      bookIdToRevenue.set(bookToAdd, saleLine.unitWholesalePrice * saleLine.quantity);
+    })
+  });
+  const topTenBooksArray: [book: book, quantity: number][] = [...bookIdToQuantity.entries()].sort((a,b) => b[1] - a[1]);
+  topTenBooksArray.length = Math.min(topTenBooksArray.length, 10);
+  const topTenBooksMap = new Map<book, number>(topTenBooksArray);
+  const topTenRevenue = new Map<book, number>();
+  const a = topTenBooksMap.keys();
+  topTenBooksArray.forEach(function (entry: [{title: string, isbn_13: string, }, number]){
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    topTenRevenue.set(entry[0], bookIdToRevenue.get(entry[0])!);
+  });
+
+
+  const reverseOrders = purchaseOrders.slice().reverse();
+  const topTenBooksToCMR = new Map<book, number>();
+
+  //If you're debugging this, good luck
+  reverseOrders.forEach(function (value){
+    value.purchaseOrder.purchaseLines.forEach(function (purchaseLine){
+      topTenBooksArray.forEach(function (entry){
+        if(purchaseLine.book === entry[0]){
+          if(!(topTenBooksToCMR.has(purchaseLine.book))){
+            topTenBooksToCMR.set(purchaseLine.book, purchaseLine.unitWholesalePrice);
+          }
+        }
+      })
+    })
+  })
+
+  
 
   autoTable(doc, {
     head: [["Date", "Daily Revenue", "Daily Costs", "Daily Profit"]],

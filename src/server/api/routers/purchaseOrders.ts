@@ -184,6 +184,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
             }
           : undefined,
         orderBy: {
+          //Don't change this please because of report calculation for top 10 books. It requires it in date order from earliest to latest
           date: "desc",
         },
       });
