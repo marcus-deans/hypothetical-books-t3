@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type { MouseEventHandler } from "react";
 import React, { useState } from "react";
 import jsPDF from "jspdf";
@@ -238,48 +239,6 @@ function generateReport(
     }
   });
 
-  /*
-  Then we add all of this information into an input array to the autotable
-  Create Autotable with Headers
-  */
-
-  const bookIdToQuantity = new Map<book, number>();
-  const bookIdToRevenue = new Map<book, number>();
-
-  salesReconciliations.forEach(function (value) {
-    value.salesReconciliation.salesLines.forEach(function (saleLine){
-      const bookToAdd: book = saleLine.book;
-      bookIdToQuantity.set(bookToAdd, saleLine.quantity);
-      bookIdToRevenue.set(bookToAdd, saleLine.unitWholesalePrice * saleLine.quantity);
-    })
-  });
-  const topTenBooksArray: [book: book, quantity: number][] = [...bookIdToQuantity.entries()].sort((a,b) => b[1] - a[1]);
-  topTenBooksArray.length = Math.min(topTenBooksArray.length, 10);
-  const topTenBooksMap = new Map<book, number>(topTenBooksArray);
-  const topTenRevenue = new Map<book, number>();
-  const a = topTenBooksMap.keys();
-  topTenBooksArray.forEach(function (entry: [{title: string, isbn_13: string, }, number]){
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    topTenRevenue.set(entry[0], bookIdToRevenue.get(entry[0])!);
-  });
-
-
-  const reverseOrders = purchaseOrders.slice().reverse();
-  const topTenBooksToCMR = new Map<book, number>();
-
-  //If you're debugging this, good luck
-  reverseOrders.forEach(function (value){
-    value.purchaseOrder.purchaseLines.forEach(function (purchaseLine){
-      topTenBooksArray.forEach(function (entry){
-        if(purchaseLine.book === entry[0]){
-          if(!(topTenBooksToCMR.has(purchaseLine.book))){
-            topTenBooksToCMR.set(purchaseLine.book, purchaseLine.unitWholesalePrice);
-          }
-        }
-      })
-    })
-  })
-
   
 
   autoTable(doc, {
@@ -339,45 +298,67 @@ function generateReport(
     theme: "plain",
   });
 
-  autoTable(doc, {
-    body: [
-      [
-        {
-          content: "Terms & notes",
-          styles: {
-            halign: "left",
-            fontSize: 14,
-          },
-        },
-      ],
-      [
-        {
-          content:
-            "orem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia" +
-            "molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum" +
-            "numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium",
-          styles: {
-            halign: "left",
-          },
-        },
-      ],
-    ],
-    theme: "plain",
+  const bookIdToQuantity = new Map<book, number>();
+  const bookIdToRevenue = new Map<book, number>();
+
+  salesReconciliations.forEach(function (value) {
+    value.salesReconciliation.salesLines.forEach(function (saleLine){
+      const bookToAdd: book = saleLine.book;
+      bookIdToQuantity.set(bookToAdd, saleLine.quantity);
+      bookIdToRevenue.set(bookToAdd, saleLine.unitWholesalePrice * saleLine.quantity);
+    })
+  });
+  const topTenBooksArray: [book: book, quantity: number][] = [...bookIdToQuantity.entries()].sort((a,b) => b[1] - a[1]);
+  topTenBooksArray.length = Math.min(topTenBooksArray.length, 10);
+  const topTenBooksMap = new Map<book, number>(topTenBooksArray);
+  const topTenRevenue = new Map<book, number>();
+  const a = topTenBooksMap.keys();
+  topTenBooksArray.forEach(function (entry: [{title: string, isbn_13: string, }, number]){
+    topTenRevenue.set(entry[0], bookIdToRevenue.get(entry[0])!);
   });
 
-  autoTable(doc, {
-    body: [
-      [
-        {
-          content: "This is a centered footer",
-          styles: {
-            halign: "center",
-          },
-        },
-      ],
-    ],
-    theme: "plain",
+
+  const reverseOrders = purchaseOrders.slice().reverse();
+  const topTenBooksToCMR = new Map<book, number>();
+
+  //If you're debugging this, good luck
+  reverseOrders.forEach(function (value){
+    value.purchaseOrder.purchaseLines.forEach(function (purchaseLine){
+      topTenBooksArray.forEach(function (entry){
+        if(purchaseLine.book === entry[0]){
+          if(!(topTenBooksToCMR.has(purchaseLine.book))){
+            topTenBooksToCMR.set(purchaseLine.book, purchaseLine.unitWholesalePrice);
+          }
+        }
+      })
+    })
+  })
+
+  const topTenBooksInput: RowInput[] = [];
+
+  topTenBooksArray.forEach(function (entry) {
+    const insideInput: RowInput = [];
+    insideInput.push(entry[0].title); //Book
+    const quantity = bookIdToQuantity.get(entry[0])!
+    insideInput.push(quantity); //Quantity
+    const revenue = bookIdToRevenue.get(entry[0])!
+    insideInput.push(revenue.toFixed(2)); // Revenue
+    const totalCMR = topTenBooksToCMR.get(entry[0])! * quantity;
+    insideInput.push(totalCMR.toFixed(2)); // CMR
+    insideInput.push((revenue - totalCMR).toFixed(2)); // Profit
+    topTenBooksInput.push(insideInput);
   });
+
+
+  autoTable(doc, {
+    head: [["Book", "Quantity sold", "Total Revenue", "Total Cost Most-Recent", "Total Profit"]],
+    body: topTenBooksInput,
+    theme: "striped",
+    headStyles: {
+      fillColor: "#343A40",
+    },
+  });
+
 
   return doc.output("dataurlnewwindow");
 }
