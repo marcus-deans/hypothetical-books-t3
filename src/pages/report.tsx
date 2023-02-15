@@ -155,7 +155,7 @@ function generateReport(
     body: [
       [
         {
-          content: "Date:" + new Date().toLocaleDateString(),
+          content: "Date: " + new Date().toLocaleDateString(),
           styles: {
             halign: "right",
           },
@@ -367,7 +367,7 @@ function generateReport(
 
 
   autoTable(doc, {
-    head: [["Book", "Quantity sold", "Total Revenue", "Total Cost Most-Recent", "Total Profit"]],
+    head: [["Book", "Quantity Sold", "Total Revenue", "Total Cost Most-Recent", "Total Profit"]],
     body: topTenBooksInput,
     theme: "striped",
     headStyles: {
