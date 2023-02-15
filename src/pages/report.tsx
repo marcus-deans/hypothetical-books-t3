@@ -5,8 +5,10 @@ import jsPDF from "jspdf";
 import type { RowInput } from "jspdf-autotable";
 import autoTable from "jspdf-autotable";
 import Head from "next/head";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import TextField from "@mui/material/TextField";
 import { api } from "../utils/api";
 import { createInnerTRPCContext } from "../server/api/trpc";
 import { appRouter } from "../server/api/root";
@@ -26,8 +28,10 @@ import { exit } from "process";
 export default function Report(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDateString, setStartDate] = useState(new Date());
+  const [endDateString, setEndDate] = useState(new Date());
+  const startDate = new Date(startDateString);
+  const endDate = new Date(endDateString);
   const purchaseOrderQuery = api.purchaseOrders.getByDateWithOverallMetrics.useQuery({
       startDate: startDate,
       endDate: endDate,
@@ -70,21 +74,32 @@ export default function Report(
       </Head>
       <div className="absolute flex-col justify-center rounded border border-blue-700 bg-blue-700 py-2 px-4 font-bold text-white">
         <div>
-          <h2>Start Date:</h2>
-          <div className="text-black">
-            <DatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date ?? new Date())}
-            />
+          <div className="text-black bg-white py-2 px-2 rounded">
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DesktopDatePicker
+                    label="Start Date"
+                    inputFormat="MM/DD/YYYY"
+                    value={startDate}
+                    onChange={(date) => setStartDate(date ?? new Date())}
+                    renderInput={(params: JSX.IntrinsicAttributes) => (
+                      <TextField {...params} />
+                    )}
+              />
+            </LocalizationProvider>
           </div>
         </div>
         <div>
-          <h2>End Date:</h2>
-          <div className="text-black">
-            <DatePicker
-              selected={endDate}
-              onChange={(date) => setEndDate(date ?? new Date())}
-            />
+          <div className="text-black bg-white py-2 px-2 rounded">
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DesktopDatePicker
+                    label="End Date"
+                    value={endDate}
+                    onChange={(date) => setEndDate(date ?? new Date())}
+                    renderInput={(params: JSX.IntrinsicAttributes) => (
+                      <TextField {...params} />
+                    )}
+                />
+            </LocalizationProvider>
           </div>
         </div>
         <button
