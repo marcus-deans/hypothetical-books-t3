@@ -93,6 +93,7 @@ export default function Report(
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DesktopDatePicker
                     label="End Date"
+                    inputFormat="MM/DD/YYYY"
                     value={endDate}
                     onChange={(date) => setEndDate(date ?? new Date())}
                     renderInput={(params: JSX.IntrinsicAttributes) => (
