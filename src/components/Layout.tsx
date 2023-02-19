@@ -12,7 +12,7 @@ const Layout = ({children}:any) => {
             
             <div className="container px-4 md:px-0 max-w-full mx-auto -mt-32">
               <div className="mx-0 sm:mx-6">
-                <div className="container flex items-start text-white">  
+                <div className="container flex items-start text-white py-2">  
                   HEADER HERE
                 </div>
               
