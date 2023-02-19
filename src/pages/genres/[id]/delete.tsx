@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import { prisma } from "../../../server/db";
 
-export default function DeleteVendor(
+export default function DeleteGenre(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
@@ -35,7 +35,7 @@ export default function DeleteVendor(
     try {
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
-        void router.push("/authors");
+        void router.push("/genres");
       }, 500);
     } catch (error) {
       console.log(error);
