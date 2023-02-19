@@ -34,7 +34,7 @@ export default function Books(
       field: "title",
       headerName: "Title",
       headerClassName: "header-theme",
-      flex : 1,
+      flex: 1,
       renderCell: (params) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return (<div className="text-blue-600"><a href={`/books/${params.id}/detail`}>{params.row.title} </a></div>);
@@ -44,35 +44,35 @@ export default function Books(
       field: "author",
       headerName: "Author",
       headerClassName: "header-theme",
-      flex : 1,
+      flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
-      maxWidth : 140,
-      flex : 1,
+      maxWidth: 140,
+      flex: 1,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price",
       headerClassName: "header-theme",
-      maxWidth : 100,
-      flex : 1,
+      maxWidth: 100,
+      flex: 1,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      maxWidth : 120,
-      flex : 1,
+      maxWidth: 120,
+      flex: 1,
     },
     {
       field: "inventoryCount",
-      headerName: "Count",
+      headerName: "Inventory",
       headerClassName: "header-theme",
-      maxWidth : 80,
-      flex : 1,
+      maxWidth: 80,
+      flex: 1,
     },
   ];
 
@@ -93,15 +93,14 @@ export default function Books(
       <Head>
         <title>Books</title>
       </Head>
-      <div className="text-neutral-50 m-5 h-3/4 overflow-hidden">
-      <h1 className="text-2xl inline-block"> Books </h1>
-      <Link className="inline-block text-blue-600 m-2 text-3xl" href="/books/add"> + </Link>
+      <div className="text-neutral-50 mt-3 h-3/4 overflow-hidden">
+        <h1 className="text-2xl inline-block"> Books </h1>
+        <Link className="inline-block text-blue-600 ml-2 text-3xl" href="/books/add"> + </Link>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
-            height: 'auto',
-            width: '100%',
+            height: "auto",
             maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
@@ -115,9 +114,9 @@ export default function Books(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={10}
+            pageSize={14}
             autoHeight={true}
-            rowsPerPageOptions={[10]}
+            rowsPerPageOptions={[14]}
             getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick
