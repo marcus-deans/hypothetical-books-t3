@@ -9,9 +9,10 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
-import Autocomplete from "@mui/joy/Autocomplete";
+import Autocomplete, { AutocompleteRenderInputParams } from "@mui/material/Autocomplete";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { matchSorter } from "match-sorter";
+import { TextField } from "@mui/material";
 
 export default function AddSalesLine(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -107,15 +108,23 @@ export default function AddSalesLine(
                       value={salesValue}
                       onChange={(
                         event,
-                        newValue: { label: string; id: string } | null
+                        newValue: { label: string; id: string; } | null
                       ) => {
                         setSalesValue(newValue);
-                      }}
+                      } }
                       onInputChange={(event, newSalesInputValue: string) => {
                         setSalesInputValue(newSalesInputValue);
-                      }}
-                      sx={{ width: 425 }}
-                    />
+                      } }
+                      sx={{ width: 425 }} 
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                            autoComplete: 'new-password', // disable autocomplete and autofill
+                          }}
+                        />
+                      )}                  />
                   </FormControl>
                   <FormControl>
                     <FormLabel>Book</FormLabel>
@@ -126,15 +135,23 @@ export default function AddSalesLine(
                       value={bookValue}
                       onChange={(
                         event,
-                        newValue: { label: string; id: string } | null
+                        newValue: { label: string; id: string; } | null
                       ) => {
                         setBookValue(newValue);
-                      }}
+                      } }
                       onInputChange={(event, newBookInputValue: string) => {
                         setBookInputValue(newBookInputValue);
-                      }}
-                      sx={{ width: 425 }}
-                    />
+                      } }
+                      sx={{ width: 425 }} 
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                            autoComplete: 'new-password', // disable autocomplete and autofill
+                          }}
+                        />
+                      )}                    />
                   </FormControl>
                 </div>
                 <div className="flex w-4/5 space-x-10">
