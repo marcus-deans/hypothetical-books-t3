@@ -34,19 +34,23 @@ export default function Vendors(
       field: "id",
       headerName: "Vendor ID",
       headerClassName: "header-theme",
+      flex: 1,
       width: 250,
     },
     {
       field: "name",
       headerName: "Vendor Name",
       headerClassName: "header-theme",
+      flex: 1,
       width: 250,
     },
     {
       field: "detail",
       headerName: "Detail",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
+      align : "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -58,7 +62,9 @@ export default function Vendors(
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
+      align : "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -70,7 +76,8 @@ export default function Vendors(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -94,11 +101,16 @@ export default function Vendors(
       <Head>
         <title>Vendors</title>
       </Head>
-      <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+      <Link className="items-end px-6" href="/vendors/add" passHref>
+        <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
+          Add Vendor
+        </Button>
+      </Link>
+      <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
-            height: 400,
-            width: "100%",
+            height: 'auto',
+            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
             },
@@ -112,7 +124,9 @@ export default function Vendors(
               Toolbar: GridToolbar,
             }}
             pageSize={10}
+            autoHeight={true}
             rowsPerPageOptions={[10]}
+            getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
@@ -123,12 +137,6 @@ export default function Vendors(
           />
         </Box>
       </div>
-      <div className="items-end  bg-white"></div>
-      <Link className="items-end px-6" href="/vendors/add" passHref>
-        <Button variant="contained" color="primary">
-          Add Vendor
-        </Button>
-      </Link>
     </>
   );
 }

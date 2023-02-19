@@ -16,7 +16,7 @@ const Layout = ({children}:any) => {
                   HEADER HERE
                 </div>
               
-              <div className="w-full text-xl md:text-2xl text-gray-800 leading-normal rounded-t">
+              <div className="w-full leading-normal rounded-t">
                 <center>
                   {children}
                 </center>

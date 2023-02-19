@@ -100,7 +100,7 @@ export default function sales(
       </Head>
       <div>
         <Link className="items-end px-6" href="/sales/add/line" passHref>
-          <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded" variant="contained">
+          <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
             Add Sales Line
           </Button>
         </Link>
@@ -109,13 +109,13 @@ export default function sales(
           href="/sales/add/reconciliation"
           passHref
         >
-          <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded" variant="contained">
+          <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
             Add Sales Reconciliation
           </Button>
         </Link>
       </div>
       
-      <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+      <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
             height: 'auto',

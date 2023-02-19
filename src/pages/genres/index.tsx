@@ -34,25 +34,28 @@ export default function Genres(
       field: "id",
       headerName: "Genre ID",
       headerClassName: "header-theme",
-      width: 250,
+      flex: 1,
     },
     {
       field: "name",
       headerName: "Genre Name",
       headerClassName: "header-theme",
-      width: 250,
+      flex: 1,
     },
     {
       field: "bookCount",
       headerName: "Book Count",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 200,
     },
     {
       field: "detail",
       headerName: "Detail",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
+      align : "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -64,7 +67,9 @@ export default function Genres(
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
+      align : "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -76,7 +81,9 @@ export default function Genres(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
+      align : "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -99,11 +106,16 @@ export default function Genres(
       <Head>
         <title>Genres</title>
       </Head>
-      <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+      <Link className="items-end px-6" href="/genres/add" passHref>
+        <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
+          Add Genre
+        </Button>
+      </Link>
+      <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
-            height: 400,
-            width: "100%",
+            height: 'auto',
+            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
             },
@@ -117,7 +129,9 @@ export default function Genres(
               Toolbar: GridToolbar,
             }}
             pageSize={10}
+            autoHeight={true}
             rowsPerPageOptions={[10]}
+            getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
@@ -128,12 +142,6 @@ export default function Genres(
           />
         </Box>
       </div>
-      <div className="items-end bg-white"></div>
-      <Link className="items-end px-6" href="/genres/add" passHref>
-        <Button variant="contained" color="primary">
-          Add Genre
-        </Button>
-      </Link>
     </>
   );
 }
