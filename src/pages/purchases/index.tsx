@@ -37,43 +37,50 @@ export default function sales(
       field: "id",
       headerName: "Purchase Order ID",
       headerClassName: "header-theme",
-      width: 250,
+      flex: 1,
     },
     {
       field: "date",
       headerName: "Order Date",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 150,
     },
     {
       field: "vendor",
       headerName: "Vendor",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 200,
     },
     {
       field: "totalQuantity",
       headerName: "Total Quantity",
       headerClassName: "header-theme",
-      width: 150,
+      flex: 1,
+      maxWidth: 110,
     },
     {
       field: "totalPrice",
       headerName: "Total Price",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 90,
     },
     {
       field: "totalUniqueBooks",
       headerName: "Total Unique Books",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 150,
     },
     {
       field: "detail",
       headerName: "Detail",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
+      align : "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -99,11 +106,24 @@ export default function sales(
       <Head>
         <title>Purchases</title>
       </Head>
+      <div>
+        <Link className="items-end px-6" href="/purchases/add/line" passHref>
+          <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded" variant="contained">
+            Add Purchase Line
+          </Button>
+        </Link>
+
+        <Link className="items-end px-6" href="/purchases/add/order" passHref>
+          <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded" variant="contained">
+            Add Purchase Order
+          </Button>
+        </Link>
+      </div>
       <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
-            height: 400,
-            width: "100%",
+            height: 'auto',
+            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
             },
@@ -117,7 +137,9 @@ export default function sales(
               Toolbar: GridToolbar,
             }}
             pageSize={10}
+            autoHeight={true}
             rowsPerPageOptions={[10]}
+            getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
@@ -128,17 +150,6 @@ export default function sales(
           />
         </Box>
       </div>
-      <Link className="items-end px-6" href="/purchases/add/line" passHref>
-        <Button variant="contained" color="primary">
-          Add Purchase Line
-        </Button>
-      </Link>
-
-      <Link className="items-end px-6" href="/purchases/add/order" passHref>
-        <Button variant="contained" color="primary">
-          Add Purchase Order
-        </Button>
-      </Link>
     </>
   );
 }

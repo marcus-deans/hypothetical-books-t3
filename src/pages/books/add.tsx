@@ -334,7 +334,7 @@ export default function AddBook() {
         <Head>
           <title>Books</title>
         </Head>
-        <div className="p-y-10 flex justify-center rounded-lg bg-white">
+        <div className="pt-6 flex justify-center rounded-lg bg-white">
           <div className="flex grid grid-cols-2 items-center">
             <div className="col-span-2 mb-3 flex items-end xl:w-96">
               <div className="input-group p-y-5 relative mb-4 flex w-full flex-wrap items-stretch space-y-5">

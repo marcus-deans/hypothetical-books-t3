@@ -34,43 +34,49 @@ export default function Books(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      width: 350,
+      flex : 1,
     },
     {
       field: "author",
       headerName: "author",
       headerClassName: "header-theme",
-      width: 200,
+      flex : 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
-      width: 150,
+      maxWidth : 140,
+      flex : 1,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price",
       headerClassName: "header-theme",
-      width: 100,
+      maxWidth : 100,
+      flex : 1,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      width: 150,
+      maxWidth : 120,
+      flex : 1,
     },
     {
       field: "inventoryCount",
-      headerName: "Inventory Count",
+      headerName: "Count",
       headerClassName: "header-theme",
-      width: 200,
+      maxWidth : 80,
+      flex : 1,
     },
     {
       field: "detail",
       headerName: "Detail",
       headerClassName: "header-theme",
-      width: 100,
+      maxWidth : 70,
+      align : "center",
+      flex : 1,
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -97,11 +103,18 @@ export default function Books(
       <Head>
         <title>Books</title>
       </Head>
+      <div>
+        <Link className="items-end px-6" href="/books/add" passHref>
+          <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded" variant="contained">
+            Add Book
+          </Button>
+        </Link>
+      </div>
       <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
-            height: 400,
-            width: "100%",
+            height: 'auto',
+            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
             },
@@ -115,7 +128,9 @@ export default function Books(
               Toolbar: GridToolbar,
             }}
             pageSize={10}
+            autoHeight={true}
             rowsPerPageOptions={[10]}
+            getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
@@ -126,11 +141,6 @@ export default function Books(
           />
         </Box>
       </div>
-      <Link className="items-end px-6" href="/books/add" passHref>
-        <Button variant="contained" color="primary">
-          Add Book
-        </Button>
-      </Link>
     </>
   );
 }
