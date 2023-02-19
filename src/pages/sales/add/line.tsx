@@ -9,10 +9,9 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
-import Autocomplete, { AutocompleteRenderInputParams } from "@mui/material/Autocomplete";
+import { Autocomplete, TextField }  from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { matchSorter } from "match-sorter";
-import { TextField } from "@mui/material";
 
 export default function AddSalesLine(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -120,11 +119,11 @@ export default function AddSalesLine(
                         <TextField
                           {...params}
                           inputProps={{
-                            ...params.inputProps,
-                            autoComplete: 'new-password', // disable autocomplete and autofill
+                            ...params.inputProps
                           }}
                         />
-                      )}                  />
+                      )}               
+                      />
                   </FormControl>
                   <FormControl>
                     <FormLabel>Book</FormLabel>
@@ -147,11 +146,11 @@ export default function AddSalesLine(
                         <TextField
                           {...params}
                           inputProps={{
-                            ...params.inputProps,
-                            autoComplete: 'new-password', // disable autocomplete and autofill
+                            ...params.inputProps
                           }}
                         />
-                      )}                    />
+                      )}
+                      />
                   </FormControl>
                 </div>
                 <div className="flex w-4/5 space-x-10">

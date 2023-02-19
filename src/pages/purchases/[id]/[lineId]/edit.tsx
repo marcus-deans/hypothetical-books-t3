@@ -6,7 +6,7 @@ import type {
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import superjson from "superjson";
 import { useRouter } from "next/router";
-import Autocomplete from "@mui/joy/Autocomplete";
+import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import type {
   GetStaticPaths,
@@ -128,15 +128,22 @@ export default function EditPurchaseLine(
                       value={purchaseValue}
                       onChange={(
                         event,
-                        newValue: { label: string; id: string } | null
+                        newValue: { label: string; id: string; } | null
                       ) => {
                         setPurchaseValue(newValue);
-                      }}
+                      } }
                       onInputChange={(event, newPurchaseInputValue: string) => {
                         setPurchaseInputValue(newPurchaseInputValue);
-                      }}
-                      sx={{ width: 425 }}
-                    />
+                      } }
+                      sx={{ width: 425 }} renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps
+                          }}
+                        />
+                      )}
+                      />
                   </FormControl>
                   <FormControl>
                     <FormLabel>Book</FormLabel>
@@ -147,15 +154,23 @@ export default function EditPurchaseLine(
                       value={bookValue}
                       onChange={(
                         event,
-                        newValue: { label: string; id: string } | null
+                        newValue: { label: string; id: string; } | null
                       ) => {
                         setBookValue(newValue);
-                      }}
+                      } }
                       onInputChange={(event, newBookInputValue: string) => {
                         setBookInputValue(newBookInputValue);
-                      }}
-                      sx={{ width: 425 }}
-                    />
+                      } }
+                      sx={{ width: 425 }} 
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps
+                          }}
+                        />
+                      )}
+                      />
                   </FormControl>
                 </div>
                 <div className="flex w-4/5 space-x-10">
