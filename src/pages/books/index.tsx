@@ -32,9 +32,13 @@ export default function Books(
   const columns: GridColDef[] = [
     {
       field: "title",
-      headerName: "Book Title",
+      headerName: "Title",
       headerClassName: "header-theme",
       flex : 1,
+      renderCell: (params) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        return (<div className="text-blue-600"><a href={`/books/${params.id}/detail`}>{params.row.title} </a></div>);
+      },
     },
     {
       field: "author",
@@ -70,20 +74,6 @@ export default function Books(
       maxWidth : 80,
       flex : 1,
     },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      maxWidth : 70,
-      align : "center",
-      flex : 1,
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/books/${params.id}/detail`} />
-      ),
-    },
   ];
 
   const rows = books.map((book) => {
@@ -103,12 +93,9 @@ export default function Books(
       <Head>
         <title>Books</title>
       </Head>
-      <div>
-        <Link className="items-end px-6" href="/books/add" passHref>
-          <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
-            Add Book
-          </Button>
-        </Link>
+      <div className="text-neutral-50 m-5 h-3/4 overflow-hidden">
+      <h1 className="text-2xl inline-block"> Books </h1>
+      <Link className="inline-block text-blue-600 m-2 text-3xl" href="/books/add"> + </Link>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
