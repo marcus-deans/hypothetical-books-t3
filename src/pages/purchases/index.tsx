@@ -44,14 +44,12 @@ export default function sales(
       headerName: "Order Date",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 150,
     },
     {
       field: "vendor",
       headerName: "Vendor",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 200,
     },
     {
       field: "totalQuantity",
@@ -65,7 +63,7 @@ export default function sales(
       headerName: "Total Price",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 90,
+      maxWidth: 110,
     },
     {
       field: "totalUniqueBooks",
@@ -136,9 +134,16 @@ export default function sales(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={10}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: false,
+                },
+              },
+            }}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
             autoHeight={true}
-            rowsPerPageOptions={[10]}
             getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick

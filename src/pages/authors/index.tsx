@@ -110,9 +110,16 @@ export default function Authors(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={10}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: false,
+                },
+              },
+            }}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
             autoHeight={true}
-            rowsPerPageOptions={[10]}
             getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick

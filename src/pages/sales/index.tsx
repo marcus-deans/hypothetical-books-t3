@@ -44,7 +44,6 @@ export default function sales(
       headerName: "Reconciliation Date",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 150,
     },
     {
       field: "totalQuantity",
@@ -58,7 +57,7 @@ export default function sales(
       headerName: "Total Price",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 90,
+      maxWidth: 110,
     },
     {
       field: "totalUniqueBooks",
@@ -132,8 +131,15 @@ export default function sales(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={10}
-            rowsPerPageOptions={[10]}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: false,
+                },
+              },
+            }}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
             autoHeight={true}
             getRowHeight={() => 'auto'}
             checkboxSelection
