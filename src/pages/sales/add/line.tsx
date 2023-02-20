@@ -20,7 +20,10 @@ export default function AddSalesLine(
     cursor: null,
     limit: 100,
   });
-  const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
+  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({
+    cursor: null,
+    limit: 100,
+  });
 
   const router = useRouter();
   const salesReconciliations = salesReconciliationsQuery?.data?.items ?? [];
@@ -75,13 +78,13 @@ export default function AddSalesLine(
 
   const salesReconciliationOptions = salesReconciliations.map(
     (salesReconciliation) => ({
-      label: salesReconciliation.date.toDateString(),
+      label: salesReconciliation.date.toLocaleDateString(),
       id: salesReconciliation.id,
     })
   );
   const bookOptions = books.map((book) => ({
-    label: book.title,
-    id: book.isbn_13,
+    label: `${book.title} (${book.isbn_13})`,
+    id: book.id,
   }));
 
   return (
@@ -198,7 +201,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
   await ssg.salesReconciliations.getAll.prefetch({ cursor: null, limit: 100 });
-  await ssg.books.getAll.prefetch({ cursor: null, limit: 100 });
+  await ssg.books.getAllWithAuthorsAndGenre.prefetch({
+    cursor: null,
+    limit: 100,
+  });
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {
