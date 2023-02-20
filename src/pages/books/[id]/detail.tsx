@@ -203,8 +203,8 @@ export default function BookDetail(
               Toolbar: GridToolbar,
             }}
             pageSize={14}
-            autoHeight={true}
             rowsPerPageOptions={[14]}
+            autoHeight={true}
             getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick

@@ -33,31 +33,35 @@ export default function GenreDetail(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      width: 300,
+      flex: 1,
     },
     {
       field: "author",
       headerName: "Author",
       headerClassName: "header-theme",
-      width: 300,
+      flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 130,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 120,
     },
     {
       field: "detail",
       headerName: "Detail",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -96,8 +100,8 @@ export default function GenreDetail(
               Toolbar: GridToolbar,
             }}
             pageSize={14}
-            autoHeight={true}
             rowsPerPageOptions={[14]}
+            autoHeight={true}
             getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick
