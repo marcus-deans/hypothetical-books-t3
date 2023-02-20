@@ -35,85 +35,98 @@ export default function BookDetail(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      width: 300,
+      flex: 1,
     },
     {
       field: "author",
       headerName: "Author",
       headerClassName: "header-theme",
-      width: 300,
+      flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 130,
     },
     {
       field: "isbn_10",
       headerName: "ISBN 10",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 110,
     },
     {
       field: "publisher",
       headerName: "Publisher",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 200,
     },
     {
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
-      width: 150,
+      flex: 1,
+      maxWidth: 80,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price",
       headerClassName: "header-theme",
-      width: 150,
+      flex: 1,
+      maxWidth: 100,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 120,
     },
     {
       field: "publicationYear",
       headerName: "Publication Year",
       headerClassName: "header-theme",
-      width: 150,
+      flex: 1,
+      maxWidth: 130,
     },
     {
       field: "pageCount",
       headerName: "Page Count",
       headerClassName: "header-theme",
-      width: 150,
+      flex: 1,
+      maxWidth: 100,
     },
     {
       field: "width",
       headerName: "Width",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
     },
     {
       field: "height",
       headerName: "Height",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
     },
     {
       field: "thickness",
       headerName: "Thickness",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 90,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 60,
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -125,7 +138,9 @@ export default function BookDetail(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -170,35 +185,37 @@ export default function BookDetail(
   ];
 
   return (
-    <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
-      <Box
-        sx={{
-          height: 400,
-          width: "100%",
-          "& .header-theme": {
-            backgroundColor: "rgba(56, 116, 203, 0.35)",
-          },
-        }}
-      >
-        <StripedDataGrid
-          rows={rows}
-          columns={columns}
-          components={{
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            Toolbar: GridToolbar,
+    <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+        <Box
+          sx={{
+            height: "auto",
+            maxHeight: 750,
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
           }}
-          pageSize={10}
-          rowsPerPageOptions={[10]}
-          checkboxSelection
-          disableSelectionOnClick
-          experimentalFeatures={{ newEditingApi: true }}
-          getRowClassName={(params) =>
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-          }
-        />
-      </Box>
-    </div>
+        >
+          <StripedDataGrid
+            rows={rows}
+            columns={columns}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
+            autoHeight={true}
+            getRowHeight={() => 'auto'}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
+      </div>
   );
 }
 

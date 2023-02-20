@@ -39,37 +39,43 @@ export default function PurchaseOrderDetail(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      width: 300,
+      flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 130,
     },
     {
       field: "unitWholesalePrice",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
-      width: 150,
+      flex: 1,
+      maxWidth: 150,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 80,
     },
     {
       field: "subtotal",
       headerName: "Subtotal",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 80,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 60,
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -81,7 +87,9 @@ export default function PurchaseOrderDetail(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -110,11 +118,21 @@ export default function PurchaseOrderDetail(
       <Head>
         <title>Purchases</title>
       </Head>
-      <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+      <Link className="items-end px-6" href={`/sales/${id}/edit`} passHref>
+        <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
+          Edit Purchase Order
+        </Button>
+      </Link>
+      <Link className="items-end px-6" href={`/sales/${id}/delete`} passHref>
+        <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
+          Delete Sales Order
+        </Button>
+      </Link>
+      <div className="mt-5 h-3/4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
-            height: 400,
-            width: "100%",
+            height: "auto",
+            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
             },
@@ -127,8 +145,10 @@ export default function PurchaseOrderDetail(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={10}
-            rowsPerPageOptions={[10]}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
+            autoHeight={true}
+            getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
@@ -139,22 +159,11 @@ export default function PurchaseOrderDetail(
           />
         </Box>
       </div>
-      <div className="flex space-x-5 bg-white px-3">
-        <div className="text-large px-15 ">{`Grand Total: $${data.totalPrice.toFixed(
-          2
-        )}`}</div>
+      <div className="flex space-x-5 bg-white px-3 py-3 rounded-b-lg">
+        <div className="text-large px-15 ">{`Grand Total: $${data.totalPrice.toFixed(2)}`}
+        </div>
         <div className="text-large px-15 ">{`Vendor Name: ${data.purchaseOrderWithOverallMetrics.vendor.name}`}</div>
       </div>
-      <Link className="items-end px-6" href={`/sales/${id}/edit`} passHref>
-        <Button variant="contained" color="primary">
-          Edit Purchase Order
-        </Button>
-      </Link>
-      <Link className="items-end px-6" href={`/sales/${id}/delete`} passHref>
-        <Button variant="contained" color="primary">
-          Delete Sales Order
-        </Button>
-      </Link>
     </>
   );
 }

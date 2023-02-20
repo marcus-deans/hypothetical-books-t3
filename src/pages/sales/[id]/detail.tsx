@@ -39,37 +39,43 @@ export default function SalesOrderDetail(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      width: 300,
+      flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 130,
     },
     {
       field: "unitWholesalePrice",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
-      width: 150,
+      flex: 1,
+      maxWidth: 150,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 80,
     },
     {
       field: "subtotal",
       headerName: "Subtotal",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 80,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 60,
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -81,7 +87,9 @@ export default function SalesOrderDetail(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 70,
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -111,11 +119,21 @@ export default function SalesOrderDetail(
       <Head>
         <title>Sales Detail</title>
       </Head>
-      <div className="m-5 h-3/4 space-y-4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
-        <Box
+      <Link className="items-end px-6" href={`/sales/${id}/edit`} passHref>
+        <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
+          Edit Sales Reconciliation
+        </Button>
+      </Link>
+      <Link className="items-end px-6" href={`/sales/${id}/delete`} passHref>
+        <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
+          Delete Sales Reconciliation
+        </Button>
+      </Link>
+      <div className="mt-5 h-3/4 space-y-4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
+      <Box
           sx={{
-            height: 400,
-            width: "100%",
+            height: "auto",
+            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
             },
@@ -128,8 +146,10 @@ export default function SalesOrderDetail(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={10}
-            rowsPerPageOptions={[10]}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
+            autoHeight={true}
+            getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
@@ -140,19 +160,8 @@ export default function SalesOrderDetail(
           />
         </Box>
       </div>
-      <div className="text-large bg-white py-3 px-6">{`Grand Total: $${data.totalPrice.toFixed(
-        2
-      )}`}</div>
-      <Link className="items-end px-6" href={`/sales/${id}/edit`} passHref>
-        <Button variant="contained" color="primary">
-          Edit Sales Reconciliation
-        </Button>
-      </Link>
-      <Link className="items-end px-6" href={`/sales/${id}/delete`} passHref>
-        <Button variant="contained" color="primary">
-          Delete Sales Reconciliation
-        </Button>
-      </Link>
+      <div className="flex space-x-5 text-large bg-white py-3 px-3 rounded-b-lg">{`Grand Total: $${data.totalPrice.toFixed(2)}`}
+      </div>
     </>
   );
 }
