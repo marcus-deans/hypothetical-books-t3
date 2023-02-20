@@ -21,7 +21,6 @@ type PurchaseOrderRowProps = {
 // ];
 export default function PurchaseOrderRow(props: PurchaseOrderRowProps) {
   const desiredCells = [
-    props.id,
     props.vendor,
     props.totalQuantity,
     props.totalPrice,

@@ -16,8 +16,6 @@ type VendorRowProps = {
 };
 
 export default function VendorRow(props: VendorRowProps) {
-  const desiredCells = [props.id];
-
   return (
     <tr className="hover:bg-gray-50">
       <th className="flex items-center gap-3 px-6 py-4 font-normal text-gray-900">
@@ -34,9 +32,6 @@ export default function VendorRow(props: VendorRowProps) {
           <div className="text-gray-400">Name</div>
         </div>
       </th>
-      {desiredCells.map((cell) => (
-        <TableCell text={cell.toString()} key={cell} />
-      ))}
       <td className="px-6 py-4">
         <EditLink url={`/vendors/${encodeURIComponent(props.id)}/edit`} />
       </td>

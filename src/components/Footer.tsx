@@ -2,7 +2,7 @@ function Footer() {
   return (
     <>
    
-<footer className="p-4 bg-white  shadow md:flex md:items-center md:justify-between md:p-6 dark:bg-gray-900" style={{ position: "absolute", bottom: 0, width:"100%" }}>
+<footer className="p-4 bg-white  shadow md:flex md:items-center md:justify-between md:p-6 dark:bg-gray-900 " >
     <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023. Bletsch & Noble. All Rights Reserved.
     </span>
     <ul className="flex flex-wrap items-center mt-3 text-sm text-gray-500 dark:text-gray-400 sm:mt-0">

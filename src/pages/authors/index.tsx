@@ -24,7 +24,7 @@ export default function Authors(
 
   const authors = authorQuery?.data?.items ?? [];
 
-  const tableHeaders = ["Name", "ID"];
+  const tableHeaders = ["Name"];
 
   return (
     <>

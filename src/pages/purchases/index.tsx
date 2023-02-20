@@ -31,7 +31,6 @@ export default function sales(
 
   const tableHeaders = [
     "Date",
-    "ID",
     "Vendor",
     "Total Quantity",
     "Total Price",

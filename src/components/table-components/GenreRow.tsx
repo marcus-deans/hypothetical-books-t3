@@ -34,9 +34,6 @@ export default function GenreRow(props: GenreRowProps) {
           <div className="text-gray-400">Name</div>
         </div>
       </th>
-      {desiredCells.map((cell) => (
-        <TableCell text={cell.toString()} key={cell} />
-      ))}
       <td className="px-6 py-4">
         <EditLink url={`/genres/${encodeURIComponent(props.id)}/edit`} />
       </td>

@@ -24,7 +24,7 @@ export default function Genres(
 
   const genres = genreQuery?.data?.items ?? [];
 
-  const tableHeaders = ["Name", "ID"];
+  const tableHeaders = ["Name"];
 
   return (
     <>

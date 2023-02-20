@@ -24,7 +24,7 @@ export default function Vendors(
 
   const vendors = vendorQuery?.data?.items ?? [];
 
-  const tableHeaders = ["Name", "ID"];
+  const tableHeaders = ["Name"];
 
   return (
     <>

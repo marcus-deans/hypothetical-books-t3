@@ -16,7 +16,6 @@ type AuthorRowProps = {
 };
 
 export default function AuthorRow(props: AuthorRowProps) {
-  const desiredCells = [props.id];
 
   return (
     <tr className="hover:bg-gray-50">
@@ -34,9 +33,6 @@ export default function AuthorRow(props: AuthorRowProps) {
           <div className="text-gray-400">Name</div>
         </div>
       </th>
-      {desiredCells.map((cell) => (
-        <TableCell text={cell.toString()} key={cell} />
-      ))}
       <td className="px-6 py-4">
         <EditLink url={`/authors/${encodeURIComponent(props.id)}/edit`} />
       </td>
