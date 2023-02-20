@@ -42,6 +42,17 @@ export default function sales(
       <Head>
         <title>Purchases</title>
       </Head>
+      <Link className="items-end px-6" href="/purchases/add/line" passHref>
+        <Button variant="contained" color="primary">
+          Add Purchase Line
+        </Button>
+      </Link>
+
+      <Link className="items-end px-6" href="/purchases/add/order" passHref>
+        <Button variant="contained" color="primary">
+          Add Purchase Order
+        </Button>
+      </Link>
       <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
         <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead className="bg-gray-50">
@@ -69,17 +80,7 @@ export default function sales(
           </tbody>
         </table>
       </div>
-      <Link className="items-end px-6" href="/purchases/add/line" passHref>
-        <Button variant="contained" color="primary">
-          Add Purchase Line
-        </Button>
-      </Link>
 
-      <Link className="items-end px-6" href="/purchases/add/order" passHref>
-        <Button variant="contained" color="primary">
-          Add Purchase Order
-        </Button>
-      </Link>
     </>
   );
 }

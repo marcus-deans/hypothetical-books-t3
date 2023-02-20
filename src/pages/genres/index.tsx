@@ -31,6 +31,9 @@ export default function Genres(
       <Head>
         <title>Genres</title>
       </Head>
+      <Link className="items-end px-6" href="/genres/add" passHref>
+      <Button variant="contained" color="primary">Add Genre</Button>
+        </Link>
       <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
         <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead className="bg-gray-50">
@@ -55,9 +58,6 @@ export default function Genres(
       </div>
       <div className="items-end  bg-white">
       </div>
-      <Link className="items-end px-6" href="/genres/add" passHref>
-      <Button variant="contained" color="primary">Add Genre</Button>
-        </Link>
     </>
   );
 }

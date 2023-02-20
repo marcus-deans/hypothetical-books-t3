@@ -38,6 +38,11 @@ export default function Books(
       <Head>
         <title>Books</title>
       </Head>
+      <Link className="items-end px-6" href="/books/add" passHref>
+        <Button variant="contained" color="primary">
+          Add Book
+        </Button>
+      </Link>
       <div className="m-5 overflow-hidden rounded-lg border border-gray-200 shadow-md">
         <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead className="bg-gray-50">
@@ -67,11 +72,6 @@ export default function Books(
         </table>
       </div>
       <div className="items-end  bg-white"></div>
-      <Link className="items-end px-6" href="/books/add" passHref>
-        <Button variant="contained" color="primary">
-          Add Book
-        </Button>
-      </Link>
     </>
   );
 }
