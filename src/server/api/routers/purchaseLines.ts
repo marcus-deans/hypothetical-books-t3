@@ -174,15 +174,15 @@ export const purchaseLinesRouter = createTRPCRouter({
         },
       });
 
-      const purchasedCount = currentPurchaseLine?.quantity ?? 0;
+      const existingPurchasedCount = currentPurchaseLine?.quantity ?? 0;
 
       const bookInventoryCount =
         currentPurchaseLine?.book.inventoryCount ?? 100000;
 
-      if (bookInventoryCount < purchasedCount) {
+      if (bookInventoryCount - existingPurchasedCount + input.quantity < 0) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
-          message: `Cannot modify purchase line of ${purchasedCount} boks`,
+          message: `Cannot modify purchase line of ${existingPurchasedCount} books`,
         });
       }
 
@@ -218,7 +218,7 @@ export const purchaseLinesRouter = createTRPCRouter({
         where: { id: currentPurchaseLine?.book.id },
         data: {
           inventoryCount: {
-            decrement: currentPurchaseLine?.quantity,
+            decrement: existingPurchasedCount,
           },
         },
       });

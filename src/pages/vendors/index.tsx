@@ -22,7 +22,7 @@ import DetailLink from "../../components/table-components/DetailLink";
 export default function Vendors(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const vendorQuery = api.vendors.getAll.useQuery({
+  const vendorQuery = api.vendors.getAllWithOverallMetrics.useQuery({
     cursor: null,
     limit: 50,
   });
@@ -45,12 +45,19 @@ export default function Vendors(
       width: 250,
     },
     {
+      field: "purchaseOrderCount",
+      headerName: "Purchase Order Count",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 200,
+    },
+    {
       field: "detail",
       headerName: "Detail",
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 70,
-      align : "center",
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -64,7 +71,7 @@ export default function Vendors(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 70,
-      align : "center",
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -87,10 +94,11 @@ export default function Vendors(
     },
   ];
 
-  const rows = vendors.map((vendor) => {
+  const rows = vendors.map((vendorWithOverallMetrics) => {
     return {
-      id: vendor.id,
-      name: vendor.name,
+      id: vendorWithOverallMetrics.vendor.id,
+      name: vendorWithOverallMetrics.vendor.name,
+      purchaseOrderCount: vendorWithOverallMetrics.purchaseOrderCount,
     };
   });
 
@@ -101,18 +109,21 @@ export default function Vendors(
       <Head>
         <title>Vendors</title>
       </Head>
-      <div className="flex space">
+      <div className="space flex">
         <Link className="items-end" href="/vendors/add" passHref>
-          <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
             Add Vendor
           </Button>
         </Link>
       </div>
-      
+
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
-            height: 'auto',
+            height: "auto",
             maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
@@ -129,7 +140,7 @@ export default function Vendors(
             pageSize={10}
             autoHeight={true}
             rowsPerPageOptions={[10]}
-            getRowHeight={() => 'auto'}
+            getRowHeight={() => "auto"}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
@@ -156,7 +167,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.vendors.getAll.prefetch({ cursor: null, limit: 50 });
+  await ssg.vendors.getAllWithOverallMetrics.prefetch({
+    cursor: null,
+    limit: 50,
+  });
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {

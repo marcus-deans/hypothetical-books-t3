@@ -9,7 +9,7 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
-import { Autocomplete, TextField }  from "@mui/material";
+import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { matchSorter } from "match-sorter";
 
@@ -36,8 +36,8 @@ export default function AddSalesLine(
     label: string;
     id: string;
   } | null>(null);
-  const [unitWholesalePrice, setUnitWholesalePrice] = useState(0);
-  const [quantity, setQuantity] = useState(1);
+  const [unitWholesalePrice, setUnitWholesalePrice] = useState("");
+  const [quantity, setQuantity] = useState("");
   const [salesInputValue, setSalesInputValue] = useState("");
   const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,11 +51,13 @@ export default function AddSalesLine(
       if (!bookValue || !salesValue) {
         throw new Error("Book and Sales Reconciliation are required");
       }
+      const finalUnitWholesalePrice = Number(unitWholesalePrice);
+      const finalQuantity = Number(quantity);
       if (
-        isNaN(unitWholesalePrice) ||
-        isNaN(quantity) ||
-        unitWholesalePrice <= 0 ||
-        quantity <= 0
+        isNaN(finalUnitWholesalePrice) ||
+        isNaN(finalQuantity) ||
+        finalUnitWholesalePrice <= 0 ||
+        finalQuantity <= 0
       ) {
         throw new Error(
           "Unit Wholesale Price and Quantity must be positive numbers"
@@ -63,8 +65,8 @@ export default function AddSalesLine(
       }
       const addResult = addMutation.mutate({
         bookId: bookValue.id,
-        quantity: quantity,
-        unitWholesalePrice: unitWholesalePrice,
+        quantity: finalQuantity,
+        unitWholesalePrice: finalUnitWholesalePrice,
         salesReconciliationId: salesValue.id,
       });
       setTimeout(() => {
@@ -85,6 +87,7 @@ export default function AddSalesLine(
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
+    retailPrice: book.retailPrice.toString(),
   }));
 
   return (
@@ -110,23 +113,23 @@ export default function AddSalesLine(
                       value={salesValue}
                       onChange={(
                         event,
-                        newValue: { label: string; id: string; } | null
+                        newValue: { label: string; id: string } | null
                       ) => {
                         setSalesValue(newValue);
-                      } }
+                      }}
                       onInputChange={(event, newSalesInputValue: string) => {
                         setSalesInputValue(newSalesInputValue);
-                      } }
-                      sx={{ width: 425 }} 
+                      }}
+                      sx={{ width: 425 }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           inputProps={{
-                            ...params.inputProps
+                            ...params.inputProps,
                           }}
                         />
-                      )}               
-                      />
+                      )}
+                    />
                   </FormControl>
                   <FormControl>
                     <FormLabel>Book</FormLabel>
@@ -137,23 +140,27 @@ export default function AddSalesLine(
                       value={bookValue}
                       onChange={(
                         event,
-                        newValue: { label: string; id: string; } | null
+                        newValue: { label: string; id: string } | null
                       ) => {
                         setBookValue(newValue);
-                      } }
+                        setUnitWholesalePrice(
+                          bookOptions.find((book) => book.id === newValue?.id)
+                            ?.retailPrice ?? ""
+                        );
+                      }}
                       onInputChange={(event, newBookInputValue: string) => {
                         setBookInputValue(newBookInputValue);
-                      } }
-                      sx={{ width: 425 }} 
+                      }}
+                      sx={{ width: 425 }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           inputProps={{
-                            ...params.inputProps
+                            ...params.inputProps,
                           }}
                         />
                       )}
-                      />
+                    />
                   </FormControl>
                 </div>
                 <div className="flex w-4/5 space-x-10">
@@ -167,7 +174,7 @@ export default function AddSalesLine(
                     // value={quantity}
                     onChange={(
                       event: React.ChangeEvent<HTMLInputElement>
-                    ): void => setQuantity(Number(event.target.value))}
+                    ): void => setQuantity(event.target.value)}
                     required
                   />
                   <input
@@ -177,12 +184,10 @@ export default function AddSalesLine(
                     type="text"
                     placeholder="Unit Wholesale Price"
                     min="0"
-                    // value={unitWholesalePrice}
+                    value={unitWholesalePrice}
                     onChange={(
                       event: React.ChangeEvent<HTMLInputElement>
-                    ): void =>
-                      setUnitWholesalePrice(Number(event.target.value))
-                    }
+                    ): void => setUnitWholesalePrice(event.target.value)}
                     required
                   />
                 </div>
