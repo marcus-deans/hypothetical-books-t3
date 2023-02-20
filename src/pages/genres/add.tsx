@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 export default function AddGenre() {
   const [genreName, setGenreName] = useState("");
   const addMutation = api.genres.add.useMutation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
   const inputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -12,12 +13,16 @@ export default function AddGenre() {
     setGenreName(enteredName);
   };
   const handleSubmit = (e: any) => {
-    console.log(genreName);
-    setGenreName("");
-    addMutation.mutate({ name: genreName });
-    setTimeout(() => {
-      void router.push(`/genres/`);
-    }, 500);
+    setIsSubmitting(true);
+    try {
+      const addResult = addMutation.mutate({ name: genreName });
+      setTimeout(() => {
+        void router.push("/genres");
+      }, 500);
+    } catch (error) {
+      console.log(error);
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -40,8 +45,9 @@ export default function AddGenre() {
             className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
             type="submit"
             onClick={handleSubmit}
-          >
-            Submit
+            disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </form>

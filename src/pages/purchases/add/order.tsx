@@ -1,6 +1,5 @@
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import type { Dayjs } from "dayjs";
-import TextField from "@mui/material/TextField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
@@ -14,7 +13,8 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-import { Autocomplete, FormControl, FormHelperText, FormLabel } from "@mui/joy";
+import { Autocomplete, TextField } from "@mui/material";
+import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 
 export default function AddPurchaseOrder(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -94,15 +94,23 @@ export default function AddPurchaseOrder(
                   value={vendorValue}
                   onChange={(
                     event,
-                    newValue: { label: string; id: string } | null
+                    newValue: { label: string; id: string; } | null
                   ) => {
                     setVendorValue(newValue);
-                  }}
+                  } }
                   onInputChange={(event, newInputValue: string) => {
                     setVendorInputValue(newInputValue);
-                  }}
-                  sx={{ width: 425 }}
-                />
+                  } }
+                  sx={{ width: 425 }} 
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      inputProps={{
+                        ...params.inputProps
+                      }}
+                    />
+                  )}
+                  />
               </FormControl>
             </div>
             <div className="flex items-center justify-between">

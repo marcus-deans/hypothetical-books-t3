@@ -10,7 +10,7 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-import { Autocomplete, FormControl, FormHelperText, FormLabel } from "@mui/joy";
+import { Autocomplete , FormControl, FormHelperText, FormLabel } from "@mui/material";
 import type {
   GetStaticPaths,
   GetStaticPropsContext,
@@ -111,15 +111,23 @@ export default function AddPurchaseOrder(
                   value={vendorValue}
                   onChange={(
                     event,
-                    newValue: { label: string; id: string } | null
+                    newValue: { label: string; id: string; } | null
                   ) => {
                     setVendorValue(newValue);
-                  }}
+                  } }
                   onInputChange={(event, newInputValue: string) => {
                     setVendorInputValue(newInputValue);
-                  }}
-                  sx={{ width: 425 }}
-                />
+                  } }
+                  sx={{ width: 425 }} 
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      inputProps={{
+                        ...params.inputProps
+                      }}
+                    />
+                  )}
+                  />
               </FormControl>
             </div>
             <div className="flex items-center justify-between">

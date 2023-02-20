@@ -17,7 +17,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import TextField from "@mui/material/TextField";
-import { Autocomplete, FormControl, FormHelperText, FormLabel } from "@mui/joy";
+import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
+import { Autocomplete } from "@mui/material";
 
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -98,16 +99,24 @@ export default function EditBook(
                   placeholder={"Select a genre by name"}
                   value={genreValue}
                   onChange={(
-                    event,
-                    newValue: { label: string; id: string } | null
+                    event: any,
+                    newValue: { label: string; id: string; } | null
                   ) => {
                     setGenreValue(newValue);
-                  }}
-                  onInputChange={(event, newInputValue: string) => {
+                  } }
+                  onInputChange={(event: any, newInputValue: string) => {
                     setGenreInputValue(newInputValue);
-                  }}
-                  sx={{ width: 425 }}
-                />
+                  } }
+                  sx={{ width: 425 }} 
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      inputProps={{
+                        ...params.inputProps
+                      }}
+                    />
+                  )}                   
+                  />              
               </FormControl>
             </div>
             <div>

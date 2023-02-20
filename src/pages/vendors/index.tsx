@@ -101,11 +101,14 @@ export default function Vendors(
       <Head>
         <title>Vendors</title>
       </Head>
-      <Link className="items-end px-6" href="/vendors/add" passHref>
-        <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
-          Add Vendor
-        </Button>
-      </Link>
+      <div className="flex space">
+        <Link className="items-end" href="/vendors/add" passHref>
+          <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
+            Add Vendor
+          </Button>
+        </Link>
+      </div>
+      
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{

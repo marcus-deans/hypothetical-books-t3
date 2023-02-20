@@ -13,7 +13,7 @@ import StripedDataGrid from "../../../components/table-components/StripedDataGri
 import React from "react";
 import DetailLink from "../../../components/table-components/DetailLink";
 
-export default function GenreDetail(
+export default function DetailGenre(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;

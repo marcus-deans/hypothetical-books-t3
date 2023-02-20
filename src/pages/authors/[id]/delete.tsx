@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import { prisma } from "../../../server/db";
 
-export default function DeleteVendor(
+export default function DeleteAuthor(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
