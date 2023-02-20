@@ -9,7 +9,7 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
-import { Autocomplete, TextField }  from "@mui/material";
+import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { matchSorter } from "match-sorter";
 
@@ -85,75 +85,80 @@ export default function AddSalesLine(
   }));
 
   return (
-    <div className="flex w-full items-center ">
-      <form className="mb-4 w-3/4 rounded bg-white px-8 pt-6 pb-8 shadow-md">
-        <div className="mb-4 items-center space-y-5">
+    <div className="pt-6">
+      <form className="rounded bg-white px-6 py-6 inline-block">
+        <div className="space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
-            Create Sales Line
+            Create Purchase Line
           </div>
-          <div className="relative space-y-3">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
-            <div className="col-span-4">
-              <div className="space-y-20">
-                <div className="flex w-4/5 space-x-10">
-                  <FormControl>
-                    <FormLabel>Sales Reconciliation</FormLabel>
-                    <FormHelperText>
-                      Select a sales reconciliation by date
-                    </FormHelperText>
-                    <Autocomplete
-                      options={salesReconciliationOptions}
-                      placeholder={"Search sales reconciliations by date"}
-                      value={salesValue}
-                      onChange={(
-                        event,
-                        newValue: { label: string; id: string; } | null
-                      ) => {
-                        setSalesValue(newValue);
-                      } }
-                      onInputChange={(event, newSalesInputValue: string) => {
-                        setSalesInputValue(newSalesInputValue);
-                      } }
-                      sx={{ width: 425 }} 
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          inputProps={{
-                            ...params.inputProps
-                          }}
-                        />
-                      )}               
+          <div>
+            <div className="flex justify-between pointer-events-none px-3"></div>
+            <div>
+              <div>
+                <div className="flex space-x-20">
+                  <div>
+                    <FormControl>
+                      <FormLabel>Sales Reconciliation</FormLabel>
+                      <FormHelperText>
+                        Select a sales reconciliation by date
+                      </FormHelperText>
+                      <Autocomplete
+                        options={salesReconciliationOptions}
+                        placeholder={"Search sales reconciliations by date"}
+                        value={salesValue}
+                        onChange={(
+                          event,
+                          newValue: { label: string; id: string; } | null
+                        ) => {
+                          setSalesValue(newValue);
+                        }}
+                        onInputChange={(event, newSalesInputValue: string) => {
+                          setSalesInputValue(newSalesInputValue);
+                        }}
+                        sx={{ width: 425 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            inputProps={{
+                              ...params.inputProps
+                            }}
+                          />
+                        )}
                       />
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel>Book</FormLabel>
-                    <FormHelperText>Select a book by title</FormHelperText>
-                    <Autocomplete
-                      options={bookOptions}
-                      placeholder={"Search books by title"}
-                      value={bookValue}
-                      onChange={(
-                        event,
-                        newValue: { label: string; id: string; } | null
-                      ) => {
-                        setBookValue(newValue);
-                      } }
-                      onInputChange={(event, newBookInputValue: string) => {
-                        setBookInputValue(newBookInputValue);
-                      } }
-                      sx={{ width: 425 }} 
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          inputProps={{
-                            ...params.inputProps
-                          }}
-                        />
-                      )}
+                    </FormControl>
+                  </div>
+                  <div>
+                    <FormControl>
+                      <FormLabel>Book</FormLabel>
+                      <FormHelperText>Select a book by title</FormHelperText>
+                      <Autocomplete
+                        options={bookOptions}
+                        placeholder={"Search books by title"}
+                        value={bookValue}
+                        onChange={(
+                          event,
+                          newValue: { label: string; id: string; } | null
+                        ) => {
+                          setBookValue(newValue);
+                        }}
+                        onInputChange={(event, newBookInputValue: string) => {
+                          setBookInputValue(newBookInputValue);
+                        }}
+                        sx={{ width: 425 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            inputProps={{
+                              ...params.inputProps
+                            }}
+                          />
+                        )}
                       />
-                  </FormControl>
+                    </FormControl>
+                  </div>
                 </div>
-                <div className="flex w-4/5 space-x-10">
+                <div className="py-60" />
+                <div className="flex space-x-20">
                   <input
                     className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
                     id="quantity"

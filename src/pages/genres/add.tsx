@@ -26,7 +26,7 @@ export default function AddGenre() {
   };
 
   return (
-    <div className="flex w-full items-center">
+    <div className="items-center pt-6 inline-block">
       <form className="mb-4 rounded bg-white px-8 pt-6 pb-8 shadow-md">
         <div className="mb-4">
           <label className="mb-2 block text-sm font-bold text-gray-700">
