@@ -13,7 +13,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Vendors</title>
+        <title>Login</title>
       </Head>
       <main>
         <button
