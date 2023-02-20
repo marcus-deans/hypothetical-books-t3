@@ -11,14 +11,8 @@ import superjson from "superjson";
 import { useRouter } from "next/router";
 import { api } from "../../../utils/api";
 import React, { useState } from "react";
-import type { Dayjs } from "dayjs";
-import dayjs from "dayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import TextField from "@mui/material/TextField";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
-import { Autocomplete } from "@mui/material";
+import { TextField, Autocomplete, InputAdornment } from "@mui/material";
 
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -35,7 +29,15 @@ export default function EditBook(
   const genres = genreDetailsQuery?.data?.items ?? [];
   ``;
   const editMutation = api.books.edit.useMutation();
-  const [retailPrice, setRetailPrice] = useState("");
+  const { data } = bookDetailsQuery;
+
+  const [retailPrice, setRetailPrice] = useState(
+    data?.retailPrice.toString() ?? ""
+  );
+  const [pageCount, setPageCount] = useState(data?.pageCount.toString() ?? "");
+  const [width, setWidth] = useState(data?.width.toString() ?? "");
+  const [height, setHeight] = useState(data?.height.toString() ?? "");
+  const [thickness, setThickness] = useState(data?.thickness.toString() ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [genreValue, setGenreValue] = useState<{
     label: string;
@@ -46,26 +48,35 @@ export default function EditBook(
   });
   const [genreInputValue, setGenreInputValue] = useState("");
 
-  const inputPriceHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const enteredName = event.target.value;
-    setRetailPrice(enteredName);
-  };
-
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
       if (!genreValue) {
         throw new Error("Genre is required");
       }
-      if (!retailPrice && !isNaN(Number(retailPrice))) {
+      const finalRetailPrice = Number(retailPrice);
+      const finalPageCount = Number(pageCount);
+      const finalWidth = Number(width);
+      const finalHeight = Number(height);
+      const finalThickness = Number(thickness);
+
+      if (isNaN(finalRetailPrice)) {
         throw new Error("Retail price is required");
+      }
+      if (isNaN(finalPageCount)) {
+        throw new Error("Page count is required");
+      }
+      if (isNaN(finalWidth) || isNaN(finalHeight) || isNaN(finalThickness)) {
+        throw new Error("Dimensions are required");
       }
       const addResult = editMutation.mutate({
         id: id,
-        retailPrice: Number(retailPrice),
+        retailPrice: finalRetailPrice,
+        pageCount: finalPageCount,
         genreId: genreValue.id,
-        purchaseLineIds: [],
-        salesLineIds: [],
+        width: finalWidth,
+        height: finalHeight,
+        thickness: finalThickness,
       });
       setTimeout(() => {
         void router.push(`/books/${encodeURIComponent(id)}/detail`);
@@ -90,52 +101,128 @@ export default function EditBook(
           </div>
           <div className="relative space-y-3">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
-            <div className="col-span-4 flex space-x-20">
-              <FormControl>
-                <FormLabel>Genre Name</FormLabel>
-                <FormHelperText>Select a genre by name</FormHelperText>
-                <Autocomplete
-                  options={genreOptions}
-                  placeholder={"Select a genre by name"}
-                  value={genreValue}
-                  onChange={(
-                    event: any,
-                    newValue: { label: string; id: string; } | null
-                  ) => {
-                    setGenreValue(newValue);
-                  } }
-                  onInputChange={(event: any, newInputValue: string) => {
-                    setGenreInputValue(newInputValue);
-                  } }
-                  sx={{ width: 425 }} 
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      inputProps={{
-                        ...params.inputProps
+            <div className="col-span-4">
+              <div className="space-y-10">
+                <div className="flex w-4/5 space-x-10">
+                  <div className="text-gra-700 text-md font-bold">
+                    {`${bookDetailsQuery?.data?.title ?? ""} by ${
+                      bookDetailsQuery?.data?.authors
+                        .map((author) => author.name)
+                        .join(", ") ?? ""
+                    }`}
+                  </div>
+                  <div className="text-gra-700 text-md font-bold">
+                    {`ISBN-13: ${bookDetailsQuery?.data?.isbn_13 ?? ""}`}
+                  </div>
+                </div>
+                <div className="flex w-4/5 space-x-10">
+                  <TextField
+                    id="retailPrice"
+                    label="Retail Price"
+                    value={retailPrice}
+                    onChange={(
+                      event: React.ChangeEvent<HTMLInputElement>
+                    ): void => setRetailPrice(event.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">$</InputAdornment>
+                      ),
+                    }}
+                    required
+                  />
+                  <TextField
+                    id="pageCount"
+                    label="Page Count"
+                    value={pageCount}
+                    onChange={(
+                      event: React.ChangeEvent<HTMLInputElement>
+                    ): void => setPageCount(event.target.value)}
+                    required
+                  />
+                </div>
+                <div className="flex w-4/5 space-x-10">
+                  <TextField
+                    id="thickness"
+                    label="Thickness"
+                    value={thickness}
+                    onChange={(
+                      event: React.ChangeEvent<HTMLInputElement>
+                    ): void => setThickness(event.target.value)}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">inches</InputAdornment>
+                      ),
+                    }}
+                    required
+                  />
+                  <TextField
+                    id="width"
+                    label="Width"
+                    value={width}
+                    onChange={(
+                      event: React.ChangeEvent<HTMLInputElement>
+                    ): void => setWidth(event.target.value)}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">inches</InputAdornment>
+                      ),
+                    }}
+                    required
+                  />
+                  <TextField
+                    id="height"
+                    label="Height"
+                    value={height}
+                    onChange={(
+                      event: React.ChangeEvent<HTMLInputElement>
+                    ): void => setHeight(event.target.value)}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">inches</InputAdornment>
+                      ),
+                    }}
+                    required
+                  />
+                </div>
+                <div className="flex w-4/5 space-x-10">
+                  <FormControl>
+                    <FormLabel>Genre Name</FormLabel>
+                    <FormHelperText>Select a genre by name</FormHelperText>
+                    <Autocomplete
+                      options={genreOptions}
+                      placeholder={"Select a genre by name"}
+                      value={genreValue}
+                      onChange={(
+                        event: any,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setGenreValue(newValue);
                       }}
+                      onInputChange={(event: any, newInputValue: string) => {
+                        setGenreInputValue(newInputValue);
+                      }}
+                      sx={{ width: 425 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
                     />
-                  )}                   
-                  />              
-              </FormControl>
-            </div>
-            <div>
-              <input
-                className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                id="author"
-                type="text"
-                value={retailPrice}
-                onChange={inputPriceHandler}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <button
-                className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
-                type="button"
-                onClick={handleSubmit}
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </button>
+                  </FormControl>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <button
+                  className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                  type="button"
+                  onClick={handleSubmit}
+                >
+                  {isSubmitting ? "Submitting..." : "Submit"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
