@@ -91,11 +91,11 @@ export default function AddSalesLine(
   }));
 
   return (
-    <div className="flex w-full items-center ">
-      <form className="mb-4 w-3/4 rounded bg-white px-8 pt-6 pb-8 shadow-md">
-        <div className="mb-4 items-center space-y-5">
+    <div className="pt-6">
+      <form className="rounded bg-white px-6 py-6 inline-block">
+        <div className="space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
-            Create Sales Line
+            Create Purchase Line
           </div>
           <div className="relative space-y-3">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
@@ -163,7 +163,8 @@ export default function AddSalesLine(
                     />
                   </FormControl>
                 </div>
-                <div className="flex w-4/5 space-x-10">
+                <div className="py-60" />
+                <div className="flex space-x-20">
                   <input
                     className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
                     id="quantity"

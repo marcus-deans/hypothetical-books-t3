@@ -334,10 +334,11 @@ export default function AddBook() {
         <Head>
           <title>Books</title>
         </Head>
-        <div className="pt-6 flex justify-center rounded-lg bg-white">
+        <div className="pt-6"></div>
+        <div className="pt-6 px-6 rounded-lg bg-white inline-block">
           <div className="flex grid grid-cols-2 items-center">
             <div className="col-span-2 mb-3 flex items-end xl:w-96">
-              <div className="input-group p-y-5 relative mb-4 flex w-full flex-wrap items-stretch space-y-5">
+              <div className="input-group relative mb-4 flex w-full flex-wrap items-stretch space-y-5">
                 <input
                   type="search"
                   className="form-control relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none"

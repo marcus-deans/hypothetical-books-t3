@@ -85,6 +85,7 @@ export default function Vendors(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 70,
+      align : "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -101,8 +102,6 @@ export default function Vendors(
       purchaseOrderCount: vendorWithOverallMetrics.purchaseOrderCount,
     };
   });
-
-  console.log(rows);
 
   return (
     <>
@@ -137,10 +136,17 @@ export default function Vendors(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={10}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: false,
+                },
+              },
+            }}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
             autoHeight={true}
-            rowsPerPageOptions={[10]}
-            getRowHeight={() => "auto"}
+            getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
