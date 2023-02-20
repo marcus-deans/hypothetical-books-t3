@@ -245,9 +245,6 @@ export const purchaseOrdersRouter = createTRPCRouter({
               id: input.vendorId,
             },
           },
-          purchaseLines: {
-            create: [],
-          },
           display: true,
         },
       });
@@ -299,14 +296,14 @@ export const purchaseOrdersRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      // const purchaseOrder = await prisma.purchaseOrder.delete({
-      //   where: { id },
-      // });
 
       const currentPurchaseOrder = await prisma.purchaseOrder.findUnique({
         where: { id },
         include: {
           purchaseLines: {
+            where: {
+              display: true,
+            },
             include: {
               book: {
                 select: {

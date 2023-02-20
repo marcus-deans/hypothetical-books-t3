@@ -324,14 +324,15 @@ export const salesReconciliationsRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      // const salesReconciliation = await prisma.salesReconciliation.delete({
-      //   where: { id },
-      // });
+
       const currentSalesReconciliation =
         await prisma.salesReconciliation.findUnique({
           where: { id },
           include: {
             salesLines: {
+              where: {
+                display: true,
+              },
               include: {
                 book: {
                   select: {

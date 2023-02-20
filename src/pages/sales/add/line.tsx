@@ -20,7 +20,10 @@ export default function AddSalesLine(
     cursor: null,
     limit: 100,
   });
-  const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
+  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({
+    cursor: null,
+    limit: 100,
+  });
 
   const router = useRouter();
   const salesReconciliations = salesReconciliationsQuery?.data?.items ?? [];
@@ -33,8 +36,8 @@ export default function AddSalesLine(
     label: string;
     id: string;
   } | null>(null);
-  const [unitWholesalePrice, setUnitWholesalePrice] = useState(0);
-  const [quantity, setQuantity] = useState(1);
+  const [unitWholesalePrice, setUnitWholesalePrice] = useState("");
+  const [quantity, setQuantity] = useState("");
   const [salesInputValue, setSalesInputValue] = useState("");
   const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,11 +51,13 @@ export default function AddSalesLine(
       if (!bookValue || !salesValue) {
         throw new Error("Book and Sales Reconciliation are required");
       }
+      const finalUnitWholesalePrice = Number(unitWholesalePrice);
+      const finalQuantity = Number(quantity);
       if (
-        isNaN(unitWholesalePrice) ||
-        isNaN(quantity) ||
-        unitWholesalePrice <= 0 ||
-        quantity <= 0
+        isNaN(finalUnitWholesalePrice) ||
+        isNaN(finalQuantity) ||
+        finalUnitWholesalePrice <= 0 ||
+        finalQuantity <= 0
       ) {
         throw new Error(
           "Unit Wholesale Price and Quantity must be positive numbers"
@@ -60,8 +65,8 @@ export default function AddSalesLine(
       }
       const addResult = addMutation.mutate({
         bookId: bookValue.id,
-        quantity: quantity,
-        unitWholesalePrice: unitWholesalePrice,
+        quantity: finalQuantity,
+        unitWholesalePrice: finalUnitWholesalePrice,
         salesReconciliationId: salesValue.id,
       });
       setTimeout(() => {
@@ -75,13 +80,14 @@ export default function AddSalesLine(
 
   const salesReconciliationOptions = salesReconciliations.map(
     (salesReconciliation) => ({
-      label: salesReconciliation.date.toDateString(),
+      label: salesReconciliation.date.toLocaleDateString(),
       id: salesReconciliation.id,
     })
   );
   const bookOptions = books.map((book) => ({
-    label: book.title,
-    id: book.isbn_13,
+    label: `${book.title} (${book.isbn_13})`,
+    id: book.id,
+    retailPrice: book.retailPrice.toString(),
   }));
 
   return (
@@ -91,71 +97,71 @@ export default function AddSalesLine(
           <div className="mb-2 block text-lg font-bold text-gray-700">
             Create Purchase Line
           </div>
-          <div>
-            <div className="flex justify-between pointer-events-none px-3"></div>
-            <div>
-              <div>
-                <div className="flex space-x-20">
-                  <div>
-                    <FormControl>
-                      <FormLabel>Sales Reconciliation</FormLabel>
-                      <FormHelperText>
-                        Select a sales reconciliation by date
-                      </FormHelperText>
-                      <Autocomplete
-                        options={salesReconciliationOptions}
-                        placeholder={"Search sales reconciliations by date"}
-                        value={salesValue}
-                        onChange={(
-                          event,
-                          newValue: { label: string; id: string; } | null
-                        ) => {
-                          setSalesValue(newValue);
-                        }}
-                        onInputChange={(event, newSalesInputValue: string) => {
-                          setSalesInputValue(newSalesInputValue);
-                        }}
-                        sx={{ width: 425 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            inputProps={{
-                              ...params.inputProps
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </div>
-                  <div>
-                    <FormControl>
-                      <FormLabel>Book</FormLabel>
-                      <FormHelperText>Select a book by title</FormHelperText>
-                      <Autocomplete
-                        options={bookOptions}
-                        placeholder={"Search books by title"}
-                        value={bookValue}
-                        onChange={(
-                          event,
-                          newValue: { label: string; id: string; } | null
-                        ) => {
-                          setBookValue(newValue);
-                        }}
-                        onInputChange={(event, newBookInputValue: string) => {
-                          setBookInputValue(newBookInputValue);
-                        }}
-                        sx={{ width: 425 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            inputProps={{
-                              ...params.inputProps
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </div>
+          <div className="relative space-y-3">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
+            <div className="col-span-4">
+              <div className="space-y-20">
+                <div className="flex w-4/5 space-x-10">
+                  <FormControl>
+                    <FormLabel>Sales Reconciliation</FormLabel>
+                    <FormHelperText>
+                      Select a sales reconciliation by date
+                    </FormHelperText>
+                    <Autocomplete
+                      options={salesReconciliationOptions}
+                      placeholder={"Search sales reconciliations by date"}
+                      value={salesValue}
+                      onChange={(
+                        event,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setSalesValue(newValue);
+                      }}
+                      onInputChange={(event, newSalesInputValue: string) => {
+                        setSalesInputValue(newSalesInputValue);
+                      }}
+                      sx={{ width: 425 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Book</FormLabel>
+                    <FormHelperText>Select a book by title</FormHelperText>
+                    <Autocomplete
+                      options={bookOptions}
+                      placeholder={"Search books by title"}
+                      value={bookValue}
+                      onChange={(
+                        event,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setBookValue(newValue);
+                        setUnitWholesalePrice(
+                          bookOptions.find((book) => book.id === newValue?.id)
+                            ?.retailPrice ?? ""
+                        );
+                      }}
+                      onInputChange={(event, newBookInputValue: string) => {
+                        setBookInputValue(newBookInputValue);
+                      }}
+                      sx={{ width: 425 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
                 </div>
                 <div className="py-60" />
                 <div className="flex space-x-20">
@@ -169,7 +175,7 @@ export default function AddSalesLine(
                     // value={quantity}
                     onChange={(
                       event: React.ChangeEvent<HTMLInputElement>
-                    ): void => setQuantity(Number(event.target.value))}
+                    ): void => setQuantity(event.target.value)}
                     required
                   />
                   <input
@@ -179,12 +185,10 @@ export default function AddSalesLine(
                     type="text"
                     placeholder="Unit Wholesale Price"
                     min="0"
-                    // value={unitWholesalePrice}
+                    value={unitWholesalePrice}
                     onChange={(
                       event: React.ChangeEvent<HTMLInputElement>
-                    ): void =>
-                      setUnitWholesalePrice(Number(event.target.value))
-                    }
+                    ): void => setUnitWholesalePrice(event.target.value)}
                     required
                   />
                 </div>
@@ -219,7 +223,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
   await ssg.salesReconciliations.getAll.prefetch({ cursor: null, limit: 100 });
-  await ssg.books.getAll.prefetch({ cursor: null, limit: 100 });
+  await ssg.books.getAllWithAuthorsAndGenre.prefetch({
+    cursor: null,
+    limit: 100,
+  });
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {

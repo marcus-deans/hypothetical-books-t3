@@ -101,21 +101,21 @@ export default function BookDetail(
     },
     {
       field: "width",
-      headerName: "Width",
+      headerName: "Width,in",
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 70,
     },
     {
       field: "height",
-      headerName: "Height",
+      headerName: "Height, in",
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 70,
     },
     {
       field: "thickness",
-      headerName: "Thickness",
+      headerName: "Thickness, in",
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 90,
@@ -181,41 +181,44 @@ export default function BookDetail(
       publicationYear: data.publicationYear,
       pageCount: data.pageCount,
       author: data.authors.map((author) => author.name).join(", "),
+      width: data.width,
+      thickness: data.thickness,
+      height: data.height,
     },
   ];
 
   return (
     <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
-        <Box
-          sx={{
-            height: "auto",
-            maxHeight: 750,
-            "& .header-theme": {
-              backgroundColor: "rgba(56, 116, 203, 0.35)",
-            },
+      <Box
+        sx={{
+          height: "auto",
+          maxHeight: 750,
+          "& .header-theme": {
+            backgroundColor: "rgba(56, 116, 203, 0.35)",
+          },
+        }}
+      >
+        <StripedDataGrid
+          rows={rows}
+          columns={columns}
+          components={{
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            Toolbar: GridToolbar,
           }}
-        >
-          <StripedDataGrid
-            rows={rows}
-            columns={columns}
-            components={{
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              Toolbar: GridToolbar,
-            }}
-            pageSize={14}
-            rowsPerPageOptions={[14]}
-            autoHeight={true}
-            getRowHeight={() => 'auto'}
-            checkboxSelection
-            disableSelectionOnClick
-            experimentalFeatures={{ newEditingApi: true }}
-            getRowClassName={(params) =>
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-            }
-          />
-        </Box>
-      </div>
+          pageSize={14}
+          rowsPerPageOptions={[14]}
+          autoHeight={true}
+          getRowHeight={() => "auto"}
+          checkboxSelection
+          disableSelectionOnClick
+          experimentalFeatures={{ newEditingApi: true }}
+          getRowClassName={(params) =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+          }
+        />
+      </Box>
+    </div>
   );
 }
 

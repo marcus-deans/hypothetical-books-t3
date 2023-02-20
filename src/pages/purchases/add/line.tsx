@@ -76,12 +76,12 @@ export default function AddPurchaseLine(
   };
 
   const purchaseOrderOptions = purchaseOrders.map((purchaseOrder) => ({
-    label: purchaseOrder.date.toDateString(),
+    label: purchaseOrder.date.toLocaleDateString(),
     id: purchaseOrder.id,
   }));
   const bookOptions = books.map((book) => ({
-    label: book.title,
-    id: book.isbn_13,
+    label: `${book.title} (${book.isbn_13})`,
+    id: book.id,
   }));
 
   return (

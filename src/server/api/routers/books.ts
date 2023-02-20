@@ -245,52 +245,25 @@ export const booksRouter = createTRPCRouter({
         id: z.string(),
         retailPrice: z.number().gte(0),
         genreId: z.string(),
-        purchaseLineIds: z.string().array(),
-        salesLineIds: z.string().array(),
+        pageCount: z.number().gt(0),
+        width: z.number().gt(0),
+        height: z.number().gt(0),
+        thickness: z.number().gt(0),
       })
     )
 
     .mutation(async ({ input }) => {
-      //TODO: add proper author implementation
       const book = await prisma.book.update({
         where: { id: input.id },
         data: {
           retailPrice: input.retailPrice,
           genreId: input.genreId,
-          purchaseLines: {
-            create: [],
-          },
-          salesLines: {
-            create: [],
-          },
+          pageCount: input.pageCount,
+          width: input.width,
+          height: input.height,
+          thickness: input.thickness,
         },
       });
-
-      for (const purchaseLine of input.purchaseLineIds) {
-        await prisma.book.update({
-          where: { id: input.id },
-          data: {
-            purchaseLines: {
-              connect: {
-                id: purchaseLine,
-              },
-            },
-          },
-        });
-      }
-
-      for (const salesLine of input.salesLineIds) {
-        await prisma.book.update({
-          where: { id: input.id },
-          data: {
-            salesLines: {
-              connect: {
-                id: salesLine,
-              },
-            },
-          },
-        });
-      }
 
       return book;
     }),
