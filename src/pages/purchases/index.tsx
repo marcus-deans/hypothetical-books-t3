@@ -106,8 +106,8 @@ export default function sales(
       <Head>
         <title>Purchases</title>
       </Head>
-      <div>
-        <Link className="items-end px-6" href="/purchases/add/line" passHref>
+      <div className="flex space">
+        <Link className="items-end" href="/purchases/add/line" passHref>
           <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
             Add Purchase Line
           </Button>

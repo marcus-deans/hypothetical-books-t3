@@ -119,18 +119,20 @@ export default function SalesOrderDetail(
       <Head>
         <title>Sales Detail</title>
       </Head>
-      <Link className="items-end px-6" href={`/sales/${id}/edit`} passHref>
-        <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
-          Edit Sales Reconciliation
-        </Button>
-      </Link>
-      <Link className="items-end px-6" href={`/sales/${id}/delete`} passHref>
-        <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
-          Delete Sales Reconciliation
-        </Button>
-      </Link>
+      <div className="flex space">
+        <Link className="items-end" href={`/sales/${id}/edit`} passHref>
+          <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
+            Edit Sales Reconciliation
+          </Button>
+        </Link>
+        <Link className="items-end px-6" href={`/sales/${id}/delete`} passHref>
+          <Button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 border border-blue-700 rounded" variant="contained">
+            Delete Sales Reconciliation
+          </Button>
+        </Link>
+      </div>
       <div className="mt-5 h-3/4 space-y-4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
-      <Box
+        <Box
           sx={{
             height: "auto",
             maxHeight: 750,
