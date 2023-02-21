@@ -1,11 +1,14 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type { MouseEventHandler } from "react";
 import React, { useState } from "react";
 import jsPDF from "jspdf";
 import type { RowInput } from "jspdf-autotable";
 import autoTable from "jspdf-autotable";
 import Head from "next/head";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import TextField from "@mui/material/TextField";
 import { api } from "../utils/api";
 import { createInnerTRPCContext } from "../server/api/trpc";
 import { appRouter } from "../server/api/root";
@@ -17,35 +20,42 @@ import type {
 import superjson from "superjson";
 import type { purchaseOrders } from "../schema/purchases.schema";
 import type { salesReconciliation } from "../schema/sales.schema";
+import type { book } from "../schema/books.schema";
+import GenerateReport from "../components/GenerateReport";
+import { exit } from "process";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function Report(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  console.log("Start Date Locale: ", startDate.toLocaleDateString());
-  console.log("Start Date: ", startDate.toDateString());
-  const purchaseOrderQuery =
-    api.purchaseOrders.getAllWithOverallMetrics.useQuery({
+  const [startDateString, setStartDate] = useState(new Date());
+  const [endDateString, setEndDate] = useState(new Date());
+  const startDate = new Date(startDateString);
+  const endDate = new Date(endDateString);
+  const purchaseOrderQuery = api.purchaseOrders.getByDateWithOverallMetrics.useQuery({
+      startDate: startDate,
+      endDate: endDate,
       cursor: null,
       limit: 50,
-    });
-  const salesQuery = api.salesReconciliations.getAllWithOverallMetrics.useQuery(
-    {
+    }, 
+    {enabled: !!startDate && !!endDate}
+  );
+  const salesQuery = api.salesReconciliations.getByDateWithOverallMetrics.useQuery({
+      startDate: startDate,
+      endDate: endDate,
       cursor: null,
       limit: 50,
-    }
+    },
+     {enabled: !!startDate && !!endDate}
   );
 
   const purchaseOrders: purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
-  const salesReconciliations: salesReconciliation =
-    salesQuery?.data?.items ?? [];
+  const salesReconciliations: salesReconciliation = salesQuery?.data?.items ?? [];
 
   //console.log(purchaseOrders);
 
-  //console.log("Purchases\n",purchaseOrders);
-  //console.log("Sales\n", salesReconciliations);
+  console.log("Purchases\n",purchaseOrders);
+  console.log("Sales\n", salesReconciliations);
 
   const handleGenerate: MouseEventHandler<HTMLButtonElement> = () => {
     if (startDate.valueOf() > endDate.valueOf() + 1000 * 60) {
@@ -64,21 +74,33 @@ export default function Report(
       </Head>
       <div className="absolute flex-col justify-center rounded border border-blue-700 bg-blue-700 py-2 px-4 font-bold text-white">
         <div>
-          <h2>Start Date:</h2>
-          <div className="text-black">
-            <DatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date ?? new Date()!)}
-            />
+          <div className="text-black bg-white py-2 px-2 rounded">
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DesktopDatePicker
+                    label="Start Date"
+                    inputFormat="MM/DD/YYYY"
+                    value={startDate}
+                    onChange={(date) => setStartDate(date ?? new Date())}
+                    renderInput={(params: JSX.IntrinsicAttributes) => (
+                      <TextField {...params} />
+                    )}
+              />
+            </LocalizationProvider>
           </div>
         </div>
         <div>
-          <h2>End Date:</h2>
-          <div className="text-black">
-            <DatePicker
-              selected={endDate}
-              onChange={(date) => setEndDate(date ?? new Date())}
-            />
+          <div className="text-black bg-white py-2 px-2 rounded">
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DesktopDatePicker
+                    label="End Date"
+                    inputFormat="MM/DD/YYYY"
+                    value={endDate}
+                    onChange={(date) => setEndDate(date ?? new Date())}
+                    renderInput={(params: JSX.IntrinsicAttributes) => (
+                      <TextField {...params} />
+                    )}
+                />
+            </LocalizationProvider>
           </div>
         </div>
         <button
@@ -133,7 +155,7 @@ function generateReport(
     body: [
       [
         {
-          content: "Date:" + new Date().toLocaleDateString(),
+          content: "Date: " + new Date().toLocaleDateString(),
           styles: {
             halign: "right",
           },
@@ -228,8 +250,12 @@ function generateReport(
     const cost = getCost(value, periodOrders);
     insideInput.push(cost.toFixed(2));
     insideInput.push((revenue - cost).toFixed(2));
-    perDayList.push(insideInput);
+    if((revenue != 0) || cost != 0){
+      perDayList.push(insideInput);
+    }
   });
+
+  
 
   autoTable(doc, {
     head: [["Date", "Daily Revenue", "Daily Costs", "Daily Profit"]],
@@ -288,45 +314,67 @@ function generateReport(
     theme: "plain",
   });
 
-  autoTable(doc, {
-    body: [
-      [
-        {
-          content: "Terms & notes",
-          styles: {
-            halign: "left",
-            fontSize: 14,
-          },
-        },
-      ],
-      [
-        {
-          content:
-            "orem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia" +
-            "molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum" +
-            "numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium",
-          styles: {
-            halign: "left",
-          },
-        },
-      ],
-    ],
-    theme: "plain",
+  const bookIdToQuantity = new Map<book, number>();
+  const bookIdToRevenue = new Map<book, number>();
+
+  salesReconciliations.forEach(function (value) {
+    value.salesReconciliation.salesLines.forEach(function (saleLine){
+      const bookToAdd: book = saleLine.book;
+      bookIdToQuantity.set(bookToAdd, saleLine.quantity);
+      bookIdToRevenue.set(bookToAdd, saleLine.unitWholesalePrice * saleLine.quantity);
+    })
+  });
+  const topTenBooksArray: [book: book, quantity: number][] = [...bookIdToQuantity.entries()].sort((a,b) => b[1] - a[1]);
+  topTenBooksArray.length = Math.min(topTenBooksArray.length, 10);
+  const topTenBooksMap = new Map<book, number>(topTenBooksArray);
+  const topTenRevenue = new Map<book, number>();
+  const a = topTenBooksMap.keys();
+  topTenBooksArray.forEach(function (entry: [{title: string, isbn_13: string, }, number]){
+    topTenRevenue.set(entry[0], bookIdToRevenue.get(entry[0])!);
   });
 
-  autoTable(doc, {
-    body: [
-      [
-        {
-          content: "This is a centered footer",
-          styles: {
-            halign: "center",
-          },
-        },
-      ],
-    ],
-    theme: "plain",
+
+  const reverseOrders = purchaseOrders.slice().reverse();
+  const topTenBooksToCMR = new Map<book, number>();
+
+  //If you're debugging this, good luck
+  reverseOrders.forEach(function (value){
+    value.purchaseOrder.purchaseLines.forEach(function (purchaseLine){
+      topTenBooksArray.forEach(function (entry){
+        if(purchaseLine.book === entry[0]){
+          if(!(topTenBooksToCMR.has(purchaseLine.book))){
+            topTenBooksToCMR.set(purchaseLine.book, purchaseLine.unitWholesalePrice);
+          }
+        }
+      })
+    })
+  })
+
+  const topTenBooksInput: RowInput[] = [];
+
+  topTenBooksArray.forEach(function (entry) {
+    const insideInput: RowInput = [];
+    insideInput.push(entry[0].title); //Book
+    const quantity = bookIdToQuantity.get(entry[0])!
+    insideInput.push(quantity); //Quantity
+    const revenue = bookIdToRevenue.get(entry[0])!
+    insideInput.push(revenue.toFixed(2)); // Revenue
+    const totalCMR = topTenBooksToCMR.get(entry[0])! * quantity;
+    insideInput.push(totalCMR.toFixed(2)); // CMR
+    insideInput.push((revenue - totalCMR).toFixed(2)); // Profit
+    topTenBooksInput.push(insideInput);
   });
+
+
+  autoTable(doc, {
+    head: [["Book", "Quantity Sold", "Total Revenue", "Total Cost Most-Recent", "Total Profit"]],
+    body: topTenBooksInput,
+    theme: "striped",
+    headStyles: {
+      fillColor: "#343A40",
+    },
+  });
+
 
   return doc.output("dataurlnewwindow");
 }
@@ -384,12 +432,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.purchaseOrders.getAllWithOverallMetrics.prefetch({
+  await ssg.purchaseOrders.getByDateWithOverallMetrics.prefetch({
     cursor: null,
     limit: 50,
   });
 
-  await ssg.salesReconciliations.getAllWithOverallMetrics.prefetch({
+  await ssg.salesReconciliations.getByDateWithOverallMetrics.prefetch({
     cursor: null,
     limit: 50,
   });
