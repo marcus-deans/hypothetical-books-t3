@@ -10,7 +10,6 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import { Button } from "@mui/material";
 import Box from "@mui/material/Box";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
@@ -107,7 +106,7 @@ export default function Vendors(
       id: vendorWithOverallMetrics.vendor.id,
       name: vendorWithOverallMetrics.vendor.name,
       buybackRate: vendorWithOverallMetrics.vendor.buybackRate,
-      purchaseOrderCount: vendorWithOverallMetrics.purchaseOrderCount,
+      purchaseOrderCount: vendorWithOverallMetrics.purchaseOrderCout,
     };
   });
 

@@ -11,7 +11,6 @@ import type {
 } from "next";
 import superjson from "superjson";
 import Link from "next/link";
-import { Button } from "@mui/material";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import DetailLink from "../../components/table-components/DetailLink";
