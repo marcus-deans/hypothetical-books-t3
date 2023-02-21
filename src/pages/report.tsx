@@ -30,23 +30,24 @@ export default function Report(
 ) {
   const [startDateString, setStartDate] = useState(new Date());
   const [endDateString, setEndDate] = useState(new Date());
-  const startDate = new Date(startDateString);
+  const startDateTemp = new Date(startDateString);
+  const startDate = new Date(startDateTemp.getTime() - 90*60000); // Offset the dates by 90 minutes in order to get the current day's data
   const endDate = new Date(endDateString);
   const purchaseOrderQuery = api.purchaseOrders.getByDateWithOverallMetrics.useQuery({
-      startDate: startDate,
-      endDate: endDate,
-      cursor: null,
-      limit: 50,
-    }, 
-    {enabled: !!startDate && !!endDate}
+    startDate: startDate,
+    endDate: endDate,
+    cursor: null,
+    limit: 50,
+  },
+    { enabled: !!startDate && !!endDate }
   );
   const salesQuery = api.salesReconciliations.getByDateWithOverallMetrics.useQuery({
-      startDate: startDate,
-      endDate: endDate,
-      cursor: null,
-      limit: 50,
-    },
-     {enabled: !!startDate && !!endDate}
+    startDate: startDate,
+    endDate: endDate,
+    cursor: null,
+    limit: 50,
+  },
+    { enabled: !!startDate && !!endDate }
   );
 
   const purchaseOrders: purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
@@ -54,7 +55,7 @@ export default function Report(
 
   //console.log(purchaseOrders);
 
-  console.log("Purchases\n",purchaseOrders);
+  console.log("Purchases\n", purchaseOrders);
   console.log("Sales\n", salesReconciliations);
 
   const handleGenerate: MouseEventHandler<HTMLButtonElement> = () => {
@@ -72,43 +73,61 @@ export default function Report(
       <Head>
         <title>Report</title>
       </Head>
-      <div className="absolute flex-col justify-center rounded border border-blue-700 bg-blue-700 py-2 px-4 font-bold text-white">
-        <div>
-          <div className="text-black bg-white py-2 px-2 rounded">
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DesktopDatePicker
-                    label="Start Date"
-                    inputFormat="MM/DD/YYYY"
-                    value={startDate}
-                    onChange={(date) => setStartDate(date ?? new Date())}
-                    renderInput={(params: JSX.IntrinsicAttributes) => (
-                      <TextField {...params} />
-                    )}
-              />
-            </LocalizationProvider>
+      <div className="pt-6">
+        <form className="rounded bg-white px-6 py-6 inline-block">
+          <div className="space-y-5">
+            <div className="mb-2 block text-lg font-bold text-gray-700">
+              Generate Report
+            </div>
+            <div className="relative space-y-3">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
+              <div className="col-span-4">
+                <div className="space-y-20">
+                  <div className="flex space-x-10">
+                    <div className="text-black bg-white py-2 px-2 rounded">
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DesktopDatePicker
+                          label="Start Date"
+                          inputFormat="MM/DD/YYYY"
+                          value={startDate}
+                          onChange={(date) => setStartDate(date ?? new Date())}
+                          renderInput={(params: JSX.IntrinsicAttributes) => (
+                            <TextField {...params} />
+                          )}
+                        />
+                      </LocalizationProvider>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-black bg-white py-2 px-2 rounded">
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DesktopDatePicker
+                          label="End Date"
+                          inputFormat="MM/DD/YYYY"
+                          value={endDate}
+                          onChange={(date) => setEndDate(date ?? new Date())}
+                          renderInput={(params: JSX.IntrinsicAttributes) => (
+                            <TextField {...params} />
+                          )}
+                        />
+                      </LocalizationProvider>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-2 pt-16">
+              <button
+
+                className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                type="button"
+                onClick={handleGenerate}
+              >
+                Generate Report
+              </button>
+            </div>
           </div>
-        </div>
-        <div>
-          <div className="text-black bg-white py-2 px-2 rounded">
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DesktopDatePicker
-                    label="End Date"
-                    inputFormat="MM/DD/YYYY"
-                    value={endDate}
-                    onChange={(date) => setEndDate(date ?? new Date())}
-                    renderInput={(params: JSX.IntrinsicAttributes) => (
-                      <TextField {...params} />
-                    )}
-                />
-            </LocalizationProvider>
-          </div>
-        </div>
-        <button
-          className="rounded border-b-4 border-blue-700 bg-blue-500 py-2 px-4 font-bold text-white hover:border-blue-500 hover:bg-blue-400"
-          onClick={handleGenerate}
-        >
-          Generate Report
-        </button>
+        </form>
       </div>
     </>
   );
@@ -250,12 +269,12 @@ function generateReport(
     const cost = getCost(value, periodOrders);
     insideInput.push(cost.toFixed(2));
     insideInput.push((revenue - cost).toFixed(2));
-    if((revenue != 0) || cost != 0){
+    if ((revenue != 0) || cost != 0) {
       perDayList.push(insideInput);
     }
   });
 
-  
+
 
   autoTable(doc, {
     head: [["Date", "Daily Revenue", "Daily Costs", "Daily Profit"]],
@@ -318,18 +337,18 @@ function generateReport(
   const bookIdToRevenue = new Map<book, number>();
 
   salesReconciliations.forEach(function (value) {
-    value.salesReconciliation.salesLines.forEach(function (saleLine){
+    value.salesReconciliation.salesLines.forEach(function (saleLine) {
       const bookToAdd: book = saleLine.book;
       bookIdToQuantity.set(bookToAdd, saleLine.quantity);
       bookIdToRevenue.set(bookToAdd, saleLine.unitWholesalePrice * saleLine.quantity);
     })
   });
-  const topTenBooksArray: [book: book, quantity: number][] = [...bookIdToQuantity.entries()].sort((a,b) => b[1] - a[1]);
+  const topTenBooksArray: [book: book, quantity: number][] = [...bookIdToQuantity.entries()].sort((a, b) => b[1] - a[1]);
   topTenBooksArray.length = Math.min(topTenBooksArray.length, 10);
   const topTenBooksMap = new Map<book, number>(topTenBooksArray);
   const topTenRevenue = new Map<book, number>();
   const a = topTenBooksMap.keys();
-  topTenBooksArray.forEach(function (entry: [{title: string, isbn_13: string, }, number]){
+  topTenBooksArray.forEach(function (entry: [{ title: string, isbn_13: string, }, number]) {
     topTenRevenue.set(entry[0], bookIdToRevenue.get(entry[0])!);
   });
 
@@ -338,11 +357,11 @@ function generateReport(
   const topTenBooksToCMR = new Map<book, number>();
 
   //If you're debugging this, good luck
-  reverseOrders.forEach(function (value){
-    value.purchaseOrder.purchaseLines.forEach(function (purchaseLine){
-      topTenBooksArray.forEach(function (entry){
-        if(purchaseLine.book === entry[0]){
-          if(!(topTenBooksToCMR.has(purchaseLine.book))){
+  reverseOrders.forEach(function (value) {
+    value.purchaseOrder.purchaseLines.forEach(function (purchaseLine) {
+      topTenBooksArray.forEach(function (entry) {
+        if (purchaseLine.book === entry[0]) {
+          if (!(topTenBooksToCMR.has(purchaseLine.book))) {
             topTenBooksToCMR.set(purchaseLine.book, purchaseLine.unitWholesalePrice);
           }
         }

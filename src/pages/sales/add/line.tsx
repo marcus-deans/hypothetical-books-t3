@@ -101,7 +101,7 @@ export default function AddSalesLine(
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
             <div className="col-span-4">
               <div className="space-y-20">
-                <div className="flex w-4/5 space-x-10">
+                <div className="flex space-x-10">
                   <FormControl>
                     <FormLabel>Sales Reconciliation</FormLabel>
                     <FormHelperText>
