@@ -65,15 +65,14 @@ export default function AddPurchaseOrder(
   }));
 
   return (
-    <div className="flex w-full items-center ">
-      <form className="mb-4 w-3/4 items-center rounded bg-white px-8 pt-6 pb-8 shadow-md">
-        <div className="mb-4 items-center space-y-5">
-          <div className="mb-2 block text-lg font-bold text-gray-700">
+    <div className="overflow-hidden pt-6 inline-block">
+      <form className="mb-4 items-center rounded bg-white shadow-md px-6 py-3">
+        <div className="mb-4 space-y-5">
+          <div className="mb-2 block text-lg font-bold">
             Create Purchase Order
           </div>
           <div className="relative space-y-3">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
-            <div className="col-span-4 flex space-x-20">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDatePicker
                   label="Purchase Date"
@@ -85,6 +84,8 @@ export default function AddPurchaseOrder(
                   )}
                 />
               </LocalizationProvider>
+            </div>
+            <div className="flex justify-center">
               <FormControl>
                 <FormLabel>Vendor Name</FormLabel>
                 <FormHelperText>Select a vendor by name</FormHelperText>
@@ -113,7 +114,7 @@ export default function AddPurchaseOrder(
                   />
               </FormControl>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex space">
               <button
                 className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
                 type="button"
@@ -123,7 +124,6 @@ export default function AddPurchaseOrder(
               </button>
             </div>
           </div>
-        </div>
       </form>
     </div>
   );
