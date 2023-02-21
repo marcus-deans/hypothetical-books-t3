@@ -1,20 +1,21 @@
-import { withAuth } from "next-auth/middleware"
+import { withAuth } from "next-auth/middleware";
 
 export default withAuth(
   // `withAuth` augments your `Request` with the user's token.
   function middleware(req) {
-    
+    console.log("hello");
   },
   {
     callbacks: {
-      authorized: ({ token }) => {if(token) {
-        return true
+      authorized: ({ token }) => {
+        if(token) {
+            return true;
     }},
     },
     pages: {
-        signIn: '/'
+        signIn: '/auth/signin'
     }
   }
-)
-export const config = { matcher: ["/dashboard/:path*", "/records/:path*",
- "/sales/:path*", "/documentation/:path*", "/reset-password/:path*", "/vendors/:path*", "/purchases/:path*"],  }
+);
+
+export const config = {matcher: ["/books/:path*", "/books", "/sales/:path*", "/purchases/:path*", "/vendors/:path*", "/authors/:path*", "/genres/:path*", "/report/:path*"],};

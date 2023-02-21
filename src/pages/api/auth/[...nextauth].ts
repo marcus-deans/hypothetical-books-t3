@@ -82,10 +82,6 @@ export const authOptions: NextAuthOptions = {
       session.user = user;
       return Promise.resolve(session);
     },
-    redirect({ baseUrl }) {
-      console.log(baseUrl);
-      return baseUrl;
-    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
