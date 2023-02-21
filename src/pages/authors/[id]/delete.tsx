@@ -37,6 +37,7 @@ export default function DeleteVendor(
       setTimeout(() => {
         void router.push("/authors");
       }, 500);
+      props.notifyAbove()
     } catch (error) {
       console.log(error);
       setIsDeleting(false);

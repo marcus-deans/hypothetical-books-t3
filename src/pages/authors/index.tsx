@@ -1,6 +1,8 @@
 import Head from "next/head";
 import React from "react";
 import { api } from "../../utils/api";
+import{toast, ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'
 import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
@@ -21,7 +23,9 @@ export default function Authors(
     cursor: null,
     limit: 50,
   });
-
+  const notifyDel = (name:string) =>{
+    toast("Deleted: " + name)
+  }
   const authors = authorQuery?.data?.items ?? [];
 
   const tableHeaders = ["Name"];
@@ -51,13 +55,14 @@ export default function Authors(
           </thead>
           <tbody className="divide-y divide-gray-100 border-t border-gray-100">
             {authors.map((author) => (
-              <AuthorRow key={author.id} id={author.id} name={author.name} />
+              <AuthorRow  key={author.id} id={author.id} name={author.name} notifyAbove = {notifyDel}/>
             ))}
           </tbody>
         </table>
       </div>
       <div className="items-end  bg-white">
       </div>
+      <ToastContainer></ToastContainer>
     </>
   );
 }

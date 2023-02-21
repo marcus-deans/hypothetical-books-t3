@@ -13,6 +13,7 @@ import EditLink from "./EditLink";
 type AuthorRowProps = {
   id: string;
   name: string;
+  notifyAbove: any;
 };
 
 export default function AuthorRow(props: AuthorRowProps) {
