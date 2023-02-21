@@ -135,9 +135,9 @@ export default function Genres(
                 },
               },
             }}
-            pageSize={10}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
             autoHeight={true}
-            rowsPerPageOptions={[10]}
             getRowHeight={() => 'auto'}
             checkboxSelection
             disableSelectionOnClick
