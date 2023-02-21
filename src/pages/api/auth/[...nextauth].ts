@@ -72,11 +72,22 @@ export const authOptions: NextAuthOptions = {
     // signOut: '/auth/signout'
   },
   callbacks: {
+    async jwt({user, token}){
+      if(user){
+        token.user = user;
+      }
+      return Promise.resolve(token);
+    },
+    session: async ({session, token, user}) => {
+      session.user = user;
+      return Promise.resolve(session);
+    },
     redirect({ baseUrl }) {
       console.log(baseUrl);
       return baseUrl;
     },
   },
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 export default NextAuth(authOptions);
