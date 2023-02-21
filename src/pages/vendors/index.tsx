@@ -108,15 +108,9 @@ export default function Vendors(
       <Head>
         <title>Vendors</title>
       </Head>
-      <div className="space flex">
-        <Link className="items-end" href="/vendors/add" passHref>
-          <Button
-            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-            variant="contained"
-          >
-            Add Vendor
-          </Button>
-        </Link>
+      <div className="flex space text-neutral-50 mt-3 h-3/4 overflow-hidden">
+        <h1 className="text-2xl inline-block"> Vendors </h1>
+        <Link className="inline-block text-blue-600 ml-2 text-2xl" href="/vendors/add"> + </Link>
       </div>
 
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
