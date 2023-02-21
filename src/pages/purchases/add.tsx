@@ -3,15 +3,15 @@ import type { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
-import { api } from "../../../utils/api";
+import { api } from "../../utils/api";
 import { useRouter } from "next/router";
 import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { appRouter } from "../../../server/api/root";
-import { createInnerTRPCContext } from "../../../server/api/trpc";
+import { appRouter } from "../../server/api/root";
+import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
@@ -94,23 +94,23 @@ export default function AddPurchaseOrder(
                   value={vendorValue}
                   onChange={(
                     event,
-                    newValue: { label: string; id: string; } | null
+                    newValue: { label: string; id: string } | null
                   ) => {
                     setVendorValue(newValue);
-                  } }
+                  }}
                   onInputChange={(event, newInputValue: string) => {
                     setVendorInputValue(newInputValue);
-                  } }
-                  sx={{ width: 425 }} 
+                  }}
+                  sx={{ width: 425 }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       inputProps={{
-                        ...params.inputProps
+                        ...params.inputProp,
                       }}
                     />
                   )}
-                  />
+                />
               </FormControl>
             </div>
             <div className="flex items-center justify-between">

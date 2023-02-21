@@ -58,6 +58,7 @@ model Vendor {
   id            String          @id @default(cuid())
   name          String
   purchaseOrder PurchaseOrder[]
+  buybackRate   Float           @default(0)
   display       Boolean         @default(true)
 }
 

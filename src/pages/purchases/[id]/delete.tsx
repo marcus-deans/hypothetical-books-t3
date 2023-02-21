@@ -50,7 +50,7 @@ export default function DeletePurchaseOrder(
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DeletePane
-        itemIdentifier={data?.date.toDateString() ?? id}
+        itemIdentifier={data?.date.toLocaleDateString() ?? id}
         itemName={"Purchase Order"}
         isDeleting={isDeleting}
         handleDelete={handleDelete}

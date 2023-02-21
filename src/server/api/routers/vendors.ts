@@ -145,11 +145,12 @@ export const vendorsRouter = createTRPCRouter({
     }),
 
   add: publicProcedure
-    .input(z.object({ name: z.string() }))
+    .input(z.object({ name: z.string(), buybackRate: z.number().gte(0) }))
     .mutation(async ({ input }) => {
       const vendor = await prisma.vendor.create({
         data: {
           name: input.name,
+          buybackRate: input.buybackRate,
           display: true,
         },
       });
@@ -157,7 +158,13 @@ export const vendorsRouter = createTRPCRouter({
     }),
 
   edit: publicProcedure
-    .input(z.object({ id: z.string(), name: z.string() }))
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        buybackRate: z.number().gte(0),
+      })
+    )
     .mutation(async ({ input }) => {
       const vendor = await prisma.vendor.update({
         where: { id: input.id },
