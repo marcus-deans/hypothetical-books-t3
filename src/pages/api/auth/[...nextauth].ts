@@ -17,7 +17,7 @@ const confirmPasswordwithHash = (plain: string, hashed: string) => {
 
 export const authOptions: NextAuthOptions = {
   session: {
-    strategy: "jwt",
+    strategy: "jwt"
   },
   providers: [
     CredentialsProvider({
@@ -82,6 +82,14 @@ export const authOptions: NextAuthOptions = {
       session.user = user;
       return Promise.resolve(session);
     },
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
+    }
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
