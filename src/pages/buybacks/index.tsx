@@ -66,9 +66,10 @@ const index = () => {
           filterable: false,
           renderCell: (params: GridRenderCellParams) => (
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            <DetailLink url={`/purchases/${params.id}/detail`} />
+            <DetailLink url={`/buybacks/${params.id}/detail`} />
           ),
         },
+        
       ];
 
       const rows = buyBacks.map((buyBack) => {
@@ -88,7 +89,7 @@ const index = () => {
     </Head>
     <div className="flex space text-neutral-50 mt-3 h-3/4 overflow-hidden">
         <h1 className="text-2xl inline-block"> BuyBack </h1>
-        <Link className="inline-block text-blue-600 ml-2 text-2xl" href="/purchases/add/order"> + </Link>
+        <Link className="inline-block text-blue-600 ml-2 text-2xl" href="/buybacks/add/"> + </Link>
       </div>
       
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
