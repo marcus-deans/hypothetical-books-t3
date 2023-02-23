@@ -137,6 +137,7 @@ model User {
   password String
   accounts Account[]
   sessions Session[]
+  Image    Image[]
 }
 
 model VerificationToken {
@@ -145,4 +146,10 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Image {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
