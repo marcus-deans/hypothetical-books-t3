@@ -38,7 +38,7 @@ export default function AddSalesReconciliation() {
   };
 
   return (
-    <div className="text-neutral-50 overflow-hidden pt-6">
+    <div className="text-neutral-50 overflow-hidden pt-6 inline-block">
       <form className="mb-4 items-center rounded bg-white shadow-md px-6 py-3">
         <div className="mb-4 space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
