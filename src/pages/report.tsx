@@ -53,11 +53,6 @@ export default function Report(
   const purchaseOrders: purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
   const salesReconciliations: salesReconciliation = salesQuery?.data?.items ?? [];
 
-  //console.log(purchaseOrders);
-
-  console.log("Purchases\n", purchaseOrders);
-  console.log("Sales\n", salesReconciliations);
-
   const handleGenerate: MouseEventHandler<HTMLButtonElement> = () => {
     if (startDate.valueOf() > endDate.valueOf() + 1000 * 60) {
       alert(
@@ -221,7 +216,7 @@ function generateReport(
 
   let runningRevenue = 0;
   let runningCosts = 0;
-  //Now we do the purchase oredrs
+  //Now we do the purchase orders
 
   const periodOrders: purchaseOrders = [];
 
@@ -347,23 +342,27 @@ function generateReport(
   topTenBooksArray.length = Math.min(topTenBooksArray.length, 10);
   const topTenBooksMap = new Map<book, number>(topTenBooksArray);
   const topTenRevenue = new Map<book, number>();
-  const a = topTenBooksMap.keys();
   topTenBooksArray.forEach(function (entry: [{ title: string, isbn_13: string, }, number]) {
     topTenRevenue.set(entry[0], bookIdToRevenue.get(entry[0])!);
   });
 
 
-  const reverseOrders = purchaseOrders.slice().reverse();
-  const topTenBooksToCMR = new Map<book, number>();
+  const reverseOrders = [...purchaseOrders].reverse();
+  console.log(reverseOrders);
+  console.log(purchaseOrders);
+  const topTenBooksToCMR = new Map<String, number>();
+  console.log(topTenBooksArray);
 
   //If you're debugging this, good luck
-  reverseOrders.forEach(function (value) {
-    value.purchaseOrder.purchaseLines.forEach(function (purchaseLine) {
+  reverseOrders.forEach(function (order) {
+    order.purchaseOrder.purchaseLines.forEach(function (purchaseLine) {
       topTenBooksArray.forEach(function (entry) {
-        if (purchaseLine.book === entry[0]) {
-          if (!(topTenBooksToCMR.has(purchaseLine.book))) {
-            topTenBooksToCMR.set(purchaseLine.book, purchaseLine.unitWholesalePrice);
+        if (purchaseLine.book.title === entry[0].title) {
+          if (!(topTenBooksToCMR.has(purchaseLine.book.title))) {
+            topTenBooksToCMR.set(purchaseLine.book.title, purchaseLine.unitWholesalePrice);
           }
+        } else {
+          topTenBooksToCMR.set(entry[0].title, 0); // Is this logic correct?
         }
       })
     })
@@ -378,7 +377,7 @@ function generateReport(
     insideInput.push(quantity); //Quantity
     const revenue = bookIdToRevenue.get(entry[0])!
     insideInput.push(revenue.toFixed(2)); // Revenue
-    const totalCMR = topTenBooksToCMR.get(entry[0])! * quantity;
+    const totalCMR = topTenBooksToCMR.get(entry[0].title)! * quantity;
     insideInput.push(totalCMR.toFixed(2)); // CMR
     insideInput.push((revenue - totalCMR).toFixed(2)); // Profit
     topTenBooksInput.push(insideInput);
