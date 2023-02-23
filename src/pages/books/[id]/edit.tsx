@@ -107,6 +107,11 @@ export default function EditBook(
       toast.error("No file Selected. Please Select a File")
       return;
     }
+    if(file.type !== "image/jpeg" && file.type !== "image/png" && file.type !== "image/jpg"){
+      toast.error("Input file is not an image. Please select a JPG, JPEG, or PNG.");
+      return;
+    }
+    //Implement API call to send image back
     
   }
 
@@ -250,12 +255,13 @@ export default function EditBook(
       <div>{file && `${file.name}`}</div>
 
       <button onClick = {handleUpload} className="padding-top:10px bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Upload</button>
+                              <ToastContainer></ToastContainer>
+
     </div>
             </div>
           </div>
         </div>
       </form>
-      <ToastContainer></ToastContainer>
     </div>
     </>
   );
