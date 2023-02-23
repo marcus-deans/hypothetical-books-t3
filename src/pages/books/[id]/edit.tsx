@@ -10,10 +10,11 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { useRouter } from "next/router";
 import { api } from "../../../utils/api";
-import React, { useState } from "react";
+import React, { ChangeEvent, MouseEventHandler, useState } from "react";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { TextField, Autocomplete, InputAdornment } from "@mui/material";
-
+import {ToastContainer, toast} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
@@ -92,7 +93,30 @@ export default function EditBook(
     id: genre.id,
   }));
 
+  const [file, setFile] = useState<File>();
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = (event: React.MouseEvent<HTMLElement>) =>{
+    event.preventDefault()
+    if(!file){
+      toast.error("No file Selected. Please Select a File")
+      return;
+    }
+    if(file.type.split('.').pop().toLowerCase() != "image/png" || file.type != "image/jpeg"){
+      toast.error("Invalid File Type. Upload Either a PNG or JPG Image")
+
+    }
+  }
+
   return (
+    <>
+    <div>
+    </div>
     <div className="flex w-full items-center ">
       <form className="mb-4 w-3/4 items-center rounded bg-white px-8 pt-6 pb-8 shadow-md">
         <div className="mb-4 items-center space-y-5">
@@ -223,11 +247,20 @@ export default function EditBook(
                   {isSubmitting ? "Submitting..." : "Submit"}
                 </button>
               </div>
+              <div>
+      <input type="file" onChange={handleFileChange} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"/>
+
+      <div>{file && `${file.name}`}</div>
+
+      <button onClick = {handleUpload} className="padding-top:10px bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Upload</button>
+    </div>
             </div>
           </div>
         </div>
       </form>
+      <ToastContainer></ToastContainer>
     </div>
+    </>
   );
 }
 
