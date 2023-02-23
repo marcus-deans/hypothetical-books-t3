@@ -107,10 +107,7 @@ export default function EditBook(
       toast.error("No file Selected. Please Select a File")
       return;
     }
-    if(file.type.split('.').pop().toLowerCase() != "image/png" || file.type != "image/jpeg"){
-      toast.error("Invalid File Type. Upload Either a PNG or JPG Image")
-
-    }
+    
   }
 
   return (
