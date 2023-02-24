@@ -48,6 +48,54 @@ export const vendorsRouter = createTRPCRouter({
       };
     }),
 
+  getAllWithBuybackPolicy: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      /**
+       * For pagination docs you can have a look here
+       * @see https://trpc.io/docs/useInfiniteQuery
+       * @see https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+       */
+      const limit = input.limit ?? 50;
+      const { cursor } = input;
+
+      const items = await prisma.vendor.findMany({
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: {
+          display: true,
+          buybackRate: {
+            gt: 0,
+          },
+        },
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        orderBy: {
+          name: "desc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        // Remove the last item and use it as next cursor
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const nextItem = items.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      return {
+        items: items.reverse(),
+        nextCursor,
+      };
+    }),
+
   getAllWithOverallMetrics: publicProcedure
     .input(
       z.object({
@@ -145,11 +193,12 @@ export const vendorsRouter = createTRPCRouter({
     }),
 
   add: publicProcedure
-    .input(z.object({ name: z.string() }))
+    .input(z.object({ name: z.string(), buybackRate: z.number().gte(0) }))
     .mutation(async ({ input }) => {
       const vendor = await prisma.vendor.create({
         data: {
           name: input.name,
+          buybackRate: input.buybackRate,
           display: true,
         },
       });
@@ -157,7 +206,13 @@ export const vendorsRouter = createTRPCRouter({
     }),
 
   edit: publicProcedure
-    .input(z.object({ id: z.string(), name: z.string() }))
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        buybackRate: z.number().gte(0),
+      })
+    )
     .mutation(async ({ input }) => {
       const vendor = await prisma.vendor.update({
         where: { id: input.id },

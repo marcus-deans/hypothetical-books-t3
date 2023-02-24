@@ -35,6 +35,7 @@ model Book {
   genreId         String // relation String field
   purchaseLines   PurchaseLine[]
   salesLines      SalesLine[]
+  buybackLines    BuybackLine[]
   // to Be determined
   inventoryCount  Int
   display         Boolean        @default(true)
@@ -58,6 +59,8 @@ model Vendor {
   id            String          @id @default(cuid())
   name          String
   purchaseOrder PurchaseOrder[]
+  buybackOrders BuybackOrder[]
+  buybackRate   Float           @default(0)
   display       Boolean         @default(true)
 }
 
@@ -97,6 +100,26 @@ model SalesLine {
   salesReconciliation   SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
   salesReconciliationId String
   display               Boolean             @default(true)
+}
+
+model BuybackOrder {
+  id           String        @id @default(cuid())
+  date         DateTime
+  vendor       Vendor        @relation(fields: [vendorId], references: [id])
+  vendorId     String
+  buybackLines BuybackLine[]
+  display      Boolean       @default(true)
+}
+
+model BuybackLine {
+  id               String       @id @default(cuid())
+  book             Book         @relation(fields: [bookId], references: [id])
+  bookId           String
+  quantity         Int
+  unitBuybackPrice Float
+  buybackOrder     BuybackOrder @relation(fields: [buybackOrderId], references: [id])
+  buybackOrderId   String
+  display          Boolean      @default(true)
 }
 
 model Example {

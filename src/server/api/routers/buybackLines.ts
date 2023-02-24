@@ -1,10 +1,9 @@
+import { createTRPCRouter, publicProcedure } from "../trpc";
 import { z } from "zod";
-
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 
-export const salesLinesRouter = createTRPCRouter({
+export const buybackLinesRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
@@ -21,7 +20,7 @@ export const salesLinesRouter = createTRPCRouter({
       const limit = input.limit ?? 50;
       const { cursor } = input;
 
-      const items = await prisma.salesLine.findMany({
+      const items = await prisma.buybackLine.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
         where: { display: true },
@@ -43,7 +42,7 @@ export const salesLinesRouter = createTRPCRouter({
       }
 
       return {
-        items: items.reverse(),
+        item: items.reverse(),
         nextCursor,
       };
     }),
@@ -52,23 +51,23 @@ export const salesLinesRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
-      const salesLine = await prisma.salesLine.findUnique({
+      const buybackLine = await prisma.buybackLine.findUnique({
         where: { id },
       });
-      if (!salesLine || !salesLine.display) {
+      if (!buybackLine || !buybackLine.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No sales line with id '${id}'`,
+          message: `No buyback line with id '${id}'`,
         });
       }
-      return salesLine;
+      return buybackLine;
     }),
 
   getByIdWithBookPrimaries: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
-      const salesLineWithBookPrimaries = await prisma.salesLine.findUnique({
+      const buybackLineWithBookPrimaries = await prisma.buybackLine.findUnique({
         where: { id },
         include: {
           book: {
@@ -81,20 +80,23 @@ export const salesLinesRouter = createTRPCRouter({
           },
         },
       });
-      if (!salesLineWithBookPrimaries || !salesLineWithBookPrimaries.display) {
+      if (
+        !buybackLineWithBookPrimaries ||
+        !buybackLineWithBookPrimaries.display
+      ) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales line with id '${id}'`,
         });
       }
-      return salesLineWithBookPrimaries;
+      return buybackLineWithBookPrimaries;
     }),
 
   getByIdWithRelations: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
-      const purchaseLineWithRelations = await prisma.salesLine.findUnique({
+      const buybackLineWithRelations = await prisma.buybackLine.findUnique({
         where: { id },
         include: {
           book: {
@@ -105,7 +107,7 @@ export const salesLinesRouter = createTRPCRouter({
               isbn_13: true,
             },
           },
-          salesReconciliation: {
+          buybackOrder: {
             select: {
               id: true,
               date: true,
@@ -113,30 +115,14 @@ export const salesLinesRouter = createTRPCRouter({
           },
         },
       });
-      if (!purchaseLineWithRelations || !purchaseLineWithRelations.display) {
+      if (!buybackLineWithRelations || !buybackLineWithRelations.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales line with id '${id}'`,
         });
       }
-      return purchaseLineWithRelations;
+      return buybackLineWithRelations;
     }),
-
-  // model SalesReconciliation{
-  //   id 				String @id @default(cuid())
-  //   date			DateTime
-  //   saleLines SaleLine[]
-  // }
-  //
-  // model SaleLine{
-  //   id 				String @id @default(cuid())
-  //   book 			Book @relation(fields: [bookId], references: [lineId])
-  //   bookId 		String
-  //   quantity 	Int
-  //   unitWholesalePrice Float
-  //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [lineId])
-  //   salesReconciliationId	String
-  // }
 
   update: publicProcedure
     .input(
@@ -144,13 +130,12 @@ export const salesLinesRouter = createTRPCRouter({
         id: z.string(),
         bookId: z.string(),
         quantity: z.number().gt(0),
-        unitWholesalePrice: z.number().gt(0),
-        salesReconciliationId: z.string(),
+        unitBuybackPrice: z.number().gt(0),
+        buybackOrderId: z.string(),
       })
     )
-
     .mutation(async ({ input }) => {
-      const currentSalesLine = await prisma.salesLine.findUnique({
+      const currentbuybackLine = await prisma.buybackLine.findUnique({
         where: { id: input.id },
         include: {
           book: {
@@ -172,11 +157,11 @@ export const salesLinesRouter = createTRPCRouter({
       if ((futureBookInventoryCount?.inventoryCount ?? 0) < input.quantity) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
-          message: `Not enough inventory for sale of ${input.quantity} books with id '${input.bookId}'`,
+          message: `Not enough inventory for buyback of ${input.quantity} books with id ${input.bookId}`,
         });
       }
 
-      const updatedSalesLine = await prisma.salesLine.update({
+      const updatedBuybackLine = await prisma.buybackLine.update({
         where: {
           id: input.id,
         },
@@ -187,15 +172,16 @@ export const salesLinesRouter = createTRPCRouter({
             },
           },
           quantity: input.quantity,
-          unitWholesalePrice: input.unitWholesalePrice,
-          salesReconciliation: {
+          unitBuybackPrice: input.unitBuybackPrice,
+          buybackOrder: {
             connect: {
-              id: input.salesReconciliationId,
+              id: input.buybackOrderId,
             },
           },
           display: true,
         },
       });
+
       await prisma.book.update({
         where: { id: input.bookId },
         data: {
@@ -205,15 +191,14 @@ export const salesLinesRouter = createTRPCRouter({
         },
       });
       await prisma.book.update({
-        where: { id: currentSalesLine?.book.id },
+        where: { id: currentbuybackLine?.book.id },
         data: {
           inventoryCount: {
-            increment: currentSalesLine?.quantity,
+            increment: currentbuybackLine?.quantity,
           },
         },
       });
-
-      return updatedSalesLine;
+      return updatedBuybackLine;
     }),
 
   add: publicProcedure
@@ -221,8 +206,8 @@ export const salesLinesRouter = createTRPCRouter({
       z.object({
         bookId: z.string(),
         quantity: z.number().gt(0),
-        unitWholesalePrice: z.number().gt(0),
-        salesReconciliationId: z.string(),
+        unitBuybackPrice: z.number().gt(0),
+        buybackOrderId: z.string(),
       })
     )
 
@@ -233,15 +218,14 @@ export const salesLinesRouter = createTRPCRouter({
           inventoryCount: true,
         },
       });
-
       if ((bookInventoryCount?.inventoryCount ?? 0) < input.quantity) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
-          message: `Not enough inventory for sale of ${input.quantity} books with id '${input.bookId}'`,
+          message: `Not enough inventory for buyback of ${input.quantity} books with id ${input.bookId}`,
         });
       }
 
-      const salesLine = await prisma.salesLine.create({
+      const buybackLine = await prisma.buybackLine.create({
         data: {
           book: {
             connect: {
@@ -249,10 +233,10 @@ export const salesLinesRouter = createTRPCRouter({
             },
           },
           quantity: input.quantity,
-          unitWholesalePrice: input.unitWholesalePrice,
-          salesReconciliation: {
+          unitBuybackPrice: input.unitBuybackPrice,
+          buybackOrder: {
             connect: {
-              id: input.salesReconciliationId,
+              id: input.buybackOrderId,
             },
           },
           display: true,
@@ -266,7 +250,7 @@ export const salesLinesRouter = createTRPCRouter({
           },
         },
       });
-      return salesLine;
+      return buybackLine;
     }),
 
   delete: publicProcedure
@@ -274,7 +258,7 @@ export const salesLinesRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const { id } = input;
 
-      const currentSalesLine = await prisma.salesLine.findUnique({
+      const currentBuybackLine = await prisma.buybackLine.findUnique({
         where: { id },
         include: {
           book: {
@@ -285,36 +269,30 @@ export const salesLinesRouter = createTRPCRouter({
         },
       });
 
-      // const salesLine = await prisma.salesLine.delete({
-      //   where: { id },
-      // });
-      const updatedSalesLine = await prisma.salesLine.update({
-        where: { id },
+      const updatedBuybackLine = await prisma.buybackLine.update({
+        where: {
+          id: input.id,
+        },
         data: {
           display: false,
         },
       });
-      if (!updatedSalesLine) {
+      if (!updatedBuybackLine) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No sales line to delete withid '${id}'`,
+          message: `No buyback line with id '${id}'`,
         });
       }
-      if (currentSalesLine !== null) {
-        await prisma.book.update({
-          where: { id: currentSalesLine.book.id },
-          data: {
-            inventoryCount: {
-              increment: currentSalesLine.quantity,
-            },
+
+      await prisma.book.update({
+        where: { id: currentBuybackLine?.book.id },
+        data: {
+          inventoryCount: {
+            increment: currentBuybackLine?.quantity,
           },
-        });
-      }
+        },
+      });
 
-      return updatedSalesLine;
+      return updatedBuybackLine;
     }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
 });

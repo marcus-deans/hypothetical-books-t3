@@ -20,19 +20,19 @@ import Head from "next/head";
 import Link from "next/link";
 import { Button } from "@mui/material";
 
-export default function PurchaseOrderDetail(
+export default function BuybackOrderDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const purchaseOrderDetailsQuery =
-    api.purchaseOrders.getByIdWithOverallMetrics.useQuery({ id });
+  const buybackOrderDetailsQuery =
+    api.buybackOrders.getByIdWithOverallMetrics.useQuery({ id });
 
   // if (router.isFallback) {
-  if (purchaseOrderDetailsQuery.status !== "success") {
+  if (buybackOrderDetailsQuery.status !== "success") {
     return <div>Loading...</div>;
   }
 
-  const { data } = purchaseOrderDetailsQuery;
+  const { data } = buybackOrderDetailsQuery;
 
   const columns: GridColDef[] = [
     {
@@ -40,6 +40,17 @@ export default function PurchaseOrderDetail(
       headerName: "Book Title",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions */}
+            <a href={`/books/${params.row.bookId}/detail`}>
+              {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
+              {params.row.title}{" "}
+            </a>
+          </div>
+        );
+      },
     },
     {
       field: "isbn_13",
@@ -49,8 +60,8 @@ export default function PurchaseOrderDetail(
       maxWidth: 130,
     },
     {
-      field: "unitWholesalePrice",
-      headerName: "Unit Wholesale Price",
+      field: "unitBuybackPrice",
+      headerName: "Unit Buyback Price",
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 150,
@@ -80,7 +91,7 @@ export default function PurchaseOrderDetail(
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <EditLink url={`/purchases/${id}/${params.id}/edit`} />
+        <EditLink url={`/buybacks/${id}/${params.id}/edit`} />
       ),
     },
     {
@@ -94,20 +105,21 @@ export default function PurchaseOrderDetail(
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DeleteLink url={`/purchases/${id}/${params.id}/delete`} />
+        <DeleteLink url={`/buybacks/${id}/${params.id}/delete`} />
       ),
     },
   ];
-  const rows = data.purchaseOrderWithOverallMetrics.purchaseLines.map(
-    (purchaseLine) => {
+  const rows = data.buybackOrderWithOverallMetrics.buybackLines.map(
+    (buybackLine) => {
       return {
-        id: purchaseLine.id,
-        title: purchaseLine.book.title,
-        isbn_13: purchaseLine.book.isbn_13,
-        unitWholesalePrice: `$${purchaseLine.unitWholesalePrice.toFixed(2)}`,
-        quantity: purchaseLine.quantity,
+        id: buybackLine.id,
+        bookId: buybackLine.book.id,
+        title: buybackLine.book.title,
+        isbn_13: buybackLine.book.isbn_13,
+        unitBuybackPrice: `$${buybackLine.unitBuybackPrice.toFixed(2)}`,
+        quantity: buybackLine.quantity,
         subtotal: `$${(
-          purchaseLine.unitWholesalePrice * purchaseLine.quantity
+          buybackLine.unitBuybackPrice * buybackLine.quantity
         ).toFixed(2)}`,
       };
     }
@@ -116,40 +128,36 @@ export default function PurchaseOrderDetail(
   return (
     <>
       <Head>
-        <title>Purchases</title>
+        <title>Buybacks</title>
       </Head>
-      <Link className="items-end px-6" href={`/purchases/${id}/edit`} passHref>
+      <Link className="items-end px-6" href={`/buybacks/${id}/edit`} passHref>
         <Button
           className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
           variant="contained"
         >
-          Edit Purchase Order
+          Edit Buyback Order
         </Button>
       </Link>
-      <Link
-        className="items-end px-6"
-        href={`/purchases/${id}/delete`}
-        passHref
-      >
+      <Link className="items-end px-6" href={`/buybacks/${id}/delete`} passHref>
         <Button
           className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
           variant="contained"
         >
-          Delete Purchase Order
+          Delete Buyback Order
         </Button>
       </Link>
-      <Link className="items-end px-6" href={`/purchases/${id}/add`} passHref>
+      <Link className="items-end px-6" href={`/buybacks/${id}/add`} passHref>
         <Button
           className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
           variant="contained"
         >
-          Add Purchase Line
+          Add Buyback Line
         </Button>
       </Link>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Purchase Order on ${data.purchaseOrderWithOverallMetrics.date.toLocaleDateString()}`}{" "}
+          {`Purchase Order on ${data.buybackOrderWithOverallMetrics.date.toLocaleDateString()}`}{" "}
         </h1>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
@@ -187,21 +195,21 @@ export default function PurchaseOrderDetail(
         <div className="text-large px-15 ">
           {`Grand Total: $${data.totalPrice.toFixed(2)}`}
         </div>
-        <div className="text-large px-15 ">{`Vendor Name: ${data.purchaseOrderWithOverallMetrics.vendor.name}`}</div>
+        <div className="text-large px-15 ">{`Vendor Name: ${data.buybackOrderWithOverallMetrics.vendor.name}`}</div>
       </div>
     </>
   );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const purchaseOrders = await prisma.purchaseOrder.findMany({
+  const buybackOrders = await prisma.buybackOrder.findMany({
     select: {
       id: true,
     },
   });
 
-  const paths = purchaseOrders.map((purchaseOrder) => ({
-    params: { id: purchaseOrder.id },
+  const paths = buybackOrders.map((buybackOrder) => ({
+    params: { id: buybackOrder.id },
   }));
 
   console.log(paths);
@@ -219,7 +227,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.purchaseOrders.getByIdWithOverallMetrics.prefetch({ id });
+  await ssg.buybackOrders.getByIdWithOverallMetrics.prefetch({ id });
 
   return {
     props: {
