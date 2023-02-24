@@ -10,9 +10,6 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import TableHeader from "../../components/table-components/TableHeader";
-import AuthorRow from "../../components/table-components/AuthorRow";
-import { Button } from "@mui/material";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import EditLink from "../../components/table-components/EditLink";
@@ -49,7 +46,7 @@ export default function Authors(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 70,
-      align : "center",
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -63,7 +60,7 @@ export default function Authors(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 70,
-      align : "center",
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -85,16 +82,22 @@ export default function Authors(
       <Head>
         <title>Authors</title>
       </Head>
-      
-      <div className="flex space text-neutral-50 mt-3 h-3/4 overflow-hidden">
-        <h1 className="text-2xl inline-block"> Authors </h1>
-        <Link className="inline-block text-blue-600 ml-2 text-2xl" href="/authors/add"> + </Link>
+
+      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl"> Authors </h1>
+        <Link
+          className="ml-2 inline-block text-2xl text-blue-600"
+          href="/authors/add"
+        >
+          {" "}
+          +{" "}
+        </Link>
       </div>
-      
+
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
-            height: 'auto',
+            height: "auto",
             maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
@@ -118,7 +121,7 @@ export default function Authors(
             pageSize={14}
             rowsPerPageOptions={[14]}
             autoHeight={true}
-            getRowHeight={() => 'auto'}
+            getRowHeight={() => "auto"}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}

@@ -12,7 +12,7 @@ export default function AddGenre() {
     const enteredName = event.target.value;
     setGenreName(enteredName);
   };
-  const handleSubmit = (e: any) => {
+  const handleSubmit = () => {
     setIsSubmitting(true);
     try {
       const addResult = addMutation.mutate({ name: genreName });
@@ -26,7 +26,7 @@ export default function AddGenre() {
   };
 
   return (
-    <div className="items-center pt-6 inline-block">
+    <div className="inline-block items-center pt-6">
       <form className="mb-4 rounded bg-white px-8 pt-6 pb-8 shadow-md">
         <div className="mb-4">
           <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -46,8 +46,8 @@ export default function AddGenre() {
             type="submit"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            >
-              {isSubmitting ? "Submitting..." : "Submit"}
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </form>

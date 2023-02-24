@@ -13,7 +13,8 @@ export const purchaseOrdersWithMetricsSchema = z.array(
 						title: z.string(),
 						isbn_13: z.string()
 					}),
-					quantity: z.number()
+					quantity: z.number(),
+                    unitWholesalePrice: z.number()
 				})
 			)
 		}),

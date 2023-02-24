@@ -11,7 +11,7 @@ function Nav() {
   return (
     <nav className="border-gray-200 bg-white px-2 dark:border-gray-700 dark:bg-gray-900">
       <div className="flex justify-between">
-        <div className="container ml-4 flex flex-wrap items-center flex-row">
+        <div className="container ml-4 flex flex-row flex-wrap items-center">
           <Link href="/" className="flex items-center">
             <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
               Hypothetical Books
@@ -19,7 +19,10 @@ function Nav() {
           </Link>
         </div>
         <div>
-          <div className="hidden w-full md:block md:w-auto" id="navbar-dropdown">
+          <div
+            className="hidden w-full md:block md:w-auto"
+            id="navbar-dropdown"
+          >
             <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:text-sm md:font-medium md:dark:bg-gray-900">
               <li>
                 <Link
@@ -51,8 +54,21 @@ function Nav() {
               </li>
               <li>
                 <Link
+                  href="/buybacks"
+                  className={
+                    /buybacks\/*/.test(currentRoute) ? active : nonActive
+                  }
+                  aria-current="page"
+                >
+                  Buybacks
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/vendors"
-                  className={/vendors\/*/.test(currentRoute) ? active : nonActive}
+                  className={
+                    /vendors\/*/.test(currentRoute) ? active : nonActive
+                  }
                   aria-current="page"
                 >
                   Vendors
@@ -61,7 +77,9 @@ function Nav() {
               <li>
                 <Link
                   href="/authors"
-                  className={/authors\/*/.test(currentRoute) ? active : nonActive}
+                  className={
+                    /authors\/*/.test(currentRoute) ? active : nonActive
+                  }
                   aria-current="page"
                 >
                   Authors
@@ -70,7 +88,9 @@ function Nav() {
               <li>
                 <Link
                   href="/genres"
-                  className={/genres\/*/.test(currentRoute) ? active : nonActive}
+                  className={
+                    /genres\/*/.test(currentRoute) ? active : nonActive
+                  }
                   aria-current="page"
                 >
                   Genres
@@ -88,7 +108,9 @@ function Nav() {
               <li>
                 <Link
                   href="/report"
-                  className={/report\/*/.test(currentRoute) ? active : nonActive}
+                  className={
+                    /report\/*/.test(currentRoute) ? active : nonActive
+                  }
                   aria-current="page"
                 >
                   Reports

@@ -12,9 +12,9 @@ import { useRouter } from "next/router";
 import { api } from "../../../utils/api";
 import React, { ChangeEvent, MouseEventHandler, useState } from "react";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
-import { TextField, Autocomplete, InputAdornment } from "@mui/material";
-import {ToastContainer, toast} from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"
+import { Autocomplete, InputAdornment, TextField } from "@mui/material";
+import { ToastContainer } from "react-toastify";
+
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
@@ -219,12 +219,12 @@ export default function EditBook(
                       placeholder={"Select a genre by name"}
                       value={genreValue}
                       onChange={(
-                        event: any,
+                        event,
                         newValue: { label: string; id: string } | null
                       ) => {
                         setGenreValue(newValue);
                       }}
-                      onInputChange={(event: any, newInputValue: string) => {
+                      onInputChange={(event, newInputValue: string) => {
                         setGenreInputValue(newInputValue);
                       }}
                       sx={{ width: 425 }}
