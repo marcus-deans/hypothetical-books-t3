@@ -44,6 +44,14 @@ export default function sales(
       headerName: "Reconciliation Date",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/sales/${params.id}/detail`}>{params.row.date} </a>
+          </div>
+        );
+      },
     },
     {
       field: "totalQuantity",
@@ -65,20 +73,6 @@ export default function sales(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 150,
-    },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/sales/${params.id}/detail`} />
-      ),
     },
   ];
 

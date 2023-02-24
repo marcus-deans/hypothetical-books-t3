@@ -196,7 +196,7 @@ export default function AddBook() {
       field: "isbn_10",
       headerName: "ISBN-10",
       headerClassName: "header-theme",
-      width: 110,
+      width: 100,
     },
     {
       field: "publicationYear",

@@ -15,6 +15,7 @@ const Home: NextPage = () => {
         <title>Vendors</title>
       </Head>
       <main>
+        <div className="pt-6"></div>
         <button
           className="rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
           onClick={() => {

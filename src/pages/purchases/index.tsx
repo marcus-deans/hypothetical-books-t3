@@ -43,6 +43,14 @@ export default function sales(
       headerName: "Order Date",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/purchases/${params.id}/detail`}>{params.row.date} </a>
+          </div>
+        );
+      },
     },
     {
       field: "vendor",
@@ -70,20 +78,6 @@ export default function sales(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 150,
-    },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/purchases/${params.id}/detail`} />
-      ),
     },
   ];
 
@@ -120,7 +114,7 @@ export default function sales(
             height: "auto",
             maxHeight: 750,
             "& .header-theme": {
-              backgroundColor: "rgba(56, 116, 203, 0.35",
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
             },
           }}
         >
