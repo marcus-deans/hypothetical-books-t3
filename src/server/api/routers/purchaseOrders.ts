@@ -254,7 +254,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
                   select: {
                     id: true,
                     title: true,
-                    isbn_13: tue,
+                    isbn_13: true,
                   },
                 },
               },

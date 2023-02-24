@@ -87,7 +87,7 @@ export default function sales(
       totalQuantity: buybackOrder.totalQuantity,
       vendor: buybackOrder.buybackOrder.vendor.name,
       totalPrice: `$${buybackOrder.totalPrice.toFixed(2)}`,
-      totalUniqueBooks: buybackOrder.totalUniqueBoks,
+      totalUniqueBooks: buybackOrder.totalUniqueBooks,
     };
   });
 
