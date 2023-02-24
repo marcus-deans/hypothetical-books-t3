@@ -12,6 +12,9 @@ export default withAuth(
             return true;
     }},
     },
+    pages: {
+      signIn: '/auth/signin'
+    }
   }
 );
 

@@ -1,20 +1,32 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { NextPage } from "next";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/router";
 import React, { FormEventHandler, useState } from "react";
 
 export default function Signin(){
   const [userInfo, setUserInfo] = useState({password: "" });
+  const router = useRouter();
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     // validate your userinfo
     if(userInfo.password.length === 0){
       alert("Please Enter a Password")
     }
     e.preventDefault();
-       await signIn("credentials", {
+    const res = await signIn("credentials", {
         password: userInfo.password,
         redirect: true,
-      }).catch().then()
+    }).catch().then()
+    
+    if(res?.error){
+      alert("Password was incorrect.");
+    } else{
+      alert("Sign-in Successful, please proceed.");
+      setTimeout(() => {
+        void router.push(`/books`);
+      }, 500);
+    }
+    
   };
 
   return (
