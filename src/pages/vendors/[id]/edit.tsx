@@ -8,9 +8,10 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { api } from "../../../utils/api";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { prisma } from "../../../server/db";
+import { InputAdornment, TextField } from "@mui/material";
 
 export default function EditVendor(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -24,6 +25,9 @@ export default function EditVendor(
   const [vendorName, setVendorName] = useState(
     vendorDetailsQuery?.data?.name ?? "Vendor Name"
   );
+  const [buybackRate, setBuybackRate] = useState(
+    vendorDetailsQuery?.data?.buybackRate.toString() ?? "Vendor Buyback Rate"
+  );
   const router = useRouter();
   // if (router.isFallback) {
   if (vendorDetailsQuery.status !== "success") {
@@ -31,15 +35,27 @@ export default function EditVendor(
   }
   const { data } = vendorDetailsQuery;
 
-  const inputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const enteredName = event.target.value;
-    setVendorName(enteredName);
-  };
-
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      const editResult = editMutation.mutate({ id: id, name: vendorName });
+      if (!vendorName || !buybackRate) {
+        alert("Vendor name and buyback rate are required");
+        return;
+      }
+      const finalBuybackRate = Number(buybackRate);
+      if (
+        isNaN(finalBuybackRate) ||
+        finalBuybackRate <= 0 ||
+        finalBuybackRate >= 100
+      ) {
+        alert("Buyback rate must be a number between 0 and 100");
+        return;
+      }
+      const editResult = editMutation.mutate({
+        id: id,
+        name: vendorName,
+        buybackRate: finalBuybackRate,
+      });
       setTimeout(() => {
         void router.push("/vendors");
       }, 500);
@@ -56,12 +72,26 @@ export default function EditVendor(
           <label className="mb-2 block text-sm font-bold text-gray-700">
             {"Vendor Name"}
           </label>
-          <input
-            className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-            id="vendor"
-            type="text"
+          <TextField
+            id="vendorName"
+            label="Vendor Name"
             value={vendorName}
-            onChange={inputHandler}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>): void =>
+              setVendorName(event.target.value)
+            }
+            required
+          />
+          <TextField
+            id="buybackRate"
+            label="Buyback Rate"
+            value={buybackRate}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>): void =>
+              setBuybackRate(event.target.value)
+            }
+            InputProps={{
+              endAdornment: <InputAdornment position="end">%</InputAdornment>,
+            }}
+            required
           />
         </div>
         <button
