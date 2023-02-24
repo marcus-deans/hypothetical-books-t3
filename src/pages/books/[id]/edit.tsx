@@ -193,11 +193,13 @@ export default function EditBook(
                       placeholder={"Select a genre by name"}
                       value={genreValue}
                       onChange={(
+                        //eslint-disable-next-line @typescript-eslint/no-explicit-any
                         event: any,
                         newValue: { label: string; id: string } | null
                       ) => {
                         setGenreValue(newValue);
                       }}
+                      //eslint-disable-next-line @typescript-eslint/no-explicit-any
                       onInputChange={(event: any, newInputValue: string) => {
                         setGenreInputValue(newInputValue);
                       }}
