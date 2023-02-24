@@ -106,7 +106,7 @@ export default function Vendors(
       id: vendorWithOverallMetrics.vendor.id,
       name: vendorWithOverallMetrics.vendor.name,
       buybackRate: vendorWithOverallMetrics.vendor.buybackRate,
-      purchaseOrderCount: vendorWithOverallMetrics.purchaseOrderCout,
+      purchaseOrderCount: vendorWithOverallMetrics.purchaseOrderCount,
     };
   });
 

@@ -11,38 +11,45 @@ import type {
 } from "next";
 import superjson from "superjson";
 import Link from "next/link";
-import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import type { GridColDef } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
-import DetailLink from "../../components/table-components/DetailLink";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const purchaseOrderQuery =
-    api.purchaseOrders.getAllWithOverallMetrics.useQuery({
+  const buybackOrdersQuery =
+    api.buybackOrders.getAllWithOverallMetrics.useQuery({
       cursor: null,
       limit: 50,
     });
 
-  const purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
+  const buybackOrders = buybackOrdersQuery?.data?.items ?? [];
 
-  const logger = new Logger({ name: "purchaseOrdersLogger" });
-  logger.info("purchaseOrders", purchaseOrders); // This is the only line that is different from the Books page
+  const logger = new Logger({ name: "buybackOrdersLogger" });
+  logger.info("buybackOrders", buybackOrders); // This is the only line that is different from the Books page
 
   const columns: GridColDef[] = [
     {
       field: "id",
-      headerName: "Purchase Order ID",
+      headerName: "Buyback Order ID",
       headerClassName: "header-theme",
       flex: 1,
     },
     {
       field: "date",
-      headerName: "Order Date",
+      headerName: "Buyback Date",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/buybacks/${params.id}/detail`}>{params.row.date} </a>
+          </div>
+        );
+      },
     },
     {
       field: "vendor",
@@ -71,53 +78,29 @@ export default function sales(
       flex: 1,
       maxWidth: 150,
     },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/purchases/${params.id}/detail`} />
-      ),
-    },
   ];
 
-  const rows = purchaseOrders.map((purchaseOrder) => {
+  const rows = buybackOrders.map((buybackOrder) => {
     return {
-      id: purchaseOrder.purchaseOrder.id,
-      date: purchaseOrder.purchaseOrder.date.toLocaleDateString(),
-      totalQuantity: purchaseOrder.totalQuantity,
-      vendor: purchaseOrder.purchaseOrder.vendor.name,
-      totalPrice: `$${purchaseOrder.totalPrice.toFixed(2)}`,
-      totalUniqueBooks: purchaseOrder.totalUniqueBooks,
+      id: buybackOrder.buybackOrder.id,
+      date: buybackOrder.buybackOrder.date.toLocaleDateString(),
+      totalQuantity: buybackOrder.totalQuantity,
+      vendor: buybackOrder.buybackOrder.vendor.name,
+      totalPrice: `$${buybackOrder.totalPrice.toFixed(2)}`,
+      totalUniqueBooks: buybackOrder.totalUniqueBooks,
     };
   });
 
   return (
     <>
       <Head>
-        <title>Purchases</title>
+        <title>Buybacks</title>
       </Head>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Purchase Order </h1>
+        <h1 className="inline-block text-2xl"> Buyback Orders </h1>
         <Link
           className="ml-2 inline-block text-2xl text-blue-600"
-          href="/purchases/add"
-        >
-          {" "}
-          +{" "}
-        </Link>
-      </div>
-      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Purchase Line </h1>
-        <Link
-          className="ml-2 inline-block text-2xl text-blue-600"
-          href="/purchases/[id]/add"
+          href="/buybacks/add"
         >
           {" "}
           +{" "}
@@ -178,7 +161,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.purchaseOrders.getAllWithOverallMetrics.prefetch({
+  await ssg.buybackOrders.getAllWithOverallMetrics.prefetch({
     cursor: null,
     limit: 50,
   });
