@@ -65,65 +65,65 @@ export default function AddPurchaseOrder(
   }));
 
   return (
-    <div className="overflow-hidden pt-6 inline-block">
-      <form className="mb-4 items-center rounded bg-white shadow-md px-6 py-3">
+    <div className="inline-block overflow-hidden pt-6">
+      <form className="mb-4 items-center rounded bg-white px-6 py-3 shadow-md">
         <div className="mb-4 space-y-5">
           <div className="mb-2 block text-lg font-bold">
             Create Purchase Order
           </div>
           <div className="relative space-y-3">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DesktopDatePicker
-                  label="Purchase Date"
-                  inputFormat="MM/DD/YYYY"
-                  value={dateValue}
-                  onChange={handleDatePickChange}
-                  renderInput={(params: JSX.IntrinsicAttributes) => (
-                    <TextField {...params} />
-                  )}
-                />
-              </LocalizationProvider>
-            </div>
-            <div className="flex justify-center">
-              <FormControl>
-                <FormLabel>Vendor Name</FormLabel>
-                <FormHelperText>Select a vendor by name</FormHelperText>
-                <Autocomplete
-                  options={vendorOptions}
-                  placeholder={"Select a vendor by name"}
-                  value={vendorValue}
-                  onChange={(
-                    event,
-                    newValue: { label: string; id: string } | null
-                  ) => {
-                    setVendorValue(newValue);
-                  }}
-                  onInputChange={(event, newInputValue: string) => {
-                    setVendorInputValue(newInputValue);
-                  }}
-                  sx={{ width: 425 }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      inputProps={{
-                        ...params.inputProp,
-                      }}
-                    />
-                  )}
-                />
-              </FormControl>
-            </div>
-            <div className="flex space">
-              <button
-                className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
-                type="button"
-                onClick={handleSubmit}
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </button>
-            </div>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DesktopDatePicker
+                label="Purchase Date"
+                inputFormat="MM/DD/YYYY"
+                value={dateValue}
+                onChange={handleDatePickChange}
+                renderInput={(params: JSX.IntrinsicAttributes) => (
+                  <TextField {...params} />
+                )}
+              />
+            </LocalizationProvider>
           </div>
+          <div className="flex justify-center">
+            <FormControl>
+              <FormLabel>Vendor Name</FormLabel>
+              <FormHelperText>Select a vendor by name</FormHelperText>
+              <Autocomplete
+                options={vendorOptions}
+                placeholder={"Select a vendor by name"}
+                value={vendorValue}
+                onChange={(
+                  event,
+                  newValue: { label: string; id: string } | null
+                ) => {
+                  setVendorValue(newValue);
+                }}
+                onInputChange={(event, newInputValue: string) => {
+                  setVendorInputValue(newInputValue);
+                }}
+                sx={{ width: 425 }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    inputProps={{
+                      ...params.inputProps,
+                    }}
+                  />
+                )}
+              />
+            </FormControl>
+          </div>
+          <div className="space flex">
+            <button
+              className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+              type="button"
+              onClick={handleSubmit}
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </button>
+          </div>
+        </div>
       </form>
     </div>
   );
