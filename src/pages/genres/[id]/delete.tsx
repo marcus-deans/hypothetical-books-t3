@@ -51,7 +51,7 @@ export default function DeleteGenre(
       </Head>
       <DeletePane
         itemIdentifier={data?.name ?? id}
-        itemName={"Author"}
+        itemName={"Genre"}
         isDeleting={isDeleting}
         handleDelete={handleDelete}
         cancelUrl={`/genres/`}

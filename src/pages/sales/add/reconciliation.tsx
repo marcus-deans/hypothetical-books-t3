@@ -7,9 +7,10 @@ import React, { useState } from "react";
 import { api } from "../../../utils/api";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import dayjs from "dayjs";
 
 export default function AddSalesReconciliation() {
-  const [dateValue, setDateValue] = useState<Dayjs | null>();
+  const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addMutation = api.salesReconciliations.add.useMutation();

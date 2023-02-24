@@ -98,6 +98,15 @@ function Nav() {
               </li>
               <li>
                 <Link
+                  href="/buybacks"
+                  className={/buybacks\/*/.test(currentRoute) ? active : nonActive}
+                  aria-current="page"
+                >
+                  BuyBacks
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/report"
                   className={
                     /report\/*/.test(currentRoute) ? active : nonActive

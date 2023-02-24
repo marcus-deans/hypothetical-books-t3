@@ -15,6 +15,7 @@ import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
+import dayjs from "dayjs";
 
 export default function AddPurchaseOrder(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -28,7 +29,7 @@ export default function AddPurchaseOrder(
   ``;
   const addMutation = api.purchaseOrders.add.useMutation();
 
-  const [dateValue, setDateValue] = useState<Dayjs | null>();
+  const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [vendorValue, setVendorValue] = useState<{
     label: string;
