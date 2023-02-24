@@ -178,19 +178,21 @@ export default function AddBook() {
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      width: 250,
+      flex: 1,
+      maxWidth: 350,
     },
     {
       field: "authors",
       headerName: "Authors",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 250,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
-      width: 125,
+      maxWidth: 125,
     },
     {
       field: "isbn_10",
@@ -214,13 +216,15 @@ export default function AddBook() {
       field: "publisher",
       headerName: "Publisher",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 300,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      width: 150,
+      flex: 1,
+      maxWidth: 250,
     },
   ];
 
@@ -335,7 +339,7 @@ export default function AddBook() {
           <title>Books</title>
         </Head>
         <div className="pt-6"></div>
-        <div className="pt-6 px-6 rounded-lg bg-white inline-block">
+        <div className="inline-block rounded-lg bg-white px-6 pt-6">
           <div className="flex grid grid-cols-2 items-center">
             <div className="col-span-2 mb-3 flex items-end xl:w-96">
               <div className="input-group relative mb-4 flex w-full flex-wrap items-stretch space-y-5">
