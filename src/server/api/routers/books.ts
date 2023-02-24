@@ -268,8 +268,6 @@ export const booksRouter = createTRPCRouter({
       return book;
     }),
 
-  getBest
-
   add: publicProcedure
     .input(
       z.object({

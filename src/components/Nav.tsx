@@ -54,7 +54,7 @@ function Nav() {
               </li>
               <li>
                 <Link
-                  href="/purchases"
+                  href="/buybacks"
                   className={
                     /buybacks\/*/.test(currentRoute) ? active : nonActive
                   }

@@ -10,11 +10,10 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import DetailLink from "../../components/table-components/DetailLink";
+import type { GridColDef } from "@mui/x-data-grid";
+import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
-import { GridToolbar } from "@mui/x-data-grid";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -33,9 +32,9 @@ export default function Books(
       headerClassName: "header-theme",
       flex: 1,
       renderCell: (params) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return (
           <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
             <a href={`/books/${params.id}/detail`}>{params.row.title} </a>
           </div>
         );

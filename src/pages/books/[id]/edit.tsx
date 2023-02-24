@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import { api } from "../../../utils/api";
 import React, { useState } from "react";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
-import { TextField, Autocomplete, InputAdornment } from "@mui/material";
+import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -193,14 +193,12 @@ export default function EditBook(
                       placeholder={"Select a genre by name"}
                       value={genreValue}
                       onChange={(
-                        //eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        event: any,
+                        event,
                         newValue: { label: string; id: string } | null
                       ) => {
                         setGenreValue(newValue);
                       }}
-                      //eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      onInputChange={(event: any, newInputValue: string) => {
+                      onInputChange={(event, newInputValue: string) => {
                         setGenreInputValue(newInputValue);
                       }}
                       sx={{ width: 425 }}

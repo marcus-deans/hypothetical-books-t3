@@ -152,11 +152,12 @@ export const purchaseOrdersRouter = createTRPCRouter({
       const items = await prisma.purchaseOrder.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
-        where: { display: true,
+        where: {
+          display: true,
           date: {
             lte: end,
-            gte: start
-          }
+            gte: start,
+          },
         },
         include: {
           purchaseLines: {
@@ -251,8 +252,9 @@ export const purchaseOrdersRouter = createTRPCRouter({
               include: {
                 book: {
                   select: {
+                    id: true,
                     title: true,
-                    isbn_13: true,
+                    isbn_13: tue,
                   },
                 },
               },
