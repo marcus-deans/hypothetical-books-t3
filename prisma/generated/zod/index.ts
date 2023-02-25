@@ -18,6 +18,8 @@ export const BuybackLineScalarFieldEnumSchema = z.nativeEnum(PrismaClient.Prisma
 
 export const BuybackOrderScalarFieldEnumSchema = z.nativeEnum(PrismaClient.Prisma.BuybackOrderScalarFieldEnum);
 
+export const CostMostRecentVendorScalarFieldEnumSchema = z.nativeEnum(PrismaClient.Prisma.CostMostRecentVendorScalarFieldEnum);
+
 export const ExampleScalarFieldEnumSchema = z.nativeEnum(PrismaClient.Prisma.ExampleScalarFieldEnum);
 
 export const GenreScalarFieldEnumSchema = z.nativeEnum(PrismaClient.Prisma.GenreScalarFieldEnum);
@@ -164,6 +166,17 @@ export const BuybackLineSchema = z.object({
   display: z.boolean(),
 });
 
+// COST MOST RECENT VENDOR
+//------------------------------------------------------
+
+export const CostMostRecentVendorSchema = z.object({
+  id: z.string().cuid(),
+  bookId: z.string(),
+  vendorId: z.string(),
+  purchaseLineId: z.string(),
+  purchaseOrderId: z.string(),
+});
+
 // EXAMPLE
 //------------------------------------------------------
 
@@ -236,6 +249,7 @@ export const BookIncludeSchema: z.ZodType<PrismaClient.Prisma.BookInclude> = z.o
   purchaseLines: z.union([z.boolean(), z.lazy(() => PurchaseLineFindManyArgsSchema)]).optional(),
   salesLines: z.union([z.boolean(), z.lazy(() => SalesLineFindManyArgsSchema)]).optional(),
   buybackLines: z.union([z.boolean(), z.lazy(() => BuybackLineFindManyArgsSchema)]).optional(),
+  costMostRecentVendor: z.union([z.boolean(), z.lazy(() => CostMostRecentVendorFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => BookCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -248,6 +262,7 @@ export const BookCountOutputTypeSelectSchema: z.ZodType<PrismaClient.Prisma.Book
   purchaseLines: z.boolean().optional(),
   salesLines: z.boolean().optional(),
   buybackLines: z.boolean().optional(),
+  costMostRecentVendor: z.boolean().optional(),
 }).strict();
 
 export const BookSelectSchema: z.ZodType<PrismaClient.Prisma.BookSelect> = z.object({
@@ -270,6 +285,7 @@ export const BookSelectSchema: z.ZodType<PrismaClient.Prisma.BookSelect> = z.obj
   buybackLines: z.union([z.boolean(), z.lazy(() => BuybackLineFindManyArgsSchema)]).optional(),
   inventoryCount: z.boolean().optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.union([z.boolean(), z.lazy(() => CostMostRecentVendorFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => BookCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -342,6 +358,7 @@ export const VendorArgsSchema: z.ZodType<PrismaClient.Prisma.VendorArgs> = z.obj
 export const VendorIncludeSchema: z.ZodType<PrismaClient.Prisma.VendorInclude> = z.object({
   purchaseOrder: z.union([z.boolean(), z.lazy(() => PurchaseOrderFindManyArgsSchema)]).optional(),
   buybackOrders: z.union([z.boolean(), z.lazy(() => BuybackOrderFindManyArgsSchema)]).optional(),
+  costMostRecentVendor: z.union([z.boolean(), z.lazy(() => CostMostRecentVendorFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => VendorCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -352,6 +369,7 @@ export const VendorCountOutputTypeArgsSchema: z.ZodType<PrismaClient.Prisma.Vend
 export const VendorCountOutputTypeSelectSchema: z.ZodType<PrismaClient.Prisma.VendorCountOutputTypeSelect> = z.object({
   purchaseOrder: z.boolean().optional(),
   buybackOrders: z.boolean().optional(),
+  costMostRecentVendor: z.boolean().optional(),
 }).strict();
 
 export const VendorSelectSchema: z.ZodType<PrismaClient.Prisma.VendorSelect> = z.object({
@@ -361,6 +379,7 @@ export const VendorSelectSchema: z.ZodType<PrismaClient.Prisma.VendorSelect> = z
   buybackOrders: z.union([z.boolean(), z.lazy(() => BuybackOrderFindManyArgsSchema)]).optional(),
   buybackRate: z.boolean().optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.union([z.boolean(), z.lazy(() => CostMostRecentVendorFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => VendorCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -375,6 +394,7 @@ export const PurchaseOrderArgsSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrde
 export const PurchaseOrderIncludeSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderInclude> = z.object({
   vendor: z.union([z.boolean(), z.lazy(() => VendorArgsSchema)]).optional(),
   purchaseLines: z.union([z.boolean(), z.lazy(() => PurchaseLineFindManyArgsSchema)]).optional(),
+  costMostRecentVendor: z.union([z.boolean(), z.lazy(() => CostMostRecentVendorFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => PurchaseOrderCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -384,6 +404,7 @@ export const PurchaseOrderCountOutputTypeArgsSchema: z.ZodType<PrismaClient.Pris
 
 export const PurchaseOrderCountOutputTypeSelectSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCountOutputTypeSelect> = z.object({
   purchaseLines: z.boolean().optional(),
+  costMostRecentVendor: z.boolean().optional(),
 }).strict();
 
 export const PurchaseOrderSelectSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderSelect> = z.object({
@@ -393,6 +414,7 @@ export const PurchaseOrderSelectSchema: z.ZodType<PrismaClient.Prisma.PurchaseOr
   vendorId: z.boolean().optional(),
   purchaseLines: z.union([z.boolean(), z.lazy(() => PurchaseLineFindManyArgsSchema)]).optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.union([z.boolean(), z.lazy(() => CostMostRecentVendorFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => PurchaseOrderCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -407,6 +429,7 @@ export const PurchaseLineArgsSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineA
 export const PurchaseLineIncludeSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineInclude> = z.object({
   book: z.union([z.boolean(), z.lazy(() => BookArgsSchema)]).optional(),
   purchaseOrder: z.union([z.boolean(), z.lazy(() => PurchaseOrderArgsSchema)]).optional(),
+  costMostRecentVendor: z.union([z.boolean(), z.lazy(() => CostMostRecentVendorArgsSchema)]).optional(),
 }).strict();
 
 export const PurchaseLineSelectSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineSelect> = z.object({
@@ -418,6 +441,7 @@ export const PurchaseLineSelectSchema: z.ZodType<PrismaClient.Prisma.PurchaseLin
   purchaseOrder: z.union([z.boolean(), z.lazy(() => PurchaseOrderArgsSchema)]).optional(),
   purchaseOrderId: z.boolean().optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.union([z.boolean(), z.lazy(() => CostMostRecentVendorArgsSchema)]).optional(),
 }).strict();
 
 // SALES RECONCILIATION
@@ -527,6 +551,33 @@ export const BuybackLineSelectSchema: z.ZodType<PrismaClient.Prisma.BuybackLineS
   buybackOrder: z.union([z.boolean(), z.lazy(() => BuybackOrderArgsSchema)]).optional(),
   buybackOrderId: z.boolean().optional(),
   display: z.boolean().optional(),
+}).strict();
+
+// COST MOST RECENT VENDOR
+//------------------------------------------------------
+
+export const CostMostRecentVendorArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorArgs> = z.object({
+  select: z.lazy(() => CostMostRecentVendorSelectSchema).optional(),
+  include: z.lazy(() => CostMostRecentVendorIncludeSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorIncludeSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorInclude> = z.object({
+  book: z.union([z.boolean(), z.lazy(() => BookArgsSchema)]).optional(),
+  vendor: z.union([z.boolean(), z.lazy(() => VendorArgsSchema)]).optional(),
+  purchaseLine: z.union([z.boolean(), z.lazy(() => PurchaseLineArgsSchema)]).optional(),
+  purchaseOrder: z.union([z.boolean(), z.lazy(() => PurchaseOrderArgsSchema)]).optional(),
+}).strict();
+
+export const CostMostRecentVendorSelectSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorSelect> = z.object({
+  id: z.boolean().optional(),
+  book: z.union([z.boolean(), z.lazy(() => BookArgsSchema)]).optional(),
+  bookId: z.boolean().optional(),
+  vendor: z.union([z.boolean(), z.lazy(() => VendorArgsSchema)]).optional(),
+  vendorId: z.boolean().optional(),
+  purchaseLine: z.union([z.boolean(), z.lazy(() => PurchaseLineArgsSchema)]).optional(),
+  purchaseLineId: z.boolean().optional(),
+  purchaseOrder: z.union([z.boolean(), z.lazy(() => PurchaseOrderArgsSchema)]).optional(),
+  purchaseOrderId: z.boolean().optional(),
 }).strict();
 
 // EXAMPLE
@@ -653,6 +704,7 @@ export const BookWhereInputSchema: z.ZodType<PrismaClient.Prisma.BookWhereInput>
   buybackLines: z.lazy(() => BuybackLineListRelationFilterSchema).optional(),
   inventoryCount: z.union([z.lazy(() => IntFilterSchema), z.number()]).optional(),
   display: z.union([z.lazy(() => BoolFilterSchema), z.boolean()]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorListRelationFilterSchema).optional(),
 }).strict();
 
 export const BookOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.BookOrderByWithRelationInput> = z.object({
@@ -675,6 +727,7 @@ export const BookOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.B
   buybackLines: z.lazy(() => BuybackLineOrderByRelationAggregateInputSchema).optional(),
   inventoryCount: z.lazy(() => SortOrderSchema).optional(),
   display: z.lazy(() => SortOrderSchema).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorOrderByRelationAggregateInputSchema).optional(),
 }).strict();
 
 export const BookWhereUniqueInputSchema: z.ZodType<PrismaClient.Prisma.BookWhereUniqueInput> = z.object({
@@ -811,6 +864,7 @@ export const VendorWhereInputSchema: z.ZodType<PrismaClient.Prisma.VendorWhereIn
   buybackOrders: z.lazy(() => BuybackOrderListRelationFilterSchema).optional(),
   buybackRate: z.union([z.lazy(() => FloatFilterSchema), z.number()]).optional(),
   display: z.union([z.lazy(() => BoolFilterSchema), z.boolean()]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorListRelationFilterSchema).optional(),
 }).strict();
 
 export const VendorOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.VendorOrderByWithRelationInput> = z.object({
@@ -820,6 +874,7 @@ export const VendorOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma
   buybackOrders: z.lazy(() => BuybackOrderOrderByRelationAggregateInputSchema).optional(),
   buybackRate: z.lazy(() => SortOrderSchema).optional(),
   display: z.lazy(() => SortOrderSchema).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorOrderByRelationAggregateInputSchema).optional(),
 }).strict();
 
 export const VendorWhereUniqueInputSchema: z.ZodType<PrismaClient.Prisma.VendorWhereUniqueInput> = z.object({
@@ -858,6 +913,7 @@ export const PurchaseOrderWhereInputSchema: z.ZodType<PrismaClient.Prisma.Purcha
   vendorId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   purchaseLines: z.lazy(() => PurchaseLineListRelationFilterSchema).optional(),
   display: z.union([z.lazy(() => BoolFilterSchema), z.boolean()]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorListRelationFilterSchema).optional(),
 }).strict();
 
 export const PurchaseOrderOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderOrderByWithRelationInput> = z.object({
@@ -867,6 +923,7 @@ export const PurchaseOrderOrderByWithRelationInputSchema: z.ZodType<PrismaClient
   vendorId: z.lazy(() => SortOrderSchema).optional(),
   purchaseLines: z.lazy(() => PurchaseLineOrderByRelationAggregateInputSchema).optional(),
   display: z.lazy(() => SortOrderSchema).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorOrderByRelationAggregateInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderWhereUniqueInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderWhereUniqueInput> = z.object({
@@ -905,6 +962,7 @@ export const PurchaseLineWhereInputSchema: z.ZodType<PrismaClient.Prisma.Purchas
   purchaseOrder: z.union([z.lazy(() => PurchaseOrderRelationFilterSchema), z.lazy(() => PurchaseOrderWhereInputSchema)]).optional(),
   purchaseOrderId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   display: z.union([z.lazy(() => BoolFilterSchema), z.boolean()]).optional(),
+  costMostRecentVendor: z.union([z.lazy(() => CostMostRecentVendorRelationFilterSchema), z.lazy(() => CostMostRecentVendorWhereInputSchema)]).optional().nullable(),
 }).strict();
 
 export const PurchaseLineOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineOrderByWithRelationInput> = z.object({
@@ -916,6 +974,7 @@ export const PurchaseLineOrderByWithRelationInputSchema: z.ZodType<PrismaClient.
   purchaseOrder: z.lazy(() => PurchaseOrderOrderByWithRelationInputSchema).optional(),
   purchaseOrderId: z.lazy(() => SortOrderSchema).optional(),
   display: z.lazy(() => SortOrderSchema).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorOrderByWithRelationInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineWhereUniqueInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineWhereUniqueInput> = z.object({
@@ -1140,6 +1199,61 @@ export const BuybackLineScalarWhereWithAggregatesInputSchema: z.ZodType<PrismaCl
   unitBuybackPrice: z.union([z.lazy(() => FloatWithAggregatesFilterSchema), z.number()]).optional(),
   buybackOrderId: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
   display: z.union([z.lazy(() => BoolWithAggregatesFilterSchema), z.boolean()]).optional(),
+}).strict();
+
+export const CostMostRecentVendorWhereInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorWhereInput> = z.object({
+  AND: z.union([z.lazy(() => CostMostRecentVendorWhereInputSchema), z.lazy(() => CostMostRecentVendorWhereInputSchema).array()]).optional(),
+  OR: z.lazy(() => CostMostRecentVendorWhereInputSchema).array().optional(),
+  NOT: z.union([z.lazy(() => CostMostRecentVendorWhereInputSchema), z.lazy(() => CostMostRecentVendorWhereInputSchema).array()]).optional(),
+  id: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  book: z.union([z.lazy(() => BookRelationFilterSchema), z.lazy(() => BookWhereInputSchema)]).optional(),
+  bookId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  vendor: z.union([z.lazy(() => VendorRelationFilterSchema), z.lazy(() => VendorWhereInputSchema)]).optional(),
+  vendorId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  purchaseLine: z.union([z.lazy(() => PurchaseLineRelationFilterSchema), z.lazy(() => PurchaseLineWhereInputSchema)]).optional(),
+  purchaseLineId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  purchaseOrder: z.union([z.lazy(() => PurchaseOrderRelationFilterSchema), z.lazy(() => PurchaseOrderWhereInputSchema)]).optional(),
+  purchaseOrderId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+}).strict();
+
+export const CostMostRecentVendorOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  book: z.lazy(() => BookOrderByWithRelationInputSchema).optional(),
+  bookId: z.lazy(() => SortOrderSchema).optional(),
+  vendor: z.lazy(() => VendorOrderByWithRelationInputSchema).optional(),
+  vendorId: z.lazy(() => SortOrderSchema).optional(),
+  purchaseLine: z.lazy(() => PurchaseLineOrderByWithRelationInputSchema).optional(),
+  purchaseLineId: z.lazy(() => SortOrderSchema).optional(),
+  purchaseOrder: z.lazy(() => PurchaseOrderOrderByWithRelationInputSchema).optional(),
+  purchaseOrderId: z.lazy(() => SortOrderSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorWhereUniqueInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorWhereUniqueInput> = z.object({
+  id: z.string().cuid().optional(),
+  purchaseLineId: z.string().optional(),
+  costMostRecentVendorId: z.lazy(() => CostMostRecentVendorCostMostRecentVendorIdCompoundUniqueInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorOrderByWithAggregationInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  bookId: z.lazy(() => SortOrderSchema).optional(),
+  vendorId: z.lazy(() => SortOrderSchema).optional(),
+  purchaseLineId: z.lazy(() => SortOrderSchema).optional(),
+  purchaseOrderId: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => CostMostRecentVendorCountOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => CostMostRecentVendorMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => CostMostRecentVendorMinOrderByAggregateInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorScalarWhereWithAggregatesInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([z.lazy(() => CostMostRecentVendorScalarWhereWithAggregatesInputSchema), z.lazy(() => CostMostRecentVendorScalarWhereWithAggregatesInputSchema).array()]).optional(),
+  OR: z.lazy(() => CostMostRecentVendorScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([z.lazy(() => CostMostRecentVendorScalarWhereWithAggregatesInputSchema), z.lazy(() => CostMostRecentVendorScalarWhereWithAggregatesInputSchema).array()]).optional(),
+  id: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
+  bookId: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
+  vendorId: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
+  purchaseLineId: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
+  purchaseOrderId: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
 }).strict();
 
 export const ExampleWhereInputSchema: z.ZodType<PrismaClient.Prisma.ExampleWhereInput> = z.object({
@@ -1395,6 +1509,7 @@ export const BookCreateInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateInpu
   buybackLines: z.lazy(() => BuybackLineCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number().int(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedCreateInput> = z.object({
@@ -1416,6 +1531,7 @@ export const BookUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.BookU
   buybackLines: z.lazy(() => BuybackLineUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number().int(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookUpdateInputSchema: z.ZodType<PrismaClient.Prisma.BookUpdateInput> = z.object({
@@ -1437,6 +1553,7 @@ export const BookUpdateInputSchema: z.ZodType<PrismaClient.Prisma.BookUpdateInpu
   buybackLines: z.lazy(() => BuybackLineUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateInput> = z.object({
@@ -1458,6 +1575,7 @@ export const BookUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.BookU
   buybackLines: z.lazy(() => BuybackLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const BookCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateManyInput> = z.object({
@@ -1609,6 +1727,7 @@ export const VendorCreateInputSchema: z.ZodType<PrismaClient.Prisma.VendorCreate
   buybackOrders: z.lazy(() => BuybackOrderCreateNestedManyWithoutVendorInputSchema).optional(),
   buybackRate: z.number().optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutVendorInputSchema).optional(),
 }).strict();
 
 export const VendorUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.VendorUncheckedCreateInput> = z.object({
@@ -1618,6 +1737,7 @@ export const VendorUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.Ven
   buybackOrders: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutVendorInputSchema).optional(),
   buybackRate: z.number().optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutVendorInputSchema).optional(),
 }).strict();
 
 export const VendorUpdateInputSchema: z.ZodType<PrismaClient.Prisma.VendorUpdateInput> = z.object({
@@ -1627,6 +1747,7 @@ export const VendorUpdateInputSchema: z.ZodType<PrismaClient.Prisma.VendorUpdate
   buybackOrders: z.lazy(() => BuybackOrderUpdateManyWithoutVendorNestedInputSchema).optional(),
   buybackRate: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutVendorNestedInputSchema).optional(),
 }).strict();
 
 export const VendorUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.VendorUncheckedUpdateInput> = z.object({
@@ -1636,6 +1757,7 @@ export const VendorUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.Ven
   buybackOrders: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutVendorNestedInputSchema).optional(),
   buybackRate: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutVendorNestedInputSchema).optional(),
 }).strict();
 
 export const VendorCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.VendorCreateManyInput> = z.object({
@@ -1665,6 +1787,7 @@ export const PurchaseOrderCreateInputSchema: z.ZodType<PrismaClient.Prisma.Purch
   vendor: z.lazy(() => VendorCreateNestedOneWithoutPurchaseOrderInputSchema),
   purchaseLines: z.lazy(() => PurchaseLineCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedCreateInput> = z.object({
@@ -1673,6 +1796,7 @@ export const PurchaseOrderUncheckedCreateInputSchema: z.ZodType<PrismaClient.Pri
   vendorId: z.string(),
   purchaseLines: z.lazy(() => PurchaseLineUncheckedCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderUpdateInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUpdateInput> = z.object({
@@ -1681,6 +1805,7 @@ export const PurchaseOrderUpdateInputSchema: z.ZodType<PrismaClient.Prisma.Purch
   vendor: z.lazy(() => VendorUpdateOneRequiredWithoutPurchaseOrderNestedInputSchema).optional(),
   purchaseLines: z.lazy(() => PurchaseLineUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedUpdateInput> = z.object({
@@ -1689,6 +1814,7 @@ export const PurchaseOrderUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Pri
   vendorId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   purchaseLines: z.lazy(() => PurchaseLineUncheckedUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCreateManyInput> = z.object({
@@ -1718,6 +1844,7 @@ export const PurchaseLineCreateInputSchema: z.ZodType<PrismaClient.Prisma.Purcha
   unitWholesalePrice: z.number(),
   purchaseOrder: z.lazy(() => PurchaseOrderCreateNestedOneWithoutPurchaseLinesInputSchema),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedOneWithoutPurchaseLineInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedCreateInput> = z.object({
@@ -1727,6 +1854,7 @@ export const PurchaseLineUncheckedCreateInputSchema: z.ZodType<PrismaClient.Pris
   unitWholesalePrice: z.number(),
   purchaseOrderId: z.string(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedOneWithoutPurchaseLineInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineUpdateInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUpdateInput> = z.object({
@@ -1736,6 +1864,7 @@ export const PurchaseLineUpdateInputSchema: z.ZodType<PrismaClient.Prisma.Purcha
   unitWholesalePrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   purchaseOrder: z.lazy(() => PurchaseOrderUpdateOneRequiredWithoutPurchaseLinesNestedInputSchema).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateOneWithoutPurchaseLineNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedUpdateInput> = z.object({
@@ -1745,6 +1874,7 @@ export const PurchaseLineUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Pris
   unitWholesalePrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   purchaseOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateOneWithoutPurchaseLineNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCreateManyInput> = z.object({
@@ -1990,6 +2120,58 @@ export const BuybackLineUncheckedUpdateManyInputSchema: z.ZodType<PrismaClient.P
   unitBuybackPrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   buybackOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const CostMostRecentVendorCreateInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  book: z.lazy(() => BookCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  vendor: z.lazy(() => VendorCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  purchaseLine: z.lazy(() => PurchaseLineCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  purchaseOrder: z.lazy(() => PurchaseOrderCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+}).strict();
+
+export const CostMostRecentVendorUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  bookId: z.string(),
+  vendorId: z.string(),
+  purchaseLineId: z.string(),
+  purchaseOrderId: z.string(),
+}).strict();
+
+export const CostMostRecentVendorUpdateInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateInput> = z.object({
+  id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  book: z.lazy(() => BookUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  vendor: z.lazy(() => VendorUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  purchaseLine: z.lazy(() => PurchaseLineUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  purchaseOrder: z.lazy(() => PurchaseOrderUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateInput> = z.object({
+  id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  vendorId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseLineId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const CostMostRecentVendorCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateManyInput> = z.object({
+  id: z.string().cuid().optional(),
+  bookId: z.string(),
+  vendorId: z.string(),
+  purchaseLineId: z.string(),
+  purchaseOrderId: z.string(),
+}).strict();
+
+export const CostMostRecentVendorUpdateManyMutationInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateManyMutationInput> = z.object({
+  id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedUpdateManyInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateManyInput> = z.object({
+  id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  vendorId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseLineId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const ExampleCreateInputSchema: z.ZodType<PrismaClient.Prisma.ExampleCreateInput> = z.object({
@@ -2357,6 +2539,12 @@ export const BoolFilterSchema: z.ZodType<PrismaClient.Prisma.BoolFilter> = z.obj
   not: z.union([z.boolean(), z.lazy(() => NestedBoolFilterSchema)]).optional(),
 }).strict();
 
+export const CostMostRecentVendorListRelationFilterSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorListRelationFilter> = z.object({
+  every: z.lazy(() => CostMostRecentVendorWhereInputSchema).optional(),
+  some: z.lazy(() => CostMostRecentVendorWhereInputSchema).optional(),
+  none: z.lazy(() => CostMostRecentVendorWhereInputSchema).optional(),
+}).strict();
+
 export const AuthorOrderByRelationAggregateInputSchema: z.ZodType<PrismaClient.Prisma.AuthorOrderByRelationAggregateInput> = z.object({
   _count: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
@@ -2370,6 +2558,10 @@ export const SalesLineOrderByRelationAggregateInputSchema: z.ZodType<PrismaClien
 }).strict();
 
 export const BuybackLineOrderByRelationAggregateInputSchema: z.ZodType<PrismaClient.Prisma.BuybackLineOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorOrderByRelationAggregateInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorOrderByRelationAggregateInput> = z.object({
   _count: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
@@ -2676,6 +2868,11 @@ export const PurchaseOrderRelationFilterSchema: z.ZodType<PrismaClient.Prisma.Pu
   isNot: z.lazy(() => PurchaseOrderWhereInputSchema).optional(),
 }).strict();
 
+export const CostMostRecentVendorRelationFilterSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorRelationFilter> = z.object({
+  is: z.lazy(() => CostMostRecentVendorWhereInputSchema).optional().nullable(),
+  isNot: z.lazy(() => CostMostRecentVendorWhereInputSchema).optional().nullable(),
+}).strict();
+
 export const PurchaseLineCountOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCountOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   bookId: z.lazy(() => SortOrderSchema).optional(),
@@ -2834,6 +3031,40 @@ export const BuybackLineMinOrderByAggregateInputSchema: z.ZodType<PrismaClient.P
 export const BuybackLineSumOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.BuybackLineSumOrderByAggregateInput> = z.object({
   quantity: z.lazy(() => SortOrderSchema).optional(),
   unitBuybackPrice: z.lazy(() => SortOrderSchema).optional(),
+}).strict();
+
+export const PurchaseLineRelationFilterSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineRelationFilter> = z.object({
+  is: z.lazy(() => PurchaseLineWhereInputSchema).optional(),
+  isNot: z.lazy(() => PurchaseLineWhereInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorCostMostRecentVendorIdCompoundUniqueInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCostMostRecentVendorIdCompoundUniqueInput> = z.object({
+  bookId: z.string(),
+  vendorId: z.string(),
+}).strict();
+
+export const CostMostRecentVendorCountOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  bookId: z.lazy(() => SortOrderSchema).optional(),
+  vendorId: z.lazy(() => SortOrderSchema).optional(),
+  purchaseLineId: z.lazy(() => SortOrderSchema).optional(),
+  purchaseOrderId: z.lazy(() => SortOrderSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorMaxOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  bookId: z.lazy(() => SortOrderSchema).optional(),
+  vendorId: z.lazy(() => SortOrderSchema).optional(),
+  purchaseLineId: z.lazy(() => SortOrderSchema).optional(),
+  purchaseOrderId: z.lazy(() => SortOrderSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorMinOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  bookId: z.lazy(() => SortOrderSchema).optional(),
+  vendorId: z.lazy(() => SortOrderSchema).optional(),
+  purchaseLineId: z.lazy(() => SortOrderSchema).optional(),
+  purchaseOrderId: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
 export const ExampleCountOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.ExampleCountOrderByAggregateInput> = z.object({
@@ -3056,6 +3287,13 @@ export const BuybackLineCreateNestedManyWithoutBookInputSchema: z.ZodType<Prisma
   connect: z.union([z.lazy(() => BuybackLineWhereUniqueInputSchema), z.lazy(() => BuybackLineWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
+export const CostMostRecentVendorCreateNestedManyWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateNestedManyWithoutBookInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutBookInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutBookInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutBookInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyBookInputEnvelopeSchema).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+}).strict();
+
 export const AuthorUncheckedCreateNestedManyWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.AuthorUncheckedCreateNestedManyWithoutBooksInput> = z.object({
   create: z.union([z.lazy(() => AuthorCreateWithoutBooksInputSchema), z.lazy(() => AuthorCreateWithoutBooksInputSchema).array(), z.lazy(() => AuthorUncheckedCreateWithoutBooksInputSchema), z.lazy(() => AuthorUncheckedCreateWithoutBooksInputSchema).array()]).optional(),
   connectOrCreate: z.union([z.lazy(() => AuthorCreateOrConnectWithoutBooksInputSchema), z.lazy(() => AuthorCreateOrConnectWithoutBooksInputSchema).array()]).optional(),
@@ -3081,6 +3319,13 @@ export const BuybackLineUncheckedCreateNestedManyWithoutBookInputSchema: z.ZodTy
   connectOrCreate: z.union([z.lazy(() => BuybackLineCreateOrConnectWithoutBookInputSchema), z.lazy(() => BuybackLineCreateOrConnectWithoutBookInputSchema).array()]).optional(),
   createMany: z.lazy(() => BuybackLineCreateManyBookInputEnvelopeSchema).optional(),
   connect: z.union([z.lazy(() => BuybackLineWhereUniqueInputSchema), z.lazy(() => BuybackLineWhereUniqueInputSchema).array()]).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedCreateNestedManyWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedCreateNestedManyWithoutBookInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutBookInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutBookInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutBookInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyBookInputEnvelopeSchema).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
 export const StringFieldUpdateOperationsInputSchema: z.ZodType<PrismaClient.Prisma.StringFieldUpdateOperationsInput> = z.object({
@@ -3174,6 +3419,20 @@ export const BoolFieldUpdateOperationsInputSchema: z.ZodType<PrismaClient.Prisma
   set: z.boolean().optional(),
 }).strict();
 
+export const CostMostRecentVendorUpdateManyWithoutBookNestedInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateManyWithoutBookNestedInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutBookInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutBookInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutBookInputSchema).array()]).optional(),
+  upsert: z.union([z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutBookInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyBookInputEnvelopeSchema).optional(),
+  set: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  disconnect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  delete: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutBookInputSchema).array()]).optional(),
+  updateMany: z.union([z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutBookInputSchema).array()]).optional(),
+  deleteMany: z.union([z.lazy(() => CostMostRecentVendorScalarWhereInputSchema), z.lazy(() => CostMostRecentVendorScalarWhereInputSchema).array()]).optional(),
+}).strict();
+
 export const AuthorUncheckedUpdateManyWithoutBooksNestedInputSchema: z.ZodType<PrismaClient.Prisma.AuthorUncheckedUpdateManyWithoutBooksNestedInput> = z.object({
   create: z.union([z.lazy(() => AuthorCreateWithoutBooksInputSchema), z.lazy(() => AuthorCreateWithoutBooksInputSchema).array(), z.lazy(() => AuthorUncheckedCreateWithoutBooksInputSchema), z.lazy(() => AuthorUncheckedCreateWithoutBooksInputSchema).array()]).optional(),
   connectOrCreate: z.union([z.lazy(() => AuthorCreateOrConnectWithoutBooksInputSchema), z.lazy(() => AuthorCreateOrConnectWithoutBooksInputSchema).array()]).optional(),
@@ -3227,6 +3486,20 @@ export const BuybackLineUncheckedUpdateManyWithoutBookNestedInputSchema: z.ZodTy
   update: z.union([z.lazy(() => BuybackLineUpdateWithWhereUniqueWithoutBookInputSchema), z.lazy(() => BuybackLineUpdateWithWhereUniqueWithoutBookInputSchema).array()]).optional(),
   updateMany: z.union([z.lazy(() => BuybackLineUpdateManyWithWhereWithoutBookInputSchema), z.lazy(() => BuybackLineUpdateManyWithWhereWithoutBookInputSchema).array()]).optional(),
   deleteMany: z.union([z.lazy(() => BuybackLineScalarWhereInputSchema), z.lazy(() => BuybackLineScalarWhereInputSchema).array()]).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedUpdateManyWithoutBookNestedInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateManyWithoutBookNestedInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutBookInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutBookInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutBookInputSchema).array()]).optional(),
+  upsert: z.union([z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutBookInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyBookInputEnvelopeSchema).optional(),
+  set: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  disconnect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  delete: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutBookInputSchema).array()]).optional(),
+  updateMany: z.union([z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutBookInputSchema).array()]).optional(),
+  deleteMany: z.union([z.lazy(() => CostMostRecentVendorScalarWhereInputSchema), z.lazy(() => CostMostRecentVendorScalarWhereInputSchema).array()]).optional(),
 }).strict();
 
 export const BookCreateNestedManyWithoutGenreInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateNestedManyWithoutGenreInput> = z.object({
@@ -3323,6 +3596,13 @@ export const BuybackOrderCreateNestedManyWithoutVendorInputSchema: z.ZodType<Pri
   connect: z.union([z.lazy(() => BuybackOrderWhereUniqueInputSchema), z.lazy(() => BuybackOrderWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
+export const CostMostRecentVendorCreateNestedManyWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateNestedManyWithoutVendorInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutVendorInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutVendorInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyVendorInputEnvelopeSchema).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+}).strict();
+
 export const PurchaseOrderUncheckedCreateNestedManyWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutVendorInput> = z.object({
   create: z.union([z.lazy(() => PurchaseOrderCreateWithoutVendorInputSchema), z.lazy(() => PurchaseOrderCreateWithoutVendorInputSchema).array(), z.lazy(() => PurchaseOrderUncheckedCreateWithoutVendorInputSchema), z.lazy(() => PurchaseOrderUncheckedCreateWithoutVendorInputSchema).array()]).optional(),
   connectOrCreate: z.union([z.lazy(() => PurchaseOrderCreateOrConnectWithoutVendorInputSchema), z.lazy(() => PurchaseOrderCreateOrConnectWithoutVendorInputSchema).array()]).optional(),
@@ -3335,6 +3615,13 @@ export const BuybackOrderUncheckedCreateNestedManyWithoutVendorInputSchema: z.Zo
   connectOrCreate: z.union([z.lazy(() => BuybackOrderCreateOrConnectWithoutVendorInputSchema), z.lazy(() => BuybackOrderCreateOrConnectWithoutVendorInputSchema).array()]).optional(),
   createMany: z.lazy(() => BuybackOrderCreateManyVendorInputEnvelopeSchema).optional(),
   connect: z.union([z.lazy(() => BuybackOrderWhereUniqueInputSchema), z.lazy(() => BuybackOrderWhereUniqueInputSchema).array()]).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedCreateNestedManyWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedCreateNestedManyWithoutVendorInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutVendorInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutVendorInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyVendorInputEnvelopeSchema).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
 export const PurchaseOrderUpdateManyWithoutVendorNestedInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUpdateManyWithoutVendorNestedInput> = z.object({
@@ -3365,6 +3652,20 @@ export const BuybackOrderUpdateManyWithoutVendorNestedInputSchema: z.ZodType<Pri
   deleteMany: z.union([z.lazy(() => BuybackOrderScalarWhereInputSchema), z.lazy(() => BuybackOrderScalarWhereInputSchema).array()]).optional(),
 }).strict();
 
+export const CostMostRecentVendorUpdateManyWithoutVendorNestedInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateManyWithoutVendorNestedInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutVendorInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutVendorInputSchema).array()]).optional(),
+  upsert: z.union([z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutVendorInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyVendorInputEnvelopeSchema).optional(),
+  set: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  disconnect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  delete: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutVendorInputSchema).array()]).optional(),
+  updateMany: z.union([z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutVendorInputSchema).array()]).optional(),
+  deleteMany: z.union([z.lazy(() => CostMostRecentVendorScalarWhereInputSchema), z.lazy(() => CostMostRecentVendorScalarWhereInputSchema).array()]).optional(),
+}).strict();
+
 export const PurchaseOrderUncheckedUpdateManyWithoutVendorNestedInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedUpdateManyWithoutVendorNestedInput> = z.object({
   create: z.union([z.lazy(() => PurchaseOrderCreateWithoutVendorInputSchema), z.lazy(() => PurchaseOrderCreateWithoutVendorInputSchema).array(), z.lazy(() => PurchaseOrderUncheckedCreateWithoutVendorInputSchema), z.lazy(() => PurchaseOrderUncheckedCreateWithoutVendorInputSchema).array()]).optional(),
   connectOrCreate: z.union([z.lazy(() => PurchaseOrderCreateOrConnectWithoutVendorInputSchema), z.lazy(() => PurchaseOrderCreateOrConnectWithoutVendorInputSchema).array()]).optional(),
@@ -3393,6 +3694,20 @@ export const BuybackOrderUncheckedUpdateManyWithoutVendorNestedInputSchema: z.Zo
   deleteMany: z.union([z.lazy(() => BuybackOrderScalarWhereInputSchema), z.lazy(() => BuybackOrderScalarWhereInputSchema).array()]).optional(),
 }).strict();
 
+export const CostMostRecentVendorUncheckedUpdateManyWithoutVendorNestedInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateManyWithoutVendorNestedInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutVendorInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutVendorInputSchema).array()]).optional(),
+  upsert: z.union([z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutVendorInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyVendorInputEnvelopeSchema).optional(),
+  set: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  disconnect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  delete: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutVendorInputSchema).array()]).optional(),
+  updateMany: z.union([z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutVendorInputSchema).array()]).optional(),
+  deleteMany: z.union([z.lazy(() => CostMostRecentVendorScalarWhereInputSchema), z.lazy(() => CostMostRecentVendorScalarWhereInputSchema).array()]).optional(),
+}).strict();
+
 export const VendorCreateNestedOneWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.VendorCreateNestedOneWithoutPurchaseOrderInput> = z.object({
   create: z.union([z.lazy(() => VendorCreateWithoutPurchaseOrderInputSchema), z.lazy(() => VendorUncheckedCreateWithoutPurchaseOrderInputSchema)]).optional(),
   connectOrCreate: z.lazy(() => VendorCreateOrConnectWithoutPurchaseOrderInputSchema).optional(),
@@ -3406,11 +3721,25 @@ export const PurchaseLineCreateNestedManyWithoutPurchaseOrderInputSchema: z.ZodT
   connect: z.union([z.lazy(() => PurchaseLineWhereUniqueInputSchema), z.lazy(() => PurchaseLineWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
+export const CostMostRecentVendorCreateNestedManyWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateNestedManyWithoutPurchaseOrderInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseOrderInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyPurchaseOrderInputEnvelopeSchema).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+}).strict();
+
 export const PurchaseLineUncheckedCreateNestedManyWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedCreateNestedManyWithoutPurchaseOrderInput> = z.object({
   create: z.union([z.lazy(() => PurchaseLineCreateWithoutPurchaseOrderInputSchema), z.lazy(() => PurchaseLineCreateWithoutPurchaseOrderInputSchema).array(), z.lazy(() => PurchaseLineUncheckedCreateWithoutPurchaseOrderInputSchema), z.lazy(() => PurchaseLineUncheckedCreateWithoutPurchaseOrderInputSchema).array()]).optional(),
   connectOrCreate: z.union([z.lazy(() => PurchaseLineCreateOrConnectWithoutPurchaseOrderInputSchema), z.lazy(() => PurchaseLineCreateOrConnectWithoutPurchaseOrderInputSchema).array()]).optional(),
   createMany: z.lazy(() => PurchaseLineCreateManyPurchaseOrderInputEnvelopeSchema).optional(),
   connect: z.union([z.lazy(() => PurchaseLineWhereUniqueInputSchema), z.lazy(() => PurchaseLineWhereUniqueInputSchema).array()]).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedCreateNestedManyWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedCreateNestedManyWithoutPurchaseOrderInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseOrderInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyPurchaseOrderInputEnvelopeSchema).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
 export const DateTimeFieldUpdateOperationsInputSchema: z.ZodType<PrismaClient.Prisma.DateTimeFieldUpdateOperationsInput> = z.object({
@@ -3439,6 +3768,20 @@ export const PurchaseLineUpdateManyWithoutPurchaseOrderNestedInputSchema: z.ZodT
   deleteMany: z.union([z.lazy(() => PurchaseLineScalarWhereInputSchema), z.lazy(() => PurchaseLineScalarWhereInputSchema).array()]).optional(),
 }).strict();
 
+export const CostMostRecentVendorUpdateManyWithoutPurchaseOrderNestedInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateManyWithoutPurchaseOrderNestedInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseOrderInputSchema).array()]).optional(),
+  upsert: z.union([z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutPurchaseOrderInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyPurchaseOrderInputEnvelopeSchema).optional(),
+  set: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  disconnect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  delete: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutPurchaseOrderInputSchema).array()]).optional(),
+  updateMany: z.union([z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutPurchaseOrderInputSchema).array()]).optional(),
+  deleteMany: z.union([z.lazy(() => CostMostRecentVendorScalarWhereInputSchema), z.lazy(() => CostMostRecentVendorScalarWhereInputSchema).array()]).optional(),
+}).strict();
+
 export const PurchaseLineUncheckedUpdateManyWithoutPurchaseOrderNestedInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedUpdateManyWithoutPurchaseOrderNestedInput> = z.object({
   create: z.union([z.lazy(() => PurchaseLineCreateWithoutPurchaseOrderInputSchema), z.lazy(() => PurchaseLineCreateWithoutPurchaseOrderInputSchema).array(), z.lazy(() => PurchaseLineUncheckedCreateWithoutPurchaseOrderInputSchema), z.lazy(() => PurchaseLineUncheckedCreateWithoutPurchaseOrderInputSchema).array()]).optional(),
   connectOrCreate: z.union([z.lazy(() => PurchaseLineCreateOrConnectWithoutPurchaseOrderInputSchema), z.lazy(() => PurchaseLineCreateOrConnectWithoutPurchaseOrderInputSchema).array()]).optional(),
@@ -3453,6 +3796,20 @@ export const PurchaseLineUncheckedUpdateManyWithoutPurchaseOrderNestedInputSchem
   deleteMany: z.union([z.lazy(() => PurchaseLineScalarWhereInputSchema), z.lazy(() => PurchaseLineScalarWhereInputSchema).array()]).optional(),
 }).strict();
 
+export const CostMostRecentVendorUncheckedUpdateManyWithoutPurchaseOrderNestedInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateManyWithoutPurchaseOrderNestedInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema).array(), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseOrderInputSchema).array()]).optional(),
+  upsert: z.union([z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUpsertWithWhereUniqueWithoutPurchaseOrderInputSchema).array()]).optional(),
+  createMany: z.lazy(() => CostMostRecentVendorCreateManyPurchaseOrderInputEnvelopeSchema).optional(),
+  set: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  disconnect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  delete: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  connect: z.union([z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema), z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).array()]).optional(),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUpdateWithWhereUniqueWithoutPurchaseOrderInputSchema).array()]).optional(),
+  updateMany: z.union([z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUpdateManyWithWhereWithoutPurchaseOrderInputSchema).array()]).optional(),
+  deleteMany: z.union([z.lazy(() => CostMostRecentVendorScalarWhereInputSchema), z.lazy(() => CostMostRecentVendorScalarWhereInputSchema).array()]).optional(),
+}).strict();
+
 export const BookCreateNestedOneWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateNestedOneWithoutPurchaseLinesInput> = z.object({
   create: z.union([z.lazy(() => BookCreateWithoutPurchaseLinesInputSchema), z.lazy(() => BookUncheckedCreateWithoutPurchaseLinesInputSchema)]).optional(),
   connectOrCreate: z.lazy(() => BookCreateOrConnectWithoutPurchaseLinesInputSchema).optional(),
@@ -3463,6 +3820,18 @@ export const PurchaseOrderCreateNestedOneWithoutPurchaseLinesInputSchema: z.ZodT
   create: z.union([z.lazy(() => PurchaseOrderCreateWithoutPurchaseLinesInputSchema), z.lazy(() => PurchaseOrderUncheckedCreateWithoutPurchaseLinesInputSchema)]).optional(),
   connectOrCreate: z.lazy(() => PurchaseOrderCreateOrConnectWithoutPurchaseLinesInputSchema).optional(),
   connect: z.lazy(() => PurchaseOrderWhereUniqueInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorCreateNestedOneWithoutPurchaseLineInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateNestedOneWithoutPurchaseLineInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseLineInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseLineInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseLineInputSchema).optional(),
+  connect: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedCreateNestedOneWithoutPurchaseLineInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedCreateNestedOneWithoutPurchaseLineInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseLineInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseLineInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseLineInputSchema).optional(),
+  connect: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).optional(),
 }).strict();
 
 export const BookUpdateOneRequiredWithoutPurchaseLinesNestedInputSchema: z.ZodType<PrismaClient.Prisma.BookUpdateOneRequiredWithoutPurchaseLinesNestedInput> = z.object({
@@ -3479,6 +3848,26 @@ export const PurchaseOrderUpdateOneRequiredWithoutPurchaseLinesNestedInputSchema
   upsert: z.lazy(() => PurchaseOrderUpsertWithoutPurchaseLinesInputSchema).optional(),
   connect: z.lazy(() => PurchaseOrderWhereUniqueInputSchema).optional(),
   update: z.union([z.lazy(() => PurchaseOrderUpdateWithoutPurchaseLinesInputSchema), z.lazy(() => PurchaseOrderUncheckedUpdateWithoutPurchaseLinesInputSchema)]).optional(),
+}).strict();
+
+export const CostMostRecentVendorUpdateOneWithoutPurchaseLineNestedInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateOneWithoutPurchaseLineNestedInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseLineInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseLineInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseLineInputSchema).optional(),
+  upsert: z.lazy(() => CostMostRecentVendorUpsertWithoutPurchaseLineInputSchema).optional(),
+  disconnect: z.boolean().optional(),
+  delete: z.boolean().optional(),
+  connect: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).optional(),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithoutPurchaseLineInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateWithoutPurchaseLineInputSchema)]).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedUpdateOneWithoutPurchaseLineNestedInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateOneWithoutPurchaseLineNestedInput> = z.object({
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseLineInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseLineInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => CostMostRecentVendorCreateOrConnectWithoutPurchaseLineInputSchema).optional(),
+  upsert: z.lazy(() => CostMostRecentVendorUpsertWithoutPurchaseLineInputSchema).optional(),
+  disconnect: z.boolean().optional(),
+  delete: z.boolean().optional(),
+  connect: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema).optional(),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithoutPurchaseLineInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateWithoutPurchaseLineInputSchema)]).optional(),
 }).strict();
 
 export const SalesLineCreateNestedManyWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.SalesLineCreateNestedManyWithoutSalesReconciliationInput> = z.object({
@@ -3633,6 +4022,62 @@ export const BuybackOrderUpdateOneRequiredWithoutBuybackLinesNestedInputSchema: 
   upsert: z.lazy(() => BuybackOrderUpsertWithoutBuybackLinesInputSchema).optional(),
   connect: z.lazy(() => BuybackOrderWhereUniqueInputSchema).optional(),
   update: z.union([z.lazy(() => BuybackOrderUpdateWithoutBuybackLinesInputSchema), z.lazy(() => BuybackOrderUncheckedUpdateWithoutBuybackLinesInputSchema)]).optional(),
+}).strict();
+
+export const BookCreateNestedOneWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateNestedOneWithoutCostMostRecentVendorInput> = z.object({
+  create: z.union([z.lazy(() => BookCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => BookUncheckedCreateWithoutCostMostRecentVendorInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => BookCreateOrConnectWithoutCostMostRecentVendorInputSchema).optional(),
+  connect: z.lazy(() => BookWhereUniqueInputSchema).optional(),
+}).strict();
+
+export const VendorCreateNestedOneWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.VendorCreateNestedOneWithoutCostMostRecentVendorInput> = z.object({
+  create: z.union([z.lazy(() => VendorCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => VendorUncheckedCreateWithoutCostMostRecentVendorInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => VendorCreateOrConnectWithoutCostMostRecentVendorInputSchema).optional(),
+  connect: z.lazy(() => VendorWhereUniqueInputSchema).optional(),
+}).strict();
+
+export const PurchaseLineCreateNestedOneWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCreateNestedOneWithoutCostMostRecentVendorInput> = z.object({
+  create: z.union([z.lazy(() => PurchaseLineCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseLineUncheckedCreateWithoutCostMostRecentVendorInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => PurchaseLineCreateOrConnectWithoutCostMostRecentVendorInputSchema).optional(),
+  connect: z.lazy(() => PurchaseLineWhereUniqueInputSchema).optional(),
+}).strict();
+
+export const PurchaseOrderCreateNestedOneWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCreateNestedOneWithoutCostMostRecentVendorInput> = z.object({
+  create: z.union([z.lazy(() => PurchaseOrderCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseOrderUncheckedCreateWithoutCostMostRecentVendorInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => PurchaseOrderCreateOrConnectWithoutCostMostRecentVendorInputSchema).optional(),
+  connect: z.lazy(() => PurchaseOrderWhereUniqueInputSchema).optional(),
+}).strict();
+
+export const BookUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema: z.ZodType<PrismaClient.Prisma.BookUpdateOneRequiredWithoutCostMostRecentVendorNestedInput> = z.object({
+  create: z.union([z.lazy(() => BookCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => BookUncheckedCreateWithoutCostMostRecentVendorInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => BookCreateOrConnectWithoutCostMostRecentVendorInputSchema).optional(),
+  upsert: z.lazy(() => BookUpsertWithoutCostMostRecentVendorInputSchema).optional(),
+  connect: z.lazy(() => BookWhereUniqueInputSchema).optional(),
+  update: z.union([z.lazy(() => BookUpdateWithoutCostMostRecentVendorInputSchema), z.lazy(() => BookUncheckedUpdateWithoutCostMostRecentVendorInputSchema)]).optional(),
+}).strict();
+
+export const VendorUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema: z.ZodType<PrismaClient.Prisma.VendorUpdateOneRequiredWithoutCostMostRecentVendorNestedInput> = z.object({
+  create: z.union([z.lazy(() => VendorCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => VendorUncheckedCreateWithoutCostMostRecentVendorInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => VendorCreateOrConnectWithoutCostMostRecentVendorInputSchema).optional(),
+  upsert: z.lazy(() => VendorUpsertWithoutCostMostRecentVendorInputSchema).optional(),
+  connect: z.lazy(() => VendorWhereUniqueInputSchema).optional(),
+  update: z.union([z.lazy(() => VendorUpdateWithoutCostMostRecentVendorInputSchema), z.lazy(() => VendorUncheckedUpdateWithoutCostMostRecentVendorInputSchema)]).optional(),
+}).strict();
+
+export const PurchaseLineUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUpdateOneRequiredWithoutCostMostRecentVendorNestedInput> = z.object({
+  create: z.union([z.lazy(() => PurchaseLineCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseLineUncheckedCreateWithoutCostMostRecentVendorInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => PurchaseLineCreateOrConnectWithoutCostMostRecentVendorInputSchema).optional(),
+  upsert: z.lazy(() => PurchaseLineUpsertWithoutCostMostRecentVendorInputSchema).optional(),
+  connect: z.lazy(() => PurchaseLineWhereUniqueInputSchema).optional(),
+  update: z.union([z.lazy(() => PurchaseLineUpdateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseLineUncheckedUpdateWithoutCostMostRecentVendorInputSchema)]).optional(),
+}).strict();
+
+export const PurchaseOrderUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUpdateOneRequiredWithoutCostMostRecentVendorNestedInput> = z.object({
+  create: z.union([z.lazy(() => PurchaseOrderCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseOrderUncheckedCreateWithoutCostMostRecentVendorInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => PurchaseOrderCreateOrConnectWithoutCostMostRecentVendorInputSchema).optional(),
+  upsert: z.lazy(() => PurchaseOrderUpsertWithoutCostMostRecentVendorInputSchema).optional(),
+  connect: z.lazy(() => PurchaseOrderWhereUniqueInputSchema).optional(),
+  update: z.union([z.lazy(() => PurchaseOrderUpdateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseOrderUncheckedUpdateWithoutCostMostRecentVendorInputSchema)]).optional(),
 }).strict();
 
 export const UserCreateNestedOneWithoutAccountsInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateNestedOneWithoutAccountsInput> = z.object({
@@ -3987,6 +4432,7 @@ export const PurchaseLineCreateWithoutBookInputSchema: z.ZodType<PrismaClient.Pr
   unitWholesalePrice: z.number(),
   purchaseOrder: z.lazy(() => PurchaseOrderCreateNestedOneWithoutPurchaseLinesInputSchema),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedOneWithoutPurchaseLineInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineUncheckedCreateWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedCreateWithoutBookInput> = z.object({
@@ -3995,6 +4441,7 @@ export const PurchaseLineUncheckedCreateWithoutBookInputSchema: z.ZodType<Prisma
   unitWholesalePrice: z.number(),
   purchaseOrderId: z.string(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedOneWithoutPurchaseLineInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineCreateOrConnectWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCreateOrConnectWithoutBookInput> = z.object({
@@ -4056,6 +4503,30 @@ export const BuybackLineCreateOrConnectWithoutBookInputSchema: z.ZodType<PrismaC
 
 export const BuybackLineCreateManyBookInputEnvelopeSchema: z.ZodType<PrismaClient.Prisma.BuybackLineCreateManyBookInputEnvelope> = z.object({
   data: z.lazy(() => BuybackLineCreateManyBookInputSchema).array(),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const CostMostRecentVendorCreateWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateWithoutBookInput> = z.object({
+  id: z.string().optional(),
+  vendor: z.lazy(() => VendorCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  purchaseLine: z.lazy(() => PurchaseLineCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  purchaseOrder: z.lazy(() => PurchaseOrderCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+}).strict();
+
+export const CostMostRecentVendorUncheckedCreateWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedCreateWithoutBookInput> = z.object({
+  id: z.string().optional(),
+  vendorId: z.string(),
+  purchaseLineId: z.string(),
+  purchaseOrderId: z.string(),
+}).strict();
+
+export const CostMostRecentVendorCreateOrConnectWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateOrConnectWithoutBookInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema),
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutBookInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorCreateManyBookInputEnvelopeSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateManyBookInputEnvelope> = z.object({
+  data: z.lazy(() => CostMostRecentVendorCreateManyBookInputSchema).array(),
   skipDuplicates: z.boolean().optional(),
 }).strict();
 
@@ -4185,6 +4656,33 @@ export const BuybackLineScalarWhereInputSchema: z.ZodType<PrismaClient.Prisma.Bu
   display: z.union([z.lazy(() => BoolFilterSchema), z.boolean()]).optional(),
 }).strict();
 
+export const CostMostRecentVendorUpsertWithWhereUniqueWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpsertWithWhereUniqueWithoutBookInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateWithoutBookInputSchema)]),
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutBookInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorUpdateWithWhereUniqueWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateWithWhereUniqueWithoutBookInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema),
+  data: z.union([z.lazy(() => CostMostRecentVendorUpdateWithoutBookInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateWithoutBookInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorUpdateManyWithWhereWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateManyWithWhereWithoutBookInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorScalarWhereInputSchema),
+  data: z.union([z.lazy(() => CostMostRecentVendorUpdateManyMutationInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutCostMostRecentVendorInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorScalarWhereInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorScalarWhereInput> = z.object({
+  AND: z.union([z.lazy(() => CostMostRecentVendorScalarWhereInputSchema), z.lazy(() => CostMostRecentVendorScalarWhereInputSchema).array()]).optional(),
+  OR: z.lazy(() => CostMostRecentVendorScalarWhereInputSchema).array().optional(),
+  NOT: z.union([z.lazy(() => CostMostRecentVendorScalarWhereInputSchema), z.lazy(() => CostMostRecentVendorScalarWhereInputSchema).array()]).optional(),
+  id: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  bookId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  vendorId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  purchaseLineId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  purchaseOrderId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+}).strict();
+
 export const BookCreateWithoutGenreInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateWithoutGenreInput> = z.object({
   id: z.string().optional(),
   title: z.string(),
@@ -4203,6 +4701,7 @@ export const BookCreateWithoutGenreInputSchema: z.ZodType<PrismaClient.Prisma.Bo
   buybackLines: z.lazy(() => BuybackLineCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedCreateWithoutGenreInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedCreateWithoutGenreInput> = z.object({
@@ -4223,6 +4722,7 @@ export const BookUncheckedCreateWithoutGenreInputSchema: z.ZodType<PrismaClient.
   buybackLines: z.lazy(() => BuybackLineUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookCreateOrConnectWithoutGenreInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateOrConnectWithoutGenreInput> = z.object({
@@ -4289,6 +4789,7 @@ export const BookCreateWithoutAuthorsInputSchema: z.ZodType<PrismaClient.Prisma.
   buybackLines: z.lazy(() => BuybackLineCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedCreateWithoutAuthorsInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedCreateWithoutAuthorsInput> = z.object({
@@ -4309,6 +4810,7 @@ export const BookUncheckedCreateWithoutAuthorsInputSchema: z.ZodType<PrismaClien
   buybackLines: z.lazy(() => BuybackLineUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookCreateOrConnectWithoutAuthorsInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateOrConnectWithoutAuthorsInput> = z.object({
@@ -4337,6 +4839,7 @@ export const PurchaseOrderCreateWithoutVendorInputSchema: z.ZodType<PrismaClient
   date: z.date(),
   purchaseLines: z.lazy(() => PurchaseLineCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderUncheckedCreateWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedCreateWithoutVendorInput> = z.object({
@@ -4344,6 +4847,7 @@ export const PurchaseOrderUncheckedCreateWithoutVendorInputSchema: z.ZodType<Pri
   date: z.date(),
   purchaseLines: z.lazy(() => PurchaseLineUncheckedCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderCreateOrConnectWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCreateOrConnectWithoutVendorInput> = z.object({
@@ -4377,6 +4881,30 @@ export const BuybackOrderCreateOrConnectWithoutVendorInputSchema: z.ZodType<Pris
 
 export const BuybackOrderCreateManyVendorInputEnvelopeSchema: z.ZodType<PrismaClient.Prisma.BuybackOrderCreateManyVendorInputEnvelope> = z.object({
   data: z.lazy(() => BuybackOrderCreateManyVendorInputSchema).array(),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const CostMostRecentVendorCreateWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateWithoutVendorInput> = z.object({
+  id: z.string().optional(),
+  book: z.lazy(() => BookCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  purchaseLine: z.lazy(() => PurchaseLineCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  purchaseOrder: z.lazy(() => PurchaseOrderCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+}).strict();
+
+export const CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedCreateWithoutVendorInput> = z.object({
+  id: z.string().optional(),
+  bookId: z.string(),
+  purchaseLineId: z.string(),
+  purchaseOrderId: z.string(),
+}).strict();
+
+export const CostMostRecentVendorCreateOrConnectWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateOrConnectWithoutVendorInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema),
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorCreateManyVendorInputEnvelopeSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateManyVendorInputEnvelope> = z.object({
+  data: z.lazy(() => CostMostRecentVendorCreateManyVendorInputSchema).array(),
   skipDuplicates: z.boolean().optional(),
 }).strict();
 
@@ -4432,12 +4960,29 @@ export const BuybackOrderScalarWhereInputSchema: z.ZodType<PrismaClient.Prisma.B
   display: z.union([z.lazy(() => BoolFilterSchema), z.boolean()]).optional(),
 }).strict();
 
+export const CostMostRecentVendorUpsertWithWhereUniqueWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpsertWithWhereUniqueWithoutVendorInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateWithoutVendorInputSchema)]),
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutVendorInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorUpdateWithWhereUniqueWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateWithWhereUniqueWithoutVendorInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema),
+  data: z.union([z.lazy(() => CostMostRecentVendorUpdateWithoutVendorInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateWithoutVendorInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorUpdateManyWithWhereWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateManyWithWhereWithoutVendorInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorScalarWhereInputSchema),
+  data: z.union([z.lazy(() => CostMostRecentVendorUpdateManyMutationInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutCostMostRecentVendorInputSchema)]),
+}).strict();
+
 export const VendorCreateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.VendorCreateWithoutPurchaseOrderInput> = z.object({
   id: z.string().optional(),
   name: z.string(),
   buybackOrders: z.lazy(() => BuybackOrderCreateNestedManyWithoutVendorInputSchema).optional(),
   buybackRate: z.number().optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutVendorInputSchema).optional(),
 }).strict();
 
 export const VendorUncheckedCreateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.VendorUncheckedCreateWithoutPurchaseOrderInput> = z.object({
@@ -4446,6 +4991,7 @@ export const VendorUncheckedCreateWithoutPurchaseOrderInputSchema: z.ZodType<Pri
   buybackOrders: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutVendorInputSchema).optional(),
   buybackRate: z.number().optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutVendorInputSchema).optional(),
 }).strict();
 
 export const VendorCreateOrConnectWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.VendorCreateOrConnectWithoutPurchaseOrderInput> = z.object({
@@ -4459,6 +5005,7 @@ export const PurchaseLineCreateWithoutPurchaseOrderInputSchema: z.ZodType<Prisma
   quantity: z.number(),
   unitWholesalePrice: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedOneWithoutPurchaseLineInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineUncheckedCreateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedCreateWithoutPurchaseOrderInput> = z.object({
@@ -4467,6 +5014,7 @@ export const PurchaseLineUncheckedCreateWithoutPurchaseOrderInputSchema: z.ZodTy
   quantity: z.number(),
   unitWholesalePrice: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedOneWithoutPurchaseLineInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineCreateOrConnectWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCreateOrConnectWithoutPurchaseOrderInput> = z.object({
@@ -4476,6 +5024,30 @@ export const PurchaseLineCreateOrConnectWithoutPurchaseOrderInputSchema: z.ZodTy
 
 export const PurchaseLineCreateManyPurchaseOrderInputEnvelopeSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCreateManyPurchaseOrderInputEnvelope> = z.object({
   data: z.lazy(() => PurchaseLineCreateManyPurchaseOrderInputSchema).array(),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateWithoutPurchaseOrderInput> = z.object({
+  id: z.string().optional(),
+  book: z.lazy(() => BookCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  vendor: z.lazy(() => VendorCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  purchaseLine: z.lazy(() => PurchaseLineCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+}).strict();
+
+export const CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInput> = z.object({
+  id: z.string().optional(),
+  bookId: z.string(),
+  vendorId: z.string(),
+  purchaseLineId: z.string(),
+}).strict();
+
+export const CostMostRecentVendorCreateOrConnectWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateOrConnectWithoutPurchaseOrderInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema),
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorCreateManyPurchaseOrderInputEnvelopeSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateManyPurchaseOrderInputEnvelope> = z.object({
+  data: z.lazy(() => CostMostRecentVendorCreateManyPurchaseOrderInputSchema).array(),
   skipDuplicates: z.boolean().optional(),
 }).strict();
 
@@ -4490,6 +5062,7 @@ export const VendorUpdateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient
   buybackOrders: z.lazy(() => BuybackOrderUpdateManyWithoutVendorNestedInputSchema).optional(),
   buybackRate: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutVendorNestedInputSchema).optional(),
 }).strict();
 
 export const VendorUncheckedUpdateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.VendorUncheckedUpdateWithoutPurchaseOrderInput> = z.object({
@@ -4498,6 +5071,7 @@ export const VendorUncheckedUpdateWithoutPurchaseOrderInputSchema: z.ZodType<Pri
   buybackOrders: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutVendorNestedInputSchema).optional(),
   buybackRate: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutVendorNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineUpsertWithWhereUniqueWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUpsertWithWhereUniqueWithoutPurchaseOrderInput> = z.object({
@@ -4514,6 +5088,22 @@ export const PurchaseLineUpdateWithWhereUniqueWithoutPurchaseOrderInputSchema: z
 export const PurchaseLineUpdateManyWithWhereWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUpdateManyWithWhereWithoutPurchaseOrderInput> = z.object({
   where: z.lazy(() => PurchaseLineScalarWhereInputSchema),
   data: z.union([z.lazy(() => PurchaseLineUpdateManyMutationInputSchema), z.lazy(() => PurchaseLineUncheckedUpdateManyWithoutPurchaseLinesInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorUpsertWithWhereUniqueWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpsertWithWhereUniqueWithoutPurchaseOrderInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema),
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateWithoutPurchaseOrderInputSchema)]),
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseOrderInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorUpdateWithWhereUniqueWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateWithWhereUniqueWithoutPurchaseOrderInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema),
+  data: z.union([z.lazy(() => CostMostRecentVendorUpdateWithoutPurchaseOrderInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateWithoutPurchaseOrderInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorUpdateManyWithWhereWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateManyWithWhereWithoutPurchaseOrderInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorScalarWhereInputSchema),
+  data: z.union([z.lazy(() => CostMostRecentVendorUpdateManyMutationInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutCostMostRecentVendorInputSchema)]),
 }).strict();
 
 export const BookCreateWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateWithoutPurchaseLinesInput> = z.object({
@@ -4534,6 +5124,7 @@ export const BookCreateWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.P
   buybackLines: z.lazy(() => BuybackLineCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedCreateWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedCreateWithoutPurchaseLinesInput> = z.object({
@@ -4554,6 +5145,7 @@ export const BookUncheckedCreateWithoutPurchaseLinesInputSchema: z.ZodType<Prism
   buybackLines: z.lazy(() => BuybackLineUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookCreateOrConnectWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateOrConnectWithoutPurchaseLinesInput> = z.object({
@@ -4566,6 +5158,7 @@ export const PurchaseOrderCreateWithoutPurchaseLinesInputSchema: z.ZodType<Prism
   date: z.date(),
   vendor: z.lazy(() => VendorCreateNestedOneWithoutPurchaseOrderInputSchema),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderUncheckedCreateWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedCreateWithoutPurchaseLinesInput> = z.object({
@@ -4573,11 +5166,31 @@ export const PurchaseOrderUncheckedCreateWithoutPurchaseLinesInputSchema: z.ZodT
   date: z.date(),
   vendorId: z.string(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderCreateOrConnectWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCreateOrConnectWithoutPurchaseLinesInput> = z.object({
   where: z.lazy(() => PurchaseOrderWhereUniqueInputSchema),
   create: z.union([z.lazy(() => PurchaseOrderCreateWithoutPurchaseLinesInputSchema), z.lazy(() => PurchaseOrderUncheckedCreateWithoutPurchaseLinesInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorCreateWithoutPurchaseLineInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateWithoutPurchaseLineInput> = z.object({
+  id: z.string().optional(),
+  book: z.lazy(() => BookCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  vendor: z.lazy(() => VendorCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+  purchaseOrder: z.lazy(() => PurchaseOrderCreateNestedOneWithoutCostMostRecentVendorInputSchema),
+}).strict();
+
+export const CostMostRecentVendorUncheckedCreateWithoutPurchaseLineInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedCreateWithoutPurchaseLineInput> = z.object({
+  id: z.string().optional(),
+  bookId: z.string(),
+  vendorId: z.string(),
+  purchaseOrderId: z.string(),
+}).strict();
+
+export const CostMostRecentVendorCreateOrConnectWithoutPurchaseLineInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateOrConnectWithoutPurchaseLineInput> = z.object({
+  where: z.lazy(() => CostMostRecentVendorWhereUniqueInputSchema),
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseLineInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseLineInputSchema)]),
 }).strict();
 
 export const BookUpsertWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookUpsertWithoutPurchaseLinesInput> = z.object({
@@ -4603,6 +5216,7 @@ export const BookUpdateWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.P
   buybackLines: z.lazy(() => BuybackLineUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedUpdateWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateWithoutPurchaseLinesInput> = z.object({
@@ -4623,6 +5237,7 @@ export const BookUncheckedUpdateWithoutPurchaseLinesInputSchema: z.ZodType<Prism
   buybackLines: z.lazy(() => BuybackLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderUpsertWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUpsertWithoutPurchaseLinesInput> = z.object({
@@ -4635,6 +5250,7 @@ export const PurchaseOrderUpdateWithoutPurchaseLinesInputSchema: z.ZodType<Prism
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   vendor: z.lazy(() => VendorUpdateOneRequiredWithoutPurchaseOrderNestedInputSchema).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderUncheckedUpdateWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedUpdateWithoutPurchaseLinesInput> = z.object({
@@ -4642,6 +5258,26 @@ export const PurchaseOrderUncheckedUpdateWithoutPurchaseLinesInputSchema: z.ZodT
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   vendorId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorUpsertWithoutPurchaseLineInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpsertWithoutPurchaseLineInput> = z.object({
+  update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithoutPurchaseLineInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateWithoutPurchaseLineInputSchema)]),
+  create: z.union([z.lazy(() => CostMostRecentVendorCreateWithoutPurchaseLineInputSchema), z.lazy(() => CostMostRecentVendorUncheckedCreateWithoutPurchaseLineInputSchema)]),
+}).strict();
+
+export const CostMostRecentVendorUpdateWithoutPurchaseLineInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateWithoutPurchaseLineInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  book: z.lazy(() => BookUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  vendor: z.lazy(() => VendorUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  purchaseOrder: z.lazy(() => PurchaseOrderUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedUpdateWithoutPurchaseLineInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateWithoutPurchaseLineInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  vendorId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const SalesLineCreateWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.SalesLineCreateWithoutSalesReconciliationInput> = z.object({
@@ -4704,6 +5340,7 @@ export const BookCreateWithoutSalesLinesInputSchema: z.ZodType<PrismaClient.Pris
   buybackLines: z.lazy(() => BuybackLineCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedCreateWithoutSalesLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedCreateWithoutSalesLinesInput> = z.object({
@@ -4724,6 +5361,7 @@ export const BookUncheckedCreateWithoutSalesLinesInputSchema: z.ZodType<PrismaCl
   buybackLines: z.lazy(() => BuybackLineUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookCreateOrConnectWithoutSalesLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateOrConnectWithoutSalesLinesInput> = z.object({
@@ -4771,6 +5409,7 @@ export const BookUpdateWithoutSalesLinesInputSchema: z.ZodType<PrismaClient.Pris
   buybackLines: z.lazy(() => BuybackLineUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedUpdateWithoutSalesLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateWithoutSalesLinesInput> = z.object({
@@ -4791,6 +5430,7 @@ export const BookUncheckedUpdateWithoutSalesLinesInputSchema: z.ZodType<PrismaCl
   buybackLines: z.lazy(() => BuybackLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const SalesReconciliationUpsertWithoutSalesLinesInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUpsertWithoutSalesLinesInput> = z.object({
@@ -4816,6 +5456,7 @@ export const VendorCreateWithoutBuybackOrdersInputSchema: z.ZodType<PrismaClient
   purchaseOrder: z.lazy(() => PurchaseOrderCreateNestedManyWithoutVendorInputSchema).optional(),
   buybackRate: z.number().optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutVendorInputSchema).optional(),
 }).strict();
 
 export const VendorUncheckedCreateWithoutBuybackOrdersInputSchema: z.ZodType<PrismaClient.Prisma.VendorUncheckedCreateWithoutBuybackOrdersInput> = z.object({
@@ -4824,6 +5465,7 @@ export const VendorUncheckedCreateWithoutBuybackOrdersInputSchema: z.ZodType<Pri
   purchaseOrder: z.lazy(() => PurchaseOrderUncheckedCreateNestedManyWithoutVendorInputSchema).optional(),
   buybackRate: z.number().optional(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutVendorInputSchema).optional(),
 }).strict();
 
 export const VendorCreateOrConnectWithoutBuybackOrdersInputSchema: z.ZodType<PrismaClient.Prisma.VendorCreateOrConnectWithoutBuybackOrdersInput> = z.object({
@@ -4868,6 +5510,7 @@ export const VendorUpdateWithoutBuybackOrdersInputSchema: z.ZodType<PrismaClient
   purchaseOrder: z.lazy(() => PurchaseOrderUpdateManyWithoutVendorNestedInputSchema).optional(),
   buybackRate: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutVendorNestedInputSchema).optional(),
 }).strict();
 
 export const VendorUncheckedUpdateWithoutBuybackOrdersInputSchema: z.ZodType<PrismaClient.Prisma.VendorUncheckedUpdateWithoutBuybackOrdersInput> = z.object({
@@ -4876,6 +5519,7 @@ export const VendorUncheckedUpdateWithoutBuybackOrdersInputSchema: z.ZodType<Pri
   purchaseOrder: z.lazy(() => PurchaseOrderUncheckedUpdateManyWithoutVendorNestedInputSchema).optional(),
   buybackRate: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutVendorNestedInputSchema).optional(),
 }).strict();
 
 export const BuybackLineUpsertWithWhereUniqueWithoutBuybackOrderInputSchema: z.ZodType<PrismaClient.Prisma.BuybackLineUpsertWithWhereUniqueWithoutBuybackOrderInput> = z.object({
@@ -4912,6 +5556,7 @@ export const BookCreateWithoutBuybackLinesInputSchema: z.ZodType<PrismaClient.Pr
   salesLines: z.lazy(() => SalesLineCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedCreateWithoutBuybackLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedCreateWithoutBuybackLinesInput> = z.object({
@@ -4932,6 +5577,7 @@ export const BookUncheckedCreateWithoutBuybackLinesInputSchema: z.ZodType<Prisma
   salesLines: z.lazy(() => SalesLineUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
   inventoryCount: z.number(),
   display: z.boolean().optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
 }).strict();
 
 export const BookCreateOrConnectWithoutBuybackLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateOrConnectWithoutBuybackLinesInput> = z.object({
@@ -4981,6 +5627,7 @@ export const BookUpdateWithoutBuybackLinesInputSchema: z.ZodType<PrismaClient.Pr
   salesLines: z.lazy(() => SalesLineUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedUpdateWithoutBuybackLinesInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateWithoutBuybackLinesInput> = z.object({
@@ -5001,6 +5648,7 @@ export const BookUncheckedUpdateWithoutBuybackLinesInputSchema: z.ZodType<Prisma
   salesLines: z.lazy(() => SalesLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const BuybackOrderUpsertWithoutBuybackLinesInputSchema: z.ZodType<PrismaClient.Prisma.BuybackOrderUpsertWithoutBuybackLinesInput> = z.object({
@@ -5019,6 +5667,234 @@ export const BuybackOrderUncheckedUpdateWithoutBuybackLinesInputSchema: z.ZodTyp
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   vendorId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const BookCreateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.string().optional(),
+  title: z.string(),
+  authors: z.lazy(() => AuthorCreateNestedManyWithoutBooksInputSchema).optional(),
+  isbn_13: z.string(),
+  isbn_10: z.string().optional().nullable(),
+  publisher: z.string(),
+  publicationYear: z.number(),
+  pageCount: z.number(),
+  width: z.number(),
+  height: z.number(),
+  thickness: z.number(),
+  retailPrice: z.number(),
+  genre: z.lazy(() => GenreCreateNestedOneWithoutBooksInputSchema),
+  purchaseLines: z.lazy(() => PurchaseLineCreateNestedManyWithoutBookInputSchema).optional(),
+  salesLines: z.lazy(() => SalesLineCreateNestedManyWithoutBookInputSchema).optional(),
+  buybackLines: z.lazy(() => BuybackLineCreateNestedManyWithoutBookInputSchema).optional(),
+  inventoryCount: z.number(),
+  display: z.boolean().optional(),
+}).strict();
+
+export const BookUncheckedCreateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedCreateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.string().optional(),
+  title: z.string(),
+  authors: z.lazy(() => AuthorUncheckedCreateNestedManyWithoutBooksInputSchema).optional(),
+  isbn_13: z.string(),
+  isbn_10: z.string().optional().nullable(),
+  publisher: z.string(),
+  publicationYear: z.number(),
+  pageCount: z.number(),
+  width: z.number(),
+  height: z.number(),
+  thickness: z.number(),
+  retailPrice: z.number(),
+  genreId: z.string(),
+  purchaseLines: z.lazy(() => PurchaseLineUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
+  salesLines: z.lazy(() => SalesLineUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
+  buybackLines: z.lazy(() => BuybackLineUncheckedCreateNestedManyWithoutBookInputSchema).optional(),
+  inventoryCount: z.number(),
+  display: z.boolean().optional(),
+}).strict();
+
+export const BookCreateOrConnectWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateOrConnectWithoutCostMostRecentVendorInput> = z.object({
+  where: z.lazy(() => BookWhereUniqueInputSchema),
+  create: z.union([z.lazy(() => BookCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => BookUncheckedCreateWithoutCostMostRecentVendorInputSchema)]),
+}).strict();
+
+export const VendorCreateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.VendorCreateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.string().optional(),
+  name: z.string(),
+  purchaseOrder: z.lazy(() => PurchaseOrderCreateNestedManyWithoutVendorInputSchema).optional(),
+  buybackOrders: z.lazy(() => BuybackOrderCreateNestedManyWithoutVendorInputSchema).optional(),
+  buybackRate: z.number().optional(),
+  display: z.boolean().optional(),
+}).strict();
+
+export const VendorUncheckedCreateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.VendorUncheckedCreateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.string().optional(),
+  name: z.string(),
+  purchaseOrder: z.lazy(() => PurchaseOrderUncheckedCreateNestedManyWithoutVendorInputSchema).optional(),
+  buybackOrders: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutVendorInputSchema).optional(),
+  buybackRate: z.number().optional(),
+  display: z.boolean().optional(),
+}).strict();
+
+export const VendorCreateOrConnectWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.VendorCreateOrConnectWithoutCostMostRecentVendorInput> = z.object({
+  where: z.lazy(() => VendorWhereUniqueInputSchema),
+  create: z.union([z.lazy(() => VendorCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => VendorUncheckedCreateWithoutCostMostRecentVendorInputSchema)]),
+}).strict();
+
+export const PurchaseLineCreateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCreateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.string().optional(),
+  book: z.lazy(() => BookCreateNestedOneWithoutPurchaseLinesInputSchema),
+  quantity: z.number(),
+  unitWholesalePrice: z.number(),
+  purchaseOrder: z.lazy(() => PurchaseOrderCreateNestedOneWithoutPurchaseLinesInputSchema),
+  display: z.boolean().optional(),
+}).strict();
+
+export const PurchaseLineUncheckedCreateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedCreateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.string().optional(),
+  bookId: z.string(),
+  quantity: z.number(),
+  unitWholesalePrice: z.number(),
+  purchaseOrderId: z.string(),
+  display: z.boolean().optional(),
+}).strict();
+
+export const PurchaseLineCreateOrConnectWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCreateOrConnectWithoutCostMostRecentVendorInput> = z.object({
+  where: z.lazy(() => PurchaseLineWhereUniqueInputSchema),
+  create: z.union([z.lazy(() => PurchaseLineCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseLineUncheckedCreateWithoutCostMostRecentVendorInputSchema)]),
+}).strict();
+
+export const PurchaseOrderCreateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCreateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.string().optional(),
+  date: z.date(),
+  vendor: z.lazy(() => VendorCreateNestedOneWithoutPurchaseOrderInputSchema),
+  purchaseLines: z.lazy(() => PurchaseLineCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
+  display: z.boolean().optional(),
+}).strict();
+
+export const PurchaseOrderUncheckedCreateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedCreateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.string().optional(),
+  date: z.date(),
+  vendorId: z.string(),
+  purchaseLines: z.lazy(() => PurchaseLineUncheckedCreateNestedManyWithoutPurchaseOrderInputSchema).optional(),
+  display: z.boolean().optional(),
+}).strict();
+
+export const PurchaseOrderCreateOrConnectWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCreateOrConnectWithoutCostMostRecentVendorInput> = z.object({
+  where: z.lazy(() => PurchaseOrderWhereUniqueInputSchema),
+  create: z.union([z.lazy(() => PurchaseOrderCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseOrderUncheckedCreateWithoutCostMostRecentVendorInputSchema)]),
+}).strict();
+
+export const BookUpsertWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.BookUpsertWithoutCostMostRecentVendorInput> = z.object({
+  update: z.union([z.lazy(() => BookUpdateWithoutCostMostRecentVendorInputSchema), z.lazy(() => BookUncheckedUpdateWithoutCostMostRecentVendorInputSchema)]),
+  create: z.union([z.lazy(() => BookCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => BookUncheckedCreateWithoutCostMostRecentVendorInputSchema)]),
+}).strict();
+
+export const BookUpdateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.BookUpdateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  title: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  authors: z.lazy(() => AuthorUpdateManyWithoutBooksNestedInputSchema).optional(),
+  isbn_13: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  isbn_10: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputSchema)]).optional().nullable(),
+  publisher: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  publicationYear: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  pageCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  width: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  height: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  thickness: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  retailPrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  genre: z.lazy(() => GenreUpdateOneRequiredWithoutBooksNestedInputSchema).optional(),
+  purchaseLines: z.lazy(() => PurchaseLineUpdateManyWithoutBookNestedInputSchema).optional(),
+  salesLines: z.lazy(() => SalesLineUpdateManyWithoutBookNestedInputSchema).optional(),
+  buybackLines: z.lazy(() => BuybackLineUpdateManyWithoutBookNestedInputSchema).optional(),
+  inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const BookUncheckedUpdateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  title: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  authors: z.lazy(() => AuthorUncheckedUpdateManyWithoutBooksNestedInputSchema).optional(),
+  isbn_13: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  isbn_10: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputSchema)]).optional().nullable(),
+  publisher: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  publicationYear: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  pageCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  width: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  height: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  thickness: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  retailPrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  genreId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseLines: z.lazy(() => PurchaseLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
+  salesLines: z.lazy(() => SalesLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
+  buybackLines: z.lazy(() => BuybackLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
+  inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const VendorUpsertWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.VendorUpsertWithoutCostMostRecentVendorInput> = z.object({
+  update: z.union([z.lazy(() => VendorUpdateWithoutCostMostRecentVendorInputSchema), z.lazy(() => VendorUncheckedUpdateWithoutCostMostRecentVendorInputSchema)]),
+  create: z.union([z.lazy(() => VendorCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => VendorUncheckedCreateWithoutCostMostRecentVendorInputSchema)]),
+}).strict();
+
+export const VendorUpdateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.VendorUpdateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  name: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseOrder: z.lazy(() => PurchaseOrderUpdateManyWithoutVendorNestedInputSchema).optional(),
+  buybackOrders: z.lazy(() => BuybackOrderUpdateManyWithoutVendorNestedInputSchema).optional(),
+  buybackRate: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const VendorUncheckedUpdateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.VendorUncheckedUpdateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  name: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseOrder: z.lazy(() => PurchaseOrderUncheckedUpdateManyWithoutVendorNestedInputSchema).optional(),
+  buybackOrders: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutVendorNestedInputSchema).optional(),
+  buybackRate: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const PurchaseLineUpsertWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUpsertWithoutCostMostRecentVendorInput> = z.object({
+  update: z.union([z.lazy(() => PurchaseLineUpdateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseLineUncheckedUpdateWithoutCostMostRecentVendorInputSchema)]),
+  create: z.union([z.lazy(() => PurchaseLineCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseLineUncheckedCreateWithoutCostMostRecentVendorInputSchema)]),
+}).strict();
+
+export const PurchaseLineUpdateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUpdateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  book: z.lazy(() => BookUpdateOneRequiredWithoutPurchaseLinesNestedInputSchema).optional(),
+  quantity: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  unitWholesalePrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseOrder: z.lazy(() => PurchaseOrderUpdateOneRequiredWithoutPurchaseLinesNestedInputSchema).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const PurchaseLineUncheckedUpdateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedUpdateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  quantity: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  unitWholesalePrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const PurchaseOrderUpsertWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUpsertWithoutCostMostRecentVendorInput> = z.object({
+  update: z.union([z.lazy(() => PurchaseOrderUpdateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseOrderUncheckedUpdateWithoutCostMostRecentVendorInputSchema)]),
+  create: z.union([z.lazy(() => PurchaseOrderCreateWithoutCostMostRecentVendorInputSchema), z.lazy(() => PurchaseOrderUncheckedCreateWithoutCostMostRecentVendorInputSchema)]),
+}).strict();
+
+export const PurchaseOrderUpdateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUpdateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
+  vendor: z.lazy(() => VendorUpdateOneRequiredWithoutPurchaseOrderNestedInputSchema).optional(),
+  purchaseLines: z.lazy(() => PurchaseLineUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const PurchaseOrderUncheckedUpdateWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedUpdateWithoutCostMostRecentVendorInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
+  vendorId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseLines: z.lazy(() => PurchaseLineUncheckedUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
@@ -5234,6 +6110,13 @@ export const BuybackLineCreateManyBookInputSchema: z.ZodType<PrismaClient.Prisma
   display: z.boolean().optional(),
 }).strict();
 
+export const CostMostRecentVendorCreateManyBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateManyBookInput> = z.object({
+  id: z.string().cuid().optional(),
+  vendorId: z.string(),
+  purchaseLineId: z.string(),
+  purchaseOrderId: z.string(),
+}).strict();
+
 export const AuthorUpdateWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.AuthorUpdateWithoutBooksInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   name: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
@@ -5258,6 +6141,7 @@ export const PurchaseLineUpdateWithoutBookInputSchema: z.ZodType<PrismaClient.Pr
   unitWholesalePrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   purchaseOrder: z.lazy(() => PurchaseOrderUpdateOneRequiredWithoutPurchaseLinesNestedInputSchema).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateOneWithoutPurchaseLineNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineUncheckedUpdateWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedUpdateWithoutBookInput> = z.object({
@@ -5266,6 +6150,7 @@ export const PurchaseLineUncheckedUpdateWithoutBookInputSchema: z.ZodType<Prisma
   unitWholesalePrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   purchaseOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateOneWithoutPurchaseLineNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineUncheckedUpdateManyWithoutPurchaseLinesInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedUpdateManyWithoutPurchaseLinesInput> = z.object({
@@ -5324,6 +6209,27 @@ export const BuybackLineUncheckedUpdateManyWithoutBuybackLinesInputSchema: z.Zod
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
+export const CostMostRecentVendorUpdateWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateWithoutBookInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  vendor: z.lazy(() => VendorUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  purchaseLine: z.lazy(() => PurchaseLineUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  purchaseOrder: z.lazy(() => PurchaseOrderUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedUpdateWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateWithoutBookInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  vendorId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseLineId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedUpdateManyWithoutCostMostRecentVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateManyWithoutCostMostRecentVendorInput> = z.object({
+  id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  vendorId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseLineId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
 export const BookCreateManyGenreInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateManyGenreInput> = z.object({
   id: z.string().cuid().optional(),
   title: z.string(),
@@ -5358,6 +6264,7 @@ export const BookUpdateWithoutGenreInputSchema: z.ZodType<PrismaClient.Prisma.Bo
   buybackLines: z.lazy(() => BuybackLineUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedUpdateWithoutGenreInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateWithoutGenreInput> = z.object({
@@ -5378,6 +6285,7 @@ export const BookUncheckedUpdateWithoutGenreInputSchema: z.ZodType<PrismaClient.
   buybackLines: z.lazy(() => BuybackLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedUpdateManyWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateManyWithoutBooksInput> = z.object({
@@ -5414,6 +6322,7 @@ export const BookUpdateWithoutAuthorsInputSchema: z.ZodType<PrismaClient.Prisma.
   buybackLines: z.lazy(() => BuybackLineUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const BookUncheckedUpdateWithoutAuthorsInputSchema: z.ZodType<PrismaClient.Prisma.BookUncheckedUpdateWithoutAuthorsInput> = z.object({
@@ -5434,6 +6343,7 @@ export const BookUncheckedUpdateWithoutAuthorsInputSchema: z.ZodType<PrismaClien
   buybackLines: z.lazy(() => BuybackLineUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
   inventoryCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutBookNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderCreateManyVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCreateManyVendorInput> = z.object({
@@ -5448,11 +6358,19 @@ export const BuybackOrderCreateManyVendorInputSchema: z.ZodType<PrismaClient.Pri
   display: z.boolean().optional(),
 }).strict();
 
+export const CostMostRecentVendorCreateManyVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateManyVendorInput> = z.object({
+  id: z.string().cuid().optional(),
+  bookId: z.string(),
+  purchaseLineId: z.string(),
+  purchaseOrderId: z.string(),
+}).strict();
+
 export const PurchaseOrderUpdateWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUpdateWithoutVendorInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   purchaseLines: z.lazy(() => PurchaseLineUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderUncheckedUpdateWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedUpdateWithoutVendorInput> = z.object({
@@ -5460,6 +6378,7 @@ export const PurchaseOrderUncheckedUpdateWithoutVendorInputSchema: z.ZodType<Pri
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   purchaseLines: z.lazy(() => PurchaseLineUncheckedUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateManyWithoutPurchaseOrderNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseOrderUncheckedUpdateManyWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedUpdateManyWithoutPurchaseOrderInput> = z.object({
@@ -5488,6 +6407,20 @@ export const BuybackOrderUncheckedUpdateManyWithoutBuybackOrdersInputSchema: z.Z
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
+export const CostMostRecentVendorUpdateWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateWithoutVendorInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  book: z.lazy(() => BookUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  purchaseLine: z.lazy(() => PurchaseLineUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  purchaseOrder: z.lazy(() => PurchaseOrderUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedUpdateWithoutVendorInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateWithoutVendorInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseLineId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
 export const PurchaseLineCreateManyPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCreateManyPurchaseOrderInput> = z.object({
   id: z.string().cuid().optional(),
   bookId: z.string(),
@@ -5496,12 +6429,20 @@ export const PurchaseLineCreateManyPurchaseOrderInputSchema: z.ZodType<PrismaCli
   display: z.boolean().optional(),
 }).strict();
 
+export const CostMostRecentVendorCreateManyPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateManyPurchaseOrderInput> = z.object({
+  id: z.string().cuid().optional(),
+  bookId: z.string(),
+  vendorId: z.string(),
+  purchaseLineId: z.string(),
+}).strict();
+
 export const PurchaseLineUpdateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUpdateWithoutPurchaseOrderInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   book: z.lazy(() => BookUpdateOneRequiredWithoutPurchaseLinesNestedInputSchema).optional(),
   quantity: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   unitWholesalePrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUpdateOneWithoutPurchaseLineNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineUncheckedUpdateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineUncheckedUpdateWithoutPurchaseOrderInput> = z.object({
@@ -5510,6 +6451,21 @@ export const PurchaseLineUncheckedUpdateWithoutPurchaseOrderInputSchema: z.ZodTy
   quantity: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
   unitWholesalePrice: z.union([z.number(), z.lazy(() => FloatFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  costMostRecentVendor: z.lazy(() => CostMostRecentVendorUncheckedUpdateOneWithoutPurchaseLineNestedInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorUpdateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateWithoutPurchaseOrderInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  book: z.lazy(() => BookUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  vendor: z.lazy(() => VendorUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+  purchaseLine: z.lazy(() => PurchaseLineUpdateOneRequiredWithoutCostMostRecentVendorNestedInputSchema).optional(),
+}).strict();
+
+export const CostMostRecentVendorUncheckedUpdateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUncheckedUpdateWithoutPurchaseOrderInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  vendorId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  purchaseLineId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const SalesLineCreateManySalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.SalesLineCreateManySalesReconciliationInput> = z.object({
@@ -6304,6 +7260,72 @@ export const BuybackLineFindUniqueOrThrowArgsSchema: z.ZodType<PrismaClient.Pris
   where: BuybackLineWhereUniqueInputSchema,
 }).strict();
 
+export const CostMostRecentVendorFindFirstArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorFindFirstArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  where: CostMostRecentVendorWhereInputSchema.optional(),
+  orderBy: z.union([CostMostRecentVendorOrderByWithRelationInputSchema.array(), CostMostRecentVendorOrderByWithRelationInputSchema]).optional(),
+  cursor: CostMostRecentVendorWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: CostMostRecentVendorScalarFieldEnumSchema.array().optional(),
+}).strict();
+
+export const CostMostRecentVendorFindFirstOrThrowArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorFindFirstOrThrowArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  where: CostMostRecentVendorWhereInputSchema.optional(),
+  orderBy: z.union([CostMostRecentVendorOrderByWithRelationInputSchema.array(), CostMostRecentVendorOrderByWithRelationInputSchema]).optional(),
+  cursor: CostMostRecentVendorWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: CostMostRecentVendorScalarFieldEnumSchema.array().optional(),
+}).strict();
+
+export const CostMostRecentVendorFindManyArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorFindManyArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  where: CostMostRecentVendorWhereInputSchema.optional(),
+  orderBy: z.union([CostMostRecentVendorOrderByWithRelationInputSchema.array(), CostMostRecentVendorOrderByWithRelationInputSchema]).optional(),
+  cursor: CostMostRecentVendorWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: CostMostRecentVendorScalarFieldEnumSchema.array().optional(),
+}).strict();
+
+export const CostMostRecentVendorAggregateArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorAggregateArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  where: CostMostRecentVendorWhereInputSchema.optional(),
+  orderBy: z.union([CostMostRecentVendorOrderByWithRelationInputSchema.array(), CostMostRecentVendorOrderByWithRelationInputSchema]).optional(),
+  cursor: CostMostRecentVendorWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const CostMostRecentVendorGroupByArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorGroupByArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  where: CostMostRecentVendorWhereInputSchema.optional(),
+  orderBy: z.union([CostMostRecentVendorOrderByWithAggregationInputSchema.array(), CostMostRecentVendorOrderByWithAggregationInputSchema]).optional(),
+  by: CostMostRecentVendorScalarFieldEnumSchema.array(),
+  having: CostMostRecentVendorScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const CostMostRecentVendorFindUniqueArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorFindUniqueArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  where: CostMostRecentVendorWhereUniqueInputSchema,
+}).strict();
+
+export const CostMostRecentVendorFindUniqueOrThrowArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorFindUniqueOrThrowArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  where: CostMostRecentVendorWhereUniqueInputSchema,
+}).strict();
+
 export const ExampleFindFirstArgsSchema: z.ZodType<PrismaClient.Prisma.ExampleFindFirstArgs> = z.object({
   select: ExampleSelectSchema.optional(),
   where: ExampleWhereInputSchema.optional(),
@@ -7028,6 +8050,47 @@ export const BuybackLineUpdateManyArgsSchema: z.ZodType<PrismaClient.Prisma.Buyb
 
 export const BuybackLineDeleteManyArgsSchema: z.ZodType<PrismaClient.Prisma.BuybackLineDeleteManyArgs> = z.object({
   where: BuybackLineWhereInputSchema.optional(),
+}).strict();
+
+export const CostMostRecentVendorCreateArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  data: z.union([CostMostRecentVendorCreateInputSchema, CostMostRecentVendorUncheckedCreateInputSchema]),
+}).strict();
+
+export const CostMostRecentVendorUpsertArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpsertArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  where: CostMostRecentVendorWhereUniqueInputSchema,
+  create: z.union([CostMostRecentVendorCreateInputSchema, CostMostRecentVendorUncheckedCreateInputSchema]),
+  update: z.union([CostMostRecentVendorUpdateInputSchema, CostMostRecentVendorUncheckedUpdateInputSchema]),
+}).strict();
+
+export const CostMostRecentVendorCreateManyArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorCreateManyArgs> = z.object({
+  data: CostMostRecentVendorCreateManyInputSchema.array(),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const CostMostRecentVendorDeleteArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorDeleteArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  where: CostMostRecentVendorWhereUniqueInputSchema,
+}).strict();
+
+export const CostMostRecentVendorUpdateArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateArgs> = z.object({
+  select: CostMostRecentVendorSelectSchema.optional(),
+  include: CostMostRecentVendorIncludeSchema.optional(),
+  data: z.union([CostMostRecentVendorUpdateInputSchema, CostMostRecentVendorUncheckedUpdateInputSchema]),
+  where: CostMostRecentVendorWhereUniqueInputSchema,
+}).strict();
+
+export const CostMostRecentVendorUpdateManyArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorUpdateManyArgs> = z.object({
+  data: z.union([CostMostRecentVendorUpdateManyMutationInputSchema, CostMostRecentVendorUncheckedUpdateManyInputSchema]),
+  where: CostMostRecentVendorWhereInputSchema.optional(),
+}).strict();
+
+export const CostMostRecentVendorDeleteManyArgsSchema: z.ZodType<PrismaClient.Prisma.CostMostRecentVendorDeleteManyArgs> = z.object({
+  where: CostMostRecentVendorWhereInputSchema.optional(),
 }).strict();
 
 export const ExampleCreateArgsSchema: z.ZodType<PrismaClient.Prisma.ExampleCreateArgs> = z.object({
