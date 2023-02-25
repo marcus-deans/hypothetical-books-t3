@@ -329,6 +329,12 @@ export const purchaseOrdersRouter = createTRPCRouter({
     )
 
     .mutation(async ({ input }) => {
+      const currentPurchaseOrder = await prisma.purchaseOrder.findFirst({
+        where: {
+          id: input.id,
+        },
+      });
+
       const editedPurchaseOrder = await prisma.purchaseOrder.update({
         where: { id: input.id },
         data: {
@@ -341,6 +347,78 @@ export const purchaseOrdersRouter = createTRPCRouter({
           display: true,
         },
       });
+
+      const currentDate = currentPurchaseOrder?.date ?? new Date();
+      const newDate = input.date;
+      if (newDate < currentDate) {
+        const outdatedCostMostRecentVendors =
+          await prisma.costMostRecentVendor.findMany({
+            where: {
+              purchaseOrder: {
+                id: input.id,
+              },
+            },
+          });
+
+        for (const outdatedCostMostRecentVendor of outdatedCostMostRecentVendors) {
+          const mostRecentPurchaseOrder = await prisma.purchaseOrder.findFirst({
+            where: {
+              purchaseLines: {
+                some: {
+                  book: {
+                    id: outdatedCostMostRecentVendor.bookId,
+                  },
+                },
+              },
+              vendor: {
+                id: outdatedCostMostRecentVendor.vendorId,
+              },
+            },
+            include: {
+              purchaseLines: {
+                where: {
+                  book: {
+                    id: outdatedCostMostRecentVendor.bookId,
+                  },
+                },
+                select: {
+                  id: true,
+                },
+              },
+            },
+            orderBy: {
+              date: "desc",
+            },
+          });
+
+          const updatedCostMostRecentVendor =
+            await prisma.costMostRecentVendor.update({
+              where: {
+                id: outdatedCostMostRecentVendor.id,
+              },
+              data: {
+                purchaseOrder: {
+                  connect: {
+                    id: mostRecentPurchaseOrder?.id,
+                  },
+                },
+                vendor: {
+                  connect: {
+                    id: mostRecentPurchaseOrder?.vendorId,
+                  },
+                },
+                purchaseLine: {
+                  connect: {
+                    id:
+                      mostRecentPurchaseOrder?.purchaseLines[0]?.id ??
+                      undefined,
+                  },
+                },
+              },
+            });
+        }
+      }
+
       return editedPurchaseOrder;
     }),
 
