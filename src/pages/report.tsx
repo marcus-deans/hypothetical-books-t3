@@ -296,7 +296,7 @@ function generateReport(
     insideInput.push(buyBackRevenue.toFixed(2));
     const cost = getCost(value, periodOrders);
     insideInput.push(cost.toFixed(2));
-    insideInput.push((revenue - cost).toFixed(2));
+    insideInput.push(((revenue + buyBackRevenue) - cost).toFixed(2));
     if (revenue != 0 || cost != 0 || buyBackRevenue != 0) {
       perDayList.push(insideInput);
     }
