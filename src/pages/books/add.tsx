@@ -196,7 +196,7 @@ export default function AddBook() {
       field: "isbn_10",
       headerName: "ISBN-10",
       headerClassName: "header-theme",
-      width: 110,
+      width: 100,
     },
     {
       field: "publicationYear",
@@ -335,7 +335,7 @@ export default function AddBook() {
           <title>Books</title>
         </Head>
         <div className="pt-6"></div>
-        <div className="pt-6 px-6 rounded-lg bg-white inline-block">
+        <div className="inline-block rounded-lg bg-white px-6 pt-6">
           <div className="flex grid grid-cols-2 items-center">
             <div className="col-span-2 mb-3 flex items-end xl:w-96">
               <div className="input-group relative mb-4 flex w-full flex-wrap items-stretch space-y-5">

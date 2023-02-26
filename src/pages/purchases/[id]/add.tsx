@@ -11,7 +11,6 @@ import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
 import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
-import { matchSorter } from "match-sorter";
 
 export default function AddPurchaseLine(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -86,13 +85,13 @@ export default function AddPurchaseLine(
 
   return (
     <div className="pt-6">
-      <form className="rounded bg-white px-6 py-6 inline-block">
+      <form className="inline-block rounded bg-white px-6 py-6">
         <div className="space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
             Create Purchase Line
           </div>
           <div>
-            <div className="flex justify-between pointer-events-none px-3"></div>
+            <div className="pointer-events-none flex justify-between px-3"></div>
             <div>
               <div>
                 <div className="flex space-x-20">
@@ -108,11 +107,14 @@ export default function AddPurchaseLine(
                         value={purchaseValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setPurchaseValue(newValue);
                         }}
-                        onInputChange={(event, newPurchaseInputValue: string) => {
+                        onInputChange={(
+                          event,
+                          newPurchaseInputValue: string
+                        ) => {
                           setPurchaseInputValue(newPurchaseInputValue);
                         }}
                         sx={{ width: 425 }}
@@ -120,7 +122,7 @@ export default function AddPurchaseLine(
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
                           />
                         )}
@@ -137,7 +139,7 @@ export default function AddPurchaseLine(
                         value={bookValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setBookValue(newValue);
                         }}
@@ -149,7 +151,7 @@ export default function AddPurchaseLine(
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
                           />
                         )}
@@ -157,7 +159,7 @@ export default function AddPurchaseLine(
                     </FormControl>
                   </div>
                 </div>
-                <div className="py-60"/>
+                <div className="py-60" />
                 <div className="flex space-x-20">
                   <input
                     className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"

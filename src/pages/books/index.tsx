@@ -10,14 +10,10 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import { Button } from "@mui/material";
-import TableHeader from "../../components/table-components/TableHeader";
-import BookRow from "../../components/table-components/BookRow";
-import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import DetailLink from "../../components/table-components/DetailLink";
+import type { GridColDef } from "@mui/x-data-grid";
+import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
-import { GridToolbar } from "@mui/x-data-grid";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -36,8 +32,12 @@ export default function Books(
       headerClassName: "header-theme",
       flex: 1,
       renderCell: (params) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return (<div className="text-blue-600"><a href={`/books/${params.id}/detail`}>{params.row.title} </a></div>);
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/books/${params.id}/detail`}>{params.row.title} </a>
+          </div>
+        );
       },
     },
     {
@@ -93,9 +93,15 @@ export default function Books(
       <Head>
         <title>Books</title>
       </Head>
-      <div className="flex space text-neutral-50 mt-3 h-3/4 overflow-hidden">
-        <h1 className="text-2xl inline-block"> Books </h1>
-        <Link className="inline-block text-blue-600 ml-2 text-2xl" href="/books/add"> + </Link>
+      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl"> Books </h1>
+        <Link
+          className="ml-2 inline-block text-2xl text-blue-600"
+          href="/books/add"
+        >
+          {" "}
+          +{" "}
+        </Link>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
@@ -117,7 +123,7 @@ export default function Books(
             pageSize={14}
             autoHeight={true}
             rowsPerPageOptions={[14]}
-            getRowHeight={() => 'auto'}
+            getRowHeight={() => "auto"}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}

@@ -4,7 +4,7 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 
-export const salesReconciliationsRouter = createTRPCRouter({
+export const buybackOrdersRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
@@ -21,7 +21,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
       const limit = input.limit ?? 50;
       const { cursor } = input;
 
-      const items = await prisma.salesReconciliation.findMany({
+      const items = await prisma.buybackOrder.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
         where: { display: true },
@@ -64,12 +64,12 @@ export const salesReconciliationsRouter = createTRPCRouter({
       const limit = input.limit ?? 50;
       const { cursor } = input;
 
-      const items = await prisma.salesReconciliation.findMany({
+      const items = await prisma.buybackOrder.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
         where: { display: true },
         include: {
-          salesLines: {
+          buybackLines: {
             where: {
               display: true,
             },
@@ -80,6 +80,11 @@ export const salesReconciliationsRouter = createTRPCRouter({
                   isbn_13: true,
                 },
               },
+            },
+          },
+          vendor: {
+            select: {
+              name: true,
             },
           },
         },
@@ -100,18 +105,18 @@ export const salesReconciliationsRouter = createTRPCRouter({
         nextCursor = nextItem.id;
       }
 
-      const salesReconciliationWithOverallMetrics = [];
-      for (const salesReconciliation of items.reverse()) {
+      const buybackOrderWithOverallMetrics = [];
+      for (const buybackOrder of items.reverse()) {
         let totalPrice = 0;
         let totalQuantity = 0;
         const seenBooks = new Set<string>();
-        for (const salesLine of salesReconciliation.salesLines) {
-          totalPrice += salesLine.quantity * salesLine.unitWholesalePrice;
-          totalQuantity += salesLine.quantity;
-          seenBooks.add(salesLine.book.isbn_13);
+        for (const buybackLine of buybackOrder.buybackLines) {
+          totalPrice += buybackLine.quantity * buybackLine.unitBuybackPrice;
+          totalQuantity += buybackLine.quantity;
+          seenBooks.add(buybackLine.book.isbn_13);
         }
-        salesReconciliationWithOverallMetrics.push({
-          salesReconciliation,
+        buybackOrderWithOverallMetrics.push({
+          buybackOrder: buybackOrder,
           totalPrice,
           totalQuantity,
           totalUniqueBooks: seenBooks.size,
@@ -119,10 +124,11 @@ export const salesReconciliationsRouter = createTRPCRouter({
       }
 
       return {
-        items: salesReconciliationWithOverallMetrics,
+        items: buybackOrderWithOverallMetrics,
         nextCursor,
       };
     }),
+
   getByDateWithOverallMetrics: publicProcedure
     .input(
       z.object({
@@ -143,7 +149,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
       const start = input.startDate ?? new Date(1970, 0, 1);
       const end = input.endDate ?? new Date(2100, 0, 1);
 
-      const items = await prisma.salesReconciliation.findMany({
+      const items = await prisma.buybackOrder.findMany({
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
         where: {
@@ -154,7 +160,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
           },
         },
         include: {
-          salesLines: {
+          buybackLines: {
             where: {
               display: true,
             },
@@ -167,6 +173,11 @@ export const salesReconciliationsRouter = createTRPCRouter({
               },
             },
           },
+          vendor: {
+            select: {
+              name: true,
+            },
+          },
         },
         cursor: cursor
           ? {
@@ -174,6 +185,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
             }
           : undefined,
         orderBy: {
+          //Don't change this please because of report calculation for top 10 books. It requires it in date order from earliest to latest
           date: "desc",
         },
       });
@@ -185,18 +197,18 @@ export const salesReconciliationsRouter = createTRPCRouter({
         nextCursor = nextItem.id;
       }
 
-      const salesReconciliationWithOverallMetrics = [];
-      for (const salesReconciliation of items.reverse()) {
+      const buybackOrderWithOverallMetrics = [];
+      for (const buybackOrder of items.reverse()) {
         let totalPrice = 0;
         let totalQuantity = 0;
         const seenBooks = new Set<string>();
-        for (const salesLine of salesReconciliation.salesLines) {
-          totalPrice += salesLine.quantity * salesLine.unitWholesalePrice;
-          totalQuantity += salesLine.quantity;
-          seenBooks.add(salesLine.book.isbn_13);
+        for (const buybackLine of buybackOrder.buybackLines) {
+          totalPrice += buybackLine.quantity * buybackLine.unitBuybackPrice;
+          totalQuantity += buybackLine.quantity;
+          seenBooks.add(buybackLine.book.isbn_13);
         }
-        salesReconciliationWithOverallMetrics.push({
-          salesReconciliation,
+        buybackOrderWithOverallMetrics.push({
+          buybackOrder: buybackOrder,
           totalPrice,
           totalQuantity,
           totalUniqueBooks: seenBooks.size,
@@ -204,7 +216,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
       }
 
       return {
-        items: salesReconciliationWithOverallMetrics,
+        items: buybackOrderWithOverallMetrics,
         nextCursor,
       };
     }),
@@ -213,27 +225,27 @@ export const salesReconciliationsRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
-      const salesReconciliation = await prisma.salesReconciliation.findUnique({
+      const buybackOrder = await prisma.buybackOrder.findUnique({
         where: { id },
       });
-      if (!salesReconciliation || !salesReconciliation.display) {
+      if (!buybackOrder || !buybackOrder.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "No sales reconciliation with id '${id}'",
+          message: `No buyback order with id '${id}'`,
         });
       }
-      return salesReconciliation;
+      return buybackOrder;
     }),
 
   getByIdWithOverallMetrics: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
-      const salesReconciliationWithOverallMetrics =
-        await prisma.salesReconciliation.findUnique({
+      const buybackOrderWithOverallMetrics =
+        await prisma.buybackOrder.findUnique({
           where: { id },
           include: {
-            salesLines: {
+            buybackLines: {
               where: {
                 display: true,
               },
@@ -247,11 +259,17 @@ export const salesReconciliationsRouter = createTRPCRouter({
                 },
               },
             },
+            vendor: {
+              select: {
+                name: true,
+                id: true,
+              },
+            },
           },
         });
       if (
-        !salesReconciliationWithOverallMetrics ||
-        !salesReconciliationWithOverallMetrics.display
+        !buybackOrderWithOverallMetrics ||
+        !buybackOrderWithOverallMetrics.display
       ) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -261,149 +279,84 @@ export const salesReconciliationsRouter = createTRPCRouter({
       let totalPrice = 0;
       let totalQuantity = 0;
       const seenBooks = new Set<string>();
-      for (const salesLine of salesReconciliationWithOverallMetrics.salesLines) {
-        totalPrice += salesLine.quantity * salesLine.unitWholesalePrice;
-        totalQuantity += salesLine.quantity;
-        seenBooks.add(salesLine.book.isbn_13);
+      for (const buybackLine of buybackOrderWithOverallMetrics.buybackLines) {
+        totalPrice += buybackLine.quantity * buybackLine.unitBuybackPrice;
+        totalQuantity += buybackLine.quantity;
+        seenBooks.add(buybackLine.book.isbn_13);
       }
       return {
-        salesReconciliationWithOverallMetrics,
+        buybackOrderWithOverallMetrics: buybackOrderWithOverallMetrics,
         totalPrice,
         totalQuantity,
         totalUniqueBooks: seenBooks.size,
       };
     }),
 
-  getByIdWithSalesLineIds: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ input }) => {
-      const { id } = input;
-      const salesReconciliationWithSalesLineIds =
-        await prisma.salesReconciliation.findUnique({
-          where: { id },
-          include: {
-            salesLines: {
-              where: {
-                display: true,
-              },
-              select: {
-                id: true,
-              },
-            },
-          },
-        });
-      if (
-        !salesReconciliationWithSalesLineIds ||
-        !salesReconciliationWithSalesLineIds.display
-      ) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `No sales reconciliation with id '${id}'`,
-        });
-      }
-      return salesReconciliationWithSalesLineIds;
-    }),
-
-  getByIdWithSalesLineAndBookTitle: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ input }) => {
-      const { id } = input;
-      const salesReconciliationWithSalesLineAndBookTitle =
-        await prisma.salesReconciliation.findUnique({
-          where: { id },
-          include: {
-            salesLines: {
-              where: {
-                display: true,
-              },
-              include: {
-                book: {
-                  select: {
-                    title: true,
-                  },
-                },
-              },
-            },
-          },
-        });
-      if (
-        !salesReconciliationWithSalesLineAndBookTitle ||
-        !salesReconciliationWithSalesLineAndBookTitle.display
-      ) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `No sales reconciliation with id '${id}'`,
-        });
-      }
-      return salesReconciliationWithSalesLineAndBookTitle;
-    }),
-
-  // model SalesReconciliation{
-  //   id 				String @id @default(cuid())
-  //   date			DateTime
-  //   saleLines SaleLine[]
-  // }
-  //
-  // model SaleLine{
-  //   id 				String @id @default(cuid())
-  //   book 			Book @relation(fields: [bookId], references: [lineId])
-  //   bookId 		String
-  //   quantity 	Int
-  //   unitWholesalePrice Float
-  //   salesReconciliation		SalesReconciliation @relation(fields: [salesReconciliationId], references: [lineId])
-  //   salesReconciliationId	String
-  // }
-
-  update: publicProcedure
+  edit: publicProcedure
     .input(
       z.object({
         id: z.string(),
         date: z.date(),
-        salesLines: z.array(z.string()),
+        vendorId: z.string(),
+        buybackLines: z.array(z.string()),
       })
     )
+
     .mutation(async ({ input }) => {
-      const updatedSalesReconciliation =
-        await prisma.salesReconciliation.update({
-          where: { id: input.id },
-          data: {
-            date: input.date,
+      const editedBuybackOrder = await prisma.buybackOrder.update({
+        where: { id: input.id },
+        data: {
+          date: input.date,
+          vendor: {
+            connect: {
+              id: input.vendorId,
+            },
           },
-        });
+          display: true,
+        },
+      });
+      return editedBuybackOrder;
     }),
 
   add: publicProcedure
     .input(
       z.object({
         date: z.date(),
-        salesLines: z.array(z.string()),
+        vendorId: z.string(),
+        buybackLines: z.array(z.string()),
       })
     )
 
     .mutation(async ({ input }) => {
-      const salesReconciliation = await prisma.salesReconciliation.create({
+      const buybackOrder = await prisma.buybackOrder.create({
         data: {
           date: input.date,
-          salesLines: {
+          vendor: {
+            connect: {
+              id: input.vendorId,
+            },
+          },
+          buybackLines: {
             create: [],
           },
+          display: true,
         },
       });
 
-      for (const salesLineId of input.salesLines) {
-        await prisma.salesLine.update({
-          where: { id: salesLineId },
+      for (const buybackLineId of input.buybackLines) {
+        await prisma.buybackLine.update({
+          where: { id: buybackLineId },
           data: {
-            salesReconciliation: {
+            buybackOrder: {
               connect: {
-                id: salesReconciliation.id,
+                id: buybackOrder.id,
               },
             },
           },
         });
       }
 
-      return salesReconciliation;
+      return buybackOrder;
     }),
 
   delete: publicProcedure
@@ -411,64 +364,60 @@ export const salesReconciliationsRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const { id } = input;
 
-      const currentSalesReconciliation =
-        await prisma.salesReconciliation.findUnique({
-          where: { id },
-          include: {
-            salesLines: {
-              where: {
-                display: true,
-              },
-              include: {
-                book: {
-                  select: {
-                    id: true,
-                  },
+      const currentBuybackOrder = await prisma.buybackOrder.findUnique({
+        where: { id },
+        include: {
+          buybackLines: {
+            where: {
+              display: true,
+            },
+            include: {
+              book: {
+                select: {
+                  id: true,
+                  inventoryCount: true,
                 },
               },
             },
           },
-        });
-      if (!currentSalesReconciliation) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `No sales reconcilitation to delete with id '${id}'`,
-        });
-      }
+        },
+      });
 
-      for (const salesLine of currentSalesReconciliation.salesLines) {
-        const updatedSalesLine = await prisma.salesLine.update({
-          where: { id: salesLine.id },
+      for (const buybackLine of currentBuybackOrder?.buybackLines ?? []) {
+        const updatedBuybackLine = await prisma.buybackLine.update({
+          where: { id: buybackLine.id },
           data: {
             display: false,
           },
         });
-        if (!updatedSalesLine) {
+        if (!updatedBuybackLine) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: `No sales line to delete with id '${salesLine.id}'`,
+            message: `No buyback line to delete with id '${id}'`,
           });
         }
-        if (salesLine !== null) {
-          await prisma.book.update({
-            where: { id: salesLine.book.id },
-            data: {
-              inventoryCount: {
-                increment: salesLine.quantity,
-              },
-            },
-          });
-        }
-      }
-
-      const updatedSalesReconciliation =
-        await prisma.salesReconciliation.update({
-          where: { id },
+        await prisma.book.update({
+          where: { id: buybackLine?.book.id },
           data: {
-            display: false,
+            inventoryCount: {
+              increment: buybackLine?.quantity,
+            },
           },
         });
+      }
 
-      return updatedSalesReconciliation;
+      const updatedBuybackOrder = await prisma.buybackOrder.update({
+        where: { id },
+        data: {
+          display: false,
+        },
+      });
+      if (!updatedBuybackOrder) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No buyback order to delete with id '${id}'`,
+        });
+      }
+      return updatedBuybackOrder;
     }),
 });

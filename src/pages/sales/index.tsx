@@ -44,6 +44,14 @@ export default function sales(
       headerName: "Reconciliation Date",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/sales/${params.id}/detail`}>{params.row.date} </a>
+          </div>
+        );
+      },
     },
     {
       field: "totalQuantity",
@@ -66,20 +74,6 @@ export default function sales(
       flex: 1,
       maxWidth: 150,
     },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
-      align : "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/sales/${params.id}/detail`} />
-      ),
-    },
   ];
 
   const rows = salesReconciliations.map((salesReconciliation) => {
@@ -97,20 +91,32 @@ export default function sales(
       <Head>
         <title>Sales</title>
       </Head>
-      <div className="flex space text-neutral-50 mt-3 h-3/4 overflow-hidden">
-        <h1 className="text-2xl inline-block"> Sales Reconciliation </h1>
-        <Link className="inline-block text-blue-600 ml-2 text-2xl" href="/sales/add/reconciliation"> + </Link>
+      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl"> Sales Reconciliation </h1>
+        <Link
+          className="ml-2 inline-block text-2xl text-blue-600"
+          href="/sales/add/reconciliation"
+        >
+          {" "}
+          +{" "}
+        </Link>
       </div>
 
-      <div className="flex space text-neutral-50 mt-3 h-3/4 overflow-hidden">
-        <h1 className="text-2xl inline-block"> Sales Line </h1>
-        <Link className="inline-block text-blue-600 ml-2 text-2xl" href="/sales/add/line"> + </Link>
+      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl"> Sales Line </h1>
+        <Link
+          className="ml-2 inline-block text-2xl text-blue-600"
+          href="/sales/add/line"
+        >
+          {" "}
+          +{" "}
+        </Link>
       </div>
-      
+
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
-            height: 'auto',
+            height: "auto",
             maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
@@ -134,7 +140,7 @@ export default function sales(
             pageSize={14}
             rowsPerPageOptions={[14]}
             autoHeight={true}
-            getRowHeight={() => 'auto'}
+            getRowHeight={() => "auto"}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}

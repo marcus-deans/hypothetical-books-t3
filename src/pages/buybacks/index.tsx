@@ -1,93 +1,106 @@
-import Head from "next/head";
 import React from "react";
+import Head from "next/head";
 import { api } from "../../utils/api";
+import { Logger } from "tslog";
+import { createInnerTRPCContext } from "../../server/api/trpc";
+import { appRouter } from "../../server/api/root";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { appRouter } from "../../server/api/root";
-import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import type { GridColDef } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
-import EditLink from "../../components/table-components/EditLink";
-import DeleteLink from "../../components/table-components/DeleteLink";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 
-export default function Authors(
+export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const authorQuery = api.authors.getAll.useQuery({
-    cursor: null,
-    limit: 50,
-  });
+  const buybackOrdersQuery =
+    api.buybackOrders.getAllWithOverallMetrics.useQuery({
+      cursor: null,
+      limit: 50,
+    });
 
-  const authors = authorQuery?.data?.items ?? [];
+  const buybackOrders = buybackOrdersQuery?.data?.items ?? [];
+
+  const logger = new Logger({ name: "buybackOrdersLogger" });
+  logger.info("buybackOrders", buybackOrders); // This is the only line that is different from the Books page
 
   const columns: GridColDef[] = [
     {
       field: "id",
-      headerName: "Author ID",
+      headerName: "Buyback Order ID",
       headerClassName: "header-theme",
       flex: 1,
     },
     {
-      field: "name",
-      headerName: "Author Name",
+      field: "date",
+      headerName: "Buyback Date",
+      headerClassName: "header-theme",
+      flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/buybacks/${params.id}/detail`}>{params.row.date} </a>
+          </div>
+        );
+      },
+    },
+    {
+      field: "vendor",
+      headerName: "Vendor",
       headerClassName: "header-theme",
       flex: 1,
     },
     {
-      field: "edit",
-      headerName: "Edit",
+      field: "totalQuantity",
+      headerName: "Total Quantity",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <EditLink url={`/authors/${params.id}/edit`} />
-      ),
+      maxWidth: 110,
     },
     {
-      field: "delete",
-      headerName: "Delete",
+      field: "totalPrice",
+      headerName: "Total Price",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DeleteLink url={`/authors/${params.id}/delete`} />
-      ),
+      maxWidth: 110,
+    },
+    {
+      field: "totalUniqueBooks",
+      headerName: "Total Unique Books",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 150,
     },
   ];
 
-  const rows = authors.map((author) => {
+  const rows = buybackOrders.map((buybackOrder) => {
     return {
-      id: author.id,
-      name: author.name,
+      id: buybackOrder.buybackOrder.id,
+      date: buybackOrder.buybackOrder.date.toLocaleDateString(),
+      totalQuantity: buybackOrder.totalQuantity,
+      vendor: buybackOrder.buybackOrder.vendor.name,
+      totalPrice: `$${buybackOrder.totalPrice.toFixed(2)}`,
+      totalUniqueBooks: buybackOrder.totalUniqueBooks,
     };
   });
 
   return (
     <>
       <Head>
-        <title>Authors</title>
+        <title>Buybacks</title>
       </Head>
-
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Authors </h1>
+        <h1 className="inline-block text-2xl"> Buyback Orders </h1>
         <Link
           className="ml-2 inline-block text-2xl text-blue-600"
-          href="/authors/add"
+          href="/buybacks/add"
         >
           {" "}
           +{" "}
@@ -135,6 +148,7 @@ export default function Authors(
     </>
   );
 }
+
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
@@ -147,7 +161,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.authors.getAll.prefetch({ cursor: null, limit: 50 });
+  await ssg.buybackOrders.getAllWithOverallMetrics.prefetch({
+    cursor: null,
+    limit: 50,
+  });
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {

@@ -10,7 +10,6 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import { Button } from "@mui/material";
 import Box from "@mui/material/Box";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
@@ -35,14 +34,28 @@ export default function Vendors(
       headerName: "Vendor ID",
       headerClassName: "header-theme",
       flex: 1,
-      width: 250,
+      maxWidth: 250,
     },
     {
       field: "name",
       headerName: "Vendor Name",
       headerClassName: "header-theme",
       flex: 1,
-      width: 250,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/vendors/${params.id}/detail`}>{params.row.name} </a>
+          </div>
+        );
+      },
+    },
+    {
+      field: "buybackRate",
+      headerName: "Buyback Rate",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 150,
     },
     {
       field: "purchaseOrderCount",
@@ -50,20 +63,6 @@ export default function Vendors(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 200,
-    },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/vendors/${params.id}/detail`} />
-      ),
     },
     {
       field: "edit",
@@ -85,7 +84,7 @@ export default function Vendors(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 70,
-      align : "center",
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
@@ -99,6 +98,7 @@ export default function Vendors(
     return {
       id: vendorWithOverallMetrics.vendor.id,
       name: vendorWithOverallMetrics.vendor.name,
+      buybackRate: vendorWithOverallMetrics.vendor.buybackRate,
       purchaseOrderCount: vendorWithOverallMetrics.purchaseOrderCount,
     };
   });
@@ -108,9 +108,15 @@ export default function Vendors(
       <Head>
         <title>Vendors</title>
       </Head>
-      <div className="flex space text-neutral-50 mt-3 h-3/4 overflow-hidden">
-        <h1 className="text-2xl inline-block"> Vendors </h1>
-        <Link className="inline-block text-blue-600 ml-2 text-2xl" href="/vendors/add"> + </Link>
+      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl"> Vendors </h1>
+        <Link
+          className="ml-2 inline-block text-2xl text-blue-600"
+          href="/vendors/add"
+        >
+          {" "}
+          +{" "}
+        </Link>
       </div>
 
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
@@ -140,7 +146,7 @@ export default function Vendors(
             pageSize={14}
             rowsPerPageOptions={[14]}
             autoHeight={true}
-            getRowHeight={() => 'auto'}
+            getRowHeight={() => "auto"}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}

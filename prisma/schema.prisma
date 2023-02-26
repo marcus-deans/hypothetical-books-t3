@@ -19,25 +19,27 @@ generator zod {
 }
 
 model Book {
-  id              String         @id @default(cuid())
-  title           String
-  authors         Author[]
-  isbn_13         String
-  isbn_10         String?
-  publisher       String
-  publicationYear Int
-  pageCount       Int
-  width           Float
-  height          Float
-  thickness       Float
-  retailPrice     Float
-  genre           Genre          @relation(fields: [genreId], references: [id])
-  genreId         String // relation String field
-  purchaseLines   PurchaseLine[]
-  salesLines      SalesLine[]
+  id                   String                 @id @default(cuid())
+  title                String
+  authors              Author[]
+  isbn_13              String
+  isbn_10              String?
+  publisher            String
+  publicationYear      Int
+  pageCount            Int
+  width                Float
+  height               Float
+  thickness            Float
+  retailPrice          Float
+  genre                Genre                  @relation(fields: [genreId], references: [id])
+  genreId              String // relation String field
+  purchaseLines        PurchaseLine[]
+  salesLines           SalesLine[]
+  buybackLines         BuybackLine[]
   // to Be determined
-  inventoryCount  Int
-  display         Boolean        @default(true)
+  inventoryCount       Int
+  display              Boolean                @default(true)
+  costMostRecentVendor CostMostRecentVendor[]
 }
 
 model Genre {
@@ -55,30 +57,35 @@ model Author {
 }
 
 model Vendor {
-  id            String          @id @default(cuid())
-  name          String
-  purchaseOrder PurchaseOrder[]
-  display       Boolean         @default(true)
+  id                   String                 @id @default(cuid())
+  name                 String
+  purchaseOrder        PurchaseOrder[]
+  buybackOrders        BuybackOrder[]
+  buybackRate          Float                  @default(0)
+  display              Boolean                @default(true)
+  costMostRecentVendor CostMostRecentVendor[]
 }
 
 model PurchaseOrder {
-  id            String         @id @default(cuid())
-  date          DateTime
-  vendor        Vendor         @relation(fields: [vendorId], references: [id])
-  vendorId      String
-  purchaseLines PurchaseLine[]
-  display       Boolean        @default(true)
+  id                   String                 @id @default(cuid())
+  date                 DateTime
+  vendor               Vendor                 @relation(fields: [vendorId], references: [id])
+  vendorId             String
+  purchaseLines        PurchaseLine[]
+  display              Boolean                @default(true)
+  costMostRecentVendor CostMostRecentVendor[]
 }
 
 model PurchaseLine {
-  id                 String        @id @default(cuid())
-  book               Book          @relation(fields: [bookId], references: [id])
-  bookId             String
-  quantity           Int
-  unitWholesalePrice Float
-  purchaseOrder      PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
-  purchaseOrderId    String
-  display            Boolean       @default(true)
+  id                   String                @id @default(cuid())
+  book                 Book                  @relation(fields: [bookId], references: [id])
+  bookId               String
+  quantity             Int
+  unitWholesalePrice   Float
+  purchaseOrder        PurchaseOrder         @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrderId      String
+  display              Boolean               @default(true)
+  costMostRecentVendor CostMostRecentVendor?
 }
 
 model SalesReconciliation {
@@ -97,6 +104,40 @@ model SalesLine {
   salesReconciliation   SalesReconciliation @relation(fields: [salesReconciliationId], references: [id])
   salesReconciliationId String
   display               Boolean             @default(true)
+}
+
+model BuybackOrder {
+  id           String        @id @default(cuid())
+  date         DateTime
+  vendor       Vendor        @relation(fields: [vendorId], references: [id])
+  vendorId     String
+  buybackLines BuybackLine[]
+  display      Boolean       @default(true)
+}
+
+model BuybackLine {
+  id               String       @id @default(cuid())
+  book             Book         @relation(fields: [bookId], references: [id])
+  bookId           String
+  quantity         Int
+  unitBuybackPrice Float
+  buybackOrder     BuybackOrder @relation(fields: [buybackOrderId], references: [id])
+  buybackOrderId   String
+  display          Boolean      @default(true)
+}
+
+model CostMostRecentVendor {
+  id              String        @id @default(cuid())
+  book            Book          @relation(fields: [bookId], references: [id])
+  bookId          String
+  vendor          Vendor        @relation(fields: [vendorId], references: [id])
+  vendorId        String
+  purchaseLine    PurchaseLine  @relation(fields: [purchaseLineId], references: [id])
+  purchaseLineId  String        @unique
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrderId String
+
+  @@unique(fields: [bookId, vendorId], name: "costMostRecentVendorId")
 }
 
 model Example {

@@ -76,36 +76,36 @@ export default function VendorDetail(
 
   return (
     <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
-        <Box
-          sx={{
-            height: "auto",
-            maxHeight: 750,
-            "& .header-theme": {
-              backgroundColor: "rgba(56, 116, 203, 0.35)",
-            },
+      <Box
+        sx={{
+          height: "auto",
+          maxHeight: 750,
+          "& .header-theme": {
+            backgroundColor: "rgba(56, 116, 203, 0.35)",
+          },
+        }}
+      >
+        <StripedDataGrid
+          rows={rows}
+          columns={columns}
+          components={{
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            Toolbar: GridToolbar,
           }}
-        >
-          <StripedDataGrid
-            rows={rows}
-            columns={columns}
-            components={{
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              Toolbar: GridToolbar,
-            }}
-            pageSize={14}
-            autoHeight={true}
-            rowsPerPageOptions={[14]}
-            getRowHeight={() => 'auto'}
-            checkboxSelection
-            disableSelectionOnClick
-            experimentalFeatures={{ newEditingApi: true }}
-            getRowClassName={(params) =>
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-            }
-          />
-        </Box>
-      </div>
+          pageSize={14}
+          autoHeight={true}
+          rowsPerPageOptions={[14]}
+          getRowHeight={() => "auto"}
+          checkboxSelection
+          disableSelectionOnClick
+          experimentalFeatures={{ newEditingApi: true }}
+          getRowClassName={(params) =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+          }
+        />
+      </Box>
+    </div>
   );
 }
 export const getStaticPaths: GetStaticPaths = async () => {
