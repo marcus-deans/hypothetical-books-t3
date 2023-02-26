@@ -7,7 +7,7 @@ import { Image } from "@prisma/client";
 
 const s3 = new AWS.S3()
 
-const BUCKET_NAME = process.env.IMAGE_STORAGE_S3_BUCKET ?? 'thumbnail-generator-images';
+const BUCKET_NAME = process.env.IMAGE_STORAGE_S3_BUCKET ?? 'hypothetical-books-dev';
 const UPLOADING_TIME_LIMIT = 30;
 const UPLOAD_MAX_FILE_SIZE = 1000000;
 
