@@ -23,6 +23,7 @@ import type { salesReconciliation } from "../schema/sales.schema";
 import type { book } from "../schema/books.schema";
 import GenerateReport from "../components/GenerateReport";
 import { exit } from "process";
+import { buyBackOrders } from "../schema/buybacks.schema";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function Report(
@@ -53,10 +54,21 @@ export default function Report(
       },
       { enabled: !!startDate && !!endDate }
     );
+  
+  const buyBackQuery = api.buybackOrders.getByDateWithOverallMetrics.useQuery(
+    {
+      startDate: startDate,
+      endDate: endDate,
+      cursor: null,
+      limit: 50,
+    },
+    { enabled: !!startDate && !!endDate }
+  );
+
 
   const purchaseOrders: purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
-  const salesReconciliations: salesReconciliation =
-    salesQuery?.data?.items ?? [];
+  const salesReconciliations: salesReconciliation = salesQuery?.data?.items ?? [];
+  const buyBackOrders: buyBackOrders = buyBackQuery?.data?.items ?? [];
 
   const handleGenerate: MouseEventHandler<HTMLButtonElement> = () => {
     if (startDate.valueOf() > endDate.valueOf() + 1000 * 60) {
@@ -64,7 +76,7 @@ export default function Report(
         "End Date must be later than Start Date, or the same as Start Date"
       );
     } else {
-      generateReport(startDate, endDate, purchaseOrders, salesReconciliations);
+      generateReport(startDate, endDate, purchaseOrders, salesReconciliations, buyBackOrders);
     }
   };
 
@@ -136,7 +148,8 @@ function generateReport(
   startDate: Date,
   endDate: Date,
   purchaseOrders: purchaseOrders,
-  salesReconciliations: salesReconciliation
+  salesReconciliations: salesReconciliation,
+  buyBackOrders: buyBackOrders
 ) {
   const daysArray = getDaysArray(startDate, endDate);
 
@@ -220,11 +233,14 @@ function generateReport(
 
   let runningRevenue = 0;
   let runningCosts = 0;
+  let runningBuyBack = 0;
   //Now we do the purchase orders
 
   const periodOrders: purchaseOrders = [];
 
   const periodSales: salesReconciliation = [];
+
+  const periodBuyBack: any = [];
 
   //forEach calculates total cost
   purchaseOrders.forEach(function (value) {
@@ -252,6 +268,17 @@ function generateReport(
     runningRevenue += value.totalPrice;
   });
 
+  buyBackOrders.forEach(function (value) {
+    //determine if date is in period
+    if (!daysArray.includes(value.buybackOrder.date.toLocaleDateString())) {
+      //not in day range
+      return;
+    }
+    periodBuyBack.push(value);
+    //get total cost
+    runningBuyBack += value.totalPrice;
+  });
+
   const perDayList: RowInput[] = [];
 
   //per day forloop
@@ -265,16 +292,18 @@ function generateReport(
     insideInput.push(value.toString());
     const revenue = getRevenue(value, periodSales);
     insideInput.push(revenue.toFixed(2));
+    const buyBackRevenue = getRevenueBuyBack(value, periodBuyBack);
+    insideInput.push(buyBackRevenue.toFixed(2));
     const cost = getCost(value, periodOrders);
     insideInput.push(cost.toFixed(2));
-    insideInput.push((revenue - cost).toFixed(2));
-    if (revenue != 0 || cost != 0) {
+    insideInput.push(((revenue + buyBackRevenue) - cost).toFixed(2));
+    if (revenue != 0 || cost != 0 || buyBackRevenue != 0) {
       perDayList.push(insideInput);
     }
   });
 
   autoTable(doc, {
-    head: [["Date", "Daily Revenue", "Daily Costs", "Daily Profit"]],
+    head: [["Date", "Daily Revenue (Sales)", "Daily Revenue (Buy Backs)", "Daily Costs", "Daily Profit"]],
     body: perDayList,
     theme: "striped",
     headStyles: {
@@ -286,13 +315,27 @@ function generateReport(
     body: [
       [
         {
-          content: "Total Revenue:",
+          content: "Total Revenue (Sales): ",
           styles: {
             halign: "right",
           },
         },
         {
           content: (runningRevenue - 0).toFixed(2),
+          styles: {
+            halign: "right",
+          },
+        },
+      ],
+      [
+        {
+          content: "Total Revenue (Buy Backs): ",
+          styles: {
+            halign: "right",
+          },
+        },
+        {
+          content: (runningBuyBack - 0).toFixed(2),
           styles: {
             halign: "right",
           },
@@ -320,7 +363,7 @@ function generateReport(
           },
         },
         {
-          content: (runningRevenue - runningCosts).toFixed(2),
+          content: ((runningRevenue + runningBuyBack) - runningCosts).toFixed(2),
           styles: {
             halign: "right",
           },
@@ -444,6 +487,18 @@ function getRevenue(day: string, periodSales: salesReconciliation): number {
   return dailyRevenue;
 }
 
+function getRevenueBuyBack(day: string, periodSales: buyBackOrders): number {
+  let dailyRevenue = 0;
+  periodSales.forEach(function (buybackOrder) {
+    if (
+      day === buybackOrder.buybackOrder.date.toLocaleDateString()
+    ) {
+      dailyRevenue += buybackOrder.totalPrice;
+    }
+  });
+  return dailyRevenue;
+}
+
 function getCost(day: string, periodOrders: purchaseOrders): number {
   let dailyCost = 0;
   periodOrders.forEach(function (purchaseOrder) {
@@ -476,6 +531,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     cursor: null,
     limit: 50,
   });
+
+  await ssg.buybackOrders.getByDateWithOverallMetrics.prefetch({
+    cursor: null,
+    limit: 50,
+  });
+
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {
