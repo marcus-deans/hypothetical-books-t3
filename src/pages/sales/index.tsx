@@ -1,7 +1,6 @@
 import React from "react";
 import Head from "next/head";
 import { api } from "../../utils/api";
-import { Logger } from "tslog";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import { appRouter } from "../../server/api/root";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
@@ -11,7 +10,6 @@ import type {
 } from "next";
 import superjson from "superjson";
 import Link from "next/link";
-import { Button } from "@mui/material";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
@@ -28,9 +26,6 @@ export default function sales(
     });
 
   const salesReconciliations = salesReconciliationQuery?.data?.items ?? [];
-
-  const logger = new Logger({ name: "salesReconciliationsogger" });
-  logger.info("salesReconciliations", salesReconciliations); // This is the only line that is different from the Books page
 
   const columns: GridColDef[] = [
     {
