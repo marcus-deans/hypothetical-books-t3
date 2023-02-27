@@ -14,7 +14,7 @@ import type { GridColDef } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
-
+import logger from "../../utils/logger";
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
@@ -24,6 +24,7 @@ export default function Books(
   });
 
   const books = booksQuery?.data?.items ?? [];
+  logger.info("Loading books page");
 
   const columns: GridColDef[] = [
     {

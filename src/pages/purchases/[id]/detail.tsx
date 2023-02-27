@@ -118,39 +118,41 @@ export default function PurchaseOrderDetail(
       <Head>
         <title>Purchases</title>
       </Head>
-      <Link className="items-end px-6" href={`/purchases/${id}/edit`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Edit Purchase Order
-        </Button>
-      </Link>
-      <Link
-        className="items-end px-6"
-        href={`/purchases/${id}/delete`}
-        passHref
-      >
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Delete Purchase Order
-        </Button>
-      </Link>
-      <Link className="items-end px-6" href={`/purchases/${id}/add`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Add Purchase Line
-        </Button>
-      </Link>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
           {`Purchase Order on ${data.purchaseOrderWithOverallMetrics.date.toLocaleDateString()}`}{" "}
         </h1>
+      </div>
+      <div className="pt-3 space flex">
+        <Link className="items-end pr-3" href={`/purchases/${id}/add`} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Add Purchase Line
+          </Button>
+        </Link>
+        <Link className="items-end px-3" href={`/purchases/${id}/edit`} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Edit Purchase Order
+          </Button>
+        </Link>
+        <Link
+          className="items-end px-3"
+          href={`/purchases/${id}/delete`}
+          passHref
+        >
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Delete Purchase Order
+          </Button>
+        </Link>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
         <Box

@@ -5,7 +5,6 @@ import { TRPCError } from "@trpc/server";
 import { env } from "../../../env/server.mjs";
 import type { JSONSchemaType } from "ajv";
 import Ajv from "ajv";
-import { Logger } from "tslog";
 
 // const ajv = new Ajv();
 //
