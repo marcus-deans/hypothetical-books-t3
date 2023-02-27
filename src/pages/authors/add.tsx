@@ -26,7 +26,7 @@ export default function AddAuthor() {
           <div>
             <div className="input-group relative mb-4 flex w-full flex-wrap items-stretch space-y-5">
           <label className="mb-2 block text-sm font-bold text-gray-700">
-            {"Author's Name"}
+            {"Add Author"}
           </label>
           <input
             className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"

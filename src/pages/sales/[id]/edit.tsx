@@ -67,25 +67,31 @@ export default function EditSalesReconciliation(
   };
 
   return (
-    <div className="flex w-full items-center ">
-      <form className="mb-4 w-3/4 items-center rounded bg-white px-8 pt-6 pb-8 shadow-md">
-        <div className="mb-4 space-y-5">
+    <div className="pt-6">
+      <form className="rounded bg-white px-6 py-6 inline-block">
+        <div className="space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
             Edit Sales Reconciliation
           </div>
           <div className="relative space-y-3">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DesktopDatePicker
-                label="Sale Date"
-                inputFormat="MM/DD/YYYY"
-                value={dateValue}
-                onChange={handleDatePickChange}
-                renderInput={(params: JSX.IntrinsicAttributes) => (
-                  <TextField {...params} />
-                )}
-              />
-            </LocalizationProvider>
+            <div className="col-span-4">
+              <div className="space-y-20">
+                <div className="flex space-x-10">
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DesktopDatePicker
+                      label="Sale Date"
+                      inputFormat="MM/DD/YYYY"
+                      value={dateValue}
+                      onChange={handleDatePickChange}
+                      renderInput={(params: JSX.IntrinsicAttributes) => (
+                        <TextField {...params} />
+                      )}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <button
