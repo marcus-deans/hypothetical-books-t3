@@ -3,7 +3,7 @@ import { withAuth } from "next-auth/middleware";
 export default withAuth(
   // `withAuth` augments your `Request` with the user's token.
   function middleware(req) {
-    console.log("In middlware");
+    //console.log("In middleware");
   },
   {
     callbacks: {
@@ -24,6 +24,7 @@ export const config = {
     "/books/:path*",
     "/sales/:path*",
     "/purchases/:path*",
+    "/buybacks/:path*",
     "/vendors/:path*",
     "/authors/:path*",
     "/genres/:path*",
