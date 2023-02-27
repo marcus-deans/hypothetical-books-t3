@@ -86,6 +86,7 @@ export default function Report(
         buyBackOrders
       );
     }
+    setIsSubmitting(false);
   };
 
   return (
