@@ -22,19 +22,16 @@ import type {
     const { id } = props;
     const router = useRouter();
     const [parsedHeaders, setParsedHeaders] = useState<string[]>();
-    const [parsedCsvData, setParsedCsvData] = useState<purchaseOrdersInputUnknown>();
+    const [parsedCsvData, setParsedCsvData] = useState<purchaseOrdersInput[]>();
     const [file, setFile] = useState<File>();
     const headersVerified = api.csvPorts.verifyPurchaseHeaders.useQuery({
       headers: parsedHeaders
     }, {enabled: !!parsedHeaders});
     const importVerified =
     api.csvPorts.verifyPurchaseCSV.useQuery(
-      {
-        data: parsedCsvData
-      },
+      parsedCsvData,
       { enabled: !!headersVerified.data?.verified }
     );
-    //const importMutation = api.csvImports.importPurchaseLines.useMutation();
   
   
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +58,12 @@ import type {
         complete: function(results) {
           console.log(results);
           setParsedHeaders(results.meta.fields);
-          setParsedCsvData(results.data);
+          const parsedData: purchaseOrdersInput[] = [];
+          results.data.forEach(function (value){
+
+            parsedData.push(value as purchaseOrdersInput);
+          })
+          setParsedCsvData(parsedData);
         }
       });
 

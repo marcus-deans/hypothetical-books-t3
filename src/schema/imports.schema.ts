@@ -1,9 +1,9 @@
 import z from 'zod'
 
 export const purchaseOrdersInputSchema = z.object({
-	isbn_13: z.string(),
-    quantity: z.string(),
-    unit_wholesale_price: z.string(),
+	isbn_13: z.number(),
+    quantity: z.number(),
+    unit_wholesale_price: z.number(),
 })
 
 

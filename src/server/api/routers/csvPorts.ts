@@ -38,9 +38,9 @@ export const csvPortsRouter = createTRPCRouter({
     }),
   verifyPurchaseCSV: publicProcedure
     .input(
-      z.object({
-        data: purchaseOrdersInputUnknownSchema.optional(),
-      })  
+      z.array(
+        purchaseOrdersInputSchema
+      ).optional()
     )
     .output(
       z.object({
@@ -51,7 +51,7 @@ export const csvPortsRouter = createTRPCRouter({
     )
 		// eslint-disable-next-line @typescript-eslint/require-await
 		.query(async ({ input }) => {
-      if(!input.data){
+      if(!input){
         return {
           verified: false,
           message: "No Input",
@@ -61,7 +61,17 @@ export const csvPortsRouter = createTRPCRouter({
       let verified = true;
       let message = "Verified";
       const parsedData: purchaseOrdersInput[] = [];
-			input.data.forEach(function (entry, index){
+			input.forEach(function (entry, index){
+        const newEntry: purchaseOrdersInput = {isbn_13: -1, quantity: -1, unit_wholesale_price: -1}
+        newEntry.isbn_13 = entry.isbn_13;
+        newEntry.quantity = entry.quantity;
+        newEntry.unit_wholesale_price = entry.unit_wholesale_price;
+        if(newEntry.isbn_13 == -1 || newEntry.quantity == -1 || newEntry.unit_wholesale_price == -1){
+          verified = false;
+          message = "Not taking data";
+        }
+        parsedData.push(newEntry);
+        /*
         if(verified == false){
           return;
         }
@@ -81,6 +91,7 @@ export const csvPortsRouter = createTRPCRouter({
           created.unit_wholesale_price = newEntry[2].toString();
         }
         parsedData.push(created);
+        */
       })
       return{
         verified,
