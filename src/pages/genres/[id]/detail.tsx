@@ -34,6 +34,14 @@ export default function DetailGenre(
       headerName: "Book Title",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/books/${params.id}/detail`}>{params.row.title} </a>
+          </div>
+        );
+      },
     },
     {
       field: "author",
@@ -55,20 +63,6 @@ export default function DetailGenre(
       flex: 1,
       maxWidth: 120,
     },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/books/${params.id}/detail`} />
-      ),
-    },
   ];
 
   const rows = data.books.map((book) => {
@@ -82,6 +76,13 @@ export default function DetailGenre(
   });
 
   return (
+    <>
+    <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl">
+          {" "}
+          {`Book List of ${data.name}`}{" Genre"}
+        </h1>
+      </div>
     <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
       <Box
         sx={{
@@ -113,6 +114,7 @@ export default function DetailGenre(
         />
       </Box>
     </div>
+    </>
   );
 }
 export const getStaticPaths: GetStaticPaths = async () => {
