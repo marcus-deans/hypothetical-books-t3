@@ -119,8 +119,22 @@ export default function SalesOrderDetail(
       <Head>
         <title>Sales Detail</title>
       </Head>
-      <div className="space flex">
-        <Link className="items-end" href={`/sales/${id}/edit`} passHref>
+      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl">
+          {" "}
+          {`Sales Reconciliation on ${data.salesReconciliationWithOverallMetrics.date.toLocaleDateString()}`}{" "}
+        </h1>
+      </div>
+      <div className="pt-3 space flex">
+        <Link className="items-end pr-3" href={"/sales/add/line"} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Add Sales Line
+          </Button>
+        </Link>
+        <Link className="items-end px-3" href={`/sales/${id}/edit`} passHref>
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
@@ -128,7 +142,7 @@ export default function SalesOrderDetail(
             Edit Sales Reconciliation
           </Button>
         </Link>
-        <Link className="items-end px-6" href={`/sales/${id}/delete`} passHref>
+        <Link className="items-end px-3" href={`/sales/${id}/delete`} passHref>
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
