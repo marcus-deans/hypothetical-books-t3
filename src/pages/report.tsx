@@ -399,10 +399,7 @@ function generateReport(
   });
 
   const reverseOrders = [...purchaseOrders].reverse();
-  console.log(reverseOrders);
-  console.log(purchaseOrders);
   const topTenBooksToCMR = new Map<string, number>();
-  console.log(topTenBooksArray);
 
   //If you're debugging this, good luck
   reverseOrders.forEach(function (order) {
@@ -415,8 +412,6 @@ function generateReport(
               purchaseLine.unitWholesalePrice
             );
           }
-        } else {
-          topTenBooksToCMR.set(entry[0].title, 0); // Is this logic correct?
         }
       });
     });
