@@ -14,15 +14,21 @@ const token = env.LOGTAIL_TOKEN;
 //   name: "hypothetical-books",
 //   level: logLevel,
 // };
-//
+
 // const logger = pino(pinoConfig);
 // export const log = (msg: string) => logger.info(msg);
 // export default logger;
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const transport = pino.transport({
-  target: "@logtail/pino",
-  options: { sourceToken: token },
-});
-const logger = pino(transport);
+// const pino = require("pino");
+// const transport = pino.transport({
+//   target: "@logtail/pino",
+//   options: { sourceToken: token },
+// });
+// const logger = pino(transport);
+
+const pinoConfig = {
+  name: "hypothetical-books",
+  level: "info",
+};
+const logger = pino(pinoConfig);
 export default logger;
