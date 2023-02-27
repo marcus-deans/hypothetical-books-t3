@@ -8,12 +8,20 @@ const token = "xkFjXhGnek18wmxrc4WNaRPH";
 // });
 // export const logger = pino(transport);
 
-const logLevel = (env.PINO_LOG_LEVEL as string) ?? "info";
-const pinoConfig = {
-  name: "hypothetical-books",
-  level: logLevel,
-};
+// const logLevel = (env.PINO_LOG_LEVEL as string) ?? "info";
+// const pinoConfig = {
+//   name: "hypothetical-books",
+//   level: logLevel,
+// };
+//
+// const logger = pino(pinoConfig);
+// export const log = (msg: string) => logger.info(msg);
+// export default logger;
 
-const logger = pino(pinoConfig);
-export const log = (msg: string) => logger.info(msg);
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const transport = pino.transport({
+  target: "@logtail/pino",
+  options: { sourceToken: token },
+});
+const logger = pino(transport);
 export default logger;
