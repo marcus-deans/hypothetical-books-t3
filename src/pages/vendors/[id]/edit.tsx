@@ -49,9 +49,10 @@ export default function EditVendor(
         finalBuybackRate >= 100
       ) {
         alert("Buyback rate must be a number between 0 and 100");
+        setIsSubmitting(false);
         return;
       }
-      const editResult = editMutation.mutate({
+      const finalEdit = editMutation.mutate({
         id: id,
         name: vendorName,
         buybackRate: finalBuybackRate,
