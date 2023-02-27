@@ -21,9 +21,7 @@ import superjson from "superjson";
 import type { purchaseOrders } from "../schema/purchases.schema";
 import type { salesReconciliation } from "../schema/sales.schema";
 import type { book } from "../schema/books.schema";
-import GenerateReport from "../components/GenerateReport";
-import { exit } from "process";
-import { buyBackOrders } from "../schema/buybacks.schema";
+import type { buyBackOrders } from "../schema/buybacks.schema";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function Report(
@@ -54,7 +52,7 @@ export default function Report(
       },
       { enabled: !!startDate && !!endDate }
     );
-  
+
   const buyBackQuery = api.buybackOrders.getByDateWithOverallMetrics.useQuery(
     {
       startDate: startDate,
@@ -65,9 +63,9 @@ export default function Report(
     { enabled: !!startDate && !!endDate }
   );
 
-
   const purchaseOrders: purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
-  const salesReconciliations: salesReconciliation = salesQuery?.data?.items ?? [];
+  const salesReconciliations: salesReconciliation =
+    salesQuery?.data?.items ?? [];
   const buyBackOrders: buyBackOrders = buyBackQuery?.data?.items ?? [];
 
   const handleGenerate: MouseEventHandler<HTMLButtonElement> = () => {
@@ -76,7 +74,13 @@ export default function Report(
         "End Date must be later than Start Date, or the same as Start Date"
       );
     } else {
-      generateReport(startDate, endDate, purchaseOrders, salesReconciliations, buyBackOrders);
+      generateReport(
+        startDate,
+        endDate,
+        purchaseOrders,
+        salesReconciliations,
+        buyBackOrders
+      );
     }
   };
 
@@ -240,7 +244,7 @@ function generateReport(
 
   const periodSales: salesReconciliation = [];
 
-  const periodBuyBack: any = [];
+  const periodBuyBack: buyBackOrders = [];
 
   //forEach calculates total cost
   purchaseOrders.forEach(function (value) {
@@ -296,14 +300,22 @@ function generateReport(
     insideInput.push(buyBackRevenue.toFixed(2));
     const cost = getCost(value, periodOrders);
     insideInput.push(cost.toFixed(2));
-    insideInput.push(((revenue + buyBackRevenue) - cost).toFixed(2));
+    insideInput.push((revenue + buyBackRevenue - cost).toFixed(2));
     if (revenue != 0 || cost != 0 || buyBackRevenue != 0) {
       perDayList.push(insideInput);
     }
   });
 
   autoTable(doc, {
-    head: [["Date", "Daily Revenue (Sales)", "Daily Revenue (Buy Backs)", "Daily Costs", "Daily Profit"]],
+    head: [
+      [
+        "Date",
+        "Daily Revenue (Sales)",
+        "Daily Revenue (Buy Backs)",
+        "Daily Costs",
+        "Daily Profit",
+      ],
+    ],
     body: perDayList,
     theme: "striped",
     headStyles: {
@@ -363,7 +375,7 @@ function generateReport(
           },
         },
         {
-          content: ((runningRevenue + runningBuyBack) - runningCosts).toFixed(2),
+          content: (runningRevenue + runningBuyBack - runningCosts).toFixed(2),
           styles: {
             halign: "right",
           },
@@ -490,9 +502,7 @@ function getRevenue(day: string, periodSales: salesReconciliation): number {
 function getRevenueBuyBack(day: string, periodSales: buyBackOrders): number {
   let dailyRevenue = 0;
   periodSales.forEach(function (buybackOrder) {
-    if (
-      day === buybackOrder.buybackOrder.date.toLocaleDateString()
-    ) {
+    if (day === buybackOrder.buybackOrder.date.toLocaleDateString()) {
       dailyRevenue += buybackOrder.totalPrice;
     }
   });
