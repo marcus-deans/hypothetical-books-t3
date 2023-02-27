@@ -24,7 +24,7 @@ export default function Books(
   });
 
   const books = booksQuery?.data?.items ?? [];
-  logger.info("Loading books page");
+  //logger.info("Loading books page");
 
   const columns: GridColDef[] = [
     {
