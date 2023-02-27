@@ -27,6 +27,7 @@ import type { buyBackOrders } from "../schema/buybacks.schema";
 export default function Report(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [startDateString, setStartDate] = useState(new Date());
   const [endDateString, setEndDate] = useState(new Date());
   const startDateTemp = new Date(startDateString);
@@ -69,11 +70,14 @@ export default function Report(
   const buyBackOrders: buyBackOrders = buyBackQuery?.data?.items ?? [];
 
   const handleGenerate: MouseEventHandler<HTMLButtonElement> = () => {
+    setIsSubmitting(true);
     if (startDate.valueOf() > endDate.valueOf() + 1000 * 60) {
       alert(
         "End Date must be later than Start Date, or the same as Start Date"
       );
+      setIsSubmitting(false);
     } else {
+      setIsSubmitting(true);
       generateReport(
         startDate,
         endDate,
@@ -90,7 +94,7 @@ export default function Report(
         <title>Report</title>
       </Head>
       <div className="pt-6">
-        <form className="inline-block rounded bg-white px-6 py-6">
+        <form className="rounded bg-white px-6 py-6 inline-block">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Generate Report
@@ -99,46 +103,40 @@ export default function Report(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-20">
-                  <div className="flex space-x-10">
-                    <div className="rounded bg-white py-2 px-2 text-black">
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DesktopDatePicker
-                          label="Start Date"
-                          inputFormat="MM/DD/YYYY"
-                          value={startDate}
-                          onChange={(date) => setStartDate(date ?? new Date())}
-                          renderInput={(params: JSX.IntrinsicAttributes) => (
-                            <TextField {...params} />
-                          )}
-                        />
-                      </LocalizationProvider>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="rounded bg-white py-2 px-2 text-black">
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DesktopDatePicker
-                          label="End Date"
-                          inputFormat="MM/DD/YYYY"
-                          value={endDate}
-                          onChange={(date) => setEndDate(date ?? new Date())}
-                          renderInput={(params: JSX.IntrinsicAttributes) => (
-                            <TextField {...params} />
-                          )}
-                        />
-                      </LocalizationProvider>
-                    </div>
+                  <div className="flex space-x-10 justify-center">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DesktopDatePicker
+                        label="Start Date"
+                        inputFormat="MM/DD/YYYY"
+                        value={startDate}
+                        onChange={(date) => setStartDate(date ?? new Date())}
+                        renderInput={(params: JSX.IntrinsicAttributes) => (
+                          <TextField {...params} />
+                        )}
+                      />
+                    </LocalizationProvider>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DesktopDatePicker
+                        label="End Date"
+                        inputFormat="MM/DD/YYYY"
+                        value={endDate}
+                        onChange={(date) => setEndDate(date ?? new Date())}
+                        renderInput={(params: JSX.IntrinsicAttributes) => (
+                          <TextField {...params} />
+                        )}
+                      />
+                    </LocalizationProvider>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between px-2 pt-16">
+            <div className="flex items-center justify-between">
               <button
                 className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
                 type="button"
                 onClick={handleGenerate}
               >
-                Generate Report
+                {isSubmitting ? "Generating..." : "Generate Report"}
               </button>
             </div>
           </div>
