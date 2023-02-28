@@ -137,6 +137,8 @@ export default function Books(
       bookThickness === 0
         ? `${shelfSpace.toString()}* in.`
         : `${shelfSpace.toString()} in.`;
+    const bestBuybackString =
+      bestBuybackPrice === 0 ? "-" : `$${bestBuybackPrice.toFixed(2)}`;
 
     return {
       id: book.id,
@@ -149,7 +151,7 @@ export default function Books(
       shelfSpace: shelfSpaceString,
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),
-      bestBuyback: `$${bestBuybackPrice.toFixed(2)}`,
+      bestBuyback: bestBuybackString,
     };
   });
 
