@@ -123,10 +123,9 @@ export default function EditBook(
 
   return (
     <>
-      <div></div>
-      <div className="flex w-full items-center ">
-        <form className="mb-4 w-3/4 items-center rounded bg-white px-8 pt-6 pb-8 shadow-md">
-          <div className="mb-4 items-center space-y-5">
+      <div className="pt-6">
+        <form className="rounded bg-white px-6 pt-3 inline-block">
+          <div className="mb-4 items-center">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Edit Book
             </div>
@@ -134,19 +133,18 @@ export default function EditBook(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-10">
-                  <div className="flex w-4/5 space-x-10">
+                  <div className="flex justify-center space-x-10">
                     <div className="text-gra-700 text-md font-bold">
-                      {`${bookDetailsQuery?.data?.title ?? ""} by ${
-                        bookDetailsQuery?.data?.authors
-                          .map((author) => author.name)
-                          .join(", ") ?? ""
-                      }`}
+                      {`${bookDetailsQuery?.data?.title ?? ""} by ${bookDetailsQuery?.data?.authors
+                        .map((author) => author.name)
+                        .join(", ") ?? ""
+                        }`}
                     </div>
                     <div className="text-gra-700 text-md font-bold">
                       {`ISBN-13: ${bookDetailsQuery?.data?.isbn_13 ?? ""}`}
                     </div>
                   </div>
-                  <div className="flex w-4/5 space-x-10">
+                  <div className="flex justify-center space-x-10">
                     <TextField
                       id="retailPrice"
                       label="Retail Price"
@@ -160,6 +158,9 @@ export default function EditBook(
                         ),
                       }}
                       required
+                      sx={{
+                        width: 120,
+                      }}
                     />
                     <TextField
                       id="pageCount"
@@ -169,9 +170,12 @@ export default function EditBook(
                         event: React.ChangeEvent<HTMLInputElement>
                       ): void => setPageCount(event.target.value)}
                       required
+                      sx={{
+                        width: 120,
+                      }}
                     />
                   </div>
-                  <div className="flex w-4/5 space-x-10">
+                  <div className="flex justify-center space-x-10">
                     <TextField
                       id="thickness"
                       label="Thickness"
@@ -185,6 +189,9 @@ export default function EditBook(
                         ),
                       }}
                       required
+                      sx={{
+                        width: 150,
+                      }}
                     />
                     <TextField
                       id="width"
@@ -199,6 +206,9 @@ export default function EditBook(
                         ),
                       }}
                       required
+                      sx={{
+                        width: 150,
+                      }}
                     />
                     <TextField
                       id="height"
@@ -213,9 +223,12 @@ export default function EditBook(
                         ),
                       }}
                       required
+                      sx={{
+                        width: 150,
+                      }}
                     />
                   </div>
-                  <div className="flex w-4/5 space-x-10">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
                       <FormLabel>Genre Name</FormLabel>
                       <FormHelperText>Select a genre by name</FormHelperText>
@@ -232,7 +245,7 @@ export default function EditBook(
                         onInputChange={(event, newInputValue: string) => {
                           setGenreInputValue(newInputValue);
                         }}
-                        sx={{ width: 425 }}
+                        sx={{ width: 400 }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -245,20 +258,11 @@ export default function EditBook(
                     </FormControl>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <button
-                    className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
-                    type="button"
-                    onClick={handleSubmit}
-                  >
-                    {isSubmitting ? "Submitting..." : "Submit"}
-                  </button>
-                </div>
-                <div>
+                <div className="flex space-x-5 justify-center inline-block pt-6">
                   <input
                     type="file"
                     onChange={handleFileChange}
-                    className="rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+                    className="rounded bg-blue-500 py-2 px-4 font-bold text-white"
                   />
 
                   <div>{file && `${file.name}`}</div>
@@ -270,6 +274,15 @@ export default function EditBook(
                     Upload
                   </button>
                   <ToastContainer></ToastContainer>
+                </div>
+                <div className="flex items-center justify-between pt-4">
+                  <button
+                    className="flex space focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                    type="button"
+                    onClick={handleSubmit}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit"}
+                  </button>
                 </div>
               </div>
             </div>
