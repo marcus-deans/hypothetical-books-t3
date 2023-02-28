@@ -15,6 +15,7 @@ import React, { MouseEventHandler, useState } from "react";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -118,6 +119,7 @@ export default function EditBook(
       );
       return;
     }
+    toast.success("Added Image")
     //Implement API call to send image back
   };
 
@@ -269,12 +271,13 @@ export default function EditBook(
                   >
                     Upload
                   </button>
-                  <ToastContainer></ToastContainer>
                 </div>
               </div>
             </div>
           </div>
         </form>
+        <ToastContainer></ToastContainer>
+
       </div>
     </>
   );
