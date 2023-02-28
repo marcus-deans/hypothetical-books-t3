@@ -10,6 +10,7 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
+import Image from "next/Image";
 import type { GridColDef } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
@@ -26,6 +27,29 @@ export default function Books(
   const books = booksQuery?.data?.items ?? [];
 
   const columns: GridColDef[] = [
+    {
+      field: "image",
+      headerName: "Cover",
+      headerClassName: "header-theme",
+      flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <Link href={`/books/${params.id}/detail`}>
+            <div className="hover:cursor-pointer flex justify-center items-center">
+            <Image
+              src={params.row.imgLink}
+              alt="clickable image"
+              width={50}
+              height={50}
+              />
+             </div>
+              </Link>
+          </div>
+        );
+      },
+    },
     {
       field: "title",
       headerName: "Title",
@@ -85,6 +109,7 @@ export default function Books(
       retailPrice: `$${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
+      imgLink : "https://images.pexels.com/photos/3358707/pexels-photo-3358707.png"
     };
   });
 
