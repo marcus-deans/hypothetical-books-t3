@@ -24,15 +24,16 @@ import type {
     const [parsedHeaders, setParsedHeaders] = useState<string[]>();
     const [parsedCsvData, setParsedCsvData] = useState<purchaseOrdersInput[]>();
     const [file, setFile] = useState<File>();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const headersVerified = api.csvPorts.verifyPurchaseHeaders.useQuery({
       headers: parsedHeaders
     }, {enabled: !!parsedHeaders});
     const importVerified =
     api.csvPorts.verifyPurchaseCSV.useQuery(
       parsedCsvData,
-      { enabled: !!headersVerified.data?.verified }
-    );
-  
+      { enabled: headersVerified.data?.verified });
+    const mutatedImport = 
+    api.csvPorts.addPurchaseImport.useMutation();
   
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
@@ -60,7 +61,6 @@ import type {
           setParsedHeaders(results.meta.fields);
           const parsedData: purchaseOrdersInput[] = [];
           results.data.forEach(function (value){
-
             parsedData.push(value as purchaseOrdersInput);
           })
           setParsedCsvData(parsedData);
@@ -73,6 +73,28 @@ import type {
       }, 500);
 
       */
+    }
+    const handleSubmit = (event: React.MouseEvent<HTMLElement>) => {
+      setIsSubmitting(true);
+      try{
+        const parsedData = importVerified.data?.parsedData;
+        if(parsedData === undefined){
+          toast.error("You must upload a file first")
+          setIsSubmitting(false);
+          return;
+        }
+        mutatedImport.mutate({
+          data: parsedData,
+          purchaseOrderId: id,
+        })
+        setTimeout(() => {
+          void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
+        }, 500);
+      }
+      catch (error){
+        console.log(error);
+        setIsSubmitting(false);
+      }
     }
   
     return (
@@ -89,16 +111,23 @@ import type {
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div>
-        <input type="file" onChange={handleFileChange} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"/>
-  
-        <div>{file && `${file.name}`}</div>
-  
-        <button onClick = {handleUpload} className="padding-top:10px bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Upload</button>
-                                <ToastContainer></ToastContainer>
-  
-      </div>
+                  <input type="file" onChange={handleFileChange} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"/>
+                  <div>{file && `${file.name}`}</div>
+                  <button onClick = {handleUpload} className="padding-top:10px bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Upload</button>
+                    <ToastContainer></ToastContainer>
+                </div>
               </div>
             </div>
+            <div className="flex items-center justify-between">
+                <button
+                  className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                  type="button"
+                  onClick={handleSubmit}
+                >
+                  {isSubmitting ? "Submitting..." : "Submit"}
+                </button>
+              </div>
+              <div></div>
           </div>
         </form>
       </div>

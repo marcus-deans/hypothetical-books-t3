@@ -1,8 +1,10 @@
 import { number, z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import type { purchaseOrdersInput} from "../../../schema/imports.schema";
-import { purchaseOrdersInputSchema, purchaseOrdersInputUnknownSchema } from "../../../schema/imports.schema";
+import type { purchaseOrdersInput, purchaseOrdersInputId} from "../../../schema/imports.schema";
+import { purchaseOrdersInputSchema, purchaseOrdersInputIdSchema } from "../../../schema/imports.schema";
+import { api } from "../../../utils/api";
+import { prisma } from "../../db";
 
 export const csvPortsRouter = createTRPCRouter({
   verifyPurchaseHeaders: publicProcedure
@@ -46,7 +48,7 @@ export const csvPortsRouter = createTRPCRouter({
       z.object({
         verified: z.boolean(),
         message: z.string(),
-        parsedData: z.array(purchaseOrdersInputSchema.nullable())
+        parsedData: z.array(purchaseOrdersInputIdSchema)
       })
     )
 		// eslint-disable-next-line @typescript-eslint/require-await
@@ -58,45 +60,114 @@ export const csvPortsRouter = createTRPCRouter({
           parsedData: []
         }
       }
-      let verified = true;
-      let message = "Verified";
-      const parsedData: purchaseOrdersInput[] = [];
-			input.forEach(function (entry, index){
-        const newEntry: purchaseOrdersInput = {isbn_13: -1, quantity: -1, unit_wholesale_price: -1}
-        newEntry.isbn_13 = entry.isbn_13;
+      const parsedData: purchaseOrdersInputId[] = [];
+			for (const entry of input){
+        const newEntry: purchaseOrdersInputId = {bookId: "", quantity: -1, unit_wholesale_price: -1}
+        const isbn_13 = entry.isbn_13.toString();
+        const bookInDatabase = await prisma.book.findFirst({
+          where: { isbn_13 } ,
+        })
+        if(!bookInDatabase){
+          return{
+            verified: false,
+            message: "Book with Isbn-13: " + entry.isbn_13.toString() + " is not in the database",
+            parsedData: [],
+          };
+        }
+        bookInDatabase?.id;
+        newEntry.bookId = bookInDatabase.id;
+        const quantityString = entry.quantity.toString();
+        const quantitySplit = quantityString.split(".");
+        if(quantitySplit.length > 1){
+          return {
+            verified: false,
+            message: "Book with Isbn-13: " + entry.isbn_13.toString() + " has a decimal quantity",
+            parsedData: [],
+          }
+        }
+        const unitPriceString = entry.unit_wholesale_price.toString();
+        const unitPriceSplit = unitPriceString.split(".");
+        if(unitPriceSplit.length > 1){
+          if(unitPriceSplit[1] && unitPriceSplit[1].length > 2){
+            return {
+              verified: false,
+              message: "Book with Isbn-13: " + entry.isbn_13.toString() + " has a a price with more than 3 decimal places",
+              parsedData: [],
+            }
+          }
+        }
         newEntry.quantity = entry.quantity;
         newEntry.unit_wholesale_price = entry.unit_wholesale_price;
-        if(newEntry.isbn_13 == -1 || newEntry.quantity == -1 || newEntry.unit_wholesale_price == -1){
-          verified = false;
-          message = "Not taking data";
+        if(newEntry.bookId == "" || newEntry.quantity == -1 || newEntry.unit_wholesale_price == -1){
+          return{
+            verified: false,
+            message: "Data not filled on line with book ISBN-13: " + entry.isbn_13.toString(),
+            parsedData: []
+          }
         }
         parsedData.push(newEntry);
-        /*
-        if(verified == false){
-          return;
-        }
-        console.log(typeof entry);
-        const newEntry = entry as number[];
-        const created:purchaseOrdersInput = {isbn_13:"", quantity:"", unit_wholesale_price:""};
-        console.log(typeof newEntry[0]);
-        const a = newEntry[0] as number;
-        console.log(a)
-        if(newEntry[0]){
-          created.isbn_13 = newEntry[0].toString();
-        }
-        if(newEntry[1]){
-          created.quantity = newEntry[1].toString();
-        }
-        if(newEntry[2]){
-          created.unit_wholesale_price = newEntry[2].toString();
-        }
-        parsedData.push(created);
-        */
-      })
+      }
       return{
-        verified,
-        message,
-        parsedData
+        verified: true,
+        message: "Data Successfully Parsed",
+        parsedData: parsedData
       }
     }),
+  addPurchaseImport: publicProcedure
+    .input(
+      z.object({
+        data: z.array(
+          purchaseOrdersInputIdSchema
+          ).optional(),
+        purchaseOrderId: z.string(),
+      }))
+    .output(
+      z.object({
+        completed: z.boolean(),
+        message: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      let addedLines = 0;
+      if(!input.data){
+        return {
+          completed: false,
+          message: "No Input"
+        }
+      }
+      console.log("It has input")
+      for (const entry of input.data){
+        const purchaseLine = await prisma.purchaseLine.create({
+          data: {
+            book: {
+              connect: {
+                id: entry.bookId,
+              },
+            },
+            quantity: entry.quantity,
+            unitWholesalePrice: entry.unit_wholesale_price,
+            purchaseOrder: {
+              connect: {
+                id: input.purchaseOrderId,
+              },
+            },
+            display: true,
+          },
+        });
+        await prisma.book.update({
+          where: { id: entry.bookId },
+          data: {
+            inventoryCount: {
+              increment: entry.quantity,
+            },
+          },
+        });
+        addedLines++;
+      }
+      console.log("Got to end of for-loop")
+      return{
+        completed: true,
+        message: "Successfully added " + addedLines.toString() + " Purchase Order Lines"
+      }
+    })
 });
