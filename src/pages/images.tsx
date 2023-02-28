@@ -84,6 +84,7 @@ export default function ImagesPage() {
     // formData.append("Policy", data.Policy);
     // formData.append("X-Amz-Signature", data["X-Amz-Signature"]);
     for (const name in data) {
+      // @ts-ignore
       formData.append(name, data[name]);
     }
     await fetch(url, {
