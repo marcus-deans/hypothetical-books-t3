@@ -30,17 +30,19 @@ export default function BookDetail(
 
   const { data } = bookDetailsQuery;
 
-  const columns: GridColDef[] = [
+  const bookDetailColumns: GridColDef[] = [
     {
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
+      minWidth: 200,
       // flex: 1,
     },
     {
       field: "author",
       headerName: "Author",
       headerClassName: "header-theme",
+      minWidth: 150,
       // flex: 1,
     },
     {
@@ -114,6 +116,13 @@ export default function BookDetail(
       maxWidth: 70,
     },
     {
+      field: "thickness",
+      headerName: "Thickness",
+      headerClassName: "header-theme",
+      // flex: 1,
+      maxWidth: 90,
+    },
+    {
       field: "shelfSpace",
       headerName: "Shelf Space",
       headerClassName: "header-theme",
@@ -122,7 +131,7 @@ export default function BookDetail(
     },
     {
       field: "lastMonthSales",
-      headerName: "Monthly Sales",
+      headerName: "Last Month Sales",
       headerClassName: "header-theme",
       maxWidth: 105,
       // flex: 1,
@@ -140,13 +149,6 @@ export default function BookDetail(
       headerClassName: "header-theme",
       maxWidth: 100,
       // flex: 1,
-    },
-    {
-      field: "thickness",
-      headerName: "Thickness",
-      headerClassName: "header-theme",
-      // flex: 1,
-      maxWidth: 90,
     },
     {
       field: "edit",
@@ -234,7 +236,7 @@ export default function BookDetail(
   const bestBuybackString =
     bestBuybackPrice === 0 ? "-" : `$${bestBuybackPrice.toFixed(2)}`;
 
-  const rows = [
+  const bookDetailRows = [
     {
       id: data.id,
       title: data.title,
@@ -257,6 +259,163 @@ export default function BookDetail(
     },
   ];
 
+  const salesReconciliationsColumns: GridColDef[] = [
+    {
+      field: "id",
+      headerName: "Sales Reconciliation ID",
+      headerClassName: "header-theme",
+      flex: 1,
+    },
+    {
+      field: "date",
+      headerName: "Reconciliation Date",
+      headerClassName: "header-theme",
+      flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/sales/${params.id}/detail`}>{params.row.date} </a>
+          </div>
+        );
+      },
+    },
+    {
+      field: "unitWholesalePrice",
+      headerName: "Unit Wholesale Price",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 150,
+    },
+    {
+      field: "quantity",
+      headerName: "Quantity",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 80,
+    },
+  ];
+
+  const salesReconciliationsRows = data.salesLines.map((salesLine) => {
+    const salesReconciliation = salesLine.salesReconciliation;
+    return {
+      id: salesReconciliation.id,
+      date: salesReconciliation.date.toLocaleDateString(),
+      unitWholesalePrice: `$${salesLine.unitWholesalePrice.toFixed(2)}`,
+      quantity: salesLine.quantity,
+    };
+  });
+
+  const purchaseOrderColumns: GridColDef[] = [
+    {
+      field: "id",
+      headerName: "Purchase Order ID",
+      headerClassName: "header-theme",
+      flex: 1,
+    },
+    {
+      field: "date",
+      headerName: "Purchase Date",
+      headerClassName: "header-theme",
+      flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/purchases/${params.id}/detail`}>{params.row.date} </a>
+          </div>
+        );
+      },
+    },
+    {
+      field: "vendor",
+      headerName: "Vendor",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 250,
+    },
+    {
+      field: "unitWholesalePrice",
+      headerName: "Unit Wholesale Price",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 150,
+    },
+    {
+      field: "quantity",
+      headerName: "Quantity",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 80,
+    },
+  ];
+
+  const purchaseOrderRows = data.purchaseLines.map((purchaseLine) => {
+    const purchaseOrder = purchaseLine.purchaseOrder;
+    return {
+      id: purchaseOrder.id,
+      date: purchaseOrder.date.toLocaleDateString(),
+      vendor: purchaseOrder.vendor.name,
+      unitWholesalePrice: `$${purchaseLine.unitWholesalePrice.toFixed(2)}`,
+      quantity: purchaseLine.quantity,
+    };
+  });
+
+  const buybackOrderColumns: GridColDef[] = [
+    {
+      field: "id",
+      headerName: "Buyback ID",
+      headerClassName: "header-theme",
+      flex: 1,
+    },
+    {
+      field: "date",
+      headerName: "Buyback Date",
+      headerClassName: "header-theme",
+      flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/buybacks/${params.id}/detail`}>{params.row.date} </a>
+          </div>
+        );
+      },
+    },
+    {
+      field: "vendor",
+      headerName: "Vendor",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 250,
+    },
+    {
+      field: "unitBuybackPrice",
+      headerName: "Unit Buyback Price",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 150,
+    },
+    {
+      field: "quantity",
+      headerName: "Quantity",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 80,
+    },
+  ];
+
+  const buybackOrderRows = data.buybackLines.map((buybackLine) => {
+    const buybackOrder = buybackLine.buybackOrder;
+    return {
+      id: buybackOrder.id,
+      date: buybackOrder.date.toLocaleDateString(),
+      vendor: buybackOrder.vendor.name,
+      unitBuybackPrice: `$${buybackLine.unitBuybackPrice.toFixed(2)}`,
+      quantity: buybackLine.quantity,
+    };
+  });
+
   return (
     <>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
@@ -273,8 +432,8 @@ export default function BookDetail(
           }}
         >
           <StripedDataGrid
-            rows={rows}
-            columns={columns}
+            rows={bookDetailRows}
+            columns={bookDetailColumns}
             components={{
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
@@ -293,6 +452,117 @@ export default function BookDetail(
           />
         </Box>
         <div className="text-sm">*: Estimated dimension</div>
+        <div className="pt-8 text-lg">Sales Reconciliations</div>
+        <Box
+          sx={{
+            height: "auto",
+            maxHeight: 750,
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+          }}
+        >
+          <StripedDataGrid
+            rows={salesReconciliationsRows}
+            columns={salesReconciliationsColumns}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: false,
+                },
+              },
+            }}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
+            autoHeight={true}
+            getRowHeight={() => "auto"}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
+        <div className="pt-8 text-lg">Purchase Orders</div>
+        <Box
+          sx={{
+            height: "auto",
+            maxHeight: 750,
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+          }}
+        >
+          <StripedDataGrid
+            rows={purchaseOrderRows}
+            columns={purchaseOrderColumns}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: false,
+                },
+              },
+            }}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
+            autoHeight={true}
+            getRowHeight={() => "auto"}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
+        <div className="pt-8 text-lg">Buybacks</div>
+        <Box
+          sx={{
+            height: "auto",
+            maxHeight: 750,
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+          }}
+        >
+          <StripedDataGrid
+            rows={buybackOrderRows}
+            columns={buybackOrderColumns}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: false,
+                },
+              },
+            }}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={14}
+            rowsPerPageOptions={[14]}
+            autoHeight={true}
+            getRowHeight={() => "auto"}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
       </div>
     </>
   );
