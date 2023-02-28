@@ -224,17 +224,37 @@ export const booksRouter = createTRPCRouter({
         include: {
           authors: true,
           genre: true,
-          purchaseLines: true,
-          salesLines: {
+          purchaseLines: {
             include: {
-              salesReconciliation: {
-                select: {
-                  date: true,
+              purchaseOrder: {
+                include: {
+                  vendor: {
+                    select: {
+                      name: true,
+                    },
+                  },
                 },
               },
             },
           },
-          buybackLines: true,
+          salesLines: {
+            include: {
+              salesReconciliation: true,
+            },
+          },
+          buybackLines: {
+            include: {
+              buybackOrder: {
+                include: {
+                  vendor: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           costMostRecentVendor: {
             include: {
               vendor: true,
