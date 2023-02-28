@@ -218,6 +218,7 @@ export const vendorsRouter = createTRPCRouter({
         where: { id: input.id },
         data: {
           name: input.name,
+          buybackRate: input.buybackRate,
         },
       });
       return vendor;

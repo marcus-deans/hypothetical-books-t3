@@ -40,6 +40,17 @@ export default function SalesOrderDetail(
       headerName: "Book Title",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions */}
+            <a href={`/books/${params.row.bookId}/detail`}>
+              {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
+              {params.row.title}{" "}
+            </a>
+          </div>
+        );
+      },
     },
     {
       field: "isbn_13",
@@ -104,6 +115,7 @@ export default function SalesOrderDetail(
       return {
         id: salesLine.id,
         title: salesLine.book.title,
+        bookId: salesLine.book.id,
         isbn_13: salesLine.book.isbn_13,
         unitWholesalePrice: `$${salesLine.unitWholesalePrice.toFixed(2)}`,
         quantity: salesLine.quantity,
