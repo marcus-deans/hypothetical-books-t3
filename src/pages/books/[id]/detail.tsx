@@ -101,21 +101,21 @@ export default function BookDetail(
     },
     {
       field: "width",
-      headerName: "Width (in)",
+      headerName: "Width",
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 70,
     },
     {
       field: "height",
-      headerName: "Height (in)",
+      headerName: "Height",
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 70,
     },
     {
       field: "thickness",
-      headerName: "Thickness (in)",
+      headerName: "Thickness",
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 90,
@@ -181,18 +181,16 @@ export default function BookDetail(
       publicationYear: data.publicationYear,
       pageCount: data.pageCount,
       author: data.authors.map((author) => author.name).join(", "),
-      width: data.width,
-      thickness: data.thickness,
-      height: data.height,
+      width: `${data.width} in.`,
+      thickness: `${data.thickness} in.`,
+      height: `${data.height} in.`,
     },
   ];
 
   return (
     <>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl">
-          {"Book Details"}
-        </h1>
+        <h1 className="inline-block text-2xl">{"Book Details"}</h1>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
@@ -224,6 +222,7 @@ export default function BookDetail(
             }
           />
         </Box>
+        <div className="text-sm">*: Estimated dimension</div>
       </div>
     </>
   );
