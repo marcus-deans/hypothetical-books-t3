@@ -107,6 +107,17 @@ function Nav() {
                   Reports
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/calculator"
+                  className={
+                    /calculator\/*/.test(currentRoute) ? active : nonActive
+                  }
+                  aria-current="page"
+                >
+                  Calculator
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
