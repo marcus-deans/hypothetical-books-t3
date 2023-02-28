@@ -201,7 +201,7 @@ export default function Books(
           />
         </Box>
         <div className="text-sm">
-          *: Shelf space from estimated width of 0.8"
+          {'*: Shelf space from estimated width of 0.8"'}
         </div>
       </div>
     </>
