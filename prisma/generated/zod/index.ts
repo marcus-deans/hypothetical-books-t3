@@ -658,7 +658,6 @@ export const UserArgsSchema: z.ZodType<PrismaClient.Prisma.UserArgs> = z.object(
 export const UserIncludeSchema: z.ZodType<PrismaClient.Prisma.UserInclude> = z.object({
   accounts: z.union([z.boolean(), z.lazy(() => AccountFindManyArgsSchema)]).optional(),
   sessions: z.union([z.boolean(), z.lazy(() => SessionFindManyArgsSchema)]).optional(),
-  Image: z.union([z.boolean(), z.lazy(() => ImageFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => UserCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -669,7 +668,6 @@ export const UserCountOutputTypeArgsSchema: z.ZodType<PrismaClient.Prisma.UserCo
 export const UserCountOutputTypeSelectSchema: z.ZodType<PrismaClient.Prisma.UserCountOutputTypeSelect> = z.object({
   accounts: z.boolean().optional(),
   sessions: z.boolean().optional(),
-  Image: z.boolean().optional(),
 }).strict();
 
 export const UserSelectSchema: z.ZodType<PrismaClient.Prisma.UserSelect> = z.object({
@@ -677,7 +675,6 @@ export const UserSelectSchema: z.ZodType<PrismaClient.Prisma.UserSelect> = z.obj
   password: z.boolean().optional(),
   accounts: z.union([z.boolean(), z.lazy(() => AccountFindManyArgsSchema)]).optional(),
   sessions: z.union([z.boolean(), z.lazy(() => SessionFindManyArgsSchema)]).optional(),
-  Image: z.union([z.boolean(), z.lazy(() => ImageFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => UserCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -693,19 +690,9 @@ export const VerificationTokenSelectSchema: z.ZodType<PrismaClient.Prisma.Verifi
 // IMAGE
 //------------------------------------------------------
 
-export const ImageArgsSchema: z.ZodType<PrismaClient.Prisma.ImageArgs> = z.object({
-  select: z.lazy(() => ImageSelectSchema).optional(),
-  include: z.lazy(() => ImageIncludeSchema).optional(),
-}).strict();
-
-export const ImageIncludeSchema: z.ZodType<PrismaClient.Prisma.ImageInclude> = z.object({
-  user: z.union([z.boolean(), z.lazy(() => UserArgsSchema)]).optional(),
-}).strict();
-
 export const ImageSelectSchema: z.ZodType<PrismaClient.Prisma.ImageSelect> = z.object({
   id: z.boolean().optional(),
   userId: z.boolean().optional(),
-  user: z.union([z.boolean(), z.lazy(() => UserArgsSchema)]).optional(),
 }).strict();
 
 /////////////////////////////////////////
@@ -1454,7 +1441,6 @@ export const UserWhereInputSchema: z.ZodType<PrismaClient.Prisma.UserWhereInput>
   password: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   accounts: z.lazy(() => AccountListRelationFilterSchema).optional(),
   sessions: z.lazy(() => SessionListRelationFilterSchema).optional(),
-  Image: z.lazy(() => ImageListRelationFilterSchema).optional(),
 }).strict();
 
 export const UserOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.UserOrderByWithRelationInput> = z.object({
@@ -1462,7 +1448,6 @@ export const UserOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.U
   password: z.lazy(() => SortOrderSchema).optional(),
   accounts: z.lazy(() => AccountOrderByRelationAggregateInputSchema).optional(),
   sessions: z.lazy(() => SessionOrderByRelationAggregateInputSchema).optional(),
-  Image: z.lazy(() => ImageOrderByRelationAggregateInputSchema).optional(),
 }).strict();
 
 export const UserWhereUniqueInputSchema: z.ZodType<PrismaClient.Prisma.UserWhereUniqueInput> = z.object({
@@ -1529,13 +1514,11 @@ export const ImageWhereInputSchema: z.ZodType<PrismaClient.Prisma.ImageWhereInpu
   NOT: z.union([z.lazy(() => ImageWhereInputSchema), z.lazy(() => ImageWhereInputSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   userId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
-  user: z.union([z.lazy(() => UserRelationFilterSchema), z.lazy(() => UserWhereInputSchema)]).optional(),
 }).strict();
 
 export const ImageOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.ImageOrderByWithRelationInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
-  user: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
 }).strict();
 
 export const ImageWhereUniqueInputSchema: z.ZodType<PrismaClient.Prisma.ImageWhereUniqueInput> = z.object({
@@ -2441,7 +2424,6 @@ export const UserCreateInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateInpu
   password: z.string(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
-  Image: z.lazy(() => ImageCreateNestedManyWithoutUserInputSchema).optional(),
 }).strict();
 
 export const UserUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.UserUncheckedCreateInput> = z.object({
@@ -2449,7 +2431,6 @@ export const UserUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.UserU
   password: z.string(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
-  Image: z.lazy(() => ImageUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
 }).strict();
 
 export const UserUpdateInputSchema: z.ZodType<PrismaClient.Prisma.UserUpdateInput> = z.object({
@@ -2457,7 +2438,6 @@ export const UserUpdateInputSchema: z.ZodType<PrismaClient.Prisma.UserUpdateInpu
   password: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
-  Image: z.lazy(() => ImageUpdateManyWithoutUserNestedInputSchema).optional(),
 }).strict();
 
 export const UserUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.UserUncheckedUpdateInput> = z.object({
@@ -2465,7 +2445,6 @@ export const UserUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.UserU
   password: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
-  Image: z.lazy(() => ImageUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
 }).strict();
 
 export const UserCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateManyInput> = z.object({
@@ -2527,7 +2506,7 @@ export const VerificationTokenUncheckedUpdateManyInputSchema: z.ZodType<PrismaCl
 
 export const ImageCreateInputSchema: z.ZodType<PrismaClient.Prisma.ImageCreateInput> = z.object({
   id: z.string().cuid().optional(),
-  user: z.lazy(() => UserCreateNestedOneWithoutImageInputSchema),
+  userId: z.string(),
 }).strict();
 
 export const ImageUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.ImageUncheckedCreateInput> = z.object({
@@ -2537,7 +2516,7 @@ export const ImageUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.Imag
 
 export const ImageUpdateInputSchema: z.ZodType<PrismaClient.Prisma.ImageUpdateInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  user: z.lazy(() => UserUpdateOneRequiredWithoutImageNestedInputSchema).optional(),
+  userId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const ImageUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.ImageUncheckedUpdateInput> = z.object({
@@ -2552,6 +2531,7 @@ export const ImageCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.ImageCrea
 
 export const ImageUpdateManyMutationInputSchema: z.ZodType<PrismaClient.Prisma.ImageUpdateManyMutationInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  userId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const ImageUncheckedUpdateManyInputSchema: z.ZodType<PrismaClient.Prisma.ImageUncheckedUpdateManyInput> = z.object({
@@ -3314,21 +3294,11 @@ export const SessionListRelationFilterSchema: z.ZodType<PrismaClient.Prisma.Sess
   none: z.lazy(() => SessionWhereInputSchema).optional(),
 }).strict();
 
-export const ImageListRelationFilterSchema: z.ZodType<PrismaClient.Prisma.ImageListRelationFilter> = z.object({
-  every: z.lazy(() => ImageWhereInputSchema).optional(),
-  some: z.lazy(() => ImageWhereInputSchema).optional(),
-  none: z.lazy(() => ImageWhereInputSchema).optional(),
-}).strict();
-
 export const AccountOrderByRelationAggregateInputSchema: z.ZodType<PrismaClient.Prisma.AccountOrderByRelationAggregateInput> = z.object({
   _count: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
 export const SessionOrderByRelationAggregateInputSchema: z.ZodType<PrismaClient.Prisma.SessionOrderByRelationAggregateInput> = z.object({
-  _count: z.lazy(() => SortOrderSchema).optional(),
-}).strict();
-
-export const ImageOrderByRelationAggregateInputSchema: z.ZodType<PrismaClient.Prisma.ImageOrderByRelationAggregateInput> = z.object({
   _count: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
@@ -4261,13 +4231,6 @@ export const SessionCreateNestedManyWithoutUserInputSchema: z.ZodType<PrismaClie
   connect: z.union([z.lazy(() => SessionWhereUniqueInputSchema), z.lazy(() => SessionWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
-export const ImageCreateNestedManyWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageCreateNestedManyWithoutUserInput> = z.object({
-  create: z.union([z.lazy(() => ImageCreateWithoutUserInputSchema), z.lazy(() => ImageCreateWithoutUserInputSchema).array(), z.lazy(() => ImageUncheckedCreateWithoutUserInputSchema), z.lazy(() => ImageUncheckedCreateWithoutUserInputSchema).array()]).optional(),
-  connectOrCreate: z.union([z.lazy(() => ImageCreateOrConnectWithoutUserInputSchema), z.lazy(() => ImageCreateOrConnectWithoutUserInputSchema).array()]).optional(),
-  createMany: z.lazy(() => ImageCreateManyUserInputEnvelopeSchema).optional(),
-  connect: z.union([z.lazy(() => ImageWhereUniqueInputSchema), z.lazy(() => ImageWhereUniqueInputSchema).array()]).optional(),
-}).strict();
-
 export const AccountUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.AccountUncheckedCreateNestedManyWithoutUserInput> = z.object({
   create: z.union([z.lazy(() => AccountCreateWithoutUserInputSchema), z.lazy(() => AccountCreateWithoutUserInputSchema).array(), z.lazy(() => AccountUncheckedCreateWithoutUserInputSchema), z.lazy(() => AccountUncheckedCreateWithoutUserInputSchema).array()]).optional(),
   connectOrCreate: z.union([z.lazy(() => AccountCreateOrConnectWithoutUserInputSchema), z.lazy(() => AccountCreateOrConnectWithoutUserInputSchema).array()]).optional(),
@@ -4280,13 +4243,6 @@ export const SessionUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<P
   connectOrCreate: z.union([z.lazy(() => SessionCreateOrConnectWithoutUserInputSchema), z.lazy(() => SessionCreateOrConnectWithoutUserInputSchema).array()]).optional(),
   createMany: z.lazy(() => SessionCreateManyUserInputEnvelopeSchema).optional(),
   connect: z.union([z.lazy(() => SessionWhereUniqueInputSchema), z.lazy(() => SessionWhereUniqueInputSchema).array()]).optional(),
-}).strict();
-
-export const ImageUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageUncheckedCreateNestedManyWithoutUserInput> = z.object({
-  create: z.union([z.lazy(() => ImageCreateWithoutUserInputSchema), z.lazy(() => ImageCreateWithoutUserInputSchema).array(), z.lazy(() => ImageUncheckedCreateWithoutUserInputSchema), z.lazy(() => ImageUncheckedCreateWithoutUserInputSchema).array()]).optional(),
-  connectOrCreate: z.union([z.lazy(() => ImageCreateOrConnectWithoutUserInputSchema), z.lazy(() => ImageCreateOrConnectWithoutUserInputSchema).array()]).optional(),
-  createMany: z.lazy(() => ImageCreateManyUserInputEnvelopeSchema).optional(),
-  connect: z.union([z.lazy(() => ImageWhereUniqueInputSchema), z.lazy(() => ImageWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
 export const AccountUpdateManyWithoutUserNestedInputSchema: z.ZodType<PrismaClient.Prisma.AccountUpdateManyWithoutUserNestedInput> = z.object({
@@ -4317,20 +4273,6 @@ export const SessionUpdateManyWithoutUserNestedInputSchema: z.ZodType<PrismaClie
   deleteMany: z.union([z.lazy(() => SessionScalarWhereInputSchema), z.lazy(() => SessionScalarWhereInputSchema).array()]).optional(),
 }).strict();
 
-export const ImageUpdateManyWithoutUserNestedInputSchema: z.ZodType<PrismaClient.Prisma.ImageUpdateManyWithoutUserNestedInput> = z.object({
-  create: z.union([z.lazy(() => ImageCreateWithoutUserInputSchema), z.lazy(() => ImageCreateWithoutUserInputSchema).array(), z.lazy(() => ImageUncheckedCreateWithoutUserInputSchema), z.lazy(() => ImageUncheckedCreateWithoutUserInputSchema).array()]).optional(),
-  connectOrCreate: z.union([z.lazy(() => ImageCreateOrConnectWithoutUserInputSchema), z.lazy(() => ImageCreateOrConnectWithoutUserInputSchema).array()]).optional(),
-  upsert: z.union([z.lazy(() => ImageUpsertWithWhereUniqueWithoutUserInputSchema), z.lazy(() => ImageUpsertWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
-  createMany: z.lazy(() => ImageCreateManyUserInputEnvelopeSchema).optional(),
-  set: z.union([z.lazy(() => ImageWhereUniqueInputSchema), z.lazy(() => ImageWhereUniqueInputSchema).array()]).optional(),
-  disconnect: z.union([z.lazy(() => ImageWhereUniqueInputSchema), z.lazy(() => ImageWhereUniqueInputSchema).array()]).optional(),
-  delete: z.union([z.lazy(() => ImageWhereUniqueInputSchema), z.lazy(() => ImageWhereUniqueInputSchema).array()]).optional(),
-  connect: z.union([z.lazy(() => ImageWhereUniqueInputSchema), z.lazy(() => ImageWhereUniqueInputSchema).array()]).optional(),
-  update: z.union([z.lazy(() => ImageUpdateWithWhereUniqueWithoutUserInputSchema), z.lazy(() => ImageUpdateWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
-  updateMany: z.union([z.lazy(() => ImageUpdateManyWithWhereWithoutUserInputSchema), z.lazy(() => ImageUpdateManyWithWhereWithoutUserInputSchema).array()]).optional(),
-  deleteMany: z.union([z.lazy(() => ImageScalarWhereInputSchema), z.lazy(() => ImageScalarWhereInputSchema).array()]).optional(),
-}).strict();
-
 export const AccountUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodType<PrismaClient.Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput> = z.object({
   create: z.union([z.lazy(() => AccountCreateWithoutUserInputSchema), z.lazy(() => AccountCreateWithoutUserInputSchema).array(), z.lazy(() => AccountUncheckedCreateWithoutUserInputSchema), z.lazy(() => AccountUncheckedCreateWithoutUserInputSchema).array()]).optional(),
   connectOrCreate: z.union([z.lazy(() => AccountCreateOrConnectWithoutUserInputSchema), z.lazy(() => AccountCreateOrConnectWithoutUserInputSchema).array()]).optional(),
@@ -4357,34 +4299,6 @@ export const SessionUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodType<P
   update: z.union([z.lazy(() => SessionUpdateWithWhereUniqueWithoutUserInputSchema), z.lazy(() => SessionUpdateWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
   updateMany: z.union([z.lazy(() => SessionUpdateManyWithWhereWithoutUserInputSchema), z.lazy(() => SessionUpdateManyWithWhereWithoutUserInputSchema).array()]).optional(),
   deleteMany: z.union([z.lazy(() => SessionScalarWhereInputSchema), z.lazy(() => SessionScalarWhereInputSchema).array()]).optional(),
-}).strict();
-
-export const ImageUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodType<PrismaClient.Prisma.ImageUncheckedUpdateManyWithoutUserNestedInput> = z.object({
-  create: z.union([z.lazy(() => ImageCreateWithoutUserInputSchema), z.lazy(() => ImageCreateWithoutUserInputSchema).array(), z.lazy(() => ImageUncheckedCreateWithoutUserInputSchema), z.lazy(() => ImageUncheckedCreateWithoutUserInputSchema).array()]).optional(),
-  connectOrCreate: z.union([z.lazy(() => ImageCreateOrConnectWithoutUserInputSchema), z.lazy(() => ImageCreateOrConnectWithoutUserInputSchema).array()]).optional(),
-  upsert: z.union([z.lazy(() => ImageUpsertWithWhereUniqueWithoutUserInputSchema), z.lazy(() => ImageUpsertWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
-  createMany: z.lazy(() => ImageCreateManyUserInputEnvelopeSchema).optional(),
-  set: z.union([z.lazy(() => ImageWhereUniqueInputSchema), z.lazy(() => ImageWhereUniqueInputSchema).array()]).optional(),
-  disconnect: z.union([z.lazy(() => ImageWhereUniqueInputSchema), z.lazy(() => ImageWhereUniqueInputSchema).array()]).optional(),
-  delete: z.union([z.lazy(() => ImageWhereUniqueInputSchema), z.lazy(() => ImageWhereUniqueInputSchema).array()]).optional(),
-  connect: z.union([z.lazy(() => ImageWhereUniqueInputSchema), z.lazy(() => ImageWhereUniqueInputSchema).array()]).optional(),
-  update: z.union([z.lazy(() => ImageUpdateWithWhereUniqueWithoutUserInputSchema), z.lazy(() => ImageUpdateWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
-  updateMany: z.union([z.lazy(() => ImageUpdateManyWithWhereWithoutUserInputSchema), z.lazy(() => ImageUpdateManyWithWhereWithoutUserInputSchema).array()]).optional(),
-  deleteMany: z.union([z.lazy(() => ImageScalarWhereInputSchema), z.lazy(() => ImageScalarWhereInputSchema).array()]).optional(),
-}).strict();
-
-export const UserCreateNestedOneWithoutImageInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateNestedOneWithoutImageInput> = z.object({
-  create: z.union([z.lazy(() => UserCreateWithoutImageInputSchema), z.lazy(() => UserUncheckedCreateWithoutImageInputSchema)]).optional(),
-  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutImageInputSchema).optional(),
-  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
-}).strict();
-
-export const UserUpdateOneRequiredWithoutImageNestedInputSchema: z.ZodType<PrismaClient.Prisma.UserUpdateOneRequiredWithoutImageNestedInput> = z.object({
-  create: z.union([z.lazy(() => UserCreateWithoutImageInputSchema), z.lazy(() => UserUncheckedCreateWithoutImageInputSchema)]).optional(),
-  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutImageInputSchema).optional(),
-  upsert: z.lazy(() => UserUpsertWithoutImageInputSchema).optional(),
-  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
-  update: z.union([z.lazy(() => UserUpdateWithoutImageInputSchema), z.lazy(() => UserUncheckedUpdateWithoutImageInputSchema)]).optional(),
 }).strict();
 
 export const NestedStringFilterSchema: z.ZodType<PrismaClient.Prisma.NestedStringFilter> = z.object({
@@ -6089,14 +6003,12 @@ export const UserCreateWithoutAccountsInputSchema: z.ZodType<PrismaClient.Prisma
   id: z.string().optional(),
   password: z.string(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
-  Image: z.lazy(() => ImageCreateNestedManyWithoutUserInputSchema).optional(),
 }).strict();
 
 export const UserUncheckedCreateWithoutAccountsInputSchema: z.ZodType<PrismaClient.Prisma.UserUncheckedCreateWithoutAccountsInput> = z.object({
   id: z.string().optional(),
   password: z.string(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
-  Image: z.lazy(() => ImageUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
 }).strict();
 
 export const UserCreateOrConnectWithoutAccountsInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateOrConnectWithoutAccountsInput> = z.object({
@@ -6113,28 +6025,24 @@ export const UserUpdateWithoutAccountsInputSchema: z.ZodType<PrismaClient.Prisma
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   password: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
-  Image: z.lazy(() => ImageUpdateManyWithoutUserNestedInputSchema).optional(),
 }).strict();
 
 export const UserUncheckedUpdateWithoutAccountsInputSchema: z.ZodType<PrismaClient.Prisma.UserUncheckedUpdateWithoutAccountsInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   password: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
-  Image: z.lazy(() => ImageUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
 }).strict();
 
 export const UserCreateWithoutSessionsInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateWithoutSessionsInput> = z.object({
   id: z.string().optional(),
   password: z.string(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
-  Image: z.lazy(() => ImageCreateNestedManyWithoutUserInputSchema).optional(),
 }).strict();
 
 export const UserUncheckedCreateWithoutSessionsInputSchema: z.ZodType<PrismaClient.Prisma.UserUncheckedCreateWithoutSessionsInput> = z.object({
   id: z.string().optional(),
   password: z.string(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
-  Image: z.lazy(() => ImageUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
 }).strict();
 
 export const UserCreateOrConnectWithoutSessionsInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateOrConnectWithoutSessionsInput> = z.object({
@@ -6151,14 +6059,12 @@ export const UserUpdateWithoutSessionsInputSchema: z.ZodType<PrismaClient.Prisma
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   password: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
-  Image: z.lazy(() => ImageUpdateManyWithoutUserNestedInputSchema).optional(),
 }).strict();
 
 export const UserUncheckedUpdateWithoutSessionsInputSchema: z.ZodType<PrismaClient.Prisma.UserUncheckedUpdateWithoutSessionsInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   password: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
-  Image: z.lazy(() => ImageUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
 }).strict();
 
 export const AccountCreateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.AccountCreateWithoutUserInput> = z.object({
@@ -6221,24 +6127,6 @@ export const SessionCreateManyUserInputEnvelopeSchema: z.ZodType<PrismaClient.Pr
   skipDuplicates: z.boolean().optional(),
 }).strict();
 
-export const ImageCreateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageCreateWithoutUserInput> = z.object({
-  id: z.string().optional(),
-}).strict();
-
-export const ImageUncheckedCreateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageUncheckedCreateWithoutUserInput> = z.object({
-  id: z.string().optional(),
-}).strict();
-
-export const ImageCreateOrConnectWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageCreateOrConnectWithoutUserInput> = z.object({
-  where: z.lazy(() => ImageWhereUniqueInputSchema),
-  create: z.union([z.lazy(() => ImageCreateWithoutUserInputSchema), z.lazy(() => ImageUncheckedCreateWithoutUserInputSchema)]),
-}).strict();
-
-export const ImageCreateManyUserInputEnvelopeSchema: z.ZodType<PrismaClient.Prisma.ImageCreateManyUserInputEnvelope> = z.object({
-  data: z.lazy(() => ImageCreateManyUserInputSchema).array(),
-  skipDuplicates: z.boolean().optional(),
-}).strict();
-
 export const AccountUpsertWithWhereUniqueWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.AccountUpsertWithWhereUniqueWithoutUserInput> = z.object({
   where: z.lazy(() => AccountWhereUniqueInputSchema),
   update: z.union([z.lazy(() => AccountUpdateWithoutUserInputSchema), z.lazy(() => AccountUncheckedUpdateWithoutUserInputSchema)]),
@@ -6297,68 +6185,6 @@ export const SessionScalarWhereInputSchema: z.ZodType<PrismaClient.Prisma.Sessio
   sessionToken: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   userId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   expires: z.union([z.lazy(() => DateTimeFilterSchema), z.date()]).optional(),
-}).strict();
-
-export const ImageUpsertWithWhereUniqueWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageUpsertWithWhereUniqueWithoutUserInput> = z.object({
-  where: z.lazy(() => ImageWhereUniqueInputSchema),
-  update: z.union([z.lazy(() => ImageUpdateWithoutUserInputSchema), z.lazy(() => ImageUncheckedUpdateWithoutUserInputSchema)]),
-  create: z.union([z.lazy(() => ImageCreateWithoutUserInputSchema), z.lazy(() => ImageUncheckedCreateWithoutUserInputSchema)]),
-}).strict();
-
-export const ImageUpdateWithWhereUniqueWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageUpdateWithWhereUniqueWithoutUserInput> = z.object({
-  where: z.lazy(() => ImageWhereUniqueInputSchema),
-  data: z.union([z.lazy(() => ImageUpdateWithoutUserInputSchema), z.lazy(() => ImageUncheckedUpdateWithoutUserInputSchema)]),
-}).strict();
-
-export const ImageUpdateManyWithWhereWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageUpdateManyWithWhereWithoutUserInput> = z.object({
-  where: z.lazy(() => ImageScalarWhereInputSchema),
-  data: z.union([z.lazy(() => ImageUpdateManyMutationInputSchema), z.lazy(() => ImageUncheckedUpdateManyWithoutImageInputSchema)]),
-}).strict();
-
-export const ImageScalarWhereInputSchema: z.ZodType<PrismaClient.Prisma.ImageScalarWhereInput> = z.object({
-  AND: z.union([z.lazy(() => ImageScalarWhereInputSchema), z.lazy(() => ImageScalarWhereInputSchema).array()]).optional(),
-  OR: z.lazy(() => ImageScalarWhereInputSchema).array().optional(),
-  NOT: z.union([z.lazy(() => ImageScalarWhereInputSchema), z.lazy(() => ImageScalarWhereInputSchema).array()]).optional(),
-  id: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
-  userId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
-}).strict();
-
-export const UserCreateWithoutImageInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateWithoutImageInput> = z.object({
-  id: z.string().optional(),
-  password: z.string(),
-  accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
-  sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
-}).strict();
-
-export const UserUncheckedCreateWithoutImageInputSchema: z.ZodType<PrismaClient.Prisma.UserUncheckedCreateWithoutImageInput> = z.object({
-  id: z.string().optional(),
-  password: z.string(),
-  accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
-  sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
-}).strict();
-
-export const UserCreateOrConnectWithoutImageInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateOrConnectWithoutImageInput> = z.object({
-  where: z.lazy(() => UserWhereUniqueInputSchema),
-  create: z.union([z.lazy(() => UserCreateWithoutImageInputSchema), z.lazy(() => UserUncheckedCreateWithoutImageInputSchema)]),
-}).strict();
-
-export const UserUpsertWithoutImageInputSchema: z.ZodType<PrismaClient.Prisma.UserUpsertWithoutImageInput> = z.object({
-  update: z.union([z.lazy(() => UserUpdateWithoutImageInputSchema), z.lazy(() => UserUncheckedUpdateWithoutImageInputSchema)]),
-  create: z.union([z.lazy(() => UserCreateWithoutImageInputSchema), z.lazy(() => UserUncheckedCreateWithoutImageInputSchema)]),
-}).strict();
-
-export const UserUpdateWithoutImageInputSchema: z.ZodType<PrismaClient.Prisma.UserUpdateWithoutImageInput> = z.object({
-  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  password: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
-  sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
-}).strict();
-
-export const UserUncheckedUpdateWithoutImageInputSchema: z.ZodType<PrismaClient.Prisma.UserUncheckedUpdateWithoutImageInput> = z.object({
-  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  password: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-  accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
-  sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
 }).strict();
 
 export const PurchaseLineCreateManyBookInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseLineCreateManyBookInput> = z.object({
@@ -6811,10 +6637,6 @@ export const SessionCreateManyUserInputSchema: z.ZodType<PrismaClient.Prisma.Ses
   expires: z.date(),
 }).strict();
 
-export const ImageCreateManyUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageCreateManyUserInput> = z.object({
-  id: z.string().cuid().optional(),
-}).strict();
-
 export const AccountUpdateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.AccountUpdateWithoutUserInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   type: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
@@ -6873,18 +6695,6 @@ export const SessionUncheckedUpdateManyWithoutSessionsInputSchema: z.ZodType<Pri
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   sessionToken: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   expires: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
-}).strict();
-
-export const ImageUpdateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageUpdateWithoutUserInput> = z.object({
-  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-}).strict();
-
-export const ImageUncheckedUpdateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.ImageUncheckedUpdateWithoutUserInput> = z.object({
-  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
-}).strict();
-
-export const ImageUncheckedUpdateManyWithoutImageInputSchema: z.ZodType<PrismaClient.Prisma.ImageUncheckedUpdateManyWithoutImageInput> = z.object({
-  id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 /////////////////////////////////////////
@@ -7935,7 +7745,6 @@ export const VerificationTokenFindUniqueOrThrowArgsSchema: z.ZodType<PrismaClien
 
 export const ImageFindFirstArgsSchema: z.ZodType<PrismaClient.Prisma.ImageFindFirstArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   where: ImageWhereInputSchema.optional(),
   orderBy: z.union([ImageOrderByWithRelationInputSchema.array(), ImageOrderByWithRelationInputSchema]).optional(),
   cursor: ImageWhereUniqueInputSchema.optional(),
@@ -7946,7 +7755,6 @@ export const ImageFindFirstArgsSchema: z.ZodType<PrismaClient.Prisma.ImageFindFi
 
 export const ImageFindFirstOrThrowArgsSchema: z.ZodType<PrismaClient.Prisma.ImageFindFirstOrThrowArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   where: ImageWhereInputSchema.optional(),
   orderBy: z.union([ImageOrderByWithRelationInputSchema.array(), ImageOrderByWithRelationInputSchema]).optional(),
   cursor: ImageWhereUniqueInputSchema.optional(),
@@ -7957,7 +7765,6 @@ export const ImageFindFirstOrThrowArgsSchema: z.ZodType<PrismaClient.Prisma.Imag
 
 export const ImageFindManyArgsSchema: z.ZodType<PrismaClient.Prisma.ImageFindManyArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   where: ImageWhereInputSchema.optional(),
   orderBy: z.union([ImageOrderByWithRelationInputSchema.array(), ImageOrderByWithRelationInputSchema]).optional(),
   cursor: ImageWhereUniqueInputSchema.optional(),
@@ -7968,7 +7775,6 @@ export const ImageFindManyArgsSchema: z.ZodType<PrismaClient.Prisma.ImageFindMan
 
 export const ImageAggregateArgsSchema: z.ZodType<PrismaClient.Prisma.ImageAggregateArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   where: ImageWhereInputSchema.optional(),
   orderBy: z.union([ImageOrderByWithRelationInputSchema.array(), ImageOrderByWithRelationInputSchema]).optional(),
   cursor: ImageWhereUniqueInputSchema.optional(),
@@ -7978,7 +7784,6 @@ export const ImageAggregateArgsSchema: z.ZodType<PrismaClient.Prisma.ImageAggreg
 
 export const ImageGroupByArgsSchema: z.ZodType<PrismaClient.Prisma.ImageGroupByArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   where: ImageWhereInputSchema.optional(),
   orderBy: z.union([ImageOrderByWithAggregationInputSchema.array(), ImageOrderByWithAggregationInputSchema]).optional(),
   by: ImageScalarFieldEnumSchema.array(),
@@ -7989,13 +7794,11 @@ export const ImageGroupByArgsSchema: z.ZodType<PrismaClient.Prisma.ImageGroupByA
 
 export const ImageFindUniqueArgsSchema: z.ZodType<PrismaClient.Prisma.ImageFindUniqueArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   where: ImageWhereUniqueInputSchema,
 }).strict();
 
 export const ImageFindUniqueOrThrowArgsSchema: z.ZodType<PrismaClient.Prisma.ImageFindUniqueOrThrowArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   where: ImageWhereUniqueInputSchema,
 }).strict();
 
@@ -8649,13 +8452,11 @@ export const VerificationTokenDeleteManyArgsSchema: z.ZodType<PrismaClient.Prism
 
 export const ImageCreateArgsSchema: z.ZodType<PrismaClient.Prisma.ImageCreateArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   data: z.union([ImageCreateInputSchema, ImageUncheckedCreateInputSchema]),
 }).strict();
 
 export const ImageUpsertArgsSchema: z.ZodType<PrismaClient.Prisma.ImageUpsertArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   where: ImageWhereUniqueInputSchema,
   create: z.union([ImageCreateInputSchema, ImageUncheckedCreateInputSchema]),
   update: z.union([ImageUpdateInputSchema, ImageUncheckedUpdateInputSchema]),
@@ -8668,13 +8469,11 @@ export const ImageCreateManyArgsSchema: z.ZodType<PrismaClient.Prisma.ImageCreat
 
 export const ImageDeleteArgsSchema: z.ZodType<PrismaClient.Prisma.ImageDeleteArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   where: ImageWhereUniqueInputSchema,
 }).strict();
 
 export const ImageUpdateArgsSchema: z.ZodType<PrismaClient.Prisma.ImageUpdateArgs> = z.object({
   select: ImageSelectSchema.optional(),
-  include: ImageIncludeSchema.optional(),
   data: z.union([ImageUpdateInputSchema, ImageUncheckedUpdateInputSchema]),
   where: ImageWhereUniqueInputSchema,
 }).strict();

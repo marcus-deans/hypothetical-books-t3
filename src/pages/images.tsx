@@ -20,9 +20,11 @@ const ImageCard = ({
     <div className="mt-10 flex w-full flex-1 justify-center">
       <div className="w-full transform rounded-xl bg-white p-6 shadow-xl transition-all duration-500 hover:shadow-2xl">
         <Image
-          className="h-32 w-full object-cover"
+          className="object-cover"
           src={url}
           alt="user image"
+          width={300}
+          height={300}
         />
         <div className="mt-2 flex justify-end">
           <button
@@ -77,13 +79,13 @@ export default function ImagesPage() {
       file,
     };
     const formData = new FormData();
-    formData.append("Content-Type", data["Content-Type"]);
-    formData.append("File", data?.file);
-    formData.append("Policy", data.Policy);
-    formData.append("X-Amz-Signature", data["X-Amz-Signature"]);
-    // for (const name in data) {
-    //   formData.append(name, data[name]);
-    // }
+    // formData.append("Content-Type", data["Content-Type"]);
+    // formData.append("file", data?.file);
+    // formData.append("Policy", data.Policy);
+    // formData.append("X-Amz-Signature", data["X-Amz-Signature"]);
+    for (const name in data) {
+      formData.append(name, data[name]);
+    }
     await fetch(url, {
       method: "POST",
       body: formData,

@@ -14,5 +14,13 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'hypothetical-books-dev.s3.amazonaws.com',
+      },
+    ],
+  },
 };
 export default config;

@@ -12,6 +12,7 @@ const s3 = new AWS.S3();
 const BUCKET_NAME = env.AWS_S3_BUCKET ?? "hypothetical-books-dev";
 const UPLOADING_TIME_LIMIT = 30;
 const UPLOAD_MAX_FILE_SIZE = 1000000;
+const userId = "hypothetical-images";
 
 interface ImageMetadata extends Image {
   url: string;
@@ -26,14 +27,14 @@ export const imagesRouter = createTRPCRouter({
       });
     }
 
-    const userId = ctx.session.user?.id;
+    /*const userId = ctx.session.user?.id;
 
     if (!userId) {
       throw new TRPCError({
         message: "User not found",
         code: "NOT_FOUND",
       });
-    }
+    }*/
 
     const images = await prisma.image.findMany({
       where: {
@@ -65,14 +66,14 @@ export const imagesRouter = createTRPCRouter({
         });
       }
 
-      const userId = ctx?.session?.user?.id;
+      /*const userId = ctx?.session?.user?.id;
 
       if (!userId) {
         throw new TRPCError({
           message: "User not found",
           code: "NOT_FOUND",
         });
-      }
+      }*/
 
       const image = await prisma.image.findFirst({
         where: {
@@ -80,7 +81,7 @@ export const imagesRouter = createTRPCRouter({
         },
       });
 
-      if (!image || image.userId !== userId) {
+      if (!image) {
         throw new TRPCError({
           message: "Invalid image access",
           code: "NOT_FOUND",
@@ -109,14 +110,14 @@ export const imagesRouter = createTRPCRouter({
       });
     }
 
-    const userId = ctx.session.user?.id;
+    /*const userId = ctx.session.user?.id;
 
     if (!userId) {
       throw new TRPCError({
         message: "User not found",
         code: "NOT_FOUND",
       });
-    }
+    }*/
 
     const image = await prisma.image.create({
       data: {
