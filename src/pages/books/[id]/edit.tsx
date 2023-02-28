@@ -340,9 +340,6 @@ export default function EditBook(
                     onChange={handleFileChange}
                     className="rounded bg-blue-500 py-2 px-4 font-bold text-white"
                   />
-
-                  <div>{file && `${file.name}`}</div>
-
                   <button
                     onClick={handleUpload}
                     className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
