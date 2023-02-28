@@ -11,14 +11,55 @@ import superjson from "superjson";
 import { useRouter } from "next/router";
 import { api } from "../../../utils/api";
 import type { ChangeEvent } from "react";
-import React, { MouseEventHandler, useState } from "react";
+import React, { MouseEventHandler, useRef, useState } from "react";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
+import type { S3 } from "aws-sdk/clients/browser_default";
+import Image from "next/image";
+
+const ImageCard = ({
+  url,
+  id,
+  refetchImages,
+}: {
+  url: string;
+  id: string;
+  refetchImages: () => Promise<void>;
+}) => {
+  const { mutateAsync: deleteImage } = api.imageUpload.delete.useMutation();
+  // trpc.useMutation('image.delete');
+
+  return (
+    <div className="mt-6 flex flex-1 justify-center">
+      <div className="transform rounded-xl bg-white p-3 shadow-xl transition-all duration-500 hover:shadow-2xl">
+        <Image
+          className="object-cover"
+          src={url}
+          alt="Book Cover"
+          width={100}
+          height={100}
+        />
+        <div className="mt-2 flex justify-start">
+          <button
+            // eslint-disable-next-line
+            onClick={async () => {
+              await deleteImage({ imageId: id });
+              await refetchImages();
+            }}
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
+
   const { id } = props;
   const router = useRouter();
   const bookDetailsQuery = api.books.getByIdWithAllDetails.useQuery({
@@ -94,15 +135,29 @@ export default function EditBook(
     id: genre.id,
   }));
 
-  const [file, setFile] = useState<File>();
+  const [file, setFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
+  const { mutateAsync: createPresignedUrl } =
+    api.imageUpload.createPresignedUrl.useMutation();
+  // trpc.useMutation('image.createPresignedUrl');
+
+  const { data: images, refetch: refetchImages } =
+    api.imageUpload.getImagesForUser.useQuery();
+  // trpc.useQuery(['image.getImagesForUser'])
+
+  const handleFileChange = (e: React.FormEvent<HTMLInputElement>) => {
+    const newFile = e.currentTarget?.files?.[0];
+    if (newFile) {
+      setFile(newFile);
     }
   };
 
-  const handleUpload = (event: React.MouseEvent<HTMLElement>) => {
+  const refetchUserImages = async () => {
+    await refetchImages();
+  };
+
+  const handleUpload = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     if (!file) {
       toast.error("No file Selected. Please Select a File");
@@ -118,7 +173,28 @@ export default function EditBook(
       );
       return;
     }
-    //Implement API call to send image back
+    const presignedUrl = (await createPresignedUrl()) as S3.PresignedPost;
+    const url = presignedUrl.url;
+    const fields = presignedUrl.fields;
+    const imageData = {
+      ...fields,
+      "Content-Type": file.type,
+      file,
+    };
+    const formData = new FormData();
+    for (const name in imageData) {
+      // @ts-ignore
+      formData.append(name, imageData[name]);
+    }
+    await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+    await refetchImages();
+    setFile(null);
+    if (fileRef.current) {
+      fileRef.current.value = "";
+    }
   };
 
   return (
@@ -274,6 +350,16 @@ export default function EditBook(
                     Upload
                   </button>
                   <ToastContainer></ToastContainer>
+                </div>
+                <div className="flex justify-center">
+                  {images &&
+                    images.map((image) => (
+                      <ImageCard
+                        refetchImages={refetchUserImages}
+                        key={image.id}
+                        {...image}
+                      />
+                    ))}
                 </div>
                 <div className="flex items-center justify-between pt-4">
                   <button
