@@ -21,7 +21,7 @@ export default function BookDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const bookDetailsQuery = api.books.getByIdWithAuthorAndGenre.useQuery({ id });
+  const bookDetailsQuery = api.books.getByIdWithAllDetails.useQuery({ id });
 
   // if (router.isFallback) {
   if (bookDetailsQuery.status !== "success") {
@@ -35,96 +35,124 @@ export default function BookDetail(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
     },
     {
       field: "author",
       headerName: "Author",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 125,
     },
     {
       field: "isbn_10",
       headerName: "ISBN 10",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 100,
     },
     {
       field: "publisher",
       headerName: "Publisher",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 200,
     },
     {
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 80,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 100,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 120,
     },
     {
       field: "publicationYear",
       headerName: "Publication Year",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 130,
     },
     {
       field: "pageCount",
       headerName: "Page Count",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 100,
     },
     {
       field: "width",
-      headerName: "Width (in)",
+      headerName: "Width",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 70,
     },
     {
       field: "height",
-      headerName: "Height (in)",
+      headerName: "Height",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 70,
     },
     {
-      field: "thickness",
-      headerName: "Thickness (in)",
+      field: "shelfSpace",
+      headerName: "Shelf Space",
       headerClassName: "header-theme",
-      flex: 1,
+      maxWidth: 95,
+      // flex: 1,
+    },
+    {
+      field: "lastMonthSales",
+      headerName: "Monthly Sales",
+      headerClassName: "header-theme",
+      maxWidth: 105,
+      // flex: 1,
+    },
+    {
+      field: "daysSupply",
+      headerName: "Days Supply",
+      headerClassName: "header-theme",
+      maxWidth: 100,
+      // flex: 1,
+    },
+    {
+      field: "bestBuyback",
+      headerName: "Best Buyback",
+      headerClassName: "header-theme",
+      maxWidth: 100,
+      // flex: 1,
+    },
+    {
+      field: "thickness",
+      headerName: "Thickness",
+      headerClassName: "header-theme",
+      // flex: 1,
       maxWidth: 90,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 60,
       align: "center",
       sortable: false,
@@ -138,7 +166,7 @@ export default function BookDetail(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      flex: 1,
+      // flex: 1,
       maxWidth: 70,
       align: "center",
       sortable: false,
@@ -168,6 +196,44 @@ export default function BookDetail(
   // //to Be determined
   // inventoryCount           Int
 
+  const bookWidth =
+    data.width === 0 ? "5* in." : `${data.width.toFixed(2)} in.`;
+  const bookThickness =
+    data.thickness === 0 ? "0.5* in." : `${data.thickness.toFixed(2)} in.`;
+  const bookHeight =
+    data.height === 0 ? "8* in." : `${data.height.toFixed(2)} in.`;
+
+  const shelfSpace =
+    data.thickness === 0
+      ? (0.8 * data.inventoryCount).toFixed(2)
+      : (data.thickness * data.inventoryCount).toFixed(2);
+  let lastMonthSales = 0;
+  const today = new Date();
+  const thirtyDaysAgo = new Date(new Date().setDate(today.getDate() - 30));
+  for (const salesLine of data.salesLines) {
+    const salesLineDate = salesLine.salesReconciliation.date;
+    if (salesLineDate > thirtyDaysAgo) {
+      lastMonthSales += salesLine.quantity;
+    }
+  }
+  const daysSupplyString =
+    lastMonthSales === 0
+      ? "(inf)"
+      : Math.floor((data.inventoryCount / lastMonthSales) * 30).toString();
+  let bestBuybackPrice = 0;
+  for (const costMostRecentVendor of data.costMostRecentVendor) {
+    const currentVendorOffer =
+      costMostRecentVendor.vendor.buybackRate *
+      costMostRecentVendor.purchaseLine.unitWholesalePrice;
+    bestBuybackPrice = Math.max(bestBuybackPrice, currentVendorOffer);
+  }
+  const shelfSpaceString =
+    data.thickness === 0
+      ? `${shelfSpace.toString()}* in.`
+      : `${shelfSpace.toString()} in.`;
+  const bestBuybackString =
+    bestBuybackPrice === 0 ? "-" : `$${bestBuybackPrice.toFixed(2)}`;
+
   const rows = [
     {
       id: data.id,
@@ -181,18 +247,20 @@ export default function BookDetail(
       publicationYear: data.publicationYear,
       pageCount: data.pageCount,
       author: data.authors.map((author) => author.name).join(", "),
-      width: data.width,
-      thickness: data.thickness,
-      height: data.height,
+      width: bookWidth,
+      thickness: bookThickness,
+      height: bookHeight,
+      shelfSpace: shelfSpaceString,
+      lastMonthSales: lastMonthSales.toString(),
+      daysSupply: daysSupplyString,
+      bestBuyback: bestBuybackString,
     },
   ];
 
   return (
     <>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl">
-          {"Book Details"}
-        </h1>
+        <h1 className="inline-block text-2xl">{"Book Details"}</h1>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
@@ -224,6 +292,7 @@ export default function BookDetail(
             }
           />
         </Box>
+        <div className="text-sm">*: Estimated dimension</div>
       </div>
     </>
   );
@@ -256,7 +325,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.books.getByIdWithAuthorAndGenre.prefetch({ id });
+  await ssg.books.getByIdWithAllDetails.prefetch({ id });
 
   return {
     props: {
