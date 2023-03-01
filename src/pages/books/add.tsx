@@ -131,10 +131,10 @@ export default function AddBook() {
           isbn_10 = book.industryIdentifiers[1].identifier;
         }
       }
-      if (book?.industryIdentifiers[0]?.type === "ISBN_13") {
-        isbn_13 = book.industryIdentifiers[0].identifier;
-        if (book?.industryIdentifiers[1]?.type === "ISBN_10") {
-          isbn_10 = book.industryIdentifiers[1].identifier;
+      if (book?.industryIdentifiers[1]?.type === "ISBN_13") {
+        isbn_13 = book.industryIdentifiers[1].identifier;
+        if (book?.industryIdentifiers[0]?.type === "ISBN_10") {
+          isbn_10 = book.industryIdentifiers[0].identifier;
         }
       }
 
@@ -237,10 +237,10 @@ export default function AddBook() {
         isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
       }
     }
-    if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
-      isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
-      if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
-        isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
+    if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_13") {
+      isbn_13 = retrievedBook.industryIdentifiers[1].identifier;
+      if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_10") {
+        isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
       }
     }
 
