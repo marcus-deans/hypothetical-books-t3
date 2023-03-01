@@ -15,6 +15,7 @@ import type { GridColDef } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
+import EditLink from "../../components/table-components/EditLink";
 
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -77,6 +78,20 @@ export default function sales(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 150,
+    },
+    {
+      field: "edit",
+      headerName: "Edit",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 70,
+      align: "center",
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <EditLink url={`/buybacks/${params.id}/edit`} />
+      ),
     },
   ];
 

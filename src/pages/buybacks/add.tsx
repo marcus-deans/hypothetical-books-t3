@@ -29,7 +29,17 @@ export default function AddBuybackOrder(
   ``;
   const addMutation = api.buybackOrders.add.useMutation();
 
-  const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs());
+  const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
+  const books = booksQuery?.data?.items ?? [];
+  const bookOptions = books.map((book) => ({
+    label: `${book.title} (${book.isbn_13})`,
+    id: book.id,
+  }));
+  const [bookValue, setBookValue] = useState<{
+    label: string;
+    id: string;
+  } | null>(null);  const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs());
+  const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [vendorValue, setVendorValue] = useState<{
     label: string;
@@ -114,6 +124,33 @@ export default function AddBuybackOrder(
                 )}
               />
             </FormControl>
+            <FormControl>
+                    <FormLabel>Book</FormLabel>
+                    <FormHelperText>Select a book by title</FormHelperText>
+                    <Autocomplete
+                      options={bookOptions}
+                      placeholder={"Search books by title"}
+                      value={bookValue}
+                      onChange={(
+                        event,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setBookValue(newValue);
+                      }}
+                      onInputChange={(event, newBookInputValue: string) => {
+                        setBookValue(newBookInputValue);
+                      }}
+                      sx={{ width: 425 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
           </div>
           <div className="space flex">
             <button

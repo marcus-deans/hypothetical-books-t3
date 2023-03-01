@@ -10,7 +10,7 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import Image from "next/Image";
+import ModalImage from "react-modal-image";
 import type { GridColDef } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
@@ -31,21 +31,15 @@ export default function Books(
       field: "image",
       headerName: "Cover",
       headerClassName: "header-theme",
-      flex: 1,
+    
       renderCell: (params) => {
         return (
           <div className="text-blue-600">
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <Link href={`/books/${params.id}/detail`}>
-            <div className="hover:cursor-pointer flex justify-center items-center">
-            <Image
-              src={params.row.imgLink}
-              alt="clickable image"
-              width={50}
-              height={50}
-              />
-             </div>
-              </Link>
+              <ModalImage
+  small={params.row.imgLink}
+  large={params.row.imgLink}
+  alt="cover"
+/>;
           </div>
         );
       },
