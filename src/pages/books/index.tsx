@@ -103,7 +103,7 @@ export default function Books(
       retailPrice: `$${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
-      imgLink : "https://images.pexels.com/photos/3358707/pexels-photo-3358707.png"
+      imgLink : "https://images.pexels.com/photos/1122870/pexels-photo-1122870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
     };
   });
 
