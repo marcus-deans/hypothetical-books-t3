@@ -56,6 +56,38 @@ export const imagesRouter = createTRPCRouter({
     return extendedImages;
   }),
 
+  getImageFromId: publicProcedure
+    .input(z.object({ imageId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session) {
+        throw new TRPCError({
+          message: "User is not authenticated",
+          code: "UNAUTHORIZED",
+        });
+      }
+
+      const image = await prisma.image.findFirst({
+        where: {
+          id: input.imageId,
+        },
+      });
+
+      if (!image) {
+        throw new TRPCError({
+          message: "Invalid image access",
+          code: "NOT_FOUND",
+        });
+      }
+
+      return {
+        ...image,
+        url: await s3.getSignedUrlPromise("getObject", {
+          Bucket: BUCKET_NAME,
+          Key: `${userId}/${image.id}`,
+        }),
+      };
+  }),
+
   delete: publicProcedure
     .input(z.object({ imageId: z.string() }))
     .mutation(async ({ ctx, input }) => {
