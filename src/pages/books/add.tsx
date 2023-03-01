@@ -178,49 +178,55 @@ export default function AddBook() {
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      width: 250,
+      flex: 1,
     },
     {
       field: "authors",
       headerName: "Authors",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
-      width: 125,
+      flex: 1,
+      maxWidth: 135,
     },
     {
       field: "isbn_10",
       headerName: "ISBN-10",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 100,
     },
     {
       field: "publicationYear",
       headerName: "Publication Year",
       headerClassName: "header-theme",
-      width: 150,
+      flex: 1,
+      maxWidth: 125,
     },
     {
       field: "pageCount",
       headerName: "Page Count",
       headerClassName: "header-theme",
-      width: 100,
+      flex: 1,
+      maxWidth: 110,
     },
     {
       field: "publisher",
       headerName: "Publisher",
       headerClassName: "header-theme",
-      width: 200,
+      flex: 1,
+      maxWidth: 200,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      width: 150,
+      flex: 1,
+      maxWidth: 200,
     },
   ];
 
@@ -259,12 +265,14 @@ export default function AddBook() {
         <Head>
           <title>Books</title>
         </Head>
-        <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
-          <div className="mb-3 flex w-max">
-            <div className="mb-2 block text-lg font-bold text-gray-700">
-              Add Book
-            </div>
-            <div className="input-group p-y-5 mb-4 flex w-full items-stretch space-y-5 space-x-3">
+        <div className="pt-6"></div>
+        <div className="rounded-lg bg-white px-6 pt-6">
+          <div className="mb-2 block text-lg font-bold text-gray-700">
+            Add Book
+          </div>
+          <div className="">
+            <div className="col-span-2 mb-3 flex items-end xl:w-96">
+              <div className="input-group relative mb-4 flex w-full flex-wrap items-stretch space-y-5">
               <input
                 type="search"
                 className="form-control min-w-600 relative m-0 block w-full flex-auto rounded border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none"
@@ -295,12 +303,13 @@ export default function AddBook() {
                     d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
                   ></path>
                 </svg>
-              </button>
+                </button>
+              </div>
             </div>
           </div>
           <Box
             sx={{
-              height: 400,
+              height: "auto",
               width: "100%",
               "& .header-theme": {
                 backgroundColor: "rgba(56, 116, 203, 0.35)",
@@ -314,8 +323,10 @@ export default function AddBook() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 Toolbar: GridToolbar,
               }}
-              pageSize={10}
-              rowsPerPageOptions={[10]}
+              pageSize={6}
+              rowsPerPageOptions={[6]}
+              autoHeight={true}
+              getRowHeight={() => "auto"}
               checkboxSelection
               disableSelectionOnClick
               experimentalFeatures={{ newEditingApi: true }}
@@ -325,9 +336,12 @@ export default function AddBook() {
               }
             />
           </Box>
-          <Button variant="contained" color="primary" onClick={handleConfirm}>
-            Confirm Add Books
-          </Button>
+          <div className="flex py-3 space">
+            <Button variant="contained" color="primary" onClick={handleConfirm}>
+              Confirm Add Books
+            </Button>
+          </div>
+          
         </div>
       </>
     );
