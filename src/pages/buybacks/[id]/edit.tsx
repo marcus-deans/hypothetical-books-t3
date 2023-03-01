@@ -24,8 +24,7 @@ export default function EditBuyBack(
 ) {
   const { id } = props;
   const router = useRouter();
-  const purchaseDetailsQuery =
-    api.purchaseOrders.getByIdWithOverallMetrics.useQuery({ id: id });
+  const buybackDetailsQuery = api.buybackOrders.getByIdWithOverallMetrics.useQuery({id:id});
   const vendorsDetailsQuery = api.vendors.getAll.useQuery({
     cursor: null,
     limit: 100,
@@ -34,7 +33,7 @@ export default function EditBuyBack(
   ``;
   const editMutation = api.purchaseOrders.edit.useMutation();
   const currentDate =
-    purchaseDetailsQuery?.data?.purchaseOrderWithOverallMetrics.date ??
+    buybackDetailsQuery?.data?.buybackOrderWithOverallMetrics.date ??
     new Date();
 
   const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs(currentDate));
@@ -44,10 +43,10 @@ export default function EditBuyBack(
     id: string;
   } | null>({
     label:
-      purchaseDetailsQuery?.data?.purchaseOrderWithOverallMetrics.vendor.name ??
+    buybackDetailsQuery?.data?.buybackOrderWithOverallMetrics.vendor.name ??
       "",
     id:
-      purchaseDetailsQuery?.data?.purchaseOrderWithOverallMetrics.vendor.id ??
+    buybackDetailsQuery?.data?.buybackOrderWithOverallMetrics.vendor.id ??
       "",
   });
   const [vendorInputValue, setVendorInputValue] = useState("");
@@ -86,7 +85,7 @@ export default function EditBuyBack(
       <form className="mb-4 w-3/4 items-center rounded bg-white px-8 pt-6 pb-8 shadow-md">
         <div className="mb-4 items-center space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
-            Edit Buy Back
+            Edit BuyBack
           </div>
           <div className="relative space-y-3">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
