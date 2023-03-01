@@ -1,11 +1,14 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type { MouseEventHandler } from "react";
 import React, { useState } from "react";
 import jsPDF from "jspdf";
 import type { RowInput } from "jspdf-autotable";
 import autoTable from "jspdf-autotable";
 import Head from "next/head";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import TextField from "@mui/material/TextField";
 import { api } from "../utils/api";
 import { createInnerTRPCContext } from "../server/api/trpc";
 import { appRouter } from "../server/api/root";
@@ -17,44 +20,73 @@ import type {
 import superjson from "superjson";
 import type { purchaseOrders } from "../schema/purchases.schema";
 import type { salesReconciliation } from "../schema/sales.schema";
+import type { book } from "../schema/books.schema";
+import type { buyBackOrders } from "../schema/buybacks.schema";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function Report(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  console.log("Start Date Locale: ", startDate.toLocaleDateString());
-  console.log("Start Date: ", startDate.toDateString());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [startDateString, setStartDate] = useState(new Date());
+  const [endDateString, setEndDate] = useState(new Date());
+  const startDateTemp = new Date(startDateString);
+  const startDate = new Date(startDateTemp.getTime() - 90 * 60000); // Offset the dates by 90 minutes in order to get the current day's data
+  const endDate = new Date(endDateString);
   const purchaseOrderQuery =
-    api.purchaseOrders.getAllWithOverallMetrics.useQuery({
-      cursor: null,
-      limit: 50,
-    });
-  const salesQuery = api.salesReconciliations.getAllWithOverallMetrics.useQuery(
+    api.purchaseOrders.getByDateWithOverallMetrics.useQuery(
+      {
+        startDate: startDate,
+        endDate: endDate,
+        cursor: null,
+        limit: 50,
+      },
+      { enabled: !!startDate && !!endDate }
+    );
+  const salesQuery =
+    api.salesReconciliations.getByDateWithOverallMetrics.useQuery(
+      {
+        startDate: startDate,
+        endDate: endDate,
+        cursor: null,
+        limit: 50,
+      },
+      { enabled: !!startDate && !!endDate }
+    );
+
+  const buyBackQuery = api.buybackOrders.getByDateWithOverallMetrics.useQuery(
     {
+      startDate: startDate,
+      endDate: endDate,
       cursor: null,
       limit: 50,
-    }
+    },
+    { enabled: !!startDate && !!endDate }
   );
 
   const purchaseOrders: purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
   const salesReconciliations: salesReconciliation =
     salesQuery?.data?.items ?? [];
-
-  //console.log(purchaseOrders);
-
-  //console.log("Purchases\n",purchaseOrders);
-  //console.log("Sales\n", salesReconciliations);
+  const buyBackOrders: buyBackOrders = buyBackQuery?.data?.items ?? [];
 
   const handleGenerate: MouseEventHandler<HTMLButtonElement> = () => {
+    setIsSubmitting(true);
     if (startDate.valueOf() > endDate.valueOf() + 1000 * 60) {
       alert(
         "End Date must be later than Start Date, or the same as Start Date"
       );
+      setIsSubmitting(false);
     } else {
-      generateReport(startDate, endDate, purchaseOrders, salesReconciliations);
+      setIsSubmitting(true);
+      generateReport(
+        startDate,
+        endDate,
+        purchaseOrders,
+        salesReconciliations,
+        buyBackOrders
+      );
     }
+    setIsSubmitting(false);
   };
 
   return (
@@ -62,31 +94,54 @@ export default function Report(
       <Head>
         <title>Report</title>
       </Head>
-      <div className="absolute flex-col justify-center rounded border border-blue-700 bg-blue-700 py-2 px-4 font-bold text-white">
-        <div>
-          <h2>Start Date:</h2>
-          <div className="text-black">
-            <DatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date ?? new Date()!)}
-            />
+      <div className="pt-6">
+        <form className="rounded bg-white px-6 py-6 inline-block">
+          <div className="space-y-5">
+            <div className="mb-2 block text-lg font-bold text-gray-700">
+              Generate Report
+            </div>
+            <div className="relative space-y-3">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
+              <div className="col-span-4">
+                <div className="space-y-20">
+                  <div className="flex space-x-10 justify-center">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DesktopDatePicker
+                        label="Start Date"
+                        inputFormat="MM/DD/YYYY"
+                        value={startDate}
+                        onChange={(date) => setStartDate(date ?? new Date())}
+                        renderInput={(params: JSX.IntrinsicAttributes) => (
+                          <TextField {...params} />
+                        )}
+                      />
+                    </LocalizationProvider>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DesktopDatePicker
+                        label="End Date"
+                        inputFormat="MM/DD/YYYY"
+                        value={endDate}
+                        onChange={(date) => setEndDate(date ?? new Date())}
+                        renderInput={(params: JSX.IntrinsicAttributes) => (
+                          <TextField {...params} />
+                        )}
+                      />
+                    </LocalizationProvider>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <button
+                className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                type="button"
+                onClick={handleGenerate}
+              >
+                {isSubmitting ? "Generating..." : "Generate Report"}
+              </button>
+            </div>
           </div>
-        </div>
-        <div>
-          <h2>End Date:</h2>
-          <div className="text-black">
-            <DatePicker
-              selected={endDate}
-              onChange={(date) => setEndDate(date ?? new Date())}
-            />
-          </div>
-        </div>
-        <button
-          className="rounded border-b-4 border-blue-700 bg-blue-500 py-2 px-4 font-bold text-white hover:border-blue-500 hover:bg-blue-400"
-          onClick={handleGenerate}
-        >
-          Generate Report
-        </button>
+        </form>
       </div>
     </>
   );
@@ -96,7 +151,8 @@ function generateReport(
   startDate: Date,
   endDate: Date,
   purchaseOrders: purchaseOrders,
-  salesReconciliations: salesReconciliation
+  salesReconciliations: salesReconciliation,
+  buyBackOrders: buyBackOrders
 ) {
   const daysArray = getDaysArray(startDate, endDate);
 
@@ -133,7 +189,7 @@ function generateReport(
     body: [
       [
         {
-          content: "Date:" + new Date().toLocaleDateString(),
+          content: "Date: " + new Date().toLocaleDateString(),
           styles: {
             halign: "right",
           },
@@ -180,11 +236,14 @@ function generateReport(
 
   let runningRevenue = 0;
   let runningCosts = 0;
-  //Now we do the purchase oredrs
+  let runningBuyBack = 0;
+  //Now we do the purchase orders
 
   const periodOrders: purchaseOrders = [];
 
   const periodSales: salesReconciliation = [];
+
+  const periodBuyBack: buyBackOrders = [];
 
   //forEach calculates total cost
   purchaseOrders.forEach(function (value) {
@@ -212,6 +271,17 @@ function generateReport(
     runningRevenue += value.totalPrice;
   });
 
+  buyBackOrders.forEach(function (value) {
+    //determine if date is in period
+    if (!daysArray.includes(value.buybackOrder.date.toLocaleDateString())) {
+      //not in day range
+      return;
+    }
+    periodBuyBack.push(value);
+    //get total cost
+    runningBuyBack += value.totalPrice;
+  });
+
   const perDayList: RowInput[] = [];
 
   //per day forloop
@@ -225,14 +295,26 @@ function generateReport(
     insideInput.push(value.toString());
     const revenue = getRevenue(value, periodSales);
     insideInput.push(revenue.toFixed(2));
+    const buyBackRevenue = getRevenueBuyBack(value, periodBuyBack);
+    insideInput.push(buyBackRevenue.toFixed(2));
     const cost = getCost(value, periodOrders);
     insideInput.push(cost.toFixed(2));
-    insideInput.push((revenue - cost).toFixed(2));
-    perDayList.push(insideInput);
+    insideInput.push((revenue + buyBackRevenue - cost).toFixed(2));
+    if (revenue != 0 || cost != 0 || buyBackRevenue != 0) {
+      perDayList.push(insideInput);
+    }
   });
 
   autoTable(doc, {
-    head: [["Date", "Daily Revenue", "Daily Costs", "Daily Profit"]],
+    head: [
+      [
+        "Date",
+        "Daily Revenue (Sales)",
+        "Daily Revenue (Buy Backs)",
+        "Daily Costs",
+        "Daily Profit",
+      ],
+    ],
     body: perDayList,
     theme: "striped",
     headStyles: {
@@ -244,13 +326,27 @@ function generateReport(
     body: [
       [
         {
-          content: "Total Revenue:",
+          content: "Total Revenue (Sales): ",
           styles: {
             halign: "right",
           },
         },
         {
           content: (runningRevenue - 0).toFixed(2),
+          styles: {
+            halign: "right",
+          },
+        },
+      ],
+      [
+        {
+          content: "Total Revenue (Buy Backs): ",
+          styles: {
+            halign: "right",
+          },
+        },
+        {
+          content: (runningBuyBack - 0).toFixed(2),
           styles: {
             halign: "right",
           },
@@ -278,7 +374,7 @@ function generateReport(
           },
         },
         {
-          content: (runningRevenue - runningCosts).toFixed(2),
+          content: (runningRevenue + runningBuyBack - runningCosts).toFixed(2),
           styles: {
             halign: "right",
           },
@@ -288,44 +384,80 @@ function generateReport(
     theme: "plain",
   });
 
-  autoTable(doc, {
-    body: [
-      [
-        {
-          content: "Terms & notes",
-          styles: {
-            halign: "left",
-            fontSize: 14,
-          },
-        },
-      ],
-      [
-        {
-          content:
-            "orem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia" +
-            "molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum" +
-            "numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium",
-          styles: {
-            halign: "left",
-          },
-        },
-      ],
-    ],
-    theme: "plain",
+  const bookIdToQuantity = new Map<book, number>();
+  const bookIdToRevenue = new Map<book, number>();
+
+  salesReconciliations.forEach(function (value) {
+    value.salesReconciliation.salesLines.forEach(function (saleLine) {
+      const bookToAdd: book = saleLine.book;
+      bookIdToQuantity.set(bookToAdd, saleLine.quantity);
+      bookIdToRevenue.set(
+        bookToAdd,
+        saleLine.unitWholesalePrice * saleLine.quantity
+      );
+    });
+  });
+  const topTenBooksArray: [book: book, quantity: number][] = [
+    ...bookIdToQuantity.entries(),
+  ].sort((a, b) => b[1] - a[1]);
+  topTenBooksArray.length = Math.min(topTenBooksArray.length, 10);
+  const topTenBooksMap = new Map<book, number>(topTenBooksArray);
+  const topTenRevenue = new Map<book, number>();
+  topTenBooksArray.forEach(function (
+    entry: [{ title: string; isbn_13: string }, number]
+  ) {
+    topTenRevenue.set(entry[0], bookIdToRevenue.get(entry[0])!);
+  });
+
+  const reverseOrders = [...purchaseOrders].reverse();
+  const topTenBooksToCMR = new Map<string, number>();
+
+  //If you're debugging this, good luck
+  reverseOrders.forEach(function (order) {
+    order.purchaseOrder.purchaseLines.forEach(function (purchaseLine) {
+      topTenBooksArray.forEach(function (entry) {
+        if (purchaseLine.book.title === entry[0].title) {
+          if (!topTenBooksToCMR.has(purchaseLine.book.title)) {
+            topTenBooksToCMR.set(
+              purchaseLine.book.title,
+              purchaseLine.unitWholesalePrice
+            );
+          }
+        }
+      });
+    });
+  });
+
+  const topTenBooksInput: RowInput[] = [];
+
+  topTenBooksArray.forEach(function (entry) {
+    const insideInput: RowInput = [];
+    insideInput.push(entry[0].title); //Book
+    const quantity = bookIdToQuantity.get(entry[0])!;
+    insideInput.push(quantity); //Quantity
+    const revenue = bookIdToRevenue.get(entry[0])!;
+    insideInput.push(revenue.toFixed(2)); // Revenue
+    const totalCMR = topTenBooksToCMR.get(entry[0].title)! * quantity;
+    insideInput.push(totalCMR.toFixed(2)); // CMR
+    insideInput.push((revenue - totalCMR).toFixed(2)); // Profit
+    topTenBooksInput.push(insideInput);
   });
 
   autoTable(doc, {
-    body: [
+    head: [
       [
-        {
-          content: "This is a centered footer",
-          styles: {
-            halign: "center",
-          },
-        },
+        "Book",
+        "Quantity Sold",
+        "Total Revenue",
+        "Total Cost Most-Recent",
+        "Total Profit",
       ],
     ],
-    theme: "plain",
+    body: topTenBooksInput,
+    theme: "striped",
+    headStyles: {
+      fillColor: "#343A40",
+    },
   });
 
   return doc.output("dataurlnewwindow");
@@ -361,6 +493,16 @@ function getRevenue(day: string, periodSales: salesReconciliation): number {
   return dailyRevenue;
 }
 
+function getRevenueBuyBack(day: string, periodSales: buyBackOrders): number {
+  let dailyRevenue = 0;
+  periodSales.forEach(function (buybackOrder) {
+    if (day === buybackOrder.buybackOrder.date.toLocaleDateString()) {
+      dailyRevenue += buybackOrder.totalPrice;
+    }
+  });
+  return dailyRevenue;
+}
+
 function getCost(day: string, periodOrders: purchaseOrders): number {
   let dailyCost = 0;
   periodOrders.forEach(function (purchaseOrder) {
@@ -384,15 +526,21 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.purchaseOrders.getAllWithOverallMetrics.prefetch({
+  await ssg.purchaseOrders.getByDateWithOverallMetrics.prefetch({
     cursor: null,
     limit: 50,
   });
 
-  await ssg.salesReconciliations.getAllWithOverallMetrics.prefetch({
+  await ssg.salesReconciliations.getByDateWithOverallMetrics.prefetch({
     cursor: null,
     limit: 50,
   });
+
+  await ssg.buybackOrders.getByDateWithOverallMetrics.prefetch({
+    cursor: null,
+    limit: 50,
+  });
+
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {

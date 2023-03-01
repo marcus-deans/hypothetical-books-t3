@@ -95,13 +95,13 @@ export default function AddSalesLine(
       <form className="rounded bg-white px-6 py-6 inline-block">
         <div className="space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
-            Create Purchase Line
+            Create Sales Line
           </div>
           <div className="relative space-y-3">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
             <div className="col-span-4">
               <div className="space-y-20">
-                <div className="flex w-4/5 space-x-10">
+                <div className="flex space-x-10 justify-center">
                   <FormControl>
                     <FormLabel>Sales Reconciliation</FormLabel>
                     <FormHelperText>
@@ -163,34 +163,41 @@ export default function AddSalesLine(
                     />
                   </FormControl>
                 </div>
-                <div className="py-60" />
-                <div className="flex space-x-20">
-                  <input
-                    className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                    id="quantity"
-                    name="quantity"
-                    type="text"
-                    placeholder="Quantity"
-                    min="1"
-                    // value={quantity}
-                    onChange={(
-                      event: React.ChangeEvent<HTMLInputElement>
-                    ): void => setQuantity(event.target.value)}
-                    required
-                  />
-                  <input
-                    className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                    id="UnitWholesalePrice"
-                    name="UnitWholesalePrice"
-                    type="text"
-                    placeholder="Unit Wholesale Price"
-                    min="0"
-                    value={unitWholesalePrice}
-                    onChange={(
-                      event: React.ChangeEvent<HTMLInputElement>
-                    ): void => setUnitWholesalePrice(event.target.value)}
-                    required
-                  />
+                <div className="flex space-x-10 justify-center">
+                  <FormControl>
+                    <FormLabel>Quantity</FormLabel>
+                    <input
+                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      id="quantity"
+                      name="quantity"
+                      type="text"
+                      placeholder="Quantity"
+                      min="1"
+                      size={45}
+                      // value={quantity}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void => setQuantity(event.target.value)}
+                      required
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Unit Wholesale Price</FormLabel>
+                    <input
+                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      id="UnitWholesalePrice"
+                      name="UnitWholesalePrice"
+                      type="text"
+                      placeholder="Unit Wholesale Price"
+                      min="0"
+                      size={45}
+                      value={unitWholesalePrice}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void => setUnitWholesalePrice(event.target.value)}
+                      required
+                    />
+                  </FormControl>
                 </div>
               </div>
             </div>

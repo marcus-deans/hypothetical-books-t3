@@ -288,13 +288,13 @@ export const salesLinesRouter = createTRPCRouter({
       // const salesLine = await prisma.salesLine.delete({
       //   where: { id },
       // });
-      const salesLine = await prisma.salesLine.update({
+      const updatedSalesLine = await prisma.salesLine.update({
         where: { id },
         data: {
           display: false,
         },
       });
-      if (!salesLine) {
+      if (!updatedSalesLine) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `No sales line to delete withid '${id}'`,
@@ -311,7 +311,7 @@ export const salesLinesRouter = createTRPCRouter({
         });
       }
 
-      return salesLine;
+      return updatedSalesLine;
     }),
 
   getSecretMessage: protectedProcedure.query(() => {

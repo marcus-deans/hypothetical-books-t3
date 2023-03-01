@@ -5,10 +5,12 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
 import { api } from "../../../utils/api";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import dayjs from "dayjs";
 
 export default function AddSalesReconciliation() {
-  const [dateValue, setDateValue] = useState<Dayjs | null>();
+  const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addMutation = api.salesReconciliations.add.useMutation();
@@ -37,8 +39,8 @@ export default function AddSalesReconciliation() {
   };
 
   return (
-    <div className="flex w-full items-center ">
-      <form className="mb-4 w-3/4 items-center rounded bg-white px-8 pt-6 pb-8 shadow-md">
+    <div className="text-neutral-50 overflow-hidden pt-6 inline-block">
+      <form className="mb-4 items-center rounded bg-white shadow-md px-6 py-3">
         <div className="mb-4 space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
             Create Sales Reconciliation

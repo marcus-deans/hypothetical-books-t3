@@ -17,7 +17,7 @@ const confirmPasswordwithHash = (plain: string, hashed: string) => {
 
 export const authOptions: NextAuthOptions = {
   session: {
-    strategy: "jwt",
+    strategy: "jwt"
   },
   providers: [
     CredentialsProvider({
@@ -68,15 +68,30 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/auth/signin",
-    // error: '/auth/error',
+    // error: '/',
     // signOut: '/auth/signout'
   },
   callbacks: {
-    redirect({ baseUrl }) {
-      console.log(baseUrl);
-      return baseUrl;
+    async jwt({user, token}){
+      if(user){
+        token.user = user;
+      }
+      return Promise.resolve(token);
     },
+    session: async ({session, token, user}) => {
+      session.user = user;
+      return Promise.resolve(session);
+    },
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
+    }
   },
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 export default NextAuth(authOptions);

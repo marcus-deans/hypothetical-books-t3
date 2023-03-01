@@ -261,6 +261,87 @@ export const purchaseLinesRouter = createTRPCRouter({
           },
         },
       });
+
+      // Update cost most recent for this book and vendor combination
+      const currentPurchaseOrder = await prisma.purchaseOrder.findUnique({
+        where: {
+          id: input.purchaseOrderId,
+        },
+      });
+      const vendorId = currentPurchaseOrder?.vendorId;
+
+      if (!vendorId) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No vendor found for purchase order with id '${input.purchaseOrderId}'`,
+        });
+      }
+      const costMostRecentVendor = await prisma.costMostRecentVendor.upsert({
+        where: {
+          costMostRecentVendorId: {
+            bookId: input.bookId,
+            vendorId: vendorId,
+          },
+        },
+        update: {},
+        create: {
+          book: {
+            connect: {
+              id: input.bookId,
+            },
+          },
+          vendor: {
+            connect: {
+              id: vendorId,
+            },
+          },
+          purchaseLine: {
+            connect: {
+              id: purchaseLine.id,
+            },
+          },
+          purchaseOrder: {
+            connect: {
+              id: input.purchaseOrderId,
+            },
+          },
+        },
+      });
+
+      const costMostRecentVendorPurchaseOrder =
+        await prisma.purchaseOrder.findUnique({
+          where: {
+            id: costMostRecentVendor.purchaseOrderId,
+          },
+        });
+
+      // Check if this is the new cost most recent
+      const currentPurchaseOrderDate = currentPurchaseOrder?.date;
+      const costMostRecentVendorDate =
+        costMostRecentVendorPurchaseOrder?.date ?? new Date();
+      if (currentPurchaseOrderDate > costMostRecentVendorDate) {
+        await prisma.costMostRecentVendor.update({
+          where: {
+            costMostRecentVendorId: {
+              bookId: input.bookId,
+              vendorId: vendorId,
+            },
+          },
+          data: {
+            purchaseLine: {
+              connect: {
+                id: purchaseLine.id,
+              },
+            },
+            purchaseOrder: {
+              connect: {
+                id: input.purchaseOrderId,
+              },
+            },
+          },
+        });
+      }
+
       return purchaseLine;
     }),
 

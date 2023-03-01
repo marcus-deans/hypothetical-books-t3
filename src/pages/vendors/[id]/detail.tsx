@@ -37,6 +37,14 @@ export default function VendorDetail(
       headerName: "Purchase Order Date",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/purchases/${params.id}/detail`}>{params.row.date} </a>
+          </div>
+        );
+      },
     },
     {
       field: "id",
@@ -50,20 +58,6 @@ export default function VendorDetail(
       headerClassName: "header-theme",
       flex: 1,
     },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 60,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/purchases/${params.id}/detail`} />
-      ),
-    },
   ];
 
   const rows = data.purchaseOrder.map((purchaseOrder) => {
@@ -75,37 +69,45 @@ export default function VendorDetail(
   });
 
   return (
-    <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
-        <Box
-          sx={{
-            height: "auto",
-            maxHeight: 750,
-            "& .header-theme": {
-              backgroundColor: "rgba(56, 116, 203, 0.35)",
-            },
-          }}
-        >
-          <StripedDataGrid
-            rows={rows}
-            columns={columns}
-            components={{
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              Toolbar: GridToolbar,
-            }}
-            pageSize={14}
-            autoHeight={true}
-            rowsPerPageOptions={[14]}
-            getRowHeight={() => 'auto'}
-            checkboxSelection
-            disableSelectionOnClick
-            experimentalFeatures={{ newEditingApi: true }}
-            getRowClassName={(params) =>
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-            }
-          />
-        </Box>
+    <>
+    <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl">
+          {" "}
+          {`${data.name}`}{" Details"}
+        </h1>
       </div>
+    <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+      <Box
+        sx={{
+          height: "auto",
+          maxHeight: 750,
+          "& .header-theme": {
+            backgroundColor: "rgba(56, 116, 203, 0.35)",
+          },
+        }}
+      >
+        <StripedDataGrid
+          rows={rows}
+          columns={columns}
+          components={{
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            Toolbar: GridToolbar,
+          }}
+          pageSize={14}
+          autoHeight={true}
+          rowsPerPageOptions={[14]}
+          getRowHeight={() => "auto"}
+          checkboxSelection
+          disableSelectionOnClick
+          experimentalFeatures={{ newEditingApi: true }}
+          getRowClassName={(params) =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+          }
+        />
+      </Box>
+    </div>
+    </>
   );
 }
 export const getStaticPaths: GetStaticPaths = async () => {

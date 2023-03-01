@@ -129,6 +129,98 @@ export const purchaseOrdersRouter = createTRPCRouter({
       };
     }),
 
+  getByDateWithOverallMetrics: publicProcedure
+    .input(
+      z.object({
+        startDate: z.date().nullish(),
+        endDate: z.date().nullish(),
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      /**
+       * For pagination docs you can have a look here
+       * @see https://trpc.io/docs/useInfiniteQuery
+       * @see https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+       */
+      const limit = input.limit ?? 50;
+      const { cursor } = input;
+      const start = input.startDate ?? new Date(1970, 0, 1);
+      const end = input.endDate ?? new Date(2100, 0, 1);
+
+      const items = await prisma.purchaseOrder.findMany({
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: {
+          display: true,
+          date: {
+            lte: end,
+            gte: start,
+          },
+        },
+        include: {
+          purchaseLines: {
+            where: {
+              display: true,
+            },
+            include: {
+              book: {
+                select: {
+                  title: true,
+                  isbn_13: true,
+                },
+              },
+            },
+          },
+          vendor: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        orderBy: {
+          //Don't change this please because of report calculation for top 10 books. It requires it in date order from earliest to latest
+          date: "desc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        // Remove the last item and use it as next cursor
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const nextItem = items.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      const purchaseOrderWithOverallMetrics = [];
+      for (const purchaseOrder of items.reverse()) {
+        let totalPrice = 0;
+        let totalQuantity = 0;
+        const seenBooks = new Set<string>();
+        for (const purchaseLine of purchaseOrder.purchaseLines) {
+          totalPrice += purchaseLine.quantity * purchaseLine.unitWholesalePrice;
+          totalQuantity += purchaseLine.quantity;
+          seenBooks.add(purchaseLine.book.isbn_13);
+        }
+        purchaseOrderWithOverallMetrics.push({
+          purchaseOrder,
+          totalPrice,
+          totalQuantity,
+          totalUniqueBooks: seenBooks.size,
+        });
+      }
+
+      return {
+        items: purchaseOrderWithOverallMetrics,
+        nextCursor,
+      };
+    }),
+
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
@@ -160,6 +252,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
               include: {
                 book: {
                   select: {
+                    id: true,
                     title: true,
                     isbn_13: true,
                   },
@@ -236,6 +329,15 @@ export const purchaseOrdersRouter = createTRPCRouter({
     )
 
     .mutation(async ({ input }) => {
+      const currentPurchaseOrder = await prisma.purchaseOrder.findFirst({
+        where: {
+          id: input.id,
+        },
+        include: {
+          purchaseLines: true,
+        },
+      });
+
       const editedPurchaseOrder = await prisma.purchaseOrder.update({
         where: { id: input.id },
         data: {
@@ -248,6 +350,192 @@ export const purchaseOrdersRouter = createTRPCRouter({
           display: true,
         },
       });
+
+      const currentDate = currentPurchaseOrder?.date ?? new Date();
+      const newDate = input.date;
+      if (newDate < currentDate) {
+        const outdatedCostMostRecentVendors =
+          await prisma.costMostRecentVendor.findMany({
+            where: {
+              purchaseOrder: {
+                id: input.id,
+              },
+            },
+          });
+
+        for (const outdatedCostMostRecentVendor of outdatedCostMostRecentVendors) {
+          const mostRecentPurchaseOrder = await prisma.purchaseOrder.findFirst({
+            where: {
+              purchaseLines: {
+                some: {
+                  book: {
+                    id: outdatedCostMostRecentVendor.bookId,
+                  },
+                },
+              },
+              vendor: {
+                id: outdatedCostMostRecentVendor.vendorId,
+              },
+            },
+            include: {
+              purchaseLines: {
+                where: {
+                  book: {
+                    id: outdatedCostMostRecentVendor.bookId,
+                  },
+                },
+                select: {
+                  id: true,
+                },
+              },
+            },
+            orderBy: {
+              date: "desc",
+            },
+          });
+
+          const updatedCostMostRecentVendor =
+            await prisma.costMostRecentVendor.update({
+              where: {
+                id: outdatedCostMostRecentVendor.id,
+              },
+              data: {
+                purchaseOrder: {
+                  connect: {
+                    id: mostRecentPurchaseOrder?.id,
+                  },
+                },
+                vendor: {
+                  connect: {
+                    id: mostRecentPurchaseOrder?.vendorId,
+                  },
+                },
+                purchaseLine: {
+                  connect: {
+                    id:
+                      mostRecentPurchaseOrder?.purchaseLines[0]?.id ??
+                      undefined,
+                  },
+                },
+              },
+            });
+        }
+      }
+      const currentVendorId = currentPurchaseOrder?.vendorId ?? "";
+
+      if (currentVendorId !== input.vendorId) {
+        for (const outdatedPurchaseLine of currentPurchaseOrder?.purchaseLines ??
+          []) {
+          // Find most recent purchase order for the current vendor
+          const mostRecentPurchaseOrderCurrentVendor =
+            await prisma.purchaseOrder.findFirst({
+              where: {
+                purchaseLines: {
+                  some: {
+                    book: {
+                      id: outdatedPurchaseLine.bookId,
+                    },
+                  },
+                },
+                vendor: {
+                  id: currentVendorId,
+                },
+              },
+              include: {
+                purchaseLines: {
+                  where: {
+                    book: {
+                      id: outdatedPurchaseLine.bookId,
+                    },
+                  },
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+              orderBy: {
+                date: "desc",
+              },
+            });
+
+          await prisma.costMostRecentVendor.update({
+            where: {
+              costMostRecentVendorId: {
+                bookId: outdatedPurchaseLine.bookId,
+                vendorId: currentVendorId,
+              },
+            },
+            data: {
+              purchaseOrder: {
+                connect: {
+                  id: mostRecentPurchaseOrderCurrentVendor?.id,
+                },
+              },
+              purchaseLine: {
+                connect: {
+                  id: mostRecentPurchaseOrderCurrentVendor?.purchaseLines[0]
+                    ?.id,
+                },
+              },
+            },
+          });
+
+          // Find the most recent purchase order for the new vendor
+          const mostRecentPurchaseOrderNewVendor =
+            await prisma.purchaseOrder.findFirst({
+              where: {
+                purchaseLines: {
+                  some: {
+                    book: {
+                      id: outdatedPurchaseLine.bookId,
+                    },
+                  },
+                },
+                vendor: {
+                  id: input.vendorId,
+                },
+              },
+              include: {
+                purchaseLines: {
+                  where: {
+                    book: {
+                      id: outdatedPurchaseLine.bookId,
+                    },
+                  },
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+              orderBy: {
+                date: "desc",
+              },
+            });
+
+          await prisma.costMostRecentVendor.update({
+            where: {
+              costMostRecentVendorId: {
+                bookId: outdatedPurchaseLine.bookId,
+                vendorId: input.vendorId,
+              },
+            },
+            data: {
+              purchaseOrder: {
+                connect: {
+                  id: mostRecentPurchaseOrderCurrentVendor?.id,
+                },
+              },
+              purchaseLine: {
+                connect: {
+                  id: mostRecentPurchaseOrderCurrentVendor?.purchaseLines[0]
+                    ?.id,
+                },
+              },
+            },
+          });
+        }
+      }
+
       return editedPurchaseOrder;
     }),
 

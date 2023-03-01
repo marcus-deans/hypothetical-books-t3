@@ -10,24 +10,22 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import { Button } from "@mui/material";
-import TableHeader from "../../components/table-components/TableHeader";
-import BookRow from "../../components/table-components/BookRow";
-import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import DetailLink from "../../components/table-components/DetailLink";
+import type { GridColDef } from "@mui/x-data-grid";
+import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
-import { GridToolbar } from "@mui/x-data-grid";
+import logger from "../../utils/logger";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({
+  const booksQuery = api.books.getAllWithDetails.useQuery({
     cursor: null,
     limit: 50,
   });
 
   const books = booksQuery?.data?.items ?? [];
+  //logger.info("Loading books page");
 
   const columns: GridColDef[] = [
     {
@@ -35,9 +33,14 @@ export default function Books(
       headerName: "Title",
       headerClassName: "header-theme",
       flex: 1,
+      minWidth: 250,
       renderCell: (params) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return (<div className="text-blue-600"><a href={`/books/${params.id}/detail`}>{params.row.title} </a></div>);
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/books/${params.id}/detail`}>{params.row.title} </a>
+          </div>
+        );
       },
     },
     {
@@ -45,38 +48,98 @@ export default function Books(
       headerName: "Author",
       headerClassName: "header-theme",
       flex: 1,
+      minWidth: 150,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
-      maxWidth: 140,
-      flex: 1,
+      minWidth: 125,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price",
       headerClassName: "header-theme",
-      maxWidth: 100,
+      minWidth: 100,
       flex: 1,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      maxWidth: 120,
+      minWidth: 100,
       flex: 1,
     },
     {
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
-      maxWidth: 80,
+      width: 80,
+      flex: 1,
+    },
+    {
+      field: "shelfSpace",
+      headerName: "Shelf Space",
+      headerClassName: "header-theme",
+      minWidth: 95,
+      flex: 1,
+    },
+    {
+      field: "lastMonthSales",
+      headerName: "Monthly Sales",
+      headerClassName: "header-theme",
+      minWidth: 105,
+      flex: 1,
+    },
+    {
+      field: "daysSupply",
+      headerName: "Days Supply",
+      headerClassName: "header-theme",
+      minWidth: 100,
+      flex: 1,
+    },
+    {
+      field: "bestBuyback",
+      headerName: "Best Buyback",
+      headerClassName: "header-theme",
+      minWidth: 100,
       flex: 1,
     },
   ];
 
   const rows = books.map((book) => {
+    const bookThickness = book.thickness;
+    const shelfSpace =
+      bookThickness === 0
+        ? (0.8 * book.inventoryCount).toFixed(2)
+        : (bookThickness * book.inventoryCount).toFixed(2);
+    let lastMonthSales = 0;
+    const today = new Date();
+    const thirtyDaysAgo = new Date(new Date().setDate(today.getDate() - 30));
+    for (const salesLine of book.salesLines) {
+      const salesLineDate = salesLine.salesReconciliation.date;
+      if (salesLineDate > thirtyDaysAgo) {
+        lastMonthSales += salesLine.quantity;
+      }
+    }
+    const daysSupply =
+      lastMonthSales === 0
+        ? Infinity
+        : Math.floor((book.inventoryCount / lastMonthSales) * 30);
+    let bestBuybackPrice = 0;
+    for (const costMostRecentVendor of book.costMostRecentVendor) {
+      const currentVendorOffer =
+        costMostRecentVendor.vendor.buybackRate *
+        costMostRecentVendor.purchaseLine.unitWholesalePrice;
+      bestBuybackPrice = Math.max(bestBuybackPrice, currentVendorOffer);
+    }
+    const shelfSpaceString =
+      bookThickness === 0
+        ? `${shelfSpace.toString()}* in.`
+        : `${shelfSpace.toString()} in.`;
+    const bestBuybackString =
+      bestBuybackPrice === 0 ? "-" : `$${bestBuybackPrice.toFixed(2)}`;
+
     return {
       id: book.id,
       title: book.title,
@@ -85,6 +148,10 @@ export default function Books(
       retailPrice: `$${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
+      shelfSpace: shelfSpaceString,
+      lastMonthSales: lastMonthSales.toString(),
+      daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),
+      bestBuyback: bestBuybackString,
     };
   });
 
@@ -93,9 +160,15 @@ export default function Books(
       <Head>
         <title>Books</title>
       </Head>
-      <div className="flex space text-neutral-50 mt-3 h-3/4 overflow-hidden">
-        <h1 className="text-2xl inline-block"> Books </h1>
-        <Link className="inline-block text-blue-600 ml-2 text-2xl" href="/books/add"> + </Link>
+      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl"> Books </h1>
+        <Link
+          className="ml-2 inline-block text-2xl text-blue-600"
+          href="/books/add"
+        >
+          {" "}
+          +{" "}
+        </Link>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
@@ -117,7 +190,7 @@ export default function Books(
             pageSize={14}
             autoHeight={true}
             rowsPerPageOptions={[14]}
-            getRowHeight={() => 'auto'}
+            getRowHeight={() => "auto"}
             checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
@@ -127,6 +200,9 @@ export default function Books(
             }
           />
         </Box>
+        <div className="text-sm">
+          {'*: Shelf space from estimated width of 0.8"'}
+        </div>
       </div>
     </>
   );
@@ -150,7 +226,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.books.getAllWithAuthorsAndGenre.prefetch({
+  await ssg.books.getAllWithDetails.prefetch({
     cursor: null,
     limit: 50,
   });
