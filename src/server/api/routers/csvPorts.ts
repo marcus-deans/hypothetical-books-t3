@@ -1,7 +1,8 @@
 import { number, z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { CSVBuybackInputId, CSVBuybackInputSchema, CSVPurchaseInputId, CSVSaleInputId, CSVSaleInputIdSchema, CSVSaleInputSchema } from "../../../schema/imports.schema";
+import type { CSVBuybackInputId, CSVPurchaseInputId, CSVSaleInputId} from "../../../schema/imports.schema";
+import { CSVBuybackInputSchema, CSVSaleInputIdSchema, CSVSaleInputSchema } from "../../../schema/imports.schema";
 import { CSVPurchaseInputSchema, CSVPurchaseInputIdSchema , CSVBuybackInputIdSchema } from "../../../schema/imports.schema";
 import { prisma } from "../../db";
 import type { Book } from "@prisma/client";

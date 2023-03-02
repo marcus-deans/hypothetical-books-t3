@@ -3,6 +3,8 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
+import type { bookDetail} from "../../../schema/books.schema";
+import { bookDetailSchema } from "../../../schema/books.schema";
 
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -169,6 +171,55 @@ export const booksRouter = createTRPCRouter({
         items: items.reverse(),
         nextCursor,
       };
+    }),
+  getManyFromIsbn13WithDetails: publicProcedure
+    .input(
+      z.object({
+        books: z.array(z.string()).optional(),
+      })
+    )
+    .output(
+      z.array(bookDetailSchema),
+    )
+    .query(async ({ input }) => {
+      
+      if(input.books === undefined){
+        return [];
+      }
+      const bookList: bookDetail[] = [];
+      for (const entry of input.books){
+        const isbn_13 = entry;
+        const book = await prisma.book.findFirst({
+          where: { isbn_13 } ,
+          include: {
+            authors: true,
+            genre: true,
+          },
+        })
+        const authorObject = book?.authors;
+        const authorList : string[] = [];
+        authorObject?.forEach(function (author){
+          authorList.push(author.name);
+        })
+        const bookTyped: bookDetail = {
+          title: book?.title,
+          authors: authorList,
+          isbn_13: book?.isbn_13,
+          isbn_10: book?.isbn_10,
+          publisher: book?.publisher,
+          publication_year: book?.publicationYear,
+          page_count: book?.pageCount,
+          height: book?.height,
+          width: book?.width,
+          thickness: book?.thickness,
+          retail_price: book?.retailPrice,
+          genre: book?.genre.name,
+          inventory_count: book?.inventoryCount,
+        }
+        bookList.push(bookTyped);
+      }
+      return bookList;
+
     }),
 
   getById: publicProcedure

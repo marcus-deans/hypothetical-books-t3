@@ -10,7 +10,7 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { api } from "../../../utils/api";
 import Papa from "papaparse";
-import { CSVBuybackInput, CSVBuybackInputId } from "../../../schema/imports.schema";
+import type { CSVBuybackInput, CSVBuybackInputId } from "../../../schema/imports.schema";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function ImportBuyback(

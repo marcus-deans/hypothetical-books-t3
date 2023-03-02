@@ -1,5 +1,5 @@
 import Head from "next/head";
-import React from "react";
+import React, { useState } from "react";
 import { api } from "../../utils/api";
 import type {
   GetServerSidePropsContext,
@@ -11,19 +11,30 @@ import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
 import ModalImage from "react-modal-image";
-import type { GridColDef } from "@mui/x-data-grid";
+import type { GridColDef, GridCsvExportOptions, GridCsvGetRowsToExportParams} from "@mui/x-data-grid";
+import { GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarFilterButton, gridPaginatedVisibleSortedGridRowIdsSelector, gridVisibleSortedRowIdsSelector, useGridApiContext } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import logger from "../../utils/logger";
+import type { ButtonProps} from "@mui/material";
+import { Button, createSvgIcon } from "@mui/material";
+import * as CSV from "csv-string";
+import type { CSVBookExport, CSVBookExportEntry } from "../../schema/exports.schema";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+  const [exportedBooks, setExportedBooks] = useState<string[]>();
+  const [calculatedExportValues, setCalculatedExportValues] = useState<string[][]>();
   const booksQuery = api.books.getAllWithDetails.useQuery({
     cursor: null,
     limit: 50,
   });
+  const exportQuery =  api.books.getManyFromIsbn13WithDetails.useQuery({
+    books: exportedBooks
+  }, { enabled: !!exportedBooks });
+
 
   const books = booksQuery?.data?.items ?? [];
   //logger.info("Loading books page");
@@ -33,15 +44,17 @@ export default function Books(
       field: "image",
       headerName: "Cover",
       headerClassName: "header-theme",
-    
+
       renderCell: (params) => {
         return (
           <div className="text-blue-600">
-              <ModalImage
-  small={params.row.imgLink}
-  large={params.row.imgLink}
-  alt="cover"
-/>;
+            <ModalImage
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+              small={params.row.imgLink}
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+              large={params.row.imgLink}
+              alt="cover"
+            />;
           </div>
         );
       },
@@ -166,13 +179,219 @@ export default function Books(
       retailPrice: `$${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
-      imgLink : "https://images.pexels.com/photos/1122870/pexels-photo-1122870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+      imgLink: "https://images.pexels.com/photos/1122870/pexels-photo-1122870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       shelfSpace: shelfSpaceString,
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),
       bestBuyback: bestBuybackString,
     };
   });
+
+  const getFilteredRows = ({ apiRef }: GridCsvGetRowsToExportParams) =>
+    gridVisibleSortedRowIdsSelector(apiRef);
+
+  const ExportIcon = createSvgIcon(
+    <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z" />,
+    'SaveAlt',
+  );
+
+  const CustomToolbar = () => {
+    const apiRef = useGridApiContext();
+
+    const fetchExportData = (options: GridCsvExportOptions) => {
+      const csv = apiRef.current.getDataAsCsv(options);
+      console.log(csv);
+      const csvSplit = CSV.parse(csv, ",");
+      csvSplit.shift();
+      const books: string[] = [];
+      const calculated: string[][] = [];
+      csvSplit.forEach(function (fields){
+        books.push(fields[0] as string);
+        const calculatedEntry: string[] = [];
+        fields.shift()
+        fields.forEach(function (value) {
+          calculatedEntry.push(value);
+        })
+        calculated.push(calculatedEntry);
+      })
+      setExportedBooks(books);
+      setCalculatedExportValues(calculated);
+    }
+
+    const handleExport = () => {
+      console.log("Starting Export")
+      console.log(exportQuery)
+      if(!exportQuery.isSuccess){
+        alert("Data Not Fetched");
+        return;
+      }
+      if(exportedBooks === undefined){
+        alert("No Books in Export");
+        return;
+      }
+      if(calculatedExportValues === undefined){
+        alert("Data not Available on Table for Export");
+        return;
+      }
+      console.log(calculatedExportValues)
+      const exportedData: CSVBookExport = {
+        headers: ["title",
+          "authors",
+          "isbn_13",
+          "isbn_10",
+          "publisher",
+          "publication_year",
+          "page_count",
+          "height",
+          "width",
+          "thickness",
+          "retail_price",
+          "genre",
+          "inventory_count",
+          "shelf_space_inches",
+          "last_month_sales",
+          "days_of_supply",
+          "best_buyback_price"],
+        data: []
+      };
+      if(exportQuery.data.length !== calculatedExportValues?.length){
+        alert("Backend Error in Database");
+        return;
+      }
+      exportQuery.data.forEach(function (book, index){
+        const entry:CSVBookExportEntry = {
+          title: book.title ? book.title: "",
+          authors: book.authors ? book.authors.join("|"): "",
+          isbn_13: book.isbn_13 ? book.isbn_13: "",
+          isbn_10: book.isbn_10 ? book.isbn_10: "",
+          publisher: book.publisher ? book.publisher: "",
+          publication_year: book.publication_year ? book.publication_year: NaN,
+          page_count: book.page_count ? book.page_count: NaN,
+          height: book.height ? book.height: NaN,
+          width: book.width ? book.width: NaN,
+          thickness: book.thickness ? book.thickness: NaN,
+          retail_price: book.retail_price ? book.retail_price: NaN,
+          genre: book.genre ? book.genre: "",
+          inventory_count: book.inventory_count ? book.inventory_count: 0,
+          shelf_space_inches: 0,
+          last_month_sales: 0,
+          days_of_supply: Infinity,
+          best_buyback_price: 0,
+        };
+        if(calculatedExportValues.at(index) !== undefined){
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const calculatedEntry = calculatedExportValues.at(index)!;
+          if(calculatedEntry.at(0) !== undefined){
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const shelf = calculatedEntry.at(0)!;
+            entry.shelf_space_inches = parseFloat(shelf);
+          }
+          if(calculatedEntry.at(0) !== undefined){
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const last_month = calculatedEntry.at(1)!;
+            entry.last_month_sales = parseInt(last_month);
+          }
+          if(calculatedEntry.at(0) !== undefined){
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const days = calculatedEntry.at(2)!;
+            entry.days_of_supply = parseInt(days);
+          }
+          if(calculatedEntry.at(0) !== undefined){
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const best = calculatedEntry.at(3)!;
+            entry.best_buyback_price = parseFloat(best);
+          }
+        }
+        exportedData.data.push(entry);
+      })
+      console.log(exportedData)
+
+      const header = [
+        { id: "title", title: "title" },
+        { id: "authors", title: "authors"},
+        { id: "isbn_13", title: "isbn_13" },
+        { id: "isbn_10", title: "isbn_10"},
+        { id: "publisher", title: "publisher" },
+        { id: "publication_year", title: "publication_year"},
+        { id: "page_count", title: "page_count" },
+        { id: "height", title: "height"},
+        { id: "width", title: "width" },
+        { id: "thickness", title: "thickness" },
+        { id: "retail_price", title: "retail_price"},
+        { id: "genre", title: "genre"},
+        { id: "inventory_count", title: "inventory_count" },
+        { id: "shelf_space_inches", title: "shelf_space_inches"},
+        { id: "last_month_sales", title: "last_month_sales"},
+        { id: "days_of_supply", title: "days_of_supply" },
+        { id: "best_buyback_price", title: "best_buyback_price"},
+      ]
+
+
+      const csvRows:string[][] = [];
+
+      csvRows.push(exportedData.headers);
+      exportedData.data.forEach(function (value){
+        const lineArray: string[] = [];
+        lineArray.push(value.title.replace(",", "-"));
+        lineArray.push(value.authors.replace(",", "-"));
+        lineArray.push(value.isbn_13.replace(",", "-"));
+        lineArray.push(value.isbn_10.replace(",", "-"));
+        lineArray.push(value.publisher.replace(",", "-"));
+        lineArray.push(value.publication_year.toString());
+        lineArray.push(value.page_count.toString());
+        lineArray.push(value.height.toString());
+        lineArray.push(value.width.toString());
+        lineArray.push(value.thickness.toString());
+        lineArray.push(value.retail_price.toString());
+        lineArray.push(value.genre.replace(",", "-"));
+        lineArray.push(value.inventory_count.toString());
+        lineArray.push(value.shelf_space_inches.toString());
+        lineArray.push(value.last_month_sales.toString());
+        lineArray.push(value.days_of_supply.toString());
+        lineArray.push(value.best_buyback_price.toString());
+        csvRows.push(lineArray);
+      })
+
+      const csvData:string = csvRows.join('\n')
+
+      const blob = new Blob([csvData], { type: 'text/csv;encoding:utf-8'});
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a')
+
+      a.setAttribute('href', url)
+      a.setAttribute('download', 'download.csv');
+      a.click()
+      
+    }
+
+    const buttonBaseProps: ButtonProps = {
+      color: 'primary',
+      size: 'small',
+      startIcon: <ExportIcon />,
+    };
+    return (
+      <GridToolbarContainer>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+        <GridToolbarDensitySelector />
+        <Button
+          {...buttonBaseProps}
+          onClick={() => fetchExportData({ getRowsToExport: getFilteredRows , fields: ["isbn_13", "shelfSpace", "lastMonthSales", "daysSupply", "bestBuyback"], delimiter: ","})}
+        >
+          Prepare CSV
+        </Button>
+        <Button
+          onClick={() => {
+            handleExport()
+          }}
+          disabled={!(exportQuery.isSuccess)}
+        >
+          Confirm CSV Export
+        </Button>
+      </GridToolbarContainer>
+    );
+  };
 
   return (
     <>
@@ -204,7 +423,7 @@ export default function Books(
             columns={columns}
             components={{
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              Toolbar: GridToolbar,
+              Toolbar: CustomToolbar,
             }}
             pageSize={14}
             autoHeight={true}
