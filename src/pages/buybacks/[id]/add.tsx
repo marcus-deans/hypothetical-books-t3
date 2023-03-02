@@ -12,7 +12,7 @@ import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
 import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function AddBuyBackLine(
@@ -57,8 +57,9 @@ export default function AddBuyBackLine(
       ) {
         toast.error("Unit Buyback Price and Quantity must be positive numbers");
 
-        throw new Error("Unit Buyback Price and Quantity must be positive numbers");
-
+        throw new Error(
+          "Unit Buyback Price and Quantity must be positive numbers"
+        );
       }
       const addResult = addMutation.mutate({
         bookId: bookValue.id,
@@ -92,7 +93,7 @@ export default function AddBuyBackLine(
         <title>Add Buyback Line</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Create Buyback Line
@@ -101,7 +102,7 @@ export default function AddBuyBackLine(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-20">
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
                       <FormLabel>Buyback Order</FormLabel>
                       <FormHelperText>
@@ -116,12 +117,6 @@ export default function AddBuyBackLine(
                           newValue: { label: string; id: string } | null
                         ) => {
                           setBuybackValue(newValue);
-                        }}
-                        onInputChange={(
-                          event,
-                          newBuybackInputValue: string
-                        ) => {
-                          setBuybackInputValue(newBuybackInputValue);
                         }}
                         sx={{ width: 425 }}
                         renderInput={(params) => (
@@ -147,9 +142,6 @@ export default function AddBuyBackLine(
                         ) => {
                           setBookValue(newValue);
                         }}
-                        onInputChange={(event, newBookInputValue: string) => {
-                          setBookInputValue(newBookInputValue);
-                        }}
                         sx={{ width: 425 }}
                         renderInput={(params) => (
                           <TextField
@@ -162,7 +154,7 @@ export default function AddBuyBackLine(
                       />
                     </FormControl>
                   </div>
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
                       <FormLabel>Quantity</FormLabel>
                       <input

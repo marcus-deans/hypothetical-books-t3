@@ -11,7 +11,10 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { api } from "../../../utils/api";
 import Papa from "papaparse";
-import { CSVSaleInput, CSVSaleInputId } from "../../../schema/imports.schema";
+import type {
+  CSVSaleInput,
+  CSVSaleInputId,
+} from "../../../schema/imports.schema";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function ImportSale(
@@ -23,15 +26,16 @@ export default function ImportSale(
   const [parsedCsvData, setParsedCsvData] = useState<CSVSaleInput[]>();
   const [file, setFile] = useState<File>();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const headersVerified = api.csvPorts.verifyImportHeaders.useQuery({
-    headers: parsedHeaders
-  }, { enabled: !!parsedHeaders });
-  const importVerified =
-    api.csvPorts.verifySaleCSV.useQuery(
-      parsedCsvData,
-      { enabled: !!headersVerified && headersVerified.data?.verified });
-  const mutatedImport =
-    api.csvPorts.addSaleImport.useMutation();
+  const headersVerified = api.csvPorts.verifyImportHeaders.useQuery(
+    {
+      headers: parsedHeaders,
+    },
+    { enabled: !!parsedHeaders }
+  );
+  const importVerified = api.csvPorts.verifySaleCSV.useQuery(parsedCsvData, {
+    enabled: !!headersVerified && headersVerified.data?.verified,
+  });
+  const mutatedImport = api.csvPorts.addSaleImport.useMutation();
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -40,13 +44,15 @@ export default function ImportSale(
   };
 
   const handleUpload = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault()
+    event.preventDefault();
     if (!file) {
-      toast.error("No file Selected. Please Select a File")
+      toast.error("No file Selected. Please Select a File");
       return;
     }
     if (file.type !== "text/csv") {
-      toast.error("Input file is not an a Comma Separated Values File. Please select a file with type .csv .");
+      toast.error(
+        "Input file is not an a Comma Separated Values File. Please select a file with type .csv ."
+      );
       return;
     }
 
@@ -60,43 +66,41 @@ export default function ImportSale(
         const parsedData: CSVSaleInput[] = [];
         results.data.forEach(function (value) {
           parsedData.push(value as CSVSaleInput);
-        })
+        });
         setParsedCsvData(parsedData);
-      }
+      },
     });
-  }
+  };
   const handleSubmit = (event: React.MouseEvent<HTMLElement>) => {
-
     setIsSubmitting(true);
     try {
       const parsed = importVerified.data;
       if (parsed === undefined) {
-        toast.error("You must upload a file first")
+        toast.error("You must upload a file first");
         setIsSubmitting(false);
         return;
       }
       if (!parsed.verified) {
-        toast.error("Error: " + parsed.message)
+        toast.error("Error: " + parsed.message);
         setIsSubmitting(false);
         return;
       }
       const parsedData = importVerified.data.parsedData;
       const parsedDataTyped: CSVSaleInputId[] = parsedData;
-      console.log(parsedDataTyped)
+      console.log(parsedDataTyped);
       mutatedImport.mutate({
         data: parsedDataTyped,
         salesOrderId: id,
-      })
+      });
       toast.success("Successfully Imported File");
       setTimeout(() => {
         void router.push(`/sales/${encodeURIComponent(id)}/detail`);
       }, 500);
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error);
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <>
@@ -104,7 +108,7 @@ export default function ImportSale(
         <title>Import Sale Order</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Import Sale Order CSV
@@ -113,9 +117,18 @@ export default function ImportSale(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div>
-                  <input type="file" onChange={handleFileChange} className="bg-blue-500 text-white font-bold py-2 px-4 rounded" />
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    className="rounded bg-blue-500 py-2 px-4 font-bold text-white"
+                  />
                   <div className="pt-3" />
-                  <button onClick={handleUpload} className="padding-top:10px bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Upload</button>
+                  <button
+                    onClick={handleUpload}
+                    className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+                  >
+                    Upload
+                  </button>
                   <ToastContainer></ToastContainer>
                 </div>
               </div>
@@ -137,8 +150,6 @@ export default function ImportSale(
   );
 }
 
-
-
 export const getStaticPaths: GetStaticPaths = async () => {
   const salesReconciliation = await prisma.salesReconciliation.findMany({
     select: {
@@ -155,12 +166,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
   return { paths, fallback: true };
 };
 
-export function getStaticProps(
-  context: GetStaticPropsContext<{ id: string }>
-) {
-
+export function getStaticProps(context: GetStaticPropsContext<{ id: string }>) {
   const id = context.params?.id as string;
-
 
   return {
     props: {
