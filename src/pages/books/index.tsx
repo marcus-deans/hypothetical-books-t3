@@ -18,7 +18,7 @@ import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import logger from "../../utils/logger";
 import EditLink from "../../components/table-components/EditLink";
-import Modal from '@mui/material/Modal';
+import Modal from "@mui/material/Modal";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -41,18 +41,22 @@ export default function Books(
 
       renderCell: (params) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const url = params.row.imgLink as string;
+        const url = params.row.imgUrl as string;
         return (
           <div className="text-blue-600">
-            <img src={url} onClick = {handleOpen}style={{ width: 40, height: 60 }}/>
+            <img
+              src={url}
+              onClick={handleOpen}
+              style={{ width: 40, height: 60 }}
+            />
             <Modal
-  open={open}
-  onClose={handleClose}
-  aria-labelledby="modal-modal-title"
-  aria-describedby="modal-modal-description"
->
-<img src={url} style={{width: 160, height: 240 }}/>
-</Modal>
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <img src={url} style={{ width: 160, height: 240 }} />
+            </Modal>
           </div>
         );
       },
@@ -191,8 +195,7 @@ export default function Books(
       retailPrice: `$${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
-      imgUrl:
-        "https://images.pexels.com/photos/1122870/pexels-photo-1122870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+      imgUrl: book.imgUrl,
       shelfSpace: shelfSpaceString,
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),

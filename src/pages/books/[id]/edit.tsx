@@ -18,6 +18,7 @@ import { toast, ToastContainer } from "react-toastify";
 import type { S3 } from "aws-sdk/clients/browser_default";
 import Image from "next/image";
 import "react-toastify/dist/ReactToastify.css";
+import { env } from "../../../env/client.mjs";
 
 const ImageCard = ({
   url,
@@ -118,7 +119,7 @@ export default function EditBook(
         throw new Error("Dimensions are required");
       }
 
-      const addResult = editMutation.mutate({
+      const editResult = editMutation.mutate({
         id: id,
         retailPrice: finalRetailPrice,
         pageCount: finalPageCount,
@@ -126,7 +127,6 @@ export default function EditBook(
         width: finalWidth,
         height: finalHeight,
         thickness: finalThickness,
-        imgUrl: imgUrl,
       });
       setTimeout(() => {
         void router.push(`/books/${encodeURIComponent(id)}/detail`);
@@ -149,8 +149,8 @@ export default function EditBook(
     api.imageUpload.createPresignedUrl.useMutation();
   // trpc.useMutation('image.createPresignedUrl');
 
-  const { mutateAsync: getImageUrl } =
-    api.imageUpload.getImageUrl.useMutation();
+  // const { mutateAsync: getImageUrl } =
+  //   api.imageUpload.getImageUrl.useMutation();
 
   const { data: images, refetch: refetchImages } =
     api.imageUpload.getImagesForUser.useQuery();
@@ -184,7 +184,9 @@ export default function EditBook(
       );
       return;
     }
-    const presignedUrl = (await createPresignedUrl()) as S3.PresignedPost;
+    const presignedUrl = (await createPresignedUrl({
+      bookId: id,
+    })) as S3.PresignedPost;
     const url = presignedUrl.url;
     const fields = presignedUrl.fields;
     const imageData = {
@@ -203,8 +205,8 @@ export default function EditBook(
       method: "POST",
       body: formData,
     });
-    const imageUrl = (await getImageUrl({ bookId: id })) as string;
-    setImgUrl(imageUrl);
+    // const imageUrl = await getImageUrl({ bookId: id });
+    // setImgUrl(imageUrl);
     await refetchImages();
     setFile(null);
     if (fileRef.current) {
@@ -361,6 +363,7 @@ export default function EditBook(
                     onChange={handleFileChange}
                     className="rounded bg-blue-500 py-2 px-4 font-bold text-white"
                   />
+                  {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
                   <button
                     onClick={handleUpload}
                     className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"

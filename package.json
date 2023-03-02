@@ -12,8 +12,13 @@
     "test": "jest --watch"
   },
   "dependencies": {
+    "@aws-crypto/sha256-browser": "^4.0.0",
     "@aws-sdk/client-s3": "^3.282.0",
+    "@aws-sdk/hash-node": "^3.272.0",
+    "@aws-sdk/protocol-http": "^3.282.0",
     "@aws-sdk/s3-request-presigner": "^3.282.0",
+    "@aws-sdk/url-parser": "^3.272.0",
+    "@aws-sdk/util-format-url": "^3.272.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@logtail/pino": "^0.3.1",

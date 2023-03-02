@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
+import { env } from "../../../env/server.mjs";
 
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -320,6 +321,7 @@ export const booksRouter = createTRPCRouter({
           width: input.width,
           height: input.height,
           thickness: input.thickness,
+          imgUrl: `https://${env.AWS_S3_BUCKET}.s3.amazonaws.com/images/${input.id}`,
         },
       });
 
