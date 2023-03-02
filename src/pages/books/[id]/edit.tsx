@@ -59,7 +59,6 @@ const ImageCard = ({
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
-
   const { id } = props;
   const router = useRouter();
   const bookDetailsQuery = api.books.getByIdWithAllDetails.useQuery({
@@ -183,7 +182,8 @@ export default function EditBook(
     };
     const formData = new FormData();
     for (const name in imageData) {
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       formData.append(name, imageData[name]);
     }
     await fetch(url, {
@@ -200,7 +200,7 @@ export default function EditBook(
   return (
     <>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 pt-3 inline-block">
+        <form className="inline-block rounded bg-white px-6 pt-3">
           <div className="mb-4 items-center">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Edit Book
@@ -211,10 +211,11 @@ export default function EditBook(
                 <div className="space-y-10">
                   <div className="flex justify-center space-x-10">
                     <div className="text-gra-700 text-md font-bold">
-                      {`${bookDetailsQuery?.data?.title ?? ""} by ${bookDetailsQuery?.data?.authors
-                        .map((author) => author.name)
-                        .join(", ") ?? ""
-                        }`}
+                      {`${bookDetailsQuery?.data?.title ?? ""} by ${
+                        bookDetailsQuery?.data?.authors
+                          .map((author) => author.name)
+                          .join(", ") ?? ""
+                      }`}
                     </div>
                     <div className="text-gra-700 text-md font-bold">
                       {`ISBN-13: ${bookDetailsQuery?.data?.isbn_13 ?? ""}`}
@@ -334,7 +335,7 @@ export default function EditBook(
                     </FormControl>
                   </div>
                 </div>
-                <div className="flex space-x-5 justify-center inline-block pt-6">
+                <div className="inline-block flex justify-center space-x-5 pt-6">
                   <input
                     type="file"
                     onChange={handleFileChange}
@@ -360,7 +361,7 @@ export default function EditBook(
                 </div>
                 <div className="flex items-center justify-between pt-4">
                   <button
-                    className="flex space focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                    className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
                     type="button"
                     onClick={handleSubmit}
                   >
