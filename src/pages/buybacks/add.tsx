@@ -16,6 +16,8 @@ import superjson from "superjson";
 import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import dayjs from "dayjs";
+import {toast, ToastContainer} from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddBuybackOrder(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -54,6 +56,7 @@ export default function AddBuybackOrder(
     setIsSubmitting(true);
     try {
       if (!dateValue || !vendorValue) {
+        toast.error("Date and vendor are required");
         throw new Error("Date and vendor are required");
       }
       const addResult = addMutation.mutate({
@@ -62,7 +65,7 @@ export default function AddBuybackOrder(
         buybackLines: [],
       });
       setTimeout(() => {
-        void router.push("/purchases");
+        void router.push("/buybacks");
       }, 500);
     } catch (error) {
       console.log(error);
@@ -136,6 +139,7 @@ export default function AddBuybackOrder(
           </div>
         </div>
       </form>
+      <ToastContainer></ToastContainer>
     </div>
   );
 }
