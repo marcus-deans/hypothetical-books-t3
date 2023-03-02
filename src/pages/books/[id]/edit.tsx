@@ -168,8 +168,7 @@ export default function EditBook(
     }
   };
 
-  const handleUpload = async (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
+  const asyncUpload = async () => {
     if (!file) {
       toast.error("No file Selected. Please Select a File");
       return;
@@ -196,9 +195,9 @@ export default function EditBook(
     };
     const formData = new FormData();
     for (const name in imageData) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      /* eslint-disable */
       formData.append(name, imageData[name]);
+      /*eslint-enable */
     }
     console.log(`URL: ${url}`);
     await fetch(url, {
@@ -213,6 +212,11 @@ export default function EditBook(
       fileRef.current.value = "";
     }
     toast.success("Added Image");
+  };
+
+  const handleUpload = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    void asyncUpload();
     //Implement API call to send image back
   };
   const refetchUserImages = async () => {
