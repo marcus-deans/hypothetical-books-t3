@@ -17,6 +17,7 @@ import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import type { S3 } from "aws-sdk/clients/browser_default";
 import Image from "next/image";
+import "react-toastify/dist/ReactToastify.css";
 
 const ImageCard = ({
   url,
@@ -172,6 +173,7 @@ export default function EditBook(
       );
       return;
     }
+<<<<<<< HEAD
     const presignedUrl = (await createPresignedUrl()) as S3.PresignedPost;
     const url = presignedUrl.url;
     const fields = presignedUrl.fields;
@@ -195,6 +197,10 @@ export default function EditBook(
     if (fileRef.current) {
       fileRef.current.value = "";
     }
+=======
+    toast.success("Added Image")
+    //Implement API call to send image back
+>>>>>>> staging
   };
 
   return (
@@ -347,7 +353,6 @@ export default function EditBook(
                   >
                     Upload
                   </button>
-                  <ToastContainer></ToastContainer>
                 </div>
                 <div className="flex justify-center">
                   {images &&
@@ -372,6 +377,8 @@ export default function EditBook(
             </div>
           </div>
         </form>
+        <ToastContainer></ToastContainer>
+
       </div>
     </>
   );

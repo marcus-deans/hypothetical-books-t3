@@ -263,7 +263,7 @@ export default function AddBook() {
     return (
       <>
         <Head>
-          <title>Books</title>
+          <title>Add Book</title>
         </Head>
         <div className="pt-6"></div>
         <div className="rounded-lg bg-white px-6 pt-6">

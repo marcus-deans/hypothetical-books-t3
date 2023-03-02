@@ -15,6 +15,8 @@ const config = {
     defaultLocale: "en",
   },
   images: {
+    domains: ["images.pexels.com"],
+    formats: ["image/webp"],
     remotePatterns: [
       {
         protocol: 'https',

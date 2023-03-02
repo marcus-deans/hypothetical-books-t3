@@ -128,7 +128,7 @@ export default function BuybackOrderDetail(
   return (
     <>
       <Head>
-        <title>Buybacks</title>
+        <title>Buyback Details</title>
       </Head>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
@@ -137,7 +137,7 @@ export default function BuybackOrderDetail(
         </h1>
       </div>
       <div className="pt-3 space flex">
-      <Link className="items-end pr-3" href={`/buybacks/${id}/add`} passHref>
+        <Link className="items-end pr-3" href={`/buybacks/${id}/add`} passHref>
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
@@ -159,6 +159,14 @@ export default function BuybackOrderDetail(
             variant="contained"
           >
             Delete Buyback Order
+          </Button>
+        </Link>
+        <Link className="items-end px-3" href={`/buybacks/${id}/import`} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Import CSV
           </Button>
         </Link>
       </div>

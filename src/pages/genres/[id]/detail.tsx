@@ -12,6 +12,7 @@ import Box from "@mui/material/Box";
 import StripedDataGrid from "../../../components/table-components/StripedDataGrid";
 import React from "react";
 import DetailLink from "../../../components/table-components/DetailLink";
+import Head from "next/head";
 
 export default function DetailGenre(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -77,6 +78,9 @@ export default function DetailGenre(
 
   return (
     <>
+    <Head>
+      <title>Genre Details</title>
+    </Head>
     <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
