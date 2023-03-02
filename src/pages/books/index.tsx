@@ -10,27 +10,48 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
+import ModalImage from "react-modal-image";
 import type { GridColDef } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
+import logger from "../../utils/logger";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({
+  const booksQuery = api.books.getAllWithDetails.useQuery({
     cursor: null,
     limit: 50,
   });
 
   const books = booksQuery?.data?.items ?? [];
+  //logger.info("Loading books page");
 
   const columns: GridColDef[] = [
+    {
+      field: "image",
+      headerName: "Cover",
+      headerClassName: "header-theme",
+    
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+              <ModalImage
+  small={params.row.imgLink}
+  large={params.row.imgLink}
+  alt="cover"
+/>;
+          </div>
+        );
+      },
+    },
     {
       field: "title",
       headerName: "Title",
       headerClassName: "header-theme",
       flex: 1,
+      minWidth: 250,
       renderCell: (params) => {
         return (
           <div className="text-blue-600">
@@ -45,38 +66,98 @@ export default function Books(
       headerName: "Author",
       headerClassName: "header-theme",
       flex: 1,
+      minWidth: 150,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
-      maxWidth: 140,
-      flex: 1,
+      minWidth: 125,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price",
       headerClassName: "header-theme",
-      maxWidth: 100,
+      minWidth: 100,
       flex: 1,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      maxWidth: 120,
+      minWidth: 100,
       flex: 1,
     },
     {
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
-      maxWidth: 80,
+      width: 80,
+      flex: 1,
+    },
+    {
+      field: "shelfSpace",
+      headerName: "Shelf Space",
+      headerClassName: "header-theme",
+      minWidth: 95,
+      flex: 1,
+    },
+    {
+      field: "lastMonthSales",
+      headerName: "Monthly Sales",
+      headerClassName: "header-theme",
+      minWidth: 105,
+      flex: 1,
+    },
+    {
+      field: "daysSupply",
+      headerName: "Days Supply",
+      headerClassName: "header-theme",
+      minWidth: 100,
+      flex: 1,
+    },
+    {
+      field: "bestBuyback",
+      headerName: "Best Buyback",
+      headerClassName: "header-theme",
+      minWidth: 100,
       flex: 1,
     },
   ];
 
   const rows = books.map((book) => {
+    const bookThickness = book.thickness;
+    const shelfSpace =
+      bookThickness === 0
+        ? (0.8 * book.inventoryCount).toFixed(2)
+        : (bookThickness * book.inventoryCount).toFixed(2);
+    let lastMonthSales = 0;
+    const today = new Date();
+    const thirtyDaysAgo = new Date(new Date().setDate(today.getDate() - 30));
+    for (const salesLine of book.salesLines) {
+      const salesLineDate = salesLine.salesReconciliation.date;
+      if (salesLineDate > thirtyDaysAgo) {
+        lastMonthSales += salesLine.quantity;
+      }
+    }
+    const daysSupply =
+      lastMonthSales === 0
+        ? Infinity
+        : Math.floor((book.inventoryCount / lastMonthSales) * 30);
+    let bestBuybackPrice = 0;
+    for (const costMostRecentVendor of book.costMostRecentVendor) {
+      const currentVendorOffer =
+        costMostRecentVendor.vendor.buybackRate *
+        costMostRecentVendor.purchaseLine.unitWholesalePrice;
+      bestBuybackPrice = Math.max(bestBuybackPrice, currentVendorOffer);
+    }
+    const shelfSpaceString =
+      bookThickness === 0
+        ? `${shelfSpace.toString()}* in.`
+        : `${shelfSpace.toString()} in.`;
+    const bestBuybackString =
+      bestBuybackPrice === 0 ? "-" : `$${bestBuybackPrice.toFixed(2)}`;
+
     return {
       id: book.id,
       title: book.title,
@@ -85,6 +166,11 @@ export default function Books(
       retailPrice: `$${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
+      imgLink : "https://images.pexels.com/photos/1122870/pexels-photo-1122870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+      shelfSpace: shelfSpaceString,
+      lastMonthSales: lastMonthSales.toString(),
+      daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),
+      bestBuyback: bestBuybackString,
     };
   });
 
@@ -133,6 +219,9 @@ export default function Books(
             }
           />
         </Box>
+        <div className="text-sm">
+          {'*: Shelf space from estimated width of 0.8"'}
+        </div>
       </div>
     </>
   );
@@ -156,7 +245,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.books.getAllWithAuthorsAndGenre.prefetch({
+  await ssg.books.getAllWithDetails.prefetch({
     cursor: null,
     limit: 50,
   });

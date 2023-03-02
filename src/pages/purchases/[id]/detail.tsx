@@ -40,6 +40,17 @@ export default function PurchaseOrderDetail(
       headerName: "Book Title",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions */}
+            <a href={`/books/${params.row.bookId}/detail`}>
+              {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
+              {params.row.title}{" "}
+            </a>
+          </div>
+        );
+      },
     },
     {
       field: "isbn_13",
@@ -103,6 +114,7 @@ export default function PurchaseOrderDetail(
       return {
         id: purchaseLine.id,
         title: purchaseLine.book.title,
+        bookId: purchaseLine.book.id,
         isbn_13: purchaseLine.book.isbn_13,
         unitWholesalePrice: `$${purchaseLine.unitWholesalePrice.toFixed(2)}`,
         quantity: purchaseLine.quantity,
@@ -118,47 +130,49 @@ export default function PurchaseOrderDetail(
       <Head>
         <title>Purchases</title>
       </Head>
-      <Link className="items-end px-6" href={`/purchases/${id}/edit`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Edit Purchase Order
-        </Button>
-      </Link>
-      <Link
-        className="items-end px-6"
-        href={`/purchases/${id}/delete`}
-        passHref
-      >
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Delete Purchase Order
-        </Button>
-      </Link>
-      <Link className="items-end px-6" href={`/purchases/${id}/add`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Add Purchase Line
-        </Button>
-      </Link>
-      <Link className="items-end px-6" href={`/purchases/${id}/import`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Import CSV
-        </Button>
-      </Link>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
           {`Purchase Order on ${data.purchaseOrderWithOverallMetrics.date.toLocaleDateString()}`}{" "}
         </h1>
+      </div>
+      <div className="pt-3 space flex">
+        <Link className="items-end pr-3" href={`/purchases/${id}/add`} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Add Purchase Line
+          </Button>
+        </Link>
+        <Link className="items-end px-3" href={`/purchases/${id}/edit`} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Edit Purchase Order
+          </Button>
+        </Link>
+        <Link
+          className="items-end px-3"
+          href={`/purchases/${id}/delete`}
+          passHref
+        >
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Delete Purchase Order
+          </Button>
+        </Link>
+        <Link className="items-end px-3" href={`/purchases/${id}/import`} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Import CSV
+          </Button>
+        </Link>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
         <Box

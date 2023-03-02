@@ -329,6 +329,15 @@ export const purchaseOrdersRouter = createTRPCRouter({
     )
 
     .mutation(async ({ input }) => {
+      const currentPurchaseOrder = await prisma.purchaseOrder.findFirst({
+        where: {
+          id: input.id,
+        },
+        include: {
+          purchaseLines: true,
+        },
+      });
+
       const editedPurchaseOrder = await prisma.purchaseOrder.update({
         where: { id: input.id },
         data: {
@@ -341,6 +350,192 @@ export const purchaseOrdersRouter = createTRPCRouter({
           display: true,
         },
       });
+
+      const currentDate = currentPurchaseOrder?.date ?? new Date();
+      const newDate = input.date;
+      if (newDate < currentDate) {
+        const outdatedCostMostRecentVendors =
+          await prisma.costMostRecentVendor.findMany({
+            where: {
+              purchaseOrder: {
+                id: input.id,
+              },
+            },
+          });
+
+        for (const outdatedCostMostRecentVendor of outdatedCostMostRecentVendors) {
+          const mostRecentPurchaseOrder = await prisma.purchaseOrder.findFirst({
+            where: {
+              purchaseLines: {
+                some: {
+                  book: {
+                    id: outdatedCostMostRecentVendor.bookId,
+                  },
+                },
+              },
+              vendor: {
+                id: outdatedCostMostRecentVendor.vendorId,
+              },
+            },
+            include: {
+              purchaseLines: {
+                where: {
+                  book: {
+                    id: outdatedCostMostRecentVendor.bookId,
+                  },
+                },
+                select: {
+                  id: true,
+                },
+              },
+            },
+            orderBy: {
+              date: "desc",
+            },
+          });
+
+          const updatedCostMostRecentVendor =
+            await prisma.costMostRecentVendor.update({
+              where: {
+                id: outdatedCostMostRecentVendor.id,
+              },
+              data: {
+                purchaseOrder: {
+                  connect: {
+                    id: mostRecentPurchaseOrder?.id,
+                  },
+                },
+                vendor: {
+                  connect: {
+                    id: mostRecentPurchaseOrder?.vendorId,
+                  },
+                },
+                purchaseLine: {
+                  connect: {
+                    id:
+                      mostRecentPurchaseOrder?.purchaseLines[0]?.id ??
+                      undefined,
+                  },
+                },
+              },
+            });
+        }
+      }
+      const currentVendorId = currentPurchaseOrder?.vendorId ?? "";
+
+      if (currentVendorId !== input.vendorId) {
+        for (const outdatedPurchaseLine of currentPurchaseOrder?.purchaseLines ??
+          []) {
+          // Find most recent purchase order for the current vendor
+          const mostRecentPurchaseOrderCurrentVendor =
+            await prisma.purchaseOrder.findFirst({
+              where: {
+                purchaseLines: {
+                  some: {
+                    book: {
+                      id: outdatedPurchaseLine.bookId,
+                    },
+                  },
+                },
+                vendor: {
+                  id: currentVendorId,
+                },
+              },
+              include: {
+                purchaseLines: {
+                  where: {
+                    book: {
+                      id: outdatedPurchaseLine.bookId,
+                    },
+                  },
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+              orderBy: {
+                date: "desc",
+              },
+            });
+
+          await prisma.costMostRecentVendor.update({
+            where: {
+              costMostRecentVendorId: {
+                bookId: outdatedPurchaseLine.bookId,
+                vendorId: currentVendorId,
+              },
+            },
+            data: {
+              purchaseOrder: {
+                connect: {
+                  id: mostRecentPurchaseOrderCurrentVendor?.id,
+                },
+              },
+              purchaseLine: {
+                connect: {
+                  id: mostRecentPurchaseOrderCurrentVendor?.purchaseLines[0]
+                    ?.id,
+                },
+              },
+            },
+          });
+
+          // Find the most recent purchase order for the new vendor
+          const mostRecentPurchaseOrderNewVendor =
+            await prisma.purchaseOrder.findFirst({
+              where: {
+                purchaseLines: {
+                  some: {
+                    book: {
+                      id: outdatedPurchaseLine.bookId,
+                    },
+                  },
+                },
+                vendor: {
+                  id: input.vendorId,
+                },
+              },
+              include: {
+                purchaseLines: {
+                  where: {
+                    book: {
+                      id: outdatedPurchaseLine.bookId,
+                    },
+                  },
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+              orderBy: {
+                date: "desc",
+              },
+            });
+
+          await prisma.costMostRecentVendor.update({
+            where: {
+              costMostRecentVendorId: {
+                bookId: outdatedPurchaseLine.bookId,
+                vendorId: input.vendorId,
+              },
+            },
+            data: {
+              purchaseOrder: {
+                connect: {
+                  id: mostRecentPurchaseOrderCurrentVendor?.id,
+                },
+              },
+              purchaseLine: {
+                connect: {
+                  id: mostRecentPurchaseOrderCurrentVendor?.purchaseLines[0]
+                    ?.id,
+                },
+              },
+            },
+          });
+        }
+      }
+
       return editedPurchaseOrder;
     }),
 

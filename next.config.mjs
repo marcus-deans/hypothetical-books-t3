@@ -14,5 +14,9 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    domains: ["images.pexels.com"],
+    formats: ["image/webp"],
+},
 };
 export default config;

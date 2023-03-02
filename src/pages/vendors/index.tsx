@@ -41,7 +41,14 @@ export default function Vendors(
       headerName: "Vendor Name",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 250,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/vendors/${params.id}/detail`}>{params.row.name} </a>
+          </div>
+        );
+      },
     },
     {
       field: "buybackRate",
@@ -56,20 +63,6 @@ export default function Vendors(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 200,
-    },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/vendors/${params.id}/detail`} />
-      ),
     },
     {
       field: "edit",

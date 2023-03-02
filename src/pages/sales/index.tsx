@@ -1,7 +1,6 @@
 import React from "react";
 import Head from "next/head";
 import { api } from "../../utils/api";
-import { Logger } from "tslog";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import { appRouter } from "../../server/api/root";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
@@ -11,7 +10,6 @@ import type {
 } from "next";
 import superjson from "superjson";
 import Link from "next/link";
-import { Button } from "@mui/material";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
@@ -29,9 +27,6 @@ export default function sales(
 
   const salesReconciliations = salesReconciliationQuery?.data?.items ?? [];
 
-  const logger = new Logger({ name: "salesReconciliationsogger" });
-  logger.info("salesReconciliations", salesReconciliations); // This is the only line that is different from the Books page
-
   const columns: GridColDef[] = [
     {
       field: "id",
@@ -44,6 +39,14 @@ export default function sales(
       headerName: "Reconciliation Date",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/sales/${params.id}/detail`}>{params.row.date} </a>
+          </div>
+        );
+      },
     },
     {
       field: "totalQuantity",
@@ -65,20 +68,6 @@ export default function sales(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 150,
-    },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/sales/${params.id}/detail`} />
-      ),
     },
   ];
 
@@ -102,17 +91,6 @@ export default function sales(
         <Link
           className="ml-2 inline-block text-2xl text-blue-600"
           href="/sales/add/reconciliation"
-        >
-          {" "}
-          +{" "}
-        </Link>
-      </div>
-
-      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Sales Line </h1>
-        <Link
-          className="ml-2 inline-block text-2xl text-blue-600"
-          href="/sales/add/line"
         >
           {" "}
           +{" "}

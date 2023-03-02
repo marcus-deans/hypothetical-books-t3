@@ -41,27 +41,21 @@ export default function Genres(
       headerName: "Genre Name",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/genres/${params.id}/detail`}>{params.row.name} </a>
+          </div>
+        );
+      },
     },
     {
       field: "bookCount",
       headerName: "Book Count",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 200,
-    },
-    {
-      field: "detail",
-      headerName: "Detail",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DetailLink url={`/genres/${params.id}/detail`} />
-      ),
+      maxWidth: 120,
     },
     {
       field: "edit",

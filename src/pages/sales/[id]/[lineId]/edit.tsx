@@ -104,9 +104,9 @@ export default function EditSalesLine(
   }));
 
   return (
-    <div className="flex w-full items-center ">
-      <form className="mb-4 w-3/4 rounded bg-white px-8 pt-6 pb-8 shadow-md">
-        <div className="mb-4 items-center space-y-5">
+    <div className="pt-6">
+      <form className="rounded bg-white px-6 py-6 inline-block">
+        <div className="space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
             Edit Sales Line
           </div>
@@ -114,7 +114,7 @@ export default function EditSalesLine(
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
             <div className="col-span-4">
               <div className="space-y-20">
-                <div className="flex w-4/5 space-x-10">
+                <div className="flex space-x-10 justify-center">
                   <FormControl>
                     <FormLabel>Sales Reconciliation</FormLabel>
                     <FormHelperText>
@@ -129,11 +129,11 @@ export default function EditSalesLine(
                         newValue: { label: string; id: string; } | null
                       ) => {
                         setSalesValue(newValue);
-                      } }
+                      }}
                       onInputChange={(event, newSalesInputValue: string) => {
                         setSalesInputValue(newSalesInputValue);
-                      } }
-                      sx={{ width: 425 }} 
+                      }}
+                      sx={{ width: 425 }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -142,7 +142,7 @@ export default function EditSalesLine(
                           }}
                         />
                       )}
-                      />
+                    />
                   </FormControl>
                   <FormControl>
                     <FormLabel>Book</FormLabel>
@@ -156,11 +156,11 @@ export default function EditSalesLine(
                         newValue: { label: string; id: string; } | null
                       ) => {
                         setBookValue(newValue);
-                      } }
+                      }}
                       onInputChange={(event, newBookInputValue: string) => {
                         setBookInputValue(newBookInputValue);
-                      } }
-                      sx={{ width: 425 }} 
+                      }}
+                      sx={{ width: 425 }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -169,38 +169,46 @@ export default function EditSalesLine(
                           }}
                         />
                       )}
-                      />
+                    />
                   </FormControl>
                 </div>
-                <div className="flex w-4/5 space-x-10">
-                  <input
-                    className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                    id="quantity"
-                    name="quantity"
-                    type="text"
-                    min="1"
-                    value={quantity}
-                    onChange={(
-                      event: React.ChangeEvent<HTMLInputElement>
-                    ): void => setQuantity(Number(event.target.value))}
-                    required
-                  />
-                  <input
-                    className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                    id="UnitWholesalePrice"
-                    name="UnitWholesalePrice"
-                    type="text"
-                    value={unitWholesalePrice}
-                    min="0"
-                    // value={unitWholesalePrice}
-                    onChange={(
-                      event: React.ChangeEvent<HTMLInputElement>
-                    ): void =>
-                      setUnitWholesalePrice(Number(event.target.value))
-                    }
-                    required
-                  />
-                </div>
+                <div className="flex space-x-10 justify-center">
+                  <FormControl>
+                    <FormLabel>Quantity</FormLabel>
+                    <input
+                      className="focus:shadow-outline appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      id="quantity"
+                      name="quantity"
+                      type="text"
+                      min="1"
+                      size={45}
+                      value={quantity}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void => setQuantity(Number(event.target.value))}
+                      required
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Unit Wholesale Price</FormLabel>
+                    <input
+                      className="focus:shadow-outline appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      id="UnitWholesalePrice"
+                      name="UnitWholesalePrice"
+                      type="text"
+                      value={unitWholesalePrice}
+                      min="0"
+                      size={45}
+                      // value={unitWholesalePrice}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void =>
+                        setUnitWholesalePrice(Number(event.target.value))
+                      }
+                      required
+                    />
+                  </FormControl>
+              </div>
               </div>
             </div>
           </div>

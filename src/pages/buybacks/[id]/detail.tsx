@@ -130,43 +130,45 @@ export default function BuybackOrderDetail(
       <Head>
         <title>Buybacks</title>
       </Head>
-      <Link className="items-end px-6" href={`/buybacks/${id}/edit`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Edit Buyback Order
-        </Button>
-      </Link>
-      <Link className="items-end px-6" href={`/buybacks/${id}/delete`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Delete Buyback Order
-        </Button>
-      </Link>
-      <Link className="items-end px-6" href={`/buybacks/${id}/add`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Add Buyback Line
-        </Button>
-      </Link>
-      <Link className="items-end px-6" href={`/buybacks/${id}/import`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Import CSV
-        </Button>
-      </Link>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Purchase Order on ${data.buybackOrderWithOverallMetrics.date.toLocaleDateString()}`}{" "}
+          {`Buy Back Order on ${data.buybackOrderWithOverallMetrics.date.toLocaleDateString()}`}{" "}
         </h1>
+      </div>
+      <div className="pt-3 space flex">
+        <Link className="items-end pr-3" href={`/buybacks/${id}/add`} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Add Buyback Line
+          </Button>
+        </Link>
+        <Link className="items-end px-3" href={`/buybacks/${id}/edit`} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Edit Buyback Order
+          </Button>
+        </Link>
+        <Link className="items-end px-3" href={`/buybacks/${id}/delete`} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Delete Buyback Order
+          </Button>
+        </Link>
+        <Link className="items-end px-3" href={`/buybacks/${id}/import`} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Import CSV
+          </Button>
+        </Link>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
         <Box

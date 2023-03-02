@@ -40,6 +40,17 @@ export default function SalesOrderDetail(
       headerName: "Book Title",
       headerClassName: "header-theme",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions */}
+            <a href={`/books/${params.row.bookId}/detail`}>
+              {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
+              {params.row.title}{" "}
+            </a>
+          </div>
+        );
+      },
     },
     {
       field: "isbn_13",
@@ -104,6 +115,7 @@ export default function SalesOrderDetail(
       return {
         id: salesLine.id,
         title: salesLine.book.title,
+        bookId: salesLine.book.id,
         isbn_13: salesLine.book.isbn_13,
         unitWholesalePrice: `$${salesLine.unitWholesalePrice.toFixed(2)}`,
         quantity: salesLine.quantity,
@@ -119,8 +131,22 @@ export default function SalesOrderDetail(
       <Head>
         <title>Sales Detail</title>
       </Head>
-      <div className="space flex">
-        <Link className="items-end" href={`/sales/${id}/edit`} passHref>
+      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl">
+          {" "}
+          {`Sales Reconciliation on ${data.salesReconciliationWithOverallMetrics.date.toLocaleDateString()}`}{" "}
+        </h1>
+      </div>
+      <div className="pt-3 space flex">
+        <Link className="items-end pr-3" href={"/sales/add/line"} passHref>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Add Sales Line
+          </Button>
+        </Link>
+        <Link className="items-end px-3" href={`/sales/${id}/edit`} passHref>
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
@@ -128,7 +154,7 @@ export default function SalesOrderDetail(
             Edit Sales Reconciliation
           </Button>
         </Link>
-        <Link className="items-end px-6" href={`/sales/${id}/delete`} passHref>
+        <Link className="items-end px-3" href={`/sales/${id}/delete`} passHref>
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
@@ -136,7 +162,7 @@ export default function SalesOrderDetail(
             Delete Sales Reconciliation
           </Button>
         </Link>
-        <Link className="items-end px-6" href={`/sales/${id}/import`} passHref>
+        <Link className="items-end px-3" href={`/sales/${id}/import`} passHref>
         <Button
           className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
           variant="contained"

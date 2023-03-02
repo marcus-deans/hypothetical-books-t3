@@ -127,7 +127,26 @@ export const booksRouter = createTRPCRouter({
           authors: true,
           genre: true,
           purchaseLines: true,
-          salesLines: true,
+          salesLines: {
+            include: {
+              salesReconciliation: {
+                select: {
+                  date: true,
+                },
+              },
+            },
+          },
+          buybackLines: true,
+          costMostRecentVendor: {
+            include: {
+              vendor: true,
+              purchaseLine: {
+                select: {
+                  unitWholesalePrice: true,
+                },
+              },
+            },
+          },
         },
         cursor: cursor
           ? {
@@ -205,8 +224,47 @@ export const booksRouter = createTRPCRouter({
         include: {
           authors: true,
           genre: true,
-          purchaseLines: true,
-          salesLines: true,
+          purchaseLines: {
+            include: {
+              purchaseOrder: {
+                include: {
+                  vendor: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          salesLines: {
+            include: {
+              salesReconciliation: true,
+            },
+          },
+          buybackLines: {
+            include: {
+              buybackOrder: {
+                include: {
+                  vendor: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          costMostRecentVendor: {
+            include: {
+              vendor: true,
+              purchaseLine: {
+                select: {
+                  unitWholesalePrice: true,
+                },
+              },
+            },
+          },
         },
       });
       if (!book || !book.display) {

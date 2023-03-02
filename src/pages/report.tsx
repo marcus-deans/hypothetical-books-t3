@@ -21,13 +21,13 @@ import superjson from "superjson";
 import type { purchaseOrders } from "../schema/purchases.schema";
 import type { salesReconciliation } from "../schema/sales.schema";
 import type { book } from "../schema/books.schema";
-import GenerateReport from "../components/GenerateReport";
-import { exit } from "process";
+import type { buyBackOrders } from "../schema/buybacks.schema";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function Report(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [startDateString, setStartDate] = useState(new Date());
   const [endDateString, setEndDate] = useState(new Date());
   const startDateTemp = new Date(startDateString);
@@ -54,18 +54,39 @@ export default function Report(
       { enabled: !!startDate && !!endDate }
     );
 
+  const buyBackQuery = api.buybackOrders.getByDateWithOverallMetrics.useQuery(
+    {
+      startDate: startDate,
+      endDate: endDate,
+      cursor: null,
+      limit: 50,
+    },
+    { enabled: !!startDate && !!endDate }
+  );
+
   const purchaseOrders: purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
   const salesReconciliations: salesReconciliation =
     salesQuery?.data?.items ?? [];
+  const buyBackOrders: buyBackOrders = buyBackQuery?.data?.items ?? [];
 
   const handleGenerate: MouseEventHandler<HTMLButtonElement> = () => {
+    setIsSubmitting(true);
     if (startDate.valueOf() > endDate.valueOf() + 1000 * 60) {
       alert(
         "End Date must be later than Start Date, or the same as Start Date"
       );
+      setIsSubmitting(false);
     } else {
-      generateReport(startDate, endDate, purchaseOrders, salesReconciliations);
+      setIsSubmitting(true);
+      generateReport(
+        startDate,
+        endDate,
+        purchaseOrders,
+        salesReconciliations,
+        buyBackOrders
+      );
     }
+    setIsSubmitting(false);
   };
 
   return (
@@ -74,7 +95,7 @@ export default function Report(
         <title>Report</title>
       </Head>
       <div className="pt-6">
-        <form className="inline-block rounded bg-white px-6 py-6">
+        <form className="rounded bg-white px-6 py-6 inline-block">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Generate Report
@@ -83,46 +104,40 @@ export default function Report(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-20">
-                  <div className="flex space-x-10">
-                    <div className="rounded bg-white py-2 px-2 text-black">
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DesktopDatePicker
-                          label="Start Date"
-                          inputFormat="MM/DD/YYYY"
-                          value={startDate}
-                          onChange={(date) => setStartDate(date ?? new Date())}
-                          renderInput={(params: JSX.IntrinsicAttributes) => (
-                            <TextField {...params} />
-                          )}
-                        />
-                      </LocalizationProvider>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="rounded bg-white py-2 px-2 text-black">
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DesktopDatePicker
-                          label="End Date"
-                          inputFormat="MM/DD/YYYY"
-                          value={endDate}
-                          onChange={(date) => setEndDate(date ?? new Date())}
-                          renderInput={(params: JSX.IntrinsicAttributes) => (
-                            <TextField {...params} />
-                          )}
-                        />
-                      </LocalizationProvider>
-                    </div>
+                  <div className="flex space-x-10 justify-center">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DesktopDatePicker
+                        label="Start Date"
+                        inputFormat="MM/DD/YYYY"
+                        value={startDate}
+                        onChange={(date) => setStartDate(date ?? new Date())}
+                        renderInput={(params: JSX.IntrinsicAttributes) => (
+                          <TextField {...params} />
+                        )}
+                      />
+                    </LocalizationProvider>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DesktopDatePicker
+                        label="End Date"
+                        inputFormat="MM/DD/YYYY"
+                        value={endDate}
+                        onChange={(date) => setEndDate(date ?? new Date())}
+                        renderInput={(params: JSX.IntrinsicAttributes) => (
+                          <TextField {...params} />
+                        )}
+                      />
+                    </LocalizationProvider>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between px-2 pt-16">
+            <div className="flex items-center justify-between">
               <button
                 className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
                 type="button"
                 onClick={handleGenerate}
               >
-                Generate Report
+                {isSubmitting ? "Generating..." : "Generate Report"}
               </button>
             </div>
           </div>
@@ -136,7 +151,8 @@ function generateReport(
   startDate: Date,
   endDate: Date,
   purchaseOrders: purchaseOrders,
-  salesReconciliations: salesReconciliation
+  salesReconciliations: salesReconciliation,
+  buyBackOrders: buyBackOrders
 ) {
   const daysArray = getDaysArray(startDate, endDate);
 
@@ -220,11 +236,14 @@ function generateReport(
 
   let runningRevenue = 0;
   let runningCosts = 0;
+  let runningBuyBack = 0;
   //Now we do the purchase orders
 
   const periodOrders: purchaseOrders = [];
 
   const periodSales: salesReconciliation = [];
+
+  const periodBuyBack: buyBackOrders = [];
 
   //forEach calculates total cost
   purchaseOrders.forEach(function (value) {
@@ -252,6 +271,17 @@ function generateReport(
     runningRevenue += value.totalPrice;
   });
 
+  buyBackOrders.forEach(function (value) {
+    //determine if date is in period
+    if (!daysArray.includes(value.buybackOrder.date.toLocaleDateString())) {
+      //not in day range
+      return;
+    }
+    periodBuyBack.push(value);
+    //get total cost
+    runningBuyBack += value.totalPrice;
+  });
+
   const perDayList: RowInput[] = [];
 
   //per day forloop
@@ -265,16 +295,26 @@ function generateReport(
     insideInput.push(value.toString());
     const revenue = getRevenue(value, periodSales);
     insideInput.push(revenue.toFixed(2));
+    const buyBackRevenue = getRevenueBuyBack(value, periodBuyBack);
+    insideInput.push(buyBackRevenue.toFixed(2));
     const cost = getCost(value, periodOrders);
     insideInput.push(cost.toFixed(2));
-    insideInput.push((revenue - cost).toFixed(2));
-    if (revenue != 0 || cost != 0) {
+    insideInput.push((revenue + buyBackRevenue - cost).toFixed(2));
+    if (revenue != 0 || cost != 0 || buyBackRevenue != 0) {
       perDayList.push(insideInput);
     }
   });
 
   autoTable(doc, {
-    head: [["Date", "Daily Revenue", "Daily Costs", "Daily Profit"]],
+    head: [
+      [
+        "Date",
+        "Daily Revenue (Sales)",
+        "Daily Revenue (Buy Backs)",
+        "Daily Costs",
+        "Daily Profit",
+      ],
+    ],
     body: perDayList,
     theme: "striped",
     headStyles: {
@@ -286,13 +326,27 @@ function generateReport(
     body: [
       [
         {
-          content: "Total Revenue:",
+          content: "Total Revenue (Sales): ",
           styles: {
             halign: "right",
           },
         },
         {
           content: (runningRevenue - 0).toFixed(2),
+          styles: {
+            halign: "right",
+          },
+        },
+      ],
+      [
+        {
+          content: "Total Revenue (Buy Backs): ",
+          styles: {
+            halign: "right",
+          },
+        },
+        {
+          content: (runningBuyBack - 0).toFixed(2),
           styles: {
             halign: "right",
           },
@@ -320,7 +374,7 @@ function generateReport(
           },
         },
         {
-          content: (runningRevenue - runningCosts).toFixed(2),
+          content: (runningRevenue + runningBuyBack - runningCosts).toFixed(2),
           styles: {
             halign: "right",
           },
@@ -356,10 +410,7 @@ function generateReport(
   });
 
   const reverseOrders = [...purchaseOrders].reverse();
-  console.log(reverseOrders);
-  console.log(purchaseOrders);
   const topTenBooksToCMR = new Map<string, number>();
-  console.log(topTenBooksArray);
 
   //If you're debugging this, good luck
   reverseOrders.forEach(function (order) {
@@ -372,8 +423,6 @@ function generateReport(
               purchaseLine.unitWholesalePrice
             );
           }
-        } else {
-          topTenBooksToCMR.set(entry[0].title, 0); // Is this logic correct?
         }
       });
     });
@@ -444,6 +493,16 @@ function getRevenue(day: string, periodSales: salesReconciliation): number {
   return dailyRevenue;
 }
 
+function getRevenueBuyBack(day: string, periodSales: buyBackOrders): number {
+  let dailyRevenue = 0;
+  periodSales.forEach(function (buybackOrder) {
+    if (day === buybackOrder.buybackOrder.date.toLocaleDateString()) {
+      dailyRevenue += buybackOrder.totalPrice;
+    }
+  });
+  return dailyRevenue;
+}
+
 function getCost(day: string, periodOrders: purchaseOrders): number {
   let dailyCost = 0;
   periodOrders.forEach(function (purchaseOrder) {
@@ -476,6 +535,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     cursor: null,
     limit: 50,
   });
+
+  await ssg.buybackOrders.getByDateWithOverallMetrics.prefetch({
+    cursor: null,
+    limit: 50,
+  });
+
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {

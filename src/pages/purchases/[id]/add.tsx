@@ -85,110 +85,113 @@ export default function AddPurchaseLine(
 
   return (
     <div className="pt-6">
-      <form className="inline-block rounded bg-white px-6 py-6">
+      <form className="rounded bg-white px-6 py-6 inline-block">
         <div className="space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
             Create Purchase Line
           </div>
-          <div>
-            <div className="pointer-events-none flex justify-between px-3"></div>
-            <div>
-              <div>
-                <div className="flex space-x-20">
-                  <div>
-                    <FormControl>
-                      <FormLabel>Purchase Order</FormLabel>
-                      <FormHelperText>
-                        Select a purchase order by date
-                      </FormHelperText>
-                      <Autocomplete
-                        options={purchaseOrderOptions}
-                        placeholder={"Search sales reconciliations by date"}
-                        value={purchaseValue}
-                        onChange={(
-                          event,
-                          newValue: { label: string; id: string } | null
-                        ) => {
-                          setPurchaseValue(newValue);
-                        }}
-                        onInputChange={(
-                          event,
-                          newPurchaseInputValue: string
-                        ) => {
-                          setPurchaseInputValue(newPurchaseInputValue);
-                        }}
-                        sx={{ width: 425 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            inputProps={{
-                              ...params.inputProps,
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </div>
-                  <div>
-                    <FormControl>
-                      <FormLabel>Book</FormLabel>
-                      <FormHelperText>Select a book by title</FormHelperText>
-                      <Autocomplete
-                        options={bookOptions}
-                        placeholder={"Search books by title"}
-                        value={bookValue}
-                        onChange={(
-                          event,
-                          newValue: { label: string; id: string } | null
-                        ) => {
-                          setBookValue(newValue);
-                        }}
-                        onInputChange={(event, newBookInputValue: string) => {
-                          setBookInputValue(newBookInputValue);
-                        }}
-                        sx={{ width: 425 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            inputProps={{
-                              ...params.inputProps,
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </div>
+          <div className="relative space-y-3">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
+            <div className="col-span-4">
+              <div className="space-y-20">
+                <div className="flex space-x-10 justify-center">
+                  <FormControl>
+                    <FormLabel>Purchase Order</FormLabel>
+                    <FormHelperText>
+                      Select a purchase order by date
+                    </FormHelperText>
+                    <Autocomplete
+                      options={purchaseOrderOptions}
+                      placeholder={"Search sales reconciliations by date"}
+                      value={purchaseValue}
+                      onChange={(
+                        event,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setPurchaseValue(newValue);
+                      }}
+                      onInputChange={(
+                        event,
+                        newPurchaseInputValue: string
+                      ) => {
+                        setPurchaseInputValue(newPurchaseInputValue);
+                      }}
+                      sx={{ width: 425 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Book</FormLabel>
+                    <FormHelperText>Select a book by title</FormHelperText>
+                    <Autocomplete
+                      options={bookOptions}
+                      placeholder={"Search books by title"}
+                      value={bookValue}
+                      onChange={(
+                        event,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setBookValue(newValue);
+                      }}
+                      onInputChange={(event, newBookInputValue: string) => {
+                        setBookInputValue(newBookInputValue);
+                      }}
+                      sx={{ width: 425 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
                 </div>
-                <div className="py-60" />
-                <div className="flex space-x-20">
-                  <input
-                    className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                    id="quantity"
-                    name="quantity"
-                    type="text"
-                    placeholder="Quantity"
-                    min="1"
-                    // value={quantity}
-                    onChange={(
-                      event: React.ChangeEvent<HTMLInputElement>
-                    ): void => setQuantity(Number(event.target.value))}
-                    required
-                  />
-                  <input
-                    className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                    id="UnitWholesalePrice"
-                    name="UnitWholesalePrice"
-                    type="text"
-                    placeholder="Unit Wholesale Price"
-                    min="0"
-                    // value={unitWholesalePrice}
-                    onChange={(
-                      event: React.ChangeEvent<HTMLInputElement>
-                    ): void =>
-                      setUnitWholesalePrice(Number(event.target.value))
-                    }
-                    required
-                  />
+                <div className="flex space-x-10 justify-center">
+                  <FormControl>
+                    <FormLabel>Quantity</FormLabel>
+                    <input
+                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      id="quantity"
+                      name="quantity"
+                      type="text"
+                      placeholder="Quantity"
+                      min="1"
+                      size={45}
+                      // value={quantity}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void => setQuantity(Number(event.target.value))}
+                      required
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Unit Wholesale Price</FormLabel>
+                    <input
+                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      id="UnitWholesalePrice"
+                      name="UnitWholesalePrice"
+                      type="text"
+                      placeholder="Unit Wholesale Price"
+                      min="0"
+                      size={45}
+                      // value={unitWholesalePrice}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void =>
+                        setUnitWholesalePrice(Number(event.target.value))
+                      }
+                      required
+                    />
+                  </FormControl>
                 </div>
               </div>
             </div>
