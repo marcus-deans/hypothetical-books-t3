@@ -67,7 +67,7 @@ export default function EditBuyBack(
         purchaseLines: [],
       });
       setTimeout(() => {
-        void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
+        void router.push(`/buybacks/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
       console.log(error);
@@ -146,14 +146,14 @@ export default function EditBuyBack(
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const purchaseOrders = await prisma.purchaseOrder.findMany({
+  const buyBackOrders = await prisma.buybackOrder.findMany({
     select: {
       id: true,
     },
   });
 
-  const paths = purchaseOrders.map((purchaseOrder) => ({
-    params: { id: purchaseOrder.id },
+  const paths = buyBackOrders.map((bbOrder) => ({
+    params: { id: bbOrder.id },
   }));
 
   return { paths, fallback: true };
@@ -169,7 +169,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.purchaseOrders.getByIdWithOverallMetrics.prefetch({ id });
+  await ssg.buybackOrders.getByIdWithOverallMetrics.prefetch({ id });
 
   return {
     props: {
