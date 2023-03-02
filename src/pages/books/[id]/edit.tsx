@@ -51,6 +51,10 @@ export default function EditBook(
   });
   const [genreInputValue, setGenreInputValue] = useState("");
 
+  const handleDelete = (e:any) =>{
+    e.preventDefault()
+    toast.success("Deleted Image")
+  }
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
@@ -270,6 +274,12 @@ export default function EditBook(
                     className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
                   >
                     Upload
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+                  >
+                    Delete Image
                   </button>
                 </div>
               </div>
