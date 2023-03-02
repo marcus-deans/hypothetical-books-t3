@@ -31,7 +31,7 @@ export default function EditBuyBack(
   });
   const vendors = vendorsDetailsQuery?.data?.items ?? [];
   ``;
-  const editMutation = api.purchaseOrders.edit.useMutation();
+  const editMutation = api.buybackOrders.edit.useMutation();
   const currentDate =
     buybackDetailsQuery?.data?.buybackOrderWithOverallMetrics.date ??
     new Date();
@@ -64,7 +64,7 @@ export default function EditBuyBack(
         id: id,
         date: dateValue.toDate(),
         vendorId: vendorValue.id,
-        purchaseLines: [],
+        buybackLines: [],
       });
       setTimeout(() => {
         void router.push(`/buybacks/${encodeURIComponent(id)}/detail`);
