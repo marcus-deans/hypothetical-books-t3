@@ -14,29 +14,33 @@ import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { prisma } from "../../../server/db";
+
+import type {
+  GetStaticPaths,
+  GetStaticPropsContext,
+  InferGetStaticPropsType,
+} from "next";
+
 
 export default function AddBuyBackLine(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
+  props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
-  const buyBackOrdersQuery = api.buybackOrders.getAll.useQuery({
-    cursor: null,
-    limit: 100,
+  const { id } = props;
+  const buyBackOrdersQuery = api.buybackOrders.getById.useQuery({
+    id,
   });
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
-
   const router = useRouter();
-  const buybackOrders = buyBackOrdersQuery?.data?.items ?? [];
+  const { data } = buyBackOrdersQuery;
   const books = booksQuery?.data?.items ?? [];
-  const [buybackValue, setBuybackValue] = useState<{
-    label: string;
-    id: string;
-  } | null>(null);
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
   } | null>(null);
   const [unitBuybackPrice, setUnitBuybackPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   //TODO: fix this
   // const filterOptions = (options, { inputValue }) => matchSorter(options, inputValue, { keys: ['label, id'] });
@@ -45,9 +49,9 @@ export default function AddBuyBackLine(
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      if (!bookValue || !buybackValue) {
-        toast.error("Book and Buyback Order are required");
-        throw new Error("Book and Buyback Order are required");
+      if (!bookValue) {
+        toast.error("Book is required");
+        throw new Error("Book is required");
       }
       if (
         isNaN(unitBuybackPrice) ||
@@ -65,11 +69,11 @@ export default function AddBuyBackLine(
         bookId: bookValue.id,
         quantity: quantity,
         unitBuybackPrice: unitBuybackPrice,
-        buybackOrderId: buybackValue.id,
+        buybackOrderId: id,
       });
       setTimeout(() => {
         void router.push(
-          `/buybacks/${encodeURIComponent(buybackValue.id)}/detail`
+          `/buybacks/${encodeURIComponent(id)}/detail`
         );
       }, 500);
     } catch (error) {
@@ -78,10 +82,7 @@ export default function AddBuyBackLine(
     }
   };
 
-  const buybackOrderOptions = buybackOrders.map((buyBack) => ({
-    label: buyBack.date.toLocaleDateString(),
-    id: buyBack.id,
-  }));
+
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
@@ -89,109 +90,81 @@ export default function AddBuyBackLine(
 
   return (
     <>
-      <Head>
-        <title>Add Buyback Line</title>
-      </Head>
-      <div className="pt-6">
-        <form className="inline-block rounded bg-white px-6 py-6">
-          <div className="space-y-5">
-            <div className="mb-2 block text-lg font-bold text-gray-700">
-              Create Buyback Line
-            </div>
-            <div className="relative space-y-3">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
-              <div className="col-span-4">
-                <div className="space-y-20">
-                  <div className="flex justify-center space-x-10">
-                    <FormControl>
-                      <FormLabel>Buyback Order</FormLabel>
-                      <FormHelperText>
-                        Select a buyback order by date
-                      </FormHelperText>
-                      <Autocomplete
-                        options={buybackOrderOptions}
-                        placeholder={"Search buyback orders by date"}
-                        value={buybackValue}
-                        onChange={(
-                          event,
-                          newValue: { label: string; id: string } | null
-                        ) => {
-                          setBuybackValue(newValue);
-                        }}
-                        sx={{ width: 425 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            inputProps={{
-                              ...params.inputProps,
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel>Book</FormLabel>
-                      <FormHelperText>Select a book by title</FormHelperText>
-                      <Autocomplete
-                        options={bookOptions}
-                        placeholder={"Search books by title"}
-                        value={bookValue}
-                        onChange={(
-                          event,
-                          newValue: { label: string; id: string } | null
-                        ) => {
-                          setBookValue(newValue);
-                        }}
-                        sx={{ width: 425 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            inputProps={{
-                              ...params.inputProps,
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </div>
-                  <div className="flex justify-center space-x-10">
-                    <FormControl>
-                      <FormLabel>Quantity</FormLabel>
-                      <input
-                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                        id="quantity"
-                        name="quantity"
-                        type="text"
-                        placeholder="Quantity"
-                        min="1"
-                        size={45}
-                        // value={quantity}
-                        onChange={(
-                          event: React.ChangeEvent<HTMLInputElement>
-                        ): void => setQuantity(Number(event.target.value))}
-                        required
-                      />
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel>Unit Buyback Price</FormLabel>
-                      <input
-                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                        id="UnitBuybackPrice"
-                        name="UnitBuybackPrice"
-                        type="text"
-                        placeholder="Unit Buyback Price"
-                        min="0"
-                        size={45}
-                        // value={unitBuybackPrice}
-                        onChange={(
-                          event: React.ChangeEvent<HTMLInputElement>
-                        ): void =>
-                          setUnitBuybackPrice(Number(event.target.value))
-                        }
-                        required
-                      />
-                    </FormControl>
-                  </div>
+    <div className="pt-6">
+      <form className="rounded bg-white px-6 py-6 inline-block">
+          <div className="mb-2 block text-lg font-bold text-gray-700">
+            Create Buyback Line
+          </div>
+          <div className="relative space-y-3">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
+            <div className="col-span-4">
+              <div className="space-y-20">
+                <div className="flex space-x-10 justify-center">
+                  <FormControl>
+                    <FormLabel>Book</FormLabel>
+                    <FormHelperText>Select a book by title</FormHelperText>
+                    <Autocomplete
+                      options={bookOptions}
+                      placeholder={"Search books by title"}
+                      value={bookValue}
+                      onChange={(
+                        event,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setBookValue(newValue);
+                      }}
+                      onInputChange={(event, newBookInputValue: string) => {
+                        setBookInputValue(newBookInputValue);
+                      }}
+                      sx={{ width: 425 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                </div>
+                <div className="flex space-x-10 justify-center">
+                  <FormControl>
+                    <FormLabel>Quantity</FormLabel>
+                    <input
+                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      id="quantity"
+                      name="quantity"
+                      type="text"
+                      placeholder="Quantity"
+                      min="1"
+                      size={45}
+                      // value={quantity}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void => setQuantity(Number(event.target.value))}
+                      required
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Unit Buyback Price</FormLabel>
+                    <input
+                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      id="UnitBuybackPrice"
+                      name="UnitBuybackPrice"
+                      type="text"
+                      placeholder="Unit Buyback Price"
+                      min="0"
+                      size={45}
+                      // value={unitBuybackPrice}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void =>
+                        setUnitBuybackPrice(Number(event.target.value))
+                      }
+                      required
+                    />
+                  </FormControl>
                 </div>
               </div>
             </div>
@@ -212,25 +185,37 @@ export default function AddBuyBackLine(
   );
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ id: string }>
+) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: createInnerTRPCContext({ session: null }),
-    //eslint-disable-next-line
     transformer: superjson,
   });
-  // const id = context.params?.id as string;
-  /*
-   * Prefetching the `post.byId` query here.
-   * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
-   */
-  await ssg.buybackOrders.getAll.prefetch({ cursor: null, limit: 100 });
-  await ssg.books.getAll.prefetch({ cursor: null, limit: 100 });
-  // Make sure to return { props: { trpcState: ssg.dehydrate() } }
+  const id = context.params?.id as string;
+
+  await ssg.buybackOrders.getById.prefetch({ id });
+
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      // id,
+      id,
     },
+    revalidate: 1,
   };
 }
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const buybackOrders = await prisma.buybackOrder.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  const paths = buybackOrders.map((buybackOrder) => ({
+    params: { id: buybackOrder.id },
+  }));
+
+  return { paths, fallback: true };
+};
