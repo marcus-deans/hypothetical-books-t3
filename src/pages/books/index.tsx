@@ -12,13 +12,13 @@ import superjson from "superjson";
 import Link from "next/link";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import ModalImage from "react-modal-image";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import logger from "../../utils/logger";
 import EditLink from "../../components/table-components/EditLink";
+import Modal from '@mui/material/Modal';
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -30,7 +30,9 @@ export default function Books(
 
   const books = booksQuery?.data?.items ?? [];
   //logger.info("Loading books page");
-
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   const columns: GridColDef[] = [
     {
       field: "image",
@@ -42,7 +44,15 @@ export default function Books(
         const url = params.row.imgLink as string;
         return (
           <div className="text-blue-600">
-            <ModalImage small={url} large={url} alt="cover" />
+            <img src={url} onClick = {handleOpen}style={{ width: 40, height: 60 }}/>
+            <Modal
+  open={open}
+  onClose={handleClose}
+  aria-labelledby="modal-modal-title"
+  aria-describedby="modal-modal-description"
+>
+<img src={url} style={{ width: 80, height: 120 }}/>
+</Modal>
           </div>
         );
       },
