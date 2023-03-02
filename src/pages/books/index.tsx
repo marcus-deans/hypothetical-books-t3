@@ -12,7 +12,6 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
-import ModalImage from "react-modal-image";
 import type { GridCsvExportOptions, GridCsvGetRowsToExportParams} from "@mui/x-data-grid";
 import { GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarFilterButton, gridPaginatedVisibleSortedGridRowIdsSelector, gridVisibleSortedRowIdsSelector, useGridApiContext } from "@mui/x-data-grid";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
