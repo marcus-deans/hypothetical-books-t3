@@ -10,7 +10,7 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,7 +21,6 @@ import type {
   GetStaticPropsContext,
   InferGetStaticPropsType,
 } from "next";
-
 
 export default function AddBuyBackLine(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -72,16 +71,13 @@ export default function AddBuyBackLine(
         buybackOrderId: id,
       });
       setTimeout(() => {
-        void router.push(
-          `/buybacks/${encodeURIComponent(id)}/detail`
-        );
+        void router.push(`/buybacks/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
       console.log(error);
       setIsSubmitting(false);
     }
   };
-
 
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
@@ -90,8 +86,8 @@ export default function AddBuyBackLine(
 
   return (
     <>
-    <div className="pt-6">
-      <form className="rounded bg-white px-6 py-6 inline-block">
+      <div className="pt-6">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="mb-2 block text-lg font-bold text-gray-700">
             Create Buyback Line
           </div>
@@ -99,7 +95,7 @@ export default function AddBuyBackLine(
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
             <div className="col-span-4">
               <div className="space-y-20">
-                <div className="flex space-x-10 justify-center">
+                <div className="flex justify-center space-x-10">
                   <FormControl>
                     <FormLabel>Book</FormLabel>
                     <FormHelperText>Select a book by title</FormHelperText>
@@ -128,43 +124,32 @@ export default function AddBuyBackLine(
                     />
                   </FormControl>
                 </div>
-                <div className="flex space-x-10 justify-center">
-                  <FormControl>
-                    <FormLabel>Quantity</FormLabel>
-                    <input
-                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                      id="quantity"
-                      name="quantity"
-                      type="text"
-                      placeholder="Quantity"
-                      min="1"
-                      size={45}
-                      // value={quantity}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setQuantity(Number(event.target.value))}
-                      required
-                    />
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel>Unit Buyback Price</FormLabel>
-                    <input
-                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                      id="UnitBuybackPrice"
-                      name="UnitBuybackPrice"
-                      type="text"
-                      placeholder="Unit Buyback Price"
-                      min="0"
-                      size={45}
-                      // value={unitBuybackPrice}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void =>
-                        setUnitBuybackPrice(Number(event.target.value))
-                      }
-                      required
-                    />
-                  </FormControl>
+                <div className="flex justify-center space-x-10">
+                  <TextField
+                    id="quantity"
+                    name="quantity"
+                    label="Quantity"
+                    type="text"
+                    onChange={(
+                      event: React.ChangeEvent<HTMLInputElement>
+                    ): void => setQuantity(Number(event.target.value))}
+                    required
+                  />
+                  <TextField
+                    id="UnitBuybackPrice"
+                    name="UnitBuybackPrice"
+                    label="Unit Buyback Price"
+                    type="text"
+                    onChange={(
+                      event: React.ChangeEvent<HTMLInputElement>
+                    ): void => setUnitBuybackPrice(Number(event.target.value))}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">$</InputAdornment>
+                      ),
+                    }}
+                    required
+                  />
                 </div>
               </div>
             </div>
