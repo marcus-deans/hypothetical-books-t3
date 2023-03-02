@@ -4,17 +4,14 @@ import type {
     InferGetStaticPropsType,
   } from "next";
   import { prisma } from "../../../server/db";
-  import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-  import { appRouter } from "../../../server/api/root";
-  import { createInnerTRPCContext } from "../../../server/api/trpc";
-  import superjson from "superjson";
   import { useRouter } from "next/router";
   import type { ChangeEvent} from "react";
   import React, { useState } from "react";
   import { ToastContainer, toast } from "react-toastify";
   import { api } from "../../../utils/api";
   import Papa from "papaparse";
-  import { purchaseOrdersInput, purchaseOrdersInputUnknown } from "../../../schema/imports.schema";
+  import { CSVPurchaseInput, CSVPurchaseInputId } from "../../../schema/imports.schema";
+  import "react-toastify/dist/ReactToastify.css";
   
   export default function ImportPurchase(
     props: InferGetStaticPropsType<typeof getStaticProps>
@@ -22,16 +19,16 @@ import type {
     const { id } = props;
     const router = useRouter();
     const [parsedHeaders, setParsedHeaders] = useState<string[]>();
-    const [parsedCsvData, setParsedCsvData] = useState<purchaseOrdersInput[]>();
+    const [parsedCsvData, setParsedCsvData] = useState<CSVPurchaseInput[]>();
     const [file, setFile] = useState<File>();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const headersVerified = api.csvPorts.verifyPurchaseHeaders.useQuery({
+    const headersVerified = api.csvPorts.verifyImportHeaders.useQuery({
       headers: parsedHeaders
     }, {enabled: !!parsedHeaders});
     const importVerified =
     api.csvPorts.verifyPurchaseCSV.useQuery(
       parsedCsvData,
-      { enabled: headersVerified.data?.verified });
+      { enabled: !!headersVerified && headersVerified.data?.verified });
     const mutatedImport = 
     api.csvPorts.addPurchaseImport.useMutation();
   
@@ -55,18 +52,20 @@ import type {
       //now actually process the upload
       Papa.parse(file, {
         header: true,
-        dynamicTyping: true,
+        dynamicTyping: false,
         complete: function(results) {
           console.log(results);
           setParsedHeaders(results.meta.fields);
-          const parsedData: purchaseOrdersInput[] = [];
+          const parsedData: CSVPurchaseInput[] = [];
           results.data.forEach(function (value){
-            parsedData.push(value as purchaseOrdersInput);
+            parsedData.push(value as CSVPurchaseInput);
           })
           setParsedCsvData(parsedData);
         }
       });
-
+      
+      console.log("Parsed Data: ");
+      console.log(parsedCsvData);
       /* Get rid of this when completed
       setTimeout(() => {
         void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
@@ -75,18 +74,28 @@ import type {
       */
     }
     const handleSubmit = (event: React.MouseEvent<HTMLElement>) => {
+      
       setIsSubmitting(true);
       try{
-        const parsedData = importVerified.data?.parsedData;
-        if(parsedData === undefined){
+        const parsed = importVerified.data;
+        if(parsed === undefined){
           toast.error("You must upload a file first")
           setIsSubmitting(false);
           return;
         }
+        if(!parsed.verified){
+          toast.error("Error: " + parsed.message)
+          setIsSubmitting(false);
+          return;
+        }
+        const parsedData = importVerified.data.parsedData;
+        const parsedDataTyped: CSVPurchaseInputId[] = parsedData;
+        console.log(parsedDataTyped)
         mutatedImport.mutate({
-          data: parsedData,
+          data: parsedDataTyped,
           purchaseOrderId: id,
         })
+        toast.success("Successfully Imported File");
         setTimeout(() => {
           void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
         }, 500);

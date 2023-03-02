@@ -154,6 +154,14 @@ export default function BuybackOrderDetail(
           Add Buyback Line
         </Button>
       </Link>
+      <Link className="items-end px-6" href={`/buybacks/${id}/import`} passHref>
+        <Button
+          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+          variant="contained"
+        >
+          Import CSV
+        </Button>
+      </Link>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
