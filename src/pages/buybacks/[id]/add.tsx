@@ -13,30 +13,32 @@ import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import {toast, ToastContainer} from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { prisma } from "../../../server/db";
+
+import type {
+  GetStaticPaths,
+  GetStaticPropsContext,
+  InferGetStaticPropsType,
+} from "next";
+
 
 export default function AddBuyBackLine(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
+  props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
-  const buyBackOrdersQuery = api.buybackOrders.getAll.useQuery({
-    cursor: null,
-    limit: 100,
+  const { id } = props;
+  const buyBackOrdersQuery = api.buybackOrders.getById.useQuery({
+    id,
   });
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
-
   const router = useRouter();
-  const buybackOrders = buyBackOrdersQuery?.data?.items ?? [];
+  const { data } = buyBackOrdersQuery;
   const books = booksQuery?.data?.items ?? [];
-  const [buybackValue, setBuybackValue] = useState<{
-    label: string;
-    id: string;
-  } | null>(null);
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
   } | null>(null);
   const [unitBuybackPrice, setUnitBuybackPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [buybackInputValue, setBuybackInputValue] = useState("");
   const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   //TODO: fix this
@@ -46,9 +48,9 @@ export default function AddBuyBackLine(
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      if (!bookValue || !buybackValue) {
-        toast.error("Book and Buyback Order are required");
-        throw new Error("Book and Buyback Order are required");
+      if (!bookValue) {
+        toast.error("Book is required");
+        throw new Error("Book is required");
       }
       if (
         isNaN(unitBuybackPrice) ||
@@ -65,11 +67,11 @@ export default function AddBuyBackLine(
         bookId: bookValue.id,
         quantity: quantity,
         unitBuybackPrice: unitBuybackPrice,
-        buybackOrderId: buybackValue.id,
+        buybackOrderId: id,
       });
       setTimeout(() => {
         void router.push(
-          `/buybacks/${encodeURIComponent(buybackValue.id)}/detail`
+          `/buybacks/${encodeURIComponent(id)}/detail`
         );
       }, 500);
     } catch (error) {
@@ -78,10 +80,7 @@ export default function AddBuyBackLine(
     }
   };
 
-  const buybackOrderOptions = buybackOrders.map((buyBack) => ({
-    label: buyBack.date.toLocaleDateString(),
-    id: buyBack.id,
-  }));
+
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
@@ -99,38 +98,6 @@ export default function AddBuyBackLine(
             <div className="col-span-4">
               <div className="space-y-20">
                 <div className="flex space-x-10 justify-center">
-                  <FormControl>
-                    <FormLabel>Buyback Order</FormLabel>
-                    <FormHelperText>
-                      Select a buyback order by date
-                    </FormHelperText>
-                    <Autocomplete
-                      options={buybackOrderOptions}
-                      placeholder={"Search buyback orders by date"}
-                      value={buybackValue}
-                      onChange={(
-                        event,
-                        newValue: { label: string; id: string } | null
-                      ) => {
-                        setBuybackValue(newValue);
-                      }}
-                      onInputChange={(
-                        event,
-                        newBuybackInputValue: string
-                      ) => {
-                        setBuybackInputValue(newBuybackInputValue);
-                      }}
-                      sx={{ width: 425 }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          inputProps={{
-                            ...params.inputProps,
-                          }}
-                        />
-                      )}
-                    />
-                  </FormControl>
                   <FormControl>
                     <FormLabel>Book</FormLabel>
                     <FormHelperText>Select a book by title</FormHelperText>
@@ -216,25 +183,37 @@ export default function AddBuyBackLine(
   );
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ id: string }>
+) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: createInnerTRPCContext({ session: null }),
-    //eslint-disable-next-line
     transformer: superjson,
   });
-  // const id = context.params?.id as string;
-  /*
-   * Prefetching the `post.byId` query here.
-   * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
-   */
-  await ssg.buybackOrders.getAll.prefetch({ cursor: null, limit: 100 });
-  await ssg.books.getAll.prefetch({ cursor: null, limit: 100 });
-  // Make sure to return { props: { trpcState: ssg.dehydrate() } }
+  const id = context.params?.id as string;
+
+  await ssg.buybackOrders.getById.prefetch({ id });
+
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      // id,
+      id,
     },
+    revalidate: 1,
   };
 }
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const buybackOrders = await prisma.buybackOrder.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  const paths = buybackOrders.map((buybackOrder) => ({
+    params: { id: buybackOrder.id },
+  }));
+
+  return { paths, fallback: true };
+};
