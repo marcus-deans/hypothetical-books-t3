@@ -18,6 +18,7 @@ import { toast, ToastContainer } from "react-toastify";
 import type { S3 } from "aws-sdk/clients/browser_default";
 import Image from "next/image";
 import "react-toastify/dist/ReactToastify.css";
+import { env } from "../../../env/client.mjs";
 
 const ImageCard = ({
   url,
@@ -45,8 +46,8 @@ const ImageCard = ({
           <button
             // eslint-disable-next-line
             onClick={async () => {
-              await deleteImage({ bookId: id });
-              // await refetchImages();
+              await deleteImage({ imageId: id });
+              await refetchImages();
             }}
           >
             Remove
@@ -151,8 +152,8 @@ export default function EditBook(
   // const { mutateAsync: getImageUrl } =
   //   api.imageUpload.getImageUrl.useMutation();
 
-  // const { data: images, refetch: refetchImages } =
-  //   api.imageUpload.getImagesForUser.useQuery({ bookId: id });
+  const { data: images, refetch: refetchImages } =
+    api.imageUpload.getImagesForUser.useQuery();
   // trpc.useQuery(['image.getImagesForUser'])
   const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -206,7 +207,7 @@ export default function EditBook(
     });
     // const imageUrl = await getImageUrl({ bookId: id });
     // setImgUrl(imageUrl);
-    // await refetchImages();
+    await refetchImages();
     setFile(null);
     if (fileRef.current) {
       fileRef.current.value = "";
@@ -219,9 +220,9 @@ export default function EditBook(
     void asyncUpload();
     //Implement API call to send image back
   };
-  // const refetchUserImages = async () => {
-  //   await refetchImages();
-  // };
+  const refetchUserImages = async () => {
+    await refetchImages();
+  };
 
   return (
     <>
@@ -381,16 +382,16 @@ export default function EditBook(
                     Delete Image
                   </button>
                 </div>
-                {/*<div className="flex justify-center">*/}
-                {/*  {images &&*/}
-                {/*    images.map((image) => (*/}
-                {/*      <ImageCard*/}
-                {/*        refetchImages={refetchUserImages}*/}
-                {/*        key={image.id}*/}
-                {/*        {...image}*/}
-                {/*      />*/}
-                {/*    ))}*/}
-                {/*</div>*/}
+                <div className="flex justify-center">
+                  {images &&
+                    images.map((image) => (
+                      <ImageCard
+                        refetchImages={refetchUserImages}
+                        key={image.id}
+                        {...image}
+                      />
+                    ))}
+                </div>
                 <div className="flex items-center justify-between pt-4">
                   <button
                     className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
