@@ -196,6 +196,7 @@ export default function EditBook(
     const formData = new FormData();
     for (const name in imageData) {
       /* eslint-disable */
+      // @ts-ignore
       formData.append(name, imageData[name]);
       /*eslint-enable */
     }
