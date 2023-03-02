@@ -11,6 +11,8 @@ import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
 import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
+import {toast, ToastContainer} from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddBuyBackLine(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -22,9 +24,9 @@ export default function AddBuyBackLine(
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
 
   const router = useRouter();
-  const buyBackOrders = buyBackOrdersQuery?.data?.items ?? [];
+  const buybackOrders = buyBackOrdersQuery?.data?.items ?? [];
   const books = booksQuery?.data?.items ?? [];
-  const [purchaseValue, setPurchaseValue] = useState<{
+  const [buybackValue, setBuybackValue] = useState<{
     label: string;
     id: string;
   } | null>(null);
@@ -32,40 +34,42 @@ export default function AddBuyBackLine(
     label: string;
     id: string;
   } | null>(null);
-  const [unitWholesalePrice, setUnitWholesalePrice] = useState(0);
+  const [unitBuybackPrice, setUnitBuybackPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [purchaseInputValue, setPurchaseInputValue] = useState("");
+  const [buybackInputValue, setBuybackInputValue] = useState("");
   const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   //TODO: fix this
   // const filterOptions = (options, { inputValue }) => matchSorter(options, inputValue, { keys: ['label, id'] });
-  const addMutation = api.purchaseLines.add.useMutation();
+  const addMutation = api.buybackLines.add.useMutation();
 
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      if (!bookValue || !purchaseValue) {
-        throw new Error("Book and Purchase Order are required");
+      if (!bookValue || !buybackValue) {
+        toast.error("Book and Buyback Order are required");
+        throw new Error("Book and Buyback Order are required");
       }
       if (
-        isNaN(unitWholesalePrice) ||
+        isNaN(unitBuybackPrice) ||
         isNaN(quantity) ||
-        unitWholesalePrice <= 0 ||
+        unitBuybackPrice <= 0 ||
         quantity <= 0
       ) {
-        throw new Error(
-          "Unit Wholesale Price and Quantity must be positive numbers"
-        );
+        toast.error("Unit Buyback Price and Quantity must be positive numbers");
+
+        throw new Error("Unit Buyback Price and Quantity must be positive numbers");
+      
       }
       const addResult = addMutation.mutate({
         bookId: bookValue.id,
         quantity: quantity,
-        unitWholesalePrice: unitWholesalePrice,
-        purchaseOrderId: purchaseValue.id,
+        unitBuybackPrice: unitBuybackPrice,
+        buybackOrderId: buybackValue.id,
       });
       setTimeout(() => {
         void router.push(
-          `/buybacks/${encodeURIComponent(purchaseValue.id)}/detail`
+          `/buybacks/${encodeURIComponent(buybackValue.id)}/detail`
         );
       }, 500);
     } catch (error) {
@@ -88,7 +92,7 @@ export default function AddBuyBackLine(
       <form className="rounded bg-white px-6 py-6 inline-block">
         <div className="space-y-5">
           <div className="mb-2 block text-lg font-bold text-gray-700">
-            Create Purchase Line
+            Create Buyback Line
           </div>
           <div className="relative space-y-3">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
@@ -96,25 +100,25 @@ export default function AddBuyBackLine(
               <div className="space-y-20">
                 <div className="flex space-x-10 justify-center">
                   <FormControl>
-                    <FormLabel>Purchase Order</FormLabel>
+                    <FormLabel>Buyback Order</FormLabel>
                     <FormHelperText>
-                      Select a purchase order by date
+                      Select a buyback order by date
                     </FormHelperText>
                     <Autocomplete
-                      options={purchaseOrderOptions}
-                      placeholder={"Search sales reconciliations by date"}
-                      value={purchaseValue}
+                      options={buybackOrderOptions}
+                      placeholder={"Search buyback orders by date"}
+                      value={buybackValue}
                       onChange={(
                         event,
                         newValue: { label: string; id: string } | null
                       ) => {
-                        setPurchaseValue(newValue);
+                        setBuybackValue(newValue);
                       }}
                       onInputChange={(
                         event,
-                        newPurchaseInputValue: string
+                        newBuybackInputValue: string
                       ) => {
-                        setPurchaseInputValue(newPurchaseInputValue);
+                        setBuybackInputValue(newBuybackInputValue);
                       }}
                       sx={{ width: 425 }}
                       renderInput={(params) => (
@@ -174,20 +178,20 @@ export default function AddBuyBackLine(
                     />
                   </FormControl>
                   <FormControl>
-                    <FormLabel>Unit Wholesale Price</FormLabel>
+                    <FormLabel>Unit Buyback Price</FormLabel>
                     <input
                       className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                      id="UnitWholesalePrice"
-                      name="UnitWholesalePrice"
+                      id="UnitBuybackPrice"
+                      name="UnitBuybackPrice"
                       type="text"
-                      placeholder="Unit Wholesale Price"
+                      placeholder="Unit Buyback Price"
                       min="0"
                       size={45}
-                      // value={unitWholesalePrice}
+                      // value={unitBuybackPrice}
                       onChange={(
                         event: React.ChangeEvent<HTMLInputElement>
                       ): void =>
-                        setUnitWholesalePrice(Number(event.target.value))
+                        setUnitBuybackPrice(Number(event.target.value))
                       }
                       required
                     />
@@ -207,6 +211,7 @@ export default function AddBuyBackLine(
           </div>
         </div>
       </form>
+      <ToastContainer></ToastContainer>
     </div>
   );
 }
@@ -223,7 +228,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.purchaseOrders.getAll.prefetch({ cursor: null, limit: 100 });
+  await ssg.buybackOrders.getAll.prefetch({ cursor: null, limit: 100 });
   await ssg.books.getAll.prefetch({ cursor: null, limit: 100 });
   // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
