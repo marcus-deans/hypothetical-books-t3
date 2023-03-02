@@ -1,7 +1,6 @@
 import React from "react";
 import Head from "next/head";
 import { api } from "../../utils/api";
-import { Logger } from "tslog";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import { appRouter } from "../../server/api/root";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
@@ -27,9 +26,6 @@ export default function sales(
     });
 
   const purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
-
-  const logger = new Logger({ name: "purchaseOrdersLogger" });
-  logger.info("purchaseOrders", purchaseOrders); // This is the only line that is different from the Books page
 
   const columns: GridColDef[] = [
     {
