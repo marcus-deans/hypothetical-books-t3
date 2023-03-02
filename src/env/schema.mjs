@@ -34,8 +34,8 @@ export const serverSchema = z.object({
  */
 export const serverEnv = {
   DATABASE_URL: process.env.DATABASE_URL,
-  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+  AWS_ACCESS_KEY_ID: process.env.AWS_ID_FOR_ACCESS,
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_KEY_FOR_SECRET_ACCESS,
   AWS_S3_REGION: process.env.AWS_S3_REGION,
   AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
   GOOGLE_BOOKS_API_KEY: process.env.GOOGLE_BOOKS_API_KEY,
