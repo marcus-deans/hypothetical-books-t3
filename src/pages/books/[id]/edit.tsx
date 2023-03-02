@@ -73,7 +73,7 @@ export default function EditBook(
         throw new Error("Page count is required");
       }
       if (isNaN(finalWidth) || isNaN(finalHeight) || isNaN(finalThickness)) {
-        toast.error("Dimensions are required")
+        toast.error("Dimensions are required");
         throw new Error("Dimensions are required");
       }
       const addResult = editMutation.mutate({
@@ -101,12 +101,11 @@ export default function EditBook(
 
   const [file, setFile] = useState<File>();
 
-
-  const handleDelete = (e:any) =>{
-    e.preventDefault()
+  const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
     setFile(undefined);
-    toast.success("Deleted Image")
-  }
+    toast.success("Deleted Image");
+  };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -130,7 +129,7 @@ export default function EditBook(
       );
       return;
     }
-    toast.success("Added Image")
+    toast.success("Added Image");
     //Implement API call to send image back
   };
 
@@ -294,7 +293,6 @@ export default function EditBook(
           </div>
         </form>
         <ToastContainer></ToastContainer>
-
       </div>
     </>
   );

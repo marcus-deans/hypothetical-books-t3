@@ -7,6 +7,9 @@ import type { GridColDef, GridPreProcessEditCellProps } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import ModalImage from "react-modal-image";
 
 interface GoogleBookResponse {
   kind: string;
@@ -273,6 +276,15 @@ export default function AddBook() {
       headerName: "Cover",
       headerClassName: "header-theme",
       minWidth: 100,
+      renderCell: (params) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const url = params.row.imgLink as string;
+        return (
+          <div className="text-blue-600">
+            <ModalImage small={url} large={url} alt="cover" />
+          </div>
+        );
+      },
     },
     {
       field: "title",
@@ -404,6 +416,7 @@ export default function AddBook() {
       height: 8,
       thickness: 0.5,
       retailPrice: 0,
+      imgLink: retrievedBook.imageLinks?.thumbnail ?? "",
     };
   });
   // 9780812979688, 9781250158079
