@@ -10,6 +10,8 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import ModalImage from "react-modal-image";
 import type { GridColDef } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
