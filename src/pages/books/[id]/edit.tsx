@@ -77,6 +77,7 @@ export default function EditBook(
   const [retailPrice, setRetailPrice] = useState(
     data?.retailPrice.toString() ?? ""
   );
+  const [imgUrl, setImgUrl] = useState(data?.imgUrl ?? "");
   const [pageCount, setPageCount] = useState(data?.pageCount.toString() ?? "");
   const [width, setWidth] = useState(data?.width.toString() ?? "");
   const [height, setHeight] = useState(data?.height.toString() ?? "");
@@ -116,6 +117,7 @@ export default function EditBook(
         toast.error("Dimensions are required");
         throw new Error("Dimensions are required");
       }
+
       const addResult = editMutation.mutate({
         id: id,
         retailPrice: finalRetailPrice,
@@ -124,6 +126,7 @@ export default function EditBook(
         width: finalWidth,
         height: finalHeight,
         thickness: finalThickness,
+        imgUrl: imgUrl,
       });
       setTimeout(() => {
         void router.push(`/books/${encodeURIComponent(id)}/detail`);
@@ -145,6 +148,9 @@ export default function EditBook(
   const { mutateAsync: createPresignedUrl } =
     api.imageUpload.createPresignedUrl.useMutation();
   // trpc.useMutation('image.createPresignedUrl');
+
+  const { mutateAsync: getImageUrl } =
+    api.imageUpload.getImageUrl.useMutation();
 
   const { data: images, refetch: refetchImages } =
     api.imageUpload.getImagesForUser.useQuery();
@@ -192,10 +198,13 @@ export default function EditBook(
       // @ts-ignore eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       formData.append(name, imageData[name]);
     }
+    console.log(`URL: ${url}`);
     await fetch(url, {
       method: "POST",
       body: formData,
     });
+    const imageUrl = (await getImageUrl({ bookId: id })) as string;
+    setImgUrl(imageUrl);
     await refetchImages();
     setFile(null);
     if (fileRef.current) {
