@@ -108,21 +108,27 @@ export const googleBooksRouter = createTRPCRouter({
     .query(async ({ input }) => {
       // logger.info("Fetching book from Google Books API");
       console.log("Fetching book from Google Books API");
-      const isbnDetails = [];
+      console.log(input.isbns);
+      const isbnDetails: GoogleBookDetails[] = [];
       for (const isbn of input.isbns) {
+        console.log(`ISBN: ${isbn}`);
         const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
-        isbnDetails.push(
-          await fetch(queryURL)
-            .then((response) => response.json())
-            .then((response) => {
-              const googleBookResponse = response as GoogleBookResponse;
-              const volumeInfo = googleBookResponse.items.map((item) => {
-                return item.volumeInfo;
-              });
-              console.log(volumeInfo);
-              return volumeInfo[0];
-            })
-        );
+        await fetch(queryURL)
+          .then((response) => response.json())
+          .then((response) => {
+            const googleBookResponse = response as GoogleBookResponse;
+            const volumeInfo = googleBookResponse.items.map((item) => {
+              return item.volumeInfo;
+            });
+            // console.log(`Volume Info`);
+            // console.log(volumeInfo);
+            const bookDetails = volumeInfo[0];
+            if (bookDetails) {
+              console.log("Book Details: ");
+              console.log(bookDetails);
+              isbnDetails.push(bookDetails);
+            }
+          });
       }
       return isbnDetails;
     }),

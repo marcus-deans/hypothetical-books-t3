@@ -36,6 +36,13 @@ interface GoogleBookDetails {
 
   publisher: string | null;
   categories: string[] | null;
+  imageLinks: {
+    smallThumbnail: string | null;
+    thumbnail: string | null;
+    small: string | null;
+    medium: string | null;
+    large: string | null;
+  };
 }
 
 export default function AddBook() {
@@ -53,13 +60,13 @@ export default function AddBook() {
   //   },
   //   { enabled: !!currentIsbn }
   // );
-  const fetchedGoogleBookData =
-    api.googleBooks.multipleRetrieveByIsbns.useQuery(
-      {
-        isbns: currentIsbns,
-      },
-      { enabled: !!currentIsbns }
-    );
+  // const fetchedGoogleBookData =
+  //   api.googleBooks.multipleRetrieveByIsbns.useQuery(
+  //     {
+  //       isbns: currentIsbns,
+  //     },
+  //     { enabled: !!currentIsbns }
+  //   );
 
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
@@ -67,26 +74,29 @@ export default function AddBook() {
     setSearchQuery(e.target.value);
   };
 
-  // const queryApi = async (
-  //   isbn: string
-  // ): Promise<Array<GoogleBookDetails> | string> => {
-  //   const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=AIzaSyCUvnosRtoQlB8Br25-ozT7Oq00x0FI50o`;
-  //   try {
-  //     const response = await fetch(queryURL);
-  //     if (response.status !== 200) {
-  //       return "Error retrieving book";
-  //     }
-  //     const googleBookResponse = (await response.json()) as GoogleBookResponse;
-  //     return googleBookResponse.items.map((item) => {
-  //       return item.volumeInfo;
-  //     });
-  //   } catch (error) {
-  //     if (error) {
-  //       return error.toString();
-  //     }
-  //     return "Unknown error";
-  //   }
-  // };
+  const queryApi = async (
+    isbns: string[]
+  ): Promise<Array<GoogleBookDetails>> => {
+    const bookDetails: Array<GoogleBookDetails> = [];
+    for (const isbn of isbns) {
+      console.log(`ISBN: ${isbn}`);
+      const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=AIzaSyCUvnosRtoQlB8Br25-ozT7Oq00x0FI50o`;
+      try {
+        const response = await fetch(queryURL);
+        if (response.status !== 200) {
+          continue;
+        }
+        const googleBookResponse =
+          (await response.json()) as GoogleBookResponse;
+        googleBookResponse.items.map((item) => {
+          bookDetails.push(item.volumeInfo);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    return bookDetails;
+  };
   // return fetch(queryURL)
   //   .then((response) => {
   //     if (response.status !== 200) {
@@ -107,6 +117,17 @@ export default function AddBook() {
   //       return;
   //     }
   //   });
+
+  const performQuery = async (isbnSearchList: string[]) => {
+    const googleBooksData = await queryApi(isbnSearchList);
+    if (googleBooksData) {
+      console.log("Setting retreived books with:");
+      console.log(googleBooksData);
+      setRetrievedBooks(googleBooksData);
+      setIsLoaded(true);
+    }
+  };
+
   const handleSubmit = () => {
     if (searchQuery === "") {
       return;
@@ -115,11 +136,17 @@ export default function AddBook() {
     setIsLoaded(false);
     const inputIsbns = searchQuery.replace(/\s+/g, "").replace(/-/g, "");
     const isbnSearchList = inputIsbns.split(",");
-    const googleBooksData = fetchedGoogleBookData?.data;
-    if (googleBooksData) {
-      setRetrievedBooks(googleBooksData);
-    }
+    // setCurrentIsbns(isbnSearchList);
+    // const googleBooksData = fetchedGoogleBookData?.data;
+    void performQuery(isbnSearchList);
+    setSearchQuery("");
+    // setTimeout(() => {
+    //   setCurrentIsbns([]);
+    // }, 2000);
+    // console.log(retrievedBooks);
   };
+  // 9781250158079, 9780008108342
+  // ,9780008108342, 9781250158079
   // isbnSearchList.map((isbn, index) => {
   //   setCurrentIsbn(isbn);
   //   const googleBookData = fetchedGoogleBookData?.data;
@@ -245,37 +272,42 @@ export default function AddBook() {
       field: "cover",
       headerName: "Cover",
       headerClassName: "header-theme",
-      maxWidth: 20,
+      minWidth: 100,
     },
     {
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      maxWidth: 35,
+      minWidth: 250,
     },
     {
       field: "authors",
       headerName: "Authors",
       headerClassName: "header-theme",
-      maxWidth: 250,
+      minWidth: 200,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
-      maxWidth: 125,
+      width: 125,
     },
     {
       field: "isbn_10",
       headerName: "ISBN-10",
       headerClassName: "header-theme",
-      width: 100,
+      width: 110,
     },
     {
-      field: "publicationYear",
-      headerName: "Publication Year",
+      field: "retailPrice",
+      headerName: "Retail Price ($)",
       headerClassName: "header-theme",
       width: 150,
+      preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
+        const hasError = params.props.value < 0;
+        return { ...params.props, error: hasError };
+      },
+      editable: true,
     },
     {
       field: "pageCount",
@@ -288,21 +320,27 @@ export default function AddBook() {
       field: "publisher",
       headerName: "Publisher",
       headerClassName: "header-theme",
-      maxWidth: 30,
+      minWidth: 125,
     },
     {
       field: "genre",
       headerName: "Genre",
       type: "number",
       headerClassName: "header-theme",
-      maxWidth: 25,
+      minWidth: 125,
+    },
+    {
+      field: "publicationYear",
+      headerName: "Publication Year",
+      headerClassName: "header-theme",
+      width: 150,
     },
     {
       field: "width",
       headerName: "Width (in.)",
       type: "number",
       headerClassName: "header-theme",
-      maxWidth: 150,
+      maxWidth: 125,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError = params.props.value < 0;
         return { ...params.props, error: hasError };
@@ -314,7 +352,7 @@ export default function AddBook() {
       headerName: "Height (in.)",
       type: "number",
       headerClassName: "header-theme",
-      maxWidth: 150,
+      maxWidth: 125,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError = params.props.value < 0;
         return { ...params.props, error: hasError };
@@ -325,20 +363,7 @@ export default function AddBook() {
       field: "thickness",
       headerName: "Thickness (in.)",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 150,
-      preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
-        const hasError = params.props.value < 0;
-        return { ...params.props, error: hasError };
-      },
-      editable: true,
-    },
-    {
-      field: "retailPrice",
-      headerName: "Retail Price ($)",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 200,
+      width: 170,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError = params.props.value < 0;
         return { ...params.props, error: hasError };
