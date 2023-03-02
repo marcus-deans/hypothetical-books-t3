@@ -10,12 +10,16 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import ModalImage from "react-modal-image";
-import type { GridColDef } from "@mui/x-data-grid";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
-// import logger from "../../utils/logger";
+import logger from "../../utils/logger";
+import EditLink from "../../components/table-components/EditLink";
+
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
@@ -119,6 +123,19 @@ export default function Books(
       headerClassName: "header-theme",
       minWidth: 100,
       flex: 1,
+    },    {
+      field: "edit",
+      headerName: "Edit",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 70,
+      align: "center",
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <EditLink url={`/books/${params.id}/edit`} />
+      ),
     },
   ];
 

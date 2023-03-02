@@ -3,10 +3,13 @@ import React, { useState } from "react";
 import { api } from "../../utils/api";
 import { Button } from "@mui/material";
 import { useRouter } from "next/router";
-import type { GridColDef } from "@mui/x-data-grid";
-import StripedDataGrid from "../../components/table-components/StripedDataGrid";
+import type { GridColDef, GridPreProcessEditCellProps } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
+import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import ModalImage from "react-modal-image";
 
 interface GoogleBookResponse {
   kind: string;
@@ -36,15 +39,38 @@ interface GoogleBookDetails {
 
   publisher: string | null;
   categories: string[] | null;
+  imageLinks: {
+    smallThumbnail: string | null;
+    thumbnail: string | null;
+    small: string | null;
+    medium: string | null;
+    large: string | null;
+  };
 }
 
 export default function AddBook() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dataRetrieved, setDataRetrieved] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  // const [currentIsbn, setCurrentIsbn] = useState("");
+  const [currentIsbns, setCurrentIsbns] = useState<string[]>([]);
   const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
   // const retrieveMutation = api.googleBooks.simpleRetrieveByISBN.useMutation();
   const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
+  // const fetchedGoogleBookData = api.googleBooks.simpleRetrieveByISBN.useQuery(
+  //   {
+  //     isbn: currentIsbn,
+  //   },
+  //   { enabled: !!currentIsbn }
+  // );
+  // const fetchedGoogleBookData =
+  //   api.googleBooks.multipleRetrieveByIsbns.useQuery(
+  //     {
+  //       isbns: currentIsbns,
+  //     },
+  //     { enabled: !!currentIsbns }
+  //   );
+
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
   const handleType = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,24 +78,27 @@ export default function AddBook() {
   };
 
   const queryApi = async (
-    isbn: string
-  ): Promise<Array<GoogleBookDetails> | string> => {
-    const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=AIzaSyCUvnosRtoQlB8Br25-ozT7Oq00x0FI50o`;
-    try {
-      const response = await fetch(queryURL);
-      if (response.status !== 200) {
-        return "Error retrieving book";
+    isbns: string[]
+  ): Promise<Array<GoogleBookDetails>> => {
+    const bookDetails: Array<GoogleBookDetails> = [];
+    for (const isbn of isbns) {
+      console.log(`ISBN: ${isbn}`);
+      const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=AIzaSyCUvnosRtoQlB8Br25-ozT7Oq00x0FI50o`;
+      try {
+        const response = await fetch(queryURL);
+        if (response.status !== 200) {
+          continue;
+        }
+        const googleBookResponse =
+          (await response.json()) as GoogleBookResponse;
+        googleBookResponse.items.map((item) => {
+          bookDetails.push(item.volumeInfo);
+        });
+      } catch (error) {
+        console.log(error);
       }
-      const googleBookResponse = (await response.json()) as GoogleBookResponse;
-      return googleBookResponse.items.map((item) => {
-        return item.volumeInfo;
-      });
-    } catch (error) {
-      if (error) {
-        return error.toString();
-      }
-      return "Unknown error";
     }
+    return bookDetails;
   };
   // return fetch(queryURL)
   //   .then((response) => {
@@ -92,113 +121,184 @@ export default function AddBook() {
   //     }
   //   });
 
+  const performQuery = async (isbnSearchList: string[]) => {
+    const googleBooksData = await queryApi(isbnSearchList);
+    if (googleBooksData) {
+      console.log("Setting retreived books with:");
+      console.log(googleBooksData);
+      setRetrievedBooks(googleBooksData);
+      setIsLoaded(true);
+    }
+  };
+
   const handleSubmit = () => {
     if (searchQuery === "") {
       return;
     }
     setRetrievedBooks([]);
     setIsLoaded(false);
-    //Set search query to empty, split the search query, make the backend calls
     const inputIsbns = searchQuery.replace(/\s+/g, "").replace(/-/g, "");
     const isbnSearchList = inputIsbns.split(",");
-    console.log(isbnSearchList);
-    isbnSearchList.map(async (isbn, index) => {
-      const fetchedBooks = await queryApi(isbn);
-      if (typeof fetchedBooks === "string") {
-        return;
-      }
-      fetchedBooks.map((book) => {
-        console.log(book);
-        setRetrievedBooks([...retrievedBooks, book]);
-        console.log(book.authors.join(", "));
-        console.log(retrievedBooks);
-      });
-      if (index === isbnSearchList.length - 1) {
-        console.log(retrievedBooks);
-        setIsLoaded(true);
-      }
-    });
+    // setCurrentIsbns(isbnSearchList);
+    // const googleBooksData = fetchedGoogleBookData?.data;
+    void performQuery(isbnSearchList);
     setSearchQuery("");
+    // setTimeout(() => {
+    //   setCurrentIsbns([]);
+    // }, 2000);
+    // console.log(retrievedBooks);
   };
+  // 9781250158079, 9780008108342
+  // ,9780008108342, 9781250158079
+  // isbnSearchList.map((isbn, index) => {
+  //   setCurrentIsbn(isbn);
+  //   const googleBookData = fetchedGoogleBookData?.data;
+  //   console.log(googleBookData);
+  //   if (googleBookData) {
+  //     for (const retrievedBook of googleBookData) {
+  //       setRetrievedBooks([...retrievedBooks, retrievedBook]);
+  //       console.log(retrievedBooks);
+  //     }
+  //   }
+  //   if (index === isbnSearchList.length - 1) {
+  //     console.log("done retrieving all books");
+  //     // console.log(retrievedBooks);
+  //     setIsLoaded(true);
+  //   }
+  // });
+
+  // const handleSubmit = () => {
+  //   if (searchQuery === "") {
+  //     return;
+  //   }
+  //   setRetrievedBooks([]);
+  //   setIsLoaded(false);
+  //   //Set search query to empty, split the search query, make the backend calls
+  //   const inputIsbns = searchQuery.replace(/\s+/g, "").replace(/-/g, "");
+  //   const isbnSearchList = inputIsbns.split(",");
+  //   console.log(isbnSearchList);
+  //   isbnSearchList.map(async (isbn, index) => {
+  //     const fetchedBooks = await queryApi(isbn);
+  //     if (typeof fetchedBooks === "string") {
+  //       return;
+  //     }
+  //     fetchedBooks.map((book) => {
+  //       // console.log(book);
+  //       setRetrievedBooks([...retrievedBooks, book]);
+  //       // console.log(book.authors.join(", "));
+  //       // console.log(retrievedBooks);
+  //     });
+  //     if (index === isbnSearchList.length - 1) {
+  //       console.log("done retrieving all books");
+  //       console.log(retrievedBooks);
+  //       setIsLoaded(true);
+  //     }
+  //   });
+  //   setSearchQuery("");
+  // };
 
   const handleConfirm = () => {
-    retrievedBooks.map((book) => {
-      let isbn_10 = null;
-      let isbn_13 = null;
-      if (book?.industryIdentifiers[0]?.type === "ISBN_13") {
-        isbn_13 = book.industryIdentifiers[0].identifier;
-        if (book?.industryIdentifiers[1]?.type === "ISBN_10") {
-          isbn_10 = book.industryIdentifiers[1].identifier;
-        }
-      }
-      if (book?.industryIdentifiers[1]?.type === "ISBN_13") {
-        isbn_13 = book.industryIdentifiers[1].identifier;
-        if (book?.industryIdentifiers[0]?.type === "ISBN_10") {
-          isbn_10 = book.industryIdentifiers[0].identifier;
-        }
-      }
-
-      let publicationYear = Number(new Date(book.publishedDate).getFullYear());
-      if (isNaN(publicationYear)) {
-        publicationYear = 0;
-      }
-
-      let pageCount = Number(book.pageCount);
-      if (isNaN(pageCount)) {
-        pageCount = 0;
-      }
-      console.log("dding book");
-      console.log(book);
-      addMutation.mutate({
-        title: book.title,
-        authors: book.authors,
-        isbn_13: isbn_13 ?? "Unknown",
-        isbn_10: isbn_10,
-        publisher: book.publisher ?? "",
-        publicationYear: publicationYear,
-        pageCount: pageCount,
-        width: 0,
-        height: 0,
-        thickness: 0,
-        retailPrice: 0,
-        genreId: unknownGenreQuery.data?.id ?? "Error",
-        purchaseLines: [],
-        salesLines: [],
-        inventoryCount: 0,
+    try {
+      rows.map((row) => {
+        console.log("dding book");
+        console.log(row);
+        addMutation.mutate({
+          title: row.title,
+          authors: row.authors.split(","),
+          isbn_13: row.isbn_13 ?? "Unknown",
+          isbn_10: row.isbn_10,
+          publisher: row.publisher ?? "",
+          publicationYear: row.publicationYear,
+          pageCount: row.pageCount,
+          width: row.width,
+          height: row.height,
+          thickness: row.thickness,
+          retailPrice: row.retailPrice,
+          genreName: row.genre, //row.genre actually
+          purchaseLines: [],
+          salesLines: [],
+          inventoryCount: 0,
+        });
       });
-    });
-    setTimeout(() => {
-      void router.push(`/books/`);
-    }, 500);
-    setIsLoaded(false);
+      setTimeout(() => {
+        void router.push("/books");
+      }, 500);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const columns: GridColDef[] = [
     {
+      field: "cover",
+      headerName: "Cover",
+      headerClassName: "header-theme",
+      minWidth: 100,
+      renderCell: (params) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const url = params.row.imgLink as string;
+        return (
+          <div className="text-blue-600">
+            <ModalImage small={url} large={url} alt="cover" />
+          </div>
+        );
+      },
+    },
+    {
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      flex: 1,
+      minWidth: 250,
     },
     {
       field: "authors",
       headerName: "Authors",
       headerClassName: "header-theme",
-      flex: 1,
+      minWidth: 200,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 135,
+      width: 125,
     },
     {
       field: "isbn_10",
       headerName: "ISBN-10",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 100,
+      width: 110,
+    },
+    {
+      field: "retailPrice",
+      headerName: "Retail Price ($)",
+      headerClassName: "header-theme",
+      width: 150,
+      preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
+        const hasError = params.props.value < 0;
+        return { ...params.props, error: hasError };
+      },
+      editable: true,
+    },
+    {
+      field: "pageCount",
+      headerName: "Page Count",
+      headerClassName: "header-theme",
+      width: 100,
+      editable: true,
+    },
+    {
+      field: "publisher",
+      headerName: "Publisher",
+      headerClassName: "header-theme",
+      minWidth: 125,
+    },
+    {
+      field: "genre",
+      headerName: "Genre",
+      type: "string",
+      editable: true,
+      headerClassName: "header-theme",
+      minWidth: 125,
     },
     {
       field: "publicationYear",
@@ -208,29 +308,45 @@ export default function AddBook() {
       maxWidth: 125,
     },
     {
-      field: "pageCount",
-      headerName: "Page Count",
+      field: "width",
+      headerName: "Width (in.)",
+      type: "number",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 110,
+      maxWidth: 125,
+      preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
+        const hasError = params.props.value < 0;
+        return { ...params.props, error: hasError };
+      },
+      editable: true,
     },
     {
-      field: "publisher",
-      headerName: "Publisher",
+      field: "height",
+      headerName: "Height (in.)",
+      type: "number",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 200,
+      maxWidth: 125,
+      preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
+        const hasError = params.props.value < 0;
+        return { ...params.props, error: hasError };
+      },
+      editable: true,
     },
     {
-      field: "genre",
-      headerName: "Genre",
+      field: "thickness",
+      headerName: "Thickness (in.)",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 200,
+      width: 170,
+      preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
+        const hasError = params.props.value < 0;
+        return { ...params.props, error: hasError };
+      },
+      editable: true,
     },
   ];
 
   const rows = retrievedBooks.map((retrievedBook, index) => {
+    console.log("Adding retrieved book to rows");
+    console.log(retrievedBook);
     let isbn_10 = null;
     let isbn_13 = null;
     if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
@@ -250,16 +366,23 @@ export default function AddBook() {
       id: index,
       title: retrievedBook.title,
       authors: retrievedBook.authors.join(", "),
-      isbn_13: isbn_13 ?? "N/A",
-      isbn_10: isbn_10 ?? "N/A",
+      isbn_13: isbn_13 ?? "Unknown",
+      isbn_10: isbn_10 ?? "Unknown",
       publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
-      pageCount: retrievedBook.pageCount,
-      publisher: retrievedBook.publisher ?? "N/A",
-      genre: retrievedBook?.categories?.join(", ") ?? "N/A",
+      pageCount: isNaN(retrievedBook.pageCount) ? 0 : retrievedBook.pageCount,
+      publisher: retrievedBook.publisher ?? "Unknown",
+      genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
+      width: 5,
+      height: 8,
+      thickness: 0.5,
+      retailPrice: 0,
+      imgLink: retrievedBook.imageLinks?.thumbnail ?? "",
     };
   });
-
+  // 9780812979688, 9781250158079
   if (isLoaded) {
+    console.log("all rows");
+    console.log(rows);
     return (
       <>
         <Head>
@@ -398,28 +521,3 @@ export default function AddBook() {
     );
   }
 }
-
-// export const AddBooksView = () => {
-//   const[SearchComplete, setSearchComplete] = useState(false);
-//   const[ISBNSearches, setISBNSearches] = useState("");
-//   const[bookData, setBookData] = useState([]);
-//
-//   const ISBNSearchesWrapper = (input:string) => {setISBNSearches(input)
-//   }
-//   const searchCompleteWrapper = () => {
-//     setSearchComplete(true);
-//   };
-//   return (
-//     <>
-//       {SearchComplete ? (
-//         <div>
-//           <TableView labels={["Title", "Author", "ISBN", "Retail Price", "Genre","Inventory Count"] } ISBNQueries = {ISBNSearches.replace(/ /g, '').split(",")}></TableView>
-//           {}
-//         </div>
-//       ) : (<>
-//         <InputBar setSearchComplete = {searchCompleteWrapper} setISBNSearchesUpper = {ISBNSearchesWrapper}/>
-//         <div classNameName="flex h-screen w-screen justify-center items-center text-4xl text-white">Please Search for ISBNs to View Book Information</div>
-//       </>)}
-//     </>
-//   )
-// }

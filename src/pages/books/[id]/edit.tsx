@@ -95,6 +95,7 @@ export default function EditBook(
     setIsSubmitting(true);
     try {
       if (!genreValue) {
+        toast.error("Genre is required");
         throw new Error("Genre is required");
       }
       const finalRetailPrice = Number(retailPrice);
@@ -104,12 +105,15 @@ export default function EditBook(
       const finalThickness = Number(thickness);
 
       if (isNaN(finalRetailPrice)) {
+        toast.error("Retail price is required");
         throw new Error("Retail price is required");
       }
       if (isNaN(finalPageCount)) {
+        toast.error("Page count is required");
         throw new Error("Page count is required");
       }
       if (isNaN(finalWidth) || isNaN(finalHeight) || isNaN(finalThickness)) {
+        toast.error("Dimensions are required");
         throw new Error("Dimensions are required");
       }
       const addResult = editMutation.mutate({
@@ -145,13 +149,16 @@ export default function EditBook(
   const { data: images, refetch: refetchImages } =
     api.imageUpload.getImagesForUser.useQuery();
   // trpc.useQuery(['image.getImagesForUser'])
-
+  const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    setFile(undefined);
+    toast.success("Deleted Image");
+  };
+  
   const handleFileChange = (e: React.FormEvent<HTMLInputElement>) => {
     const newFile = e.currentTarget?.files?.[0];
     if (newFile) {
       setFile(newFile);
-    }
-  };
 
   const refetchUserImages = async () => {
     await refetchImages();
@@ -196,6 +203,8 @@ export default function EditBook(
     if (fileRef.current) {
       fileRef.current.value = "";
     }
+    toast.success("Added Image");
+    //Implement API call to send image back
   };
 
   return (
@@ -348,6 +357,12 @@ export default function EditBook(
                   >
                     Upload
                   </button>
+                  <button
+                    onClick={handleDelete}
+                    className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+                  >
+                    Delete Image
+                  </button>
                 </div>
                 <div className="flex justify-center">
                   {images &&
@@ -373,7 +388,6 @@ export default function EditBook(
           </div>
         </form>
         <ToastContainer></ToastContainer>
-
       </div>
     </>
   );
