@@ -3,6 +3,7 @@ import type {
   GetStaticPropsContext,
   InferGetStaticPropsType,
 } from "next";
+import Head from "next/head";
 import { prisma } from "../../../server/db";
 import { useRouter } from "next/router";
 import type { ChangeEvent } from "react";
@@ -99,6 +100,9 @@ export default function ImportBuyback(
 
   return (
     <>
+      <Head>
+        <title>Import Buyback Order</title>
+      </Head>
       <div className="pt-6">
         <form className="rounded bg-white px-6 py-6 inline-block">
           <div className="space-y-5">

@@ -128,7 +128,7 @@ export default function BuybackOrderDetail(
   return (
     <>
       <Head>
-        <title>Buybacks</title>
+        <title>Buyback Details</title>
       </Head>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
