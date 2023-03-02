@@ -388,7 +388,7 @@ export default function AddBook() {
     return (
       <>
         <Head>
-          <title>Books</title>
+          <title>Add Book</title>
         </Head>
         <div className="m-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
           <div className="mb-3 flex w-max">

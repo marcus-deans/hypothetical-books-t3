@@ -51,7 +51,7 @@ export default function DeleteBuybackOrder(
       </Head>
       <DeletePane
         itemIdentifier={data?.date.toLocaleDateString() ?? id}
-        itemName={"Purchase Order"}
+        itemName={"Buy Back"}
         isDeleting={isDeleting}
         handleDelete={handleDelete}
         cancelUrl={`/buybacks/${encodeURIComponent(id)}/detail`}

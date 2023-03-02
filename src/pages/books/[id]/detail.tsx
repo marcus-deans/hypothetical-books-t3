@@ -5,6 +5,7 @@ import type {
   GetStaticPropsContext,
   InferGetStaticPropsType,
 } from "next";
+import Head from "next/head";
 import { prisma } from "../../../server/db";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
@@ -418,6 +419,9 @@ export default function BookDetail(
 
   return (
     <>
+      <Head>
+        <title>Book Details</title>
+      </Head>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">{"Book Details"}</h1>
       </div>

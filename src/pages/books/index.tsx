@@ -10,6 +10,9 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import ModalImage from "react-modal-image";
 import type { GridColDef } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
@@ -28,6 +31,21 @@ export default function Books(
   //logger.info("Loading books page");
 
   const columns: GridColDef[] = [
+    {
+      field: "image",
+      headerName: "Cover",
+      headerClassName: "header-theme",
+
+      renderCell: (params) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const url = params.row.imgLink as string;
+        return (
+          <div className="text-blue-600">
+            <ModalImage small={url} large={url} alt="cover" />
+          </div>
+        );
+      },
+    },
     {
       field: "title",
       headerName: "Title",
@@ -148,6 +166,8 @@ export default function Books(
       retailPrice: `$${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
+      imgLink:
+        "https://images.pexels.com/photos/1122870/pexels-photo-1122870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       shelfSpace: shelfSpaceString,
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),

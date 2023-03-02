@@ -12,6 +12,7 @@ import { vendorsRouter } from "./routers/vendors";
 import { usersRouter } from "./routers/users";
 import { buybackOrdersRouter } from "./routers/buybackOrders";
 import { buybackLinesRouter } from "./routers/buybackLines";
+import { csvPortsRouter } from "./routers/csvPorts";
 
 /**
  * This is the primary router for your server.
@@ -32,6 +33,7 @@ export const appRouter = createTRPCRouter({
   vendors: vendorsRouter,
   googleBooks: googleBooksRouter,
   users: usersRouter,
+  csvPorts: csvPortsRouter,
 });
 
 // export type definition of API

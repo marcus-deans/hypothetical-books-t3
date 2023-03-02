@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { matchSorter } from "match-sorter";
+import Head from "next/head";
 
 export default function AddSalesLine(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -91,129 +92,134 @@ export default function AddSalesLine(
   }));
 
   return (
-    <div className="pt-6">
-      <form className="rounded bg-white px-6 py-6 inline-block">
-        <div className="space-y-5">
-          <div className="mb-2 block text-lg font-bold text-gray-700">
-            Create Sales Line
-          </div>
-          <div className="relative space-y-3">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
-            <div className="col-span-4">
-              <div className="space-y-20">
-                <div className="flex space-x-10 justify-center">
-                  <FormControl>
-                    <FormLabel>Sales Reconciliation</FormLabel>
-                    <FormHelperText>
-                      Select a sales reconciliation by date
-                    </FormHelperText>
-                    <Autocomplete
-                      options={salesReconciliationOptions}
-                      placeholder={"Search sales reconciliations by date"}
-                      value={salesValue}
-                      onChange={(
-                        event,
-                        newValue: { label: string; id: string } | null
-                      ) => {
-                        setSalesValue(newValue);
-                      }}
-                      onInputChange={(event, newSalesInputValue: string) => {
-                        setSalesInputValue(newSalesInputValue);
-                      }}
-                      sx={{ width: 425 }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          inputProps={{
-                            ...params.inputProps,
-                          }}
-                        />
-                      )}
-                    />
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel>Book</FormLabel>
-                    <FormHelperText>Select a book by title</FormHelperText>
-                    <Autocomplete
-                      options={bookOptions}
-                      placeholder={"Search books by title"}
-                      value={bookValue}
-                      onChange={(
-                        event,
-                        newValue: { label: string; id: string } | null
-                      ) => {
-                        setBookValue(newValue);
-                        setUnitWholesalePrice(
-                          bookOptions.find((book) => book.id === newValue?.id)
-                            ?.retailPrice ?? ""
-                        );
-                      }}
-                      onInputChange={(event, newBookInputValue: string) => {
-                        setBookInputValue(newBookInputValue);
-                      }}
-                      sx={{ width: 425 }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          inputProps={{
-                            ...params.inputProps,
-                          }}
-                        />
-                      )}
-                    />
-                  </FormControl>
-                </div>
-                <div className="flex space-x-10 justify-center">
-                  <FormControl>
-                    <FormLabel>Quantity</FormLabel>
-                    <input
-                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                      id="quantity"
-                      name="quantity"
-                      type="text"
-                      placeholder="Quantity"
-                      min="1"
-                      size={45}
-                      // value={quantity}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setQuantity(event.target.value)}
-                      required
-                    />
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel>Unit Wholesale Price</FormLabel>
-                    <input
-                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                      id="UnitWholesalePrice"
-                      name="UnitWholesalePrice"
-                      type="text"
-                      placeholder="Unit Wholesale Price"
-                      min="0"
-                      size={45}
-                      value={unitWholesalePrice}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setUnitWholesalePrice(event.target.value)}
-                      required
-                    />
-                  </FormControl>
+    <>
+      <Head>
+        <title>Create Sales Line</title>
+      </Head>
+      <div className="pt-6">
+        <form className="rounded bg-white px-6 py-6 inline-block">
+          <div className="space-y-5">
+            <div className="mb-2 block text-lg font-bold text-gray-700">
+              Create Sales Line
+            </div>
+            <div className="relative space-y-3">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
+              <div className="col-span-4">
+                <div className="space-y-20">
+                  <div className="flex space-x-10 justify-center">
+                    <FormControl>
+                      <FormLabel>Sales Reconciliation</FormLabel>
+                      <FormHelperText>
+                        Select a sales reconciliation by date
+                      </FormHelperText>
+                      <Autocomplete
+                        options={salesReconciliationOptions}
+                        placeholder={"Search sales reconciliations by date"}
+                        value={salesValue}
+                        onChange={(
+                          event,
+                          newValue: { label: string; id: string } | null
+                        ) => {
+                          setSalesValue(newValue);
+                        }}
+                        onInputChange={(event, newSalesInputValue: string) => {
+                          setSalesInputValue(newSalesInputValue);
+                        }}
+                        sx={{ width: 425 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            inputProps={{
+                              ...params.inputProps,
+                            }}
+                          />
+                        )}
+                      />
+                    </FormControl>
+                    <FormControl>
+                      <FormLabel>Book</FormLabel>
+                      <FormHelperText>Select a book by title</FormHelperText>
+                      <Autocomplete
+                        options={bookOptions}
+                        placeholder={"Search books by title"}
+                        value={bookValue}
+                        onChange={(
+                          event,
+                          newValue: { label: string; id: string } | null
+                        ) => {
+                          setBookValue(newValue);
+                          setUnitWholesalePrice(
+                            bookOptions.find((book) => book.id === newValue?.id)
+                              ?.retailPrice ?? ""
+                          );
+                        }}
+                        onInputChange={(event, newBookInputValue: string) => {
+                          setBookInputValue(newBookInputValue);
+                        }}
+                        sx={{ width: 425 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            inputProps={{
+                              ...params.inputProps,
+                            }}
+                          />
+                        )}
+                      />
+                    </FormControl>
+                  </div>
+                  <div className="flex space-x-10 justify-center">
+                    <FormControl>
+                      <FormLabel>Quantity</FormLabel>
+                      <input
+                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                        id="quantity"
+                        name="quantity"
+                        type="text"
+                        placeholder="Quantity"
+                        min="1"
+                        size={45}
+                        // value={quantity}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ): void => setQuantity(event.target.value)}
+                        required
+                      />
+                    </FormControl>
+                    <FormControl>
+                      <FormLabel>Unit Wholesale Price</FormLabel>
+                      <input
+                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                        id="UnitWholesalePrice"
+                        name="UnitWholesalePrice"
+                        type="text"
+                        placeholder="Unit Wholesale Price"
+                        min="0"
+                        size={45}
+                        value={unitWholesalePrice}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ): void => setUnitWholesalePrice(event.target.value)}
+                        required
+                      />
+                    </FormControl>
+                  </div>
                 </div>
               </div>
             </div>
+            <div className="flex items-center justify-between">
+              <button
+                className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                type="button"
+                onClick={handleSubmit}
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </button>
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
-              type="button"
-              onClick={handleSubmit}
-            >
-              {isSubmitting ? "Submitting..." : "Submit"}
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </>
   );
 }
 
