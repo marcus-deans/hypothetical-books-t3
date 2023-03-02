@@ -36,8 +36,6 @@ export default function AddBuyBackLine(
   } | null>(null);
   const [unitBuybackPrice, setUnitBuybackPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [buybackInputValue, setBuybackInputValue] = useState("");
-  const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   //TODO: fix this
   // const filterOptions = (options, { inputValue }) => matchSorter(options, inputValue, { keys: ['label, id'] });
