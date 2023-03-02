@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable @next/next/no-img-element */
 import Head from "next/head";
 import React, { useState } from "react";
 import { api } from "../../utils/api";
@@ -57,20 +59,7 @@ export default function Books(
         const url = params.row.imgUrl as string;
         return (
           <div className="text-blue-600">
-<<<<<<< HEAD
-            <ModalImage
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-              small={params.row.imgLink}
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-              large={params.row.imgLink}
-              alt="cover"
-            />;
-=======
-            <img
-              src={url}
-              onClick={handleOpen}
-              style={{ width: 40, height: 60 }}
-            />
+            <img src={url}onClick={handleOpen}style={{ width: 40, height: 60 }}/>
             <Modal
               open={open}
               onClose={handleClose}
@@ -79,7 +68,6 @@ export default function Books(
             >
               <img src={url} style={{ width: 160, height: 240 }} />
             </Modal>
->>>>>>> staging
           </div>
         );
       },
@@ -218,11 +206,7 @@ export default function Books(
       retailPrice: `$${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
-<<<<<<< HEAD
-      imgLink: "https://images.pexels.com/photos/1122870/pexels-photo-1122870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-=======
       imgUrl: book.imgUrl,
->>>>>>> staging
       shelfSpace: shelfSpaceString,
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),
