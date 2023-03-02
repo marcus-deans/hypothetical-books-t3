@@ -143,62 +143,55 @@ export const imagesRouter = createTRPCRouter({
         .promise();
     }),
 
-  getImageUrl: publicProcedure
-    .input(z.object({ bookId: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      if (!ctx.session) {
-        throw new TRPCError({
-          message: "User is not authenticated",
-          code: "UNAUTHORIZED",
-        });
-      }
-
-      const clientOptions: S3ClientConfig = {
-        region: REGION,
-      };
-
-      // const client = new S3Client(clientOptions);
-      // const awsName = `images/${input.bookId}`;
-      // const params = {
-      //   Bucket: BUCKET_NAME,
-      //   Key: awsName,
-      //   Body: "BODY",
-      //   Region: REGION,
-      // };
-      // const command = new GetObjectCommand(params);
-      const s3ObjectUrl = parseUrl(
-        `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/images/${input.bookId}`
-      );
-
-      const s3Configuration: S3ClientConfig = {
-        credentials: {
-          accessKeyId: env.AWS_ACCESS_KEY_ID,
-          secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
-        },
-        region: env.AWS_S3_REGION,
-      };
-
-      const presigner = new S3RequestPresigner({
-        credentials: {
-          accessKeyId: env.AWS_ACCESS_KEY_ID,
-          secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
-        },
-        region: REGION,
-        sha256: Hash.bind(null, "sha256"),
-      });
-
-      console.log("Ready to try generating url");
-      try {
-        // const url = await getSignedUrl(client, command, {
-        //   expiresIn: 60 * 60 * 24 * 7 * 4,
-        // });
-        const url = await presigner.presign(new HttpRequest(s3ObjectUrl));
-        console.log(`Returning presigned get url: `, url);
-        return url;
-      } catch (err) {
-        console.log("Could not get presigned get URL");
-      }
-    }),
+  // getImageUrl: publicProcedure
+  //   .input(z.object({ bookId: z.string() }))
+  //   .mutation(async ({ ctx, input }) => {
+  //     if (!ctx.session) {
+  //       throw new TRPCError({
+  //         message: "User is not authenticated",
+  //         code: "UNAUTHORIZED",
+  //       });
+  //     }
+  //
+  //     const clientOptions: S3ClientConfig = {
+  //       region: REGION,
+  //     };
+  //
+  //     // const client = new S3Client(clientOptions);
+  //     // const awsName = `images/${input.bookId}`;
+  //     // const params = {
+  //     //   Bucket: BUCKET_NAME,
+  //     //   Key: awsName,
+  //     //   Body: "BODY",
+  //     //   Region: REGION,
+  //     // };
+  //     // const command = new GetObjectCommand(params);
+  //     const s3ObjectUrl = parseUrl(
+  //       `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/images/${input.bookId}`
+  //     );
+  //
+  //
+  //     const presigner = new S3RequestPresigner({
+  //       credentials: {
+  //         accessKeyId: env.AWS_ACCESS_KEY_ID,
+  //         secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+  //       },
+  //       region: REGION,
+  //       sha256: Hash.bind(null, "sha256"),
+  //     });
+  //
+  //     console.log("Ready to try generating url");
+  //     try {
+  //       // const url = await getSignedUrl(client, command, {
+  //       //   expiresIn: 60 * 60 * 24 * 7 * 4,
+  //       // });
+  //       const url = await presigner.presign(new HttpRequest(s3ObjectUrl));
+  //       console.log(`Returning presigned get url: `, url);
+  //       return url;
+  //     } catch (err) {
+  //       console.log("Could not get presigned get URL");
+  //     }
+  //   }),
 
   createPresignedUrl: publicProcedure
     .input(z.object({ bookId: z.string() }))
