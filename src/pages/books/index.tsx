@@ -51,7 +51,7 @@ export default function Books(
   aria-labelledby="modal-modal-title"
   aria-describedby="modal-modal-description"
 >
-<img src={url} style={{ width: 80, height: 120 }}/>
+<img src={url} style={{width: 160, height: 240 }}/>
 </Modal>
           </div>
         );
