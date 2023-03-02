@@ -340,7 +340,7 @@ export const booksRouter = createTRPCRouter({
         height: z.number().gte(0),
         thickness: z.number().gte(0),
         retailPrice: z.number().gte(0),
-        genreId: z.string(),
+        genreName: z.string(),
         purchaseLines: z.string().array(),
         salesLines: z.string().array(),
         inventoryCount: z.number().int(),
@@ -358,7 +358,28 @@ export const booksRouter = createTRPCRouter({
       //   authorData.push({ name: authorName })
       // );
 
-      //TODO: add proper author implementation
+      const existingGenre = await prisma.genre.findFirst({
+        where: {
+          name: input.genreName,
+        },
+      });
+
+      let createdGenre = null;
+      if (!existingGenre) {
+        createdGenre = await prisma.genre.create({
+          data: {
+            name: input.genreName,
+          },
+        });
+      }
+
+      const genreId = existingGenre?.id ?? createdGenre?.id;
+      if (!genreId)
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `No genre found`,
+        });
+
       const book = await prisma.book.create({
         data: {
           title: input.title,
@@ -374,7 +395,7 @@ export const booksRouter = createTRPCRouter({
           height: input.height,
           thickness: input.thickness,
           retailPrice: input.retailPrice,
-          genreId: input.genreId,
+          genreId: genreId,
           purchaseLines: {
             create: [],
           },

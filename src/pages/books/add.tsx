@@ -198,76 +198,34 @@ export default function AddBook() {
   // };
 
   const handleConfirm = () => {
-    rows.map((row) => {
-      console.log("dding book");
-      console.log(row);
-      addMutation.mutate({
-        title: row.title,
-        authors: row.authors.split(","),
-        isbn_13: row.isbn_13 ?? "Unknown",
-        isbn_10: row.isbn_10,
-        publisher: row.publisher ?? "",
-        publicationYear: row.publicationYear,
-        pageCount: row.pageCount,
-        width: row.width,
-        height: row.height,
-        thickness: row.thickness,
-        retailPrice: row.retailPrice,
-        genreId: unknownGenreQuery?.data?.id ?? "Error", //row.genre actually
-        purchaseLines: [],
-        salesLines: [],
-        inventoryCount: 0,
+    try {
+      rows.map((row) => {
+        console.log("dding book");
+        console.log(row);
+        addMutation.mutate({
+          title: row.title,
+          authors: row.authors.split(","),
+          isbn_13: row.isbn_13 ?? "Unknown",
+          isbn_10: row.isbn_10,
+          publisher: row.publisher ?? "",
+          publicationYear: row.publicationYear,
+          pageCount: row.pageCount,
+          width: row.width,
+          height: row.height,
+          thickness: row.thickness,
+          retailPrice: row.retailPrice,
+          genreName: row.genre, //row.genre actually
+          purchaseLines: [],
+          salesLines: [],
+          inventoryCount: 0,
+        });
       });
-    });
-    // retrievedBooks.map((book) => {
-    //   let isbn_10 = null;
-    //   let isbn_13 = null;
-    //   if (book?.industryIdentifiers[0]?.type === "ISBN_13") {
-    //     isbn_13 = book.industryIdentifiers[0].identifier;
-    //     if (book?.industryIdentifiers[1]?.type === "ISBN_10") {
-    //       isbn_10 = book.industryIdentifiers[1].identifier;
-    //     }
-    //   }
-    //   if (book?.industryIdentifiers[1]?.type === "ISBN_13") {
-    //     isbn_13 = book.industryIdentifiers[1].identifier;
-    //     if (book?.industryIdentifiers[0]?.type === "ISBN_10") {
-    //       isbn_10 = book.industryIdentifiers[0].identifier;
-    //     }
-    //   }
-    //
-    //   let publicationYear = Number(new Date(book.publishedDate).getFullYear());
-    //   if (isNaN(publicationYear)) {
-    //     publicationYear = 0;
-    //   }
-    //
-    //   let pageCount = Number(book.pageCount);
-    //   if (isNaN(pageCount)) {
-    //     pageCount = 0;
-    //   }
-    //   console.log("dding book");
-    //   console.log(book);
-    //   addMutation.mutate({
-    //     title: book.title,
-    //     authors: book.authors,
-    //     isbn_13: isbn_13 ?? "Unknown",
-    //     isbn_10: isbn_10,
-    //     publisher: book.publisher ?? "",
-    //     publicationYear: publicationYear,
-    //     pageCount: pageCount,
-    //     width: 5,
-    //     height: 8,
-    //     thickness: 0,
-    //     retailPrice: 0,
-    //     genreId: unknownGenreQuery.data?.id ?? "Error",
-    //     purchaseLines: [],
-    //     salesLines: [],
-    //     inventoryCount: 0,
-    //   });
-    // });
-    setTimeout(() => {
-      void router.push(`/books/`);
-    }, 500);
-    setIsLoaded(false);
+      setTimeout(() => {
+        void router.push("/books");
+      }, 500);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const columns: GridColDef[] = [
@@ -337,7 +295,8 @@ export default function AddBook() {
     {
       field: "genre",
       headerName: "Genre",
-      type: "number",
+      type: "string",
+      editable: true,
       headerClassName: "header-theme",
       minWidth: 125,
     },
@@ -406,12 +365,12 @@ export default function AddBook() {
       id: index,
       title: retrievedBook.title,
       authors: retrievedBook.authors.join(", "),
-      isbn_13: isbn_13 ?? "N/A",
-      isbn_10: isbn_10 ?? "N/A",
+      isbn_13: isbn_13 ?? "Unknown",
+      isbn_10: isbn_10 ?? "Unknown",
       publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
       pageCount: isNaN(retrievedBook.pageCount) ? 0 : retrievedBook.pageCount,
-      publisher: retrievedBook.publisher ?? "N/A",
-      genre: retrievedBook?.categories?.join(", ") ?? "N/A",
+      publisher: retrievedBook.publisher ?? "Unknown",
+      genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
       width: 5,
       height: 8,
       thickness: 0.5,
