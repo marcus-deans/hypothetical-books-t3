@@ -151,17 +151,15 @@ export default function EditBook(
   // trpc.useQuery(['image.getImagesForUser'])
   const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    setFile(undefined);
+    setFile(null);
     toast.success("Deleted Image");
   };
-  
+
   const handleFileChange = (e: React.FormEvent<HTMLInputElement>) => {
     const newFile = e.currentTarget?.files?.[0];
     if (newFile) {
       setFile(newFile);
-
-  const refetchUserImages = async () => {
-    await refetchImages();
+    }
   };
 
   const handleUpload = async (event: React.MouseEvent<HTMLElement>) => {
@@ -205,6 +203,9 @@ export default function EditBook(
     }
     toast.success("Added Image");
     //Implement API call to send image back
+  };
+  const refetchUserImages = async () => {
+    await refetchImages();
   };
 
   return (

@@ -123,7 +123,8 @@ export default function Books(
       headerClassName: "header-theme",
       minWidth: 100,
       flex: 1,
-    },    {
+    },
+    {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
@@ -180,7 +181,7 @@ export default function Books(
       retailPrice: `$${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
-      imgLink:
+      imgUrl:
         "https://images.pexels.com/photos/1122870/pexels-photo-1122870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       shelfSpace: shelfSpaceString,
       lastMonthSales: lastMonthSales.toString(),

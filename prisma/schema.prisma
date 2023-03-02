@@ -39,6 +39,7 @@ model Book {
   // to Be determined
   inventoryCount       Int
   display              Boolean                @default(true)
+  imgUrl               String?
   costMostRecentVendor CostMostRecentVendor[]
 }
 

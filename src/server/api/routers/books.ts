@@ -341,6 +341,7 @@ export const booksRouter = createTRPCRouter({
         thickness: z.number().gte(0),
         retailPrice: z.number().gte(0),
         genreName: z.string(),
+        imgUrl: z.string().url(),
         purchaseLines: z.string().array(),
         salesLines: z.string().array(),
         inventoryCount: z.number().int(),
@@ -396,6 +397,7 @@ export const booksRouter = createTRPCRouter({
           thickness: input.thickness,
           retailPrice: input.retailPrice,
           genreId: genreId,
+          imgUrl: input.imgUrl,
           purchaseLines: {
             create: [],
           },

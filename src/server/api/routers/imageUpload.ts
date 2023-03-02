@@ -9,7 +9,7 @@ import { env } from "../../../env/server.mjs";
 
 const s3 = new AWS.S3();
 
-const BUCKET_NAME = env.AWS_S3_BUCKET ?? "hypothetical-books-dev";
+const BUCKET_NAME = env.AWS_S3_BUCKET;
 const UPLOADING_TIME_LIMIT = 30;
 const UPLOAD_MAX_FILE_SIZE = 1000000;
 const userId = "hypothetical-images";
@@ -86,7 +86,7 @@ export const imagesRouter = createTRPCRouter({
           Key: `${userId}/${image.id}`,
         }),
       };
-  }),
+    }),
 
   delete: publicProcedure
     .input(z.object({ imageId: z.string() }))
