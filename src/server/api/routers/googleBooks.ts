@@ -12,14 +12,15 @@ interface GoogleBookDetails {
   title: string;
   authors: string[];
   publishedDate: string;
-  description: string;
+  description: string | null;
   industryIdentifiers: {
     type: string;
     identifier: string;
   }[];
 
   pageCount: number;
-  categories: string[];
+  publisher: string | null;
+  categories: string[] | null;
 }
 
 const industryIdentifiersSchema: JSONSchemaType<
@@ -46,6 +47,7 @@ const detailSchema: JSONSchemaType<GoogleBookDetails> = {
     description: { type: "string" },
     industryIdentifiers: industryIdentifiersSchema,
     pageCount: { type: "integer" },
+    publisher: { type: "string" },
     categories: { type: "array", items: { type: "string" } },
   },
   required: [
@@ -55,7 +57,6 @@ const detailSchema: JSONSchemaType<GoogleBookDetails> = {
     "description",
     "industryIdentifiers",
     "pageCount",
-    "categories",
   ],
   additionalProperties: false,
 };
@@ -102,9 +103,33 @@ const validate = ajv.compile(responseSchema);
 // const logger = new Logger({ name: "googleBooksRouterLogger" });
 
 export const googleBooksRouter = createTRPCRouter({
+  multipleRetrieveByIsbns: publicProcedure
+    .input(z.object({ isbns: z.string().min(10).array() }))
+    .query(async ({ input }) => {
+      // logger.info("Fetching book from Google Books API");
+      console.log("Fetching book from Google Books API");
+      const isbnDetails = [];
+      for (const isbn of input.isbns) {
+        const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
+        isbnDetails.push(
+          await fetch(queryURL)
+            .then((response) => response.json())
+            .then((response) => {
+              const googleBookResponse = response as GoogleBookResponse;
+              const volumeInfo = googleBookResponse.items.map((item) => {
+                return item.volumeInfo;
+              });
+              console.log(volumeInfo);
+              return volumeInfo[0];
+            })
+        );
+      }
+      return isbnDetails;
+    }),
+
   simpleRetrieveByISBN: publicProcedure
     .input(z.object({ isbn: z.string().min(10) }))
-    .mutation(async ({ input }) => {
+    .query(async ({ input }) => {
       // logger.info("Fetching book from Google Books API");
       console.log("Fetching book from Google Books API");
       const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${input.isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
@@ -116,7 +141,7 @@ export const googleBooksRouter = createTRPCRouter({
             return item.volumeInfo;
           });
           console.log(volumeInfo);
-          return googleBookResponse;
+          return volumeInfo;
         });
 
       // const retrievedBook = await fetch(queryURL);
