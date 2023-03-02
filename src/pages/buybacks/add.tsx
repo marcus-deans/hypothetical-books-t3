@@ -124,33 +124,6 @@ export default function AddBuybackOrder(
                 )}
               />
             </FormControl>
-            <FormControl>
-                    <FormLabel>Book</FormLabel>
-                    <FormHelperText>Select a book by title</FormHelperText>
-                    <Autocomplete
-                      options={bookOptions}
-                      placeholder={"Search books by title"}
-                      value={bookValue}
-                      onChange={(
-                        event,
-                        newValue: { label: string; id: string } | null
-                      ) => {
-                        setBookValue(newValue);
-                      }}
-                      onInputChange={(event, newBookInputValue: string) => {
-                        setBookValue(newBookInputValue);
-                      }}
-                      sx={{ width: 425 }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          inputProps={{
-                            ...params.inputProps,
-                          }}
-                        />
-                      )}
-                    />
-                  </FormControl>
           </div>
           <div className="space flex">
             <button
