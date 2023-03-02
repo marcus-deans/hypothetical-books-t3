@@ -51,14 +51,11 @@ export default function EditBook(
   });
   const [genreInputValue, setGenreInputValue] = useState("");
 
-  const handleDelete = (e:any) =>{
-    e.preventDefault()
-    toast.success("Deleted Image")
-  }
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
       if (!genreValue) {
+        toast.error("Genre is required");
         throw new Error("Genre is required");
       }
       const finalRetailPrice = Number(retailPrice);
@@ -68,12 +65,15 @@ export default function EditBook(
       const finalThickness = Number(thickness);
 
       if (isNaN(finalRetailPrice)) {
+        toast.error("Retail price is required");
         throw new Error("Retail price is required");
       }
       if (isNaN(finalPageCount)) {
+        toast.error("Page count is required");
         throw new Error("Page count is required");
       }
       if (isNaN(finalWidth) || isNaN(finalHeight) || isNaN(finalThickness)) {
+        toast.error("Dimensions are required")
         throw new Error("Dimensions are required");
       }
       const addResult = editMutation.mutate({
@@ -100,6 +100,13 @@ export default function EditBook(
   }));
 
   const [file, setFile] = useState<File>();
+
+
+  const handleDelete = (e:any) =>{
+    e.preventDefault()
+    setFile(undefined);
+    toast.success("Deleted Image")
+  }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
