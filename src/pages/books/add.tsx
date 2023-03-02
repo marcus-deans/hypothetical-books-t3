@@ -56,7 +56,7 @@ export default function AddBook() {
   const fetchedGoogleBookData =
     api.googleBooks.multipleRetrieveByIsbns.useQuery(
       {
-        isbns: currentIsbn,
+        isbns: currentIsbns,
       },
       { enabled: !!currentIsbns }
     );
@@ -116,24 +116,26 @@ export default function AddBook() {
     const inputIsbns = searchQuery.replace(/\s+/g, "").replace(/-/g, "");
     const isbnSearchList = inputIsbns.split(",");
     const googleBooksData = fetchedGoogleBookData?.data;
-    setRetrievedBooks(googleBooksData);
-    // isbnSearchList.map((isbn, index) => {
-    //   setCurrentIsbn(isbn);
-    //   const googleBookData = fetchedGoogleBookData?.data;
-    //   console.log(googleBookData);
-    //   if (googleBookData) {
-    //     for (const retrievedBook of googleBookData) {
-    //       setRetrievedBooks([...retrievedBooks, retrievedBook]);
-    //       console.log(retrievedBooks);
-    //     }
-    //   }
-    //   if (index === isbnSearchList.length - 1) {
-    //     console.log("done retrieving all books");
-    //     // console.log(retrievedBooks);
-    //     setIsLoaded(true);
-    //   }
-    // });
+    if (googleBooksData) {
+      setRetrievedBooks(googleBooksData);
+    }
   };
+  // isbnSearchList.map((isbn, index) => {
+  //   setCurrentIsbn(isbn);
+  //   const googleBookData = fetchedGoogleBookData?.data;
+  //   console.log(googleBookData);
+  //   if (googleBookData) {
+  //     for (const retrievedBook of googleBookData) {
+  //       setRetrievedBooks([...retrievedBooks, retrievedBook]);
+  //       console.log(retrievedBooks);
+  //     }
+  //   }
+  //   if (index === isbnSearchList.length - 1) {
+  //     console.log("done retrieving all books");
+  //     // console.log(retrievedBooks);
+  //     setIsLoaded(true);
+  //   }
+  // });
 
   // const handleSubmit = () => {
   //   if (searchQuery === "") {
@@ -305,7 +307,7 @@ export default function AddBook() {
         const hasError = params.props.value < 0;
         return { ...params.props, error: hasError };
       },
-      editable: tru,
+      editable: true,
     },
     {
       field: "height",
@@ -317,7 +319,7 @@ export default function AddBook() {
         const hasError = params.props.value < 0;
         return { ...params.props, error: hasError };
       },
-      editable: tru,
+      editable: true,
     },
     {
       field: "thickness",
@@ -329,7 +331,7 @@ export default function AddBook() {
         const hasError = params.props.value < 0;
         return { ...params.props, error: hasError };
       },
-      editable: tru,
+      editable: true,
     },
     {
       field: "retailPrice",
@@ -341,8 +343,8 @@ export default function AddBook() {
         const hasError = params.props.value < 0;
         return { ...params.props, error: hasError };
       },
-      editable: tru,
-    ,
+      editable: true,
+    },
   ];
 
   const rows = retrievedBooks.map((retrievedBook, index) => {
@@ -376,7 +378,7 @@ export default function AddBook() {
       width: 5,
       height: 8,
       thickness: 0.5,
-      retailPrice: 0
+      retailPrice: 0,
     };
   });
   // 9780812979688, 9781250158079
