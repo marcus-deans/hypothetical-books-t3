@@ -14,7 +14,6 @@ import type { GridColDef } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
-import EditLink from "../../components/table-components/EditLink";
 
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -74,7 +73,7 @@ export default function sales(
       headerClassName: "header-theme",
       flex: 1,
       maxWidth: 150,
-    }
+    },
   ];
 
   const rows = buybackOrders.map((buybackOrder) => {

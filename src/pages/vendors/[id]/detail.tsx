@@ -15,6 +15,7 @@ import Box from "@mui/material/Box";
 import StripedDataGrid from "../../../components/table-components/StripedDataGrid";
 import React from "react";
 import DetailLink from "../../../components/table-components/DetailLink";
+import Head from "next/head";
 
 export default function VendorDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -70,43 +71,46 @@ export default function VendorDetail(
 
   return (
     <>
-    <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+      <Head>
+        <title>Vendor Details</title>
+      </Head>
+      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
           {`${data.name}`}{" Details"}
         </h1>
       </div>
-    <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
-      <Box
-        sx={{
-          height: "auto",
-          maxHeight: 750,
-          "& .header-theme": {
-            backgroundColor: "rgba(56, 116, 203, 0.35)",
-          },
-        }}
-      >
-        <StripedDataGrid
-          rows={rows}
-          columns={columns}
-          components={{
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            Toolbar: GridToolbar,
+      <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+        <Box
+          sx={{
+            height: "auto",
+            maxHeight: 750,
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
           }}
-          pageSize={14}
-          autoHeight={true}
-          rowsPerPageOptions={[14]}
-          getRowHeight={() => "auto"}
-          checkboxSelection
-          disableSelectionOnClick
-          experimentalFeatures={{ newEditingApi: true }}
-          getRowClassName={(params) =>
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-          }
-        />
-      </Box>
-    </div>
+        >
+          <StripedDataGrid
+            rows={rows}
+            columns={columns}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={14}
+            autoHeight={true}
+            rowsPerPageOptions={[14]}
+            getRowHeight={() => "auto"}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
+      </div>
     </>
   );
 }

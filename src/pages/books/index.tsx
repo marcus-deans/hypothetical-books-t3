@@ -11,8 +11,11 @@ import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import Link from "next/link";
 import ModalImage from "react-modal-image";
-import type { GridColDef, GridCsvExportOptions, GridCsvGetRowsToExportParams} from "@mui/x-data-grid";
+import type { GridCsvExportOptions, GridCsvGetRowsToExportParams} from "@mui/x-data-grid";
 import { GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarFilterButton, gridPaginatedVisibleSortedGridRowIdsSelector, gridVisibleSortedRowIdsSelector, useGridApiContext } from "@mui/x-data-grid";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
@@ -21,6 +24,8 @@ import type { ButtonProps} from "@mui/material";
 import { Button, createSvgIcon } from "@mui/material";
 import * as CSV from "csv-string";
 import type { CSVBookExport, CSVBookExportEntry } from "../../schema/exports.schema";
+import EditLink from "../../components/table-components/EditLink";
+import Modal from "@mui/material/Modal";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -38,7 +43,9 @@ export default function Books(
 
   const books = booksQuery?.data?.items ?? [];
   //logger.info("Loading books page");
-
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   const columns: GridColDef[] = [
     {
       field: "image",
@@ -46,8 +53,11 @@ export default function Books(
       headerClassName: "header-theme",
 
       renderCell: (params) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const url = params.row.imgUrl as string;
         return (
           <div className="text-blue-600">
+<<<<<<< HEAD
             <ModalImage
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
               small={params.row.imgLink}
@@ -55,6 +65,21 @@ export default function Books(
               large={params.row.imgLink}
               alt="cover"
             />;
+=======
+            <img
+              src={url}
+              onClick={handleOpen}
+              style={{ width: 40, height: 60 }}
+            />
+            <Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <img src={url} style={{ width: 160, height: 240 }} />
+            </Modal>
+>>>>>>> staging
           </div>
         );
       },
@@ -136,6 +161,20 @@ export default function Books(
       minWidth: 100,
       flex: 1,
     },
+    {
+      field: "edit",
+      headerName: "Edit",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 70,
+      align: "center",
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <EditLink url={`/books/${params.id}/edit`} />
+      ),
+    },
   ];
 
   const rows = books.map((book) => {
@@ -179,7 +218,11 @@ export default function Books(
       retailPrice: `$${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
+<<<<<<< HEAD
       imgLink: "https://images.pexels.com/photos/1122870/pexels-photo-1122870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+=======
+      imgUrl: book.imgUrl,
+>>>>>>> staging
       shelfSpace: shelfSpaceString,
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),

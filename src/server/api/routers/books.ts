@@ -5,6 +5,7 @@ import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 import type { bookDetail} from "../../../schema/books.schema";
 import { bookDetailSchema } from "../../../schema/books.schema";
+import { env } from "../../../env/server.mjs";
 
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -371,6 +372,7 @@ export const booksRouter = createTRPCRouter({
           width: input.width,
           height: input.height,
           thickness: input.thickness,
+          imgUrl: `https://${env.AWS_S3_BUCKET}.s3.amazonaws.com/images/${input.id}`,
         },
       });
 
@@ -391,7 +393,8 @@ export const booksRouter = createTRPCRouter({
         height: z.number().gte(0),
         thickness: z.number().gte(0),
         retailPrice: z.number().gte(0),
-        genreId: z.string(),
+        genreName: z.string(),
+        imgUrl: z.string().url(),
         purchaseLines: z.string().array(),
         salesLines: z.string().array(),
         inventoryCount: z.number().int(),
@@ -409,7 +412,28 @@ export const booksRouter = createTRPCRouter({
       //   authorData.push({ name: authorName })
       // );
 
-      //TODO: add proper author implementation
+      const existingGenre = await prisma.genre.findFirst({
+        where: {
+          name: input.genreName,
+        },
+      });
+
+      let createdGenre = null;
+      if (!existingGenre) {
+        createdGenre = await prisma.genre.create({
+          data: {
+            name: input.genreName,
+          },
+        });
+      }
+
+      const genreId = existingGenre?.id ?? createdGenre?.id;
+      if (!genreId)
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: `No genre found`,
+        });
+
       const book = await prisma.book.create({
         data: {
           title: input.title,
@@ -425,7 +449,8 @@ export const booksRouter = createTRPCRouter({
           height: input.height,
           thickness: input.thickness,
           retailPrice: input.retailPrice,
-          genreId: input.genreId,
+          genreId: genreId,
+          imgUrl: input.imgUrl,
           purchaseLines: {
             create: [],
           },

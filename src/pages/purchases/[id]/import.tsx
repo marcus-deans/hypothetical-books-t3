@@ -3,6 +3,7 @@ import type {
   GetStaticPropsContext,
   InferGetStaticPropsType,
 } from "next";
+import Head from "next/head";
 import { prisma } from "../../../server/db";
 import { useRouter } from "next/router";
 import type { ChangeEvent } from "react";
@@ -10,7 +11,10 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { api } from "../../../utils/api";
 import Papa from "papaparse";
-import type { CSVPurchaseInput, CSVPurchaseInputId } from "../../../schema/imports.schema";
+import type {
+  CSVPurchaseInput,
+  CSVPurchaseInputId,
+} from "../../../schema/imports.schema";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function ImportPurchase(
@@ -22,15 +26,17 @@ export default function ImportPurchase(
   const [parsedCsvData, setParsedCsvData] = useState<CSVPurchaseInput[]>();
   const [file, setFile] = useState<File>();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const headersVerified = api.csvPorts.verifyImportHeaders.useQuery({
-    headers: parsedHeaders
-  }, { enabled: !!parsedHeaders });
-  const importVerified =
-    api.csvPorts.verifyPurchaseCSV.useQuery(
-      parsedCsvData,
-      { enabled: !!headersVerified && headersVerified.data?.verified });
-  const mutatedImport =
-    api.csvPorts.addPurchaseImport.useMutation();
+  const headersVerified = api.csvPorts.verifyImportHeaders.useQuery(
+    {
+      headers: parsedHeaders,
+    },
+    { enabled: !!parsedHeaders }
+  );
+  const importVerified = api.csvPorts.verifyPurchaseCSV.useQuery(
+    parsedCsvData,
+    { enabled: !!headersVerified && headersVerified.data?.verified }
+  );
+  const mutatedImport = api.csvPorts.addPurchaseImport.useMutation();
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -39,13 +45,15 @@ export default function ImportPurchase(
   };
 
   const handleUpload = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault()
+    event.preventDefault();
     if (!file) {
-      toast.error("No file Selected. Please Select a File")
+      toast.error("No file Selected. Please Select a File");
       return;
     }
     if (file.type !== "text/csv") {
-      toast.error("Input file is not an a Comma Separated Values File. Please select a file with type .csv .");
+      toast.error(
+        "Input file is not an a Comma Separated Values File. Please select a file with type .csv ."
+      );
       return;
     }
 
@@ -59,9 +67,9 @@ export default function ImportPurchase(
         const parsedData: CSVPurchaseInput[] = [];
         results.data.forEach(function (value) {
           parsedData.push(value as CSVPurchaseInput);
-        })
+        });
         setParsedCsvData(parsedData);
-      }
+      },
     });
 
     console.log("Parsed Data: ");
@@ -72,44 +80,45 @@ export default function ImportPurchase(
     }, 500);
 
     */
-  }
+  };
   const handleSubmit = (event: React.MouseEvent<HTMLElement>) => {
-
     setIsSubmitting(true);
     try {
       const parsed = importVerified.data;
       if (parsed === undefined) {
-        toast.error("You must upload a file first")
+        toast.error("You must upload a file first");
         setIsSubmitting(false);
         return;
       }
       if (!parsed.verified) {
-        toast.error("Error: " + parsed.message)
+        toast.error("Error: " + parsed.message);
         setIsSubmitting(false);
         return;
       }
       const parsedData = importVerified.data.parsedData;
       const parsedDataTyped: CSVPurchaseInputId[] = parsedData;
-      console.log(parsedDataTyped)
+      console.log(parsedDataTyped);
       mutatedImport.mutate({
         data: parsedDataTyped,
         purchaseOrderId: id,
-      })
+      });
       toast.success("Successfully Imported File");
       setTimeout(() => {
         void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
       }, 500);
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error);
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <>
+      <Head>
+        <title>Import Purchase Order</title>
+      </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Import Purchase Order CSV
@@ -118,9 +127,18 @@ export default function ImportPurchase(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div>
-                  <input type="file" onChange={handleFileChange} className="bg-blue-500 text-white font-bold py-2 px-4 rounded" />
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    className="rounded bg-blue-500 py-2 px-4 font-bold text-white"
+                  />
                   <div className="pt-3" />
-                  <button onClick={handleUpload} className="padding-top:10px bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Upload</button>
+                  <button
+                    onClick={handleUpload}
+                    className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+                  >
+                    Upload
+                  </button>
                   <ToastContainer></ToastContainer>
                 </div>
               </div>
@@ -142,8 +160,6 @@ export default function ImportPurchase(
   );
 }
 
-
-
 export const getStaticPaths: GetStaticPaths = async () => {
   const purchaseOrders = await prisma.purchaseOrder.findMany({
     select: {
@@ -160,12 +176,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
   return { paths, fallback: true };
 };
 
-export function getStaticProps(
-  context: GetStaticPropsContext<{ id: string }>
-) {
-
+export function getStaticProps(context: GetStaticPropsContext<{ id: string }>) {
   const id = context.params?.id as string;
-
 
   return {
     props: {

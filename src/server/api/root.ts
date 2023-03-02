@@ -10,6 +10,7 @@ import { salesLinesRouter } from "./routers/salesLines";
 import { salesReconciliationsRouter } from "./routers/salesReconciliations";
 import { vendorsRouter } from "./routers/vendors";
 import { usersRouter } from "./routers/users";
+import { imagesRouter } from "./routers/imageUpload";
 import { buybackOrdersRouter } from "./routers/buybackOrders";
 import { buybackLinesRouter } from "./routers/buybackLines";
 import { csvPortsRouter } from "./routers/csvPorts";
@@ -33,6 +34,7 @@ export const appRouter = createTRPCRouter({
   vendors: vendorsRouter,
   googleBooks: googleBooksRouter,
   users: usersRouter,
+  imageUpload: imagesRouter,
   csvPorts: csvPortsRouter,
 });
 

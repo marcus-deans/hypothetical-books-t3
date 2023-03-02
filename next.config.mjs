@@ -17,6 +17,12 @@ const config = {
   images: {
     domains: ["images.pexels.com"],
     formats: ["image/webp"],
-},
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'hypothetical-books-dev.s3.amazonaws.com',
+      },
+    ],
+  },
 };
 export default config;
