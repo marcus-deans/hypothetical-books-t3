@@ -7,9 +7,7 @@ import type { GridColDef, GridPreProcessEditCellProps } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import ModalImage from "react-modal-image";
+import Image from "next/image";
 
 interface GoogleBookResponse {
   kind: string;
@@ -137,65 +135,13 @@ export default function AddBook() {
     }
     setRetrievedBooks([]);
     setIsLoaded(false);
-    const inputIsbns = searchQuery.replace(/\s+/g, "").replace(/-/g, "");
-    const isbnSearchList = inputIsbns.split(",");
-    // setCurrentIsbns(isbnSearchList);
-    // const googleBooksData = fetchedGoogleBookData?.data;
+
+    // 9781250158079, 9781101904954, 9780393072235
+    const isbnSearchList = searchQuery.replace(/-/g, "").split(/[\s,;\t\n]+/g);
+
     void performQuery(isbnSearchList);
     setSearchQuery("");
-    // setTimeout(() => {
-    //   setCurrentIsbns([]);
-    // }, 2000);
-    // console.log(retrievedBooks);
   };
-  // 9781250158079, 9780008108342
-  // ,9780008108342, 9781250158079
-  // isbnSearchList.map((isbn, index) => {
-  //   setCurrentIsbn(isbn);
-  //   const googleBookData = fetchedGoogleBookData?.data;
-  //   console.log(googleBookData);
-  //   if (googleBookData) {
-  //     for (const retrievedBook of googleBookData) {
-  //       setRetrievedBooks([...retrievedBooks, retrievedBook]);
-  //       console.log(retrievedBooks);
-  //     }
-  //   }
-  //   if (index === isbnSearchList.length - 1) {
-  //     console.log("done retrieving all books");
-  //     // console.log(retrievedBooks);
-  //     setIsLoaded(true);
-  //   }
-  // });
-
-  // const handleSubmit = () => {
-  //   if (searchQuery === "") {
-  //     return;
-  //   }
-  //   setRetrievedBooks([]);
-  //   setIsLoaded(false);
-  //   //Set search query to empty, split the search query, make the backend calls
-  //   const inputIsbns = searchQuery.replace(/\s+/g, "").replace(/-/g, "");
-  //   const isbnSearchList = inputIsbns.split(",");
-  //   console.log(isbnSearchList);
-  //   isbnSearchList.map(async (isbn, index) => {
-  //     const fetchedBooks = await queryApi(isbn);
-  //     if (typeof fetchedBooks === "string") {
-  //       return;
-  //     }
-  //     fetchedBooks.map((book) => {
-  //       // console.log(book);
-  //       setRetrievedBooks([...retrievedBooks, book]);
-  //       // console.log(book.authors.join(", "));
-  //       // console.log(retrievedBooks);
-  //     });
-  //     if (index === isbnSearchList.length - 1) {
-  //       console.log("done retrieving all books");
-  //       console.log(retrievedBooks);
-  //       setIsLoaded(true);
-  //     }
-  //   });
-  //   setSearchQuery("");
-  // };
 
   const handleConfirm = () => {
     try {
@@ -231,16 +177,20 @@ export default function AddBook() {
 
   const columns: GridColDef[] = [
     {
-      field: "cover",
+      field: "image",
       headerName: "Cover",
       headerClassName: "header-theme",
-      minWidth: 100,
       renderCell: (params) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const url = params.row.imgLink as string;
+        /* eslint-disable */
+        let url = params.row.imgUrl as string;
+        /* eslint-enable */
+        if (!url || url === "") {
+          url =
+            "https://s3-us-west-2.amazonaws.com/s.cdpn.io/387928/book%20placeholder.png";
+        }
         return (
           <div className="text-blue-600">
-            <ModalImage small={url} large={url} alt="cover" />
+            <Image alt={"Book cover"} src={url} width={40} height={60} />
           </div>
         );
       },
@@ -305,7 +255,6 @@ export default function AddBook() {
       field: "publicationYear",
       headerName: "Publication Year",
       headerClassName: "header-theme",
-      flex: 1,
       maxWidth: 125,
     },
     {
@@ -364,6 +313,7 @@ export default function AddBook() {
     }
 
     return {
+      imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
       id: index,
       title: retrievedBook.title,
       authors: retrievedBook.authors.join(", "),
@@ -377,7 +327,6 @@ export default function AddBook() {
       height: 8,
       thickness: 0.5,
       retailPrice: 0,
-      imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
     };
   });
   // 9780812979688, 9781250158079
@@ -400,7 +349,7 @@ export default function AddBook() {
                 <input
                   type="search"
                   className="form-control min-w-600 relative m-0 block w-full flex-auto rounded border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none"
-                  placeholder="Enter ISBNs (Comma Separated)"
+                  placeholder="Enter ISBNs"
                   aria-label="Search"
                   aria-describedby="button-addon2"
                   value={searchQuery}
@@ -485,12 +434,16 @@ export default function AddBook() {
                 <input
                   type="search"
                   className="form-control relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none"
-                  placeholder="Enter ISBNs (Comma Separated)"
+                  placeholder="Enter ISBNs"
                   aria-label="Search"
                   aria-describedby="button-addon2"
                   value={searchQuery}
                   onChange={handleType}
                 />
+                <div className="font-sm font-light">
+                  Delimiters may be commas, tabs, semicolons, spaces, or
+                  newlines.
+                </div>
                 <button
                   className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
                   type="button"
