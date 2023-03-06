@@ -16,6 +16,10 @@ import { Sha256 } from "@aws-crypto/sha256-browser";
 import { Hash } from "@aws-sdk/hash-node";
 import { formatUrl } from "@aws-sdk/util-format-url";
 const s3 = new AWS.S3();
+AWS.config.update({
+  accessKeyId: env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+});
 
 const BUCKET_NAME = env.AWS_S3_BUCKET;
 const UPLOADING_TIME_LIMIT = 30;

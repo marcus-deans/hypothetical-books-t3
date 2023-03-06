@@ -20,8 +20,12 @@ const config = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'hypothetical-books-dev.s3.amazonaws.com',
+        hostname: `${process.env.AWS_S3_BUCKET}.s3.amazonaws.com`,
       },
+      {
+        protocol: 'https',
+        hostname: 's3-us-west-2.amazonaws.com',
+      }
     ],
   },
 };

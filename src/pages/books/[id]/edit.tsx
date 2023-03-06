@@ -128,13 +128,15 @@ export default function EditBook(
         height: finalHeight,
         thickness: finalThickness,
       });
-      setTimeout(() => {
-        void router.push(`/books/${encodeURIComponent(id)}/detail`);
-      }, 500);
     } catch (error) {
+      toast.error(`Error submitting form.`);
       console.log(error);
       setIsSubmitting(false);
+      return;
     }
+    setTimeout(() => {
+      void router.push(`/books/${encodeURIComponent(id)}/detail`);
+    }, 1500);
   };
 
   const genreOptions = genres.map((genre) => ({
@@ -144,7 +146,8 @@ export default function EditBook(
 
   const [file, setFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
+  const defaultUrl =
+    "https://s3-us-west-2.amazonaws.com/s.cdpn.io/387928/book%20placeholder.png";
   const { mutateAsync: createPresignedUrl } =
     api.imageUpload.createPresignedUrl.useMutation();
   // trpc.useMutation('image.createPresignedUrl');
@@ -152,8 +155,8 @@ export default function EditBook(
   // const { mutateAsync: getImageUrl } =
   //   api.imageUpload.getImageUrl.useMutation();
 
-  const { data: images, refetch: refetchImages } =
-    api.imageUpload.getImagesForUser.useQuery({ bookId: id });
+  const { data: image, refetch: refetchImages } =
+    api.imageUpload.getImageFromId.useQuery({ bookId: id });
   // trpc.useQuery(['image.getImagesForUser'])
   const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -383,14 +386,12 @@ export default function EditBook(
                   </button>
                 </div>
                 <div className="flex justify-center">
-                  {images &&
-                    images.map((image) => (
-                      <ImageCard
-                        refetchImages={refetchUserImages}
-                        key={image.id}
-                        {...image}
-                      />
-                    ))}
+                  <ImageCard
+                    refetchImages={refetchUserImages}
+                    url={image?.url ?? defaultUrl}
+                    id={id}
+                    key={id}
+                  />
                 </div>
                 <div className="flex items-center justify-between pt-4">
                   <button
