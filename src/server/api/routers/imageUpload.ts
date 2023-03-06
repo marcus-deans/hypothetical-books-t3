@@ -28,45 +28,8 @@ interface ImageMetadata extends Image {
 }
 
 export const imagesRouter = createTRPCRouter({
-  getImagesForUser: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.session) {
-      throw new TRPCError({
-        message: "User is not authenticated",
-        code: "UNAUTHORIZED",
-      });
-    }
-
-    /*const userId = ctx.session.user?.id;
-
-    if (!userId) {
-      throw new TRPCError({
-        message: "User not found",
-        code: "NOT_FOUND",
-      });
-    }*/
-
-    const images = await prisma.image.findMany({
-      where: {
-        userId: userId,
-      },
-    });
-
-    const extendedImages: ImageMetadata[] = await Promise.all(
-      images.map(async (image) => {
-        return {
-          ...image,
-          url: await s3.getSignedUrlPromise("getObject", {
-            Bucket: BUCKET_NAME,
-            Key: `${userId}/${image.id}`,
-          }),
-        };
-      })
-    );
-    return extendedImages;
-  }),
-
-  getImageFromId: publicProcedure
-    .input(z.object({ imageId: z.string() }))
+  getImagesForUser: publicProcedure
+    .input(z.object({ bookId: z.string() }))
     .query(async ({ ctx, input }) => {
       if (!ctx.session) {
         throw new TRPCError({
@@ -75,24 +38,72 @@ export const imagesRouter = createTRPCRouter({
         });
       }
 
-      const image = await prisma.image.findFirst({
-        where: {
-          id: input.imageId,
-        },
-      });
+      /*const userId = ctx.session.user?.id;
 
-      if (!image) {
+    if (!userId) {
+      throw new TRPCError({
+        message: "User not found",
+        code: "NOT_FOUND",
+      });
+    }*/
+
+      // const images = await prisma.image.findMany({
+      //   where: {
+      //     userId: userId,
+      //   },
+      // });
+
+      return [
+        {
+          // ...image,
+          url: await s3.getSignedUrlPromise("getObject", {
+            Bucket: BUCKET_NAME,
+            Key: `images/${input.bookId}`,
+          }),
+        },
+      ];
+      // const extendedImages: ImageMetadata[] = await Promise.all(
+      //   images.map(async (image) => {
+      //     return {
+      //       ...image,
+      //       url: await s3.getSignedUrlPromise("getObject", {
+      //         Bucket: BUCKET_NAME,
+      //         Key: `${userId}/${image.id}`,
+      //       }),
+      //     };
+      //   })
+      // );
+      // return extendedImages;
+    }),
+
+  getImageFromId: publicProcedure
+    .input(z.object({ bookId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session) {
         throw new TRPCError({
-          message: "Invalid image access",
-          code: "NOT_FOUND",
+          message: "User is not authenticated",
+          code: "UNAUTHORIZED",
         });
       }
 
+      // const image = await prisma.image.findFirst({
+      //   where: {
+      //     id: input.imageId,
+      //   },
+      // });
+
+      // if (!image) {
+      //   throw new TRPCError({
+      //     message: "Invalid image access",
+      //     code: "NOT_FOUND",
+      //   });
+      // }
+
       return {
-        ...image,
+        // ...image,
         url: await s3.getSignedUrlPromise("getObject", {
           Bucket: BUCKET_NAME,
-          Key: `${userId}/${image.id}`,
+          Key: `images/${input.bookId}`,
         }),
       };
     }),

@@ -153,7 +153,7 @@ export default function EditBook(
   //   api.imageUpload.getImageUrl.useMutation();
 
   const { data: images, refetch: refetchImages } =
-    api.imageUpload.getImagesForUser.useQuery();
+    api.imageUpload.getImagesForUser.useQuery({ bookId: id });
   // trpc.useQuery(['image.getImagesForUser'])
   const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
