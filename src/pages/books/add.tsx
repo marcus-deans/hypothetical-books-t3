@@ -75,6 +75,7 @@ export default function AddBook() {
   // const [currentIsbn, setCurrentIsbn] = useState("");
   const [currentIsbns, setCurrentIsbns] = useState<string[]>([]);
   const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
+  const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
   // const retrieveMutation = api.googleBooks.simpleRetrieveByISBN.useMutation();
   const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
   // const fetchedGoogleBookData = api.googleBooks.simpleRetrieveByISBN.useQuery(
@@ -147,6 +148,43 @@ export default function AddBook() {
       console.log("Setting retreived books with:");
       console.log(googleBooksData);
       setRetrievedBooks(googleBooksData);
+      retrievedBooks.map((retrievedBook, index) => {
+        console.log("Adding retrieved book to rows");
+        console.log(retrievedBook);
+        let isbn_10 = null;
+        let isbn_13 = null;
+        if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
+          isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
+          if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
+            isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
+          }
+        }
+        if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_13") {
+          isbn_13 = retrievedBook.industryIdentifiers[1].identifier;
+          if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_10") {
+            isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
+          }
+        }
+        const displayBook = {
+          imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
+          id: index,
+          title: retrievedBook.title,
+          authors: retrievedBook.authors.join(", "),
+          isbn_13: isbn_13 ?? "Unknown",
+          isbn_10: isbn_10 ?? "Unknown",
+          publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
+          pageCount: isNaN(retrievedBook.pageCount)
+            ? 0
+            : retrievedBook.pageCount,
+          publisher: retrievedBook.publisher ?? "Unknown",
+          genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
+          width: 5,
+          height: 8,
+          thickness: 0.5,
+          retailPrice: 0,
+        };
+        setDisplayedBooks((prev) => [...prev, displayBook]);
+      });
       setIsLoaded(true);
     }
   };
@@ -245,17 +283,20 @@ export default function AddBook() {
       field: "retailPrice",
       headerName: "Retail Price ($)",
       headerClassName: "header-theme",
+      type: "number",
       width: 150,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
-        const hasError = params.props.value < 0;
+        const hasError =
+          isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
         return { ...params.props, error: hasError };
       },
-      editable: true,
+      editable: tru,
     },
     {
       field: "pageCount",
       headerName: "Page Count",
       headerClassName: "header-theme",
+      type: "number",
       width: 100,
       editable: true,
     },
@@ -286,7 +327,8 @@ export default function AddBook() {
       headerClassName: "header-theme",
       maxWidth: 125,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
-        const hasError = params.props.value < 0;
+        const hasError =
+          isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
         return { ...params.props, error: hasError };
       },
       editable: true,
@@ -298,7 +340,8 @@ export default function AddBook() {
       headerClassName: "header-theme",
       maxWidth: 125,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
-        const hasError = params.props.value < 0;
+        const hasError =
+          isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
         return { ...params.props, error: hasError };
       },
       editable: true,
@@ -309,7 +352,8 @@ export default function AddBook() {
       headerClassName: "header-theme",
       width: 170,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
-        const hasError = params.props.value < 0;
+        const hasError =
+          isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
         return { ...params.props, error: hasError };
       },
       editable: true,
@@ -317,9 +361,18 @@ export default function AddBook() {
   ];
 
   const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
-    const foundIndex = rows.findIndex((row) => row.id === newRow.id);
-    const updatedRow = newRow as BookDetails;
-    // rows[foundIndex] = updatedRow;
+    console.log("New row: ", newRow);
+    const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
+      if (index === newRow.id) {
+        // Increment the clicked counter
+        return newRow as BookDetails;
+      } else {
+        // The rest haven't changed
+        return displayedBook;
+      }
+    });
+    console.log("New displayed books: ", newDisplayedBooks);
+    setDisplayedBooks(newDisplayedBooks);
     return newRow;
   };
 
@@ -327,41 +380,42 @@ export default function AddBook() {
     toast.error(error.message);
   };
 
-  const rows: BookDetails[] = retrievedBooks.map((retrievedBook, index) => {
-    console.log("Adding retrieved book to rows");
-    console.log(retrievedBook);
-    let isbn_10 = null;
-    let isbn_13 = null;
-    if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
-      isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
-      if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
-        isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
-      }
-    }
-    if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_13") {
-      isbn_13 = retrievedBook.industryIdentifiers[1].identifier;
-      if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_10") {
-        isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
-      }
-    }
-
-    return {
-      imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
-      id: index,
-      title: retrievedBook.title,
-      authors: retrievedBook.authors.join(", "),
-      isbn_13: isbn_13 ?? "Unknown",
-      isbn_10: isbn_10 ?? "Unknown",
-      publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
-      pageCount: isNaN(retrievedBook.pageCount) ? 0 : retrievedBook.pageCount,
-      publisher: retrievedBook.publisher ?? "Unknown",
-      genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
-      width: 5,
-      height: 8,
-      thickness: 0.5,
-      retailPrice: 0,
-    };
-  });
+  const rows = displayedBooks;
+  // const rows: BookDetails[] = retrievedBooks.map((retrievedBook, index) => {
+  //   console.log("Adding retrieved book to rows");
+  //   console.log(retrievedBook);
+  //   let isbn_10 = null;
+  //   let isbn_13 = null;
+  //   if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
+  //     isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
+  //     if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
+  //       isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
+  //     }
+  //   }
+  //   if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_13") {
+  //     isbn_13 = retrievedBook.industryIdentifiers[1].identifier;
+  //     if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_10") {
+  //       isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
+  //     }
+  //   }
+  //
+  //   return {
+  //     imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
+  //     id: index,
+  //     title: retrievedBook.title,
+  //     authors: retrievedBook.authors.join(", "),
+  //     isbn_13: isbn_13 ?? "Unknown",
+  //     isbn_10: isbn_10 ?? "Unknown",
+  //     publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
+  //     pageCount: isNaN(retrievedBook.pageCount) ? 0 : retrievedBook.pageCount,
+  //     publisher: retrievedBook.publisher ?? "Unknown",
+  //     genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
+  //     width: 5,
+  //     height: 8,
+  //     thickness: 0.5,
+  //     retailPrice: 0,
+  //   };
+  // });
   // 9780812979688, 9781250158079
   if (isLoaded) {
     console.log("all rows");
