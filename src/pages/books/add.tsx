@@ -3,11 +3,16 @@ import React, { useState } from "react";
 import { api } from "../../utils/api";
 import { Button } from "@mui/material";
 import { useRouter } from "next/router";
-import type { GridColDef, GridPreProcessEditCellProps } from "@mui/x-data-grid";
+import type {
+  GridColDef,
+  GridPreProcessEditCellProps,
+  GridRowModel,
+} from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 interface GoogleBookResponse {
   kind: string;
@@ -44,6 +49,23 @@ interface GoogleBookDetails {
     medium: string | null;
     large: string | null;
   };
+}
+
+interface BookDetails {
+  id: number;
+  imgUrl: string;
+  title: string;
+  authors: string;
+  isbn_13: string;
+  isbn_10: string;
+  publicationYear: number;
+  pageCount: number;
+  publisher: string;
+  genre: string;
+  width: number;
+  height: number;
+  thickness: number;
+  retailPrice: number;
 }
 
 export default function AddBook() {
@@ -294,7 +316,18 @@ export default function AddBook() {
     },
   ];
 
-  const rows = retrievedBooks.map((retrievedBook, index) => {
+  const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
+    const foundIndex = rows.findIndex((row) => row.id === newRow.id);
+    const updatedRow = newRow as BookDetails;
+    // rows[foundIndex] = updatedRow;
+    return newRow;
+  };
+
+  const handleProcessRowUpdateError = (error: Error) => {
+    toast.error(error.message);
+  };
+
+  const rows: BookDetails[] = retrievedBooks.map((retrievedBook, index) => {
     console.log("Adding retrieved book to rows");
     console.log(retrievedBook);
     let isbn_10 = null;
@@ -402,6 +435,8 @@ export default function AddBook() {
               getRowHeight={() => "auto"}
               checkboxSelection
               disableSelectionOnClick
+              processRowUpdate={processRowUpdate}
+              onProcessRowUpdateError={handleProcessRowUpdateError}
               experimentalFeatures={{ newEditingApi: true }}
               getRowClassName={(params) =>
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
