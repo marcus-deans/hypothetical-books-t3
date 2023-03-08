@@ -33,7 +33,7 @@ export default function BookDetail(
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  if (bookDetailsQuery.status !== "success") {
+  if (bookDetailsQuery.status !== "success" || !data) {
     return <div>Loading...</div>;
   }
 
