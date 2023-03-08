@@ -27,14 +27,16 @@ export default function BookDetail(
   const bookDetailsQuery = api.books.getByIdWithAllDetails.useQuery({ id });
 
   // if (router.isFallback) {
-  if (bookDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
-  }
 
   const { data } = bookDetailsQuery;
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  if (bookDetailsQuery.status !== "success") {
+    return <div>Loading...</div>;
+  }
+
   const modalStyle = {
     position: "absolute" as const,
     top: "50%",

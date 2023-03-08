@@ -200,6 +200,7 @@ export default function Books(
     for (const costMostRecentVendor of book.costMostRecentVendor) {
       const currentVendorOffer =
         costMostRecentVendor.vendor.buybackRate *
+        0.01 *
         costMostRecentVendor.purchaseLine.unitWholesalePrice;
       bestBuybackPrice = Math.max(bestBuybackPrice, currentVendorOffer);
     }

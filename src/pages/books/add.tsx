@@ -51,6 +51,18 @@ interface GoogleBookDetails {
   };
 }
 
+interface BooksRunResponse {
+  status: string;
+  message: string;
+  offers: {
+    booksrun: {
+      new: {
+        price: number;
+      };
+    };
+  };
+}
+
 interface BookDetails {
   id: number;
   imgUrl: string;
@@ -73,32 +85,52 @@ export default function AddBook() {
   const [dataRetrieved, setDataRetrieved] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   // const [currentIsbn, setCurrentIsbn] = useState("");
-  const [currentIsbns, setCurrentIsbns] = useState<string[]>([]);
+  const [pricingData, setPricingData] = useState<number[]>([]);
   const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
   const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
   // const retrieveMutation = api.googleBooks.simpleRetrieveByISBN.useMutation();
   const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
-  // const fetchedGoogleBookData = api.googleBooks.simpleRetrieveByISBN.useQuery(
-  //   {
-  //     isbn: currentIsbn,
-  //   },
-  //   { enabled: !!currentIsbn }
-  // );
-  // const fetchedGoogleBookData =
-  //   api.googleBooks.multipleRetrieveByIsbns.useQuery(
-  //     {
-  //       isbns: currentIsbns,
-  //     },
-  //     { enabled: !!currentIsbns }
-  //   );
-
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
   const handleType = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
-  const queryApi = async (
+  const queryBooksRunApi = async (isbns: string[]): Promise<Array<number>> => {
+    const bookPrices: Array<number> = [];
+    for (const isbn of isbns) {
+      console.log(`ISBN: ${isbn}`);
+      const queryURL = `https://booksrun.com/api/v3/price/buy/${isbn}?key=faajt0grxch1m5zcc9cp`;
+      try {
+        // const myInit = {
+        //   method: "GET",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     "Access-Control-Allow-Origin": "*",
+        //     "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+        //     "Access-Control-Allow-Headers":
+        //       "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+        //   },
+        //   mode: "cors",
+        // };
+
+        // const response = await fetch(queryURL, myInit);
+        const response = await fetch(queryURL);
+        if (response.status !== 200) {
+          continue;
+        }
+        const bookPriceResponse = (await response.json()) as BooksRunResponse;
+        bookPrices.push(bookPriceResponse.offers.booksrun.new.price);
+      } catch (error) {
+        toast.error("Error retrieving book price from BooksRun");
+        bookPrices.push(0);
+        console.log(error);
+      }
+    }
+    return bookPrices;
+  };
+
+  const queryGoogleBooksApi = async (
     isbns: string[]
   ): Promise<Array<GoogleBookDetails>> => {
     const bookDetails: Array<GoogleBookDetails> = [];
@@ -143,7 +175,8 @@ export default function AddBook() {
   //   });
 
   const performQuery = async (isbnSearchList: string[]) => {
-    const googleBooksData = await queryApi(isbnSearchList);
+    const googleBooksData = await queryGoogleBooksApi(isbnSearchList);
+    // const booksRunData = await queryBooksRunApi(isbnSearchList);
     if (googleBooksData) {
       console.log("Setting retreived books with:");
       console.log(googleBooksData);
@@ -165,6 +198,13 @@ export default function AddBook() {
             isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
           }
         }
+        // let retailPrice = isNaN(Number(booksRunData[index]))
+        //   ? 0
+        //   : booksRunData[index];
+        // if (retailPrice === undefined) {
+        //   retailPrice = 0;
+        // }
+        const retailPrice = 0;
         const displayBook = {
           imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
           id: index,
@@ -178,10 +218,10 @@ export default function AddBook() {
             : retrievedBook.pageCount,
           publisher: retrievedBook.publisher ?? "Unknown",
           genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
-          width: 5,
-          height: 8,
-          thickness: 0.5,
-          retailPrice: 0,
+          width: 0,
+          height: 0,
+          thickness: 0,
+          retailPrice: retailPrice,
         };
         setDisplayedBooks((prev) => [...prev, displayBook]);
       });
@@ -290,7 +330,7 @@ export default function AddBook() {
           isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
         return { ...params.props, error: hasError };
       },
-      editable: tru,
+      editable: true,
     },
     {
       field: "pageCount",
