@@ -69,6 +69,10 @@ export default function Books(
       headerName: "Cover",
       headerClassName: "header-theme",
       flex: 1,
+      maxWidth: 60,
+      align: "center",
+      sortable: false,
+      filterable: false,
       renderCell: (params) => {
         /* eslint-disable */
         let url = params.row.imgUrl as string;
@@ -89,6 +93,7 @@ export default function Books(
       headerName: "Title",
       headerClassName: "header-theme",
       flex: 1,
+      align: "left",
       minWidth: 250,
       renderCell: (params) => {
         return (
@@ -104,6 +109,7 @@ export default function Books(
       headerName: "Author",
       headerClassName: "header-theme",
       flex: 1,
+      align: "left",
       minWidth: 150,
     },
     {
@@ -118,6 +124,7 @@ export default function Books(
       headerClassName: "header-theme",
       minWidth: 100,
       flex: 1,
+      align: "left",
     },
     {
       field: "genre",
@@ -125,6 +132,7 @@ export default function Books(
       headerClassName: "header-theme",
       minWidth: 100,
       flex: 1,
+      align: "left",
     },
     {
       field: "inventoryCount",
@@ -132,6 +140,7 @@ export default function Books(
       headerClassName: "header-theme",
       width: 80,
       flex: 1,
+      align: "left",
     },
     {
       field: "shelfSpace",
@@ -139,6 +148,7 @@ export default function Books(
       headerClassName: "header-theme",
       minWidth: 95,
       flex: 1,
+      align: "left",
     },
     {
       field: "lastMonthSales",
@@ -146,6 +156,7 @@ export default function Books(
       headerClassName: "header-theme",
       minWidth: 105,
       flex: 1,
+      align: "left",
     },
     {
       field: "daysSupply",
@@ -153,6 +164,7 @@ export default function Books(
       headerClassName: "header-theme",
       minWidth: 100,
       flex: 1,
+      align: "left",
     },
     {
       field: "bestBuyback",
@@ -160,6 +172,7 @@ export default function Books(
       headerClassName: "header-theme",
       minWidth: 100,
       flex: 1,
+      align: "left",
     },
     {
       field: "edit",
@@ -464,9 +477,11 @@ export default function Books(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -477,9 +492,9 @@ export default function Books(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: CustomToolbar,
             }}
-            pageSize={14}
             autoHeight={true}
-            rowsPerPageOptions={[14]}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             getRowHeight={() => "auto"}
             checkboxSelection
             disableSelectionOnClick
