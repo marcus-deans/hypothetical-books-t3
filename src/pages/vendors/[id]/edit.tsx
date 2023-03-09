@@ -46,8 +46,8 @@ export default function EditVendor(
       const finalBuybackRate = Number(buybackRate);
       if (
         isNaN(finalBuybackRate) ||
-        finalBuybackRate <= 0 ||
-        finalBuybackRate >= 100
+        finalBuybackRate < 0 ||
+        finalBuybackRate > 100
       ) {
         alert("Buyback rate must be a number between 0 and 100");
         setIsSubmitting(false);
