@@ -121,13 +121,13 @@ export default function EditSalesLine(
                 <div className="space-y-20">
                   <div className="flex space-x-10 justify-center">
                     <FormControl>
-                      <FormLabel>Sales Reconciliation</FormLabel>
+                      <FormLabel>Sales Record</FormLabel>
                       <FormHelperText>
-                        Select a sales reconciliation by date
+                        Select a sales record by date
                       </FormHelperText>
                       <Autocomplete
                         options={salesReconciliationOptions}
-                        placeholder={"Search sales reconciliations by date"}
+                        placeholder={"Search sales record by date"}
                         value={salesValue}
                         onChange={(
                           event,

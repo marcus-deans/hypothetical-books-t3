@@ -30,13 +30,13 @@ export default function sales(
   const columns: GridColDef[] = [
     {
       field: "id",
-      headerName: "Sales Reconciliation ID",
+      headerName: "Sales Record ID",
       headerClassName: "header-theme",
       flex: 1,
     },
     {
       field: "date",
-      headerName: "Reconciliation Date",
+      headerName: "Record Date",
       headerClassName: "header-theme",
       flex: 1,
       renderCell: (params) => {
@@ -87,7 +87,7 @@ export default function sales(
         <title>Sales</title>
       </Head>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Sales Reconciliation </h1>
+        <h1 className="inline-block text-2xl"> Sales Record </h1>
         <Link
           className="ml-2 inline-block text-2xl text-blue-600"
           href="/sales/add/reconciliation"
