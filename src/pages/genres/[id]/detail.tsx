@@ -54,15 +54,7 @@ export default function DetailGenre(
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 130,
-    },
-    {
-      field: "genre",
-      headerName: "Genre",
-      headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 120,
+      minWidth: 130,
     },
   ];
 
@@ -91,9 +83,11 @@ export default function DetailGenre(
       <Box
         sx={{
           height: "auto",
-          maxHeight: 750,
           "& .header-theme": {
             backgroundColor: "rgba(56, 116, 203, 0.35)",
+          },
+          "& .MuiDataGrid-cell--textLeft": {
+            textAlign: "left",
           },
         }}
       >
@@ -104,8 +98,8 @@ export default function DetailGenre(
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             Toolbar: GridToolbar,
           }}
-          pageSize={14}
-          rowsPerPageOptions={[14]}
+          pageSize={10}
+          rowsPerPageOptions={[10]}
           autoHeight={true}
           getRowHeight={() => "auto"}
           checkboxSelection

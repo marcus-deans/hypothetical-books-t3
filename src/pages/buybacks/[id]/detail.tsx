@@ -56,35 +56,30 @@ export default function BuybackOrderDetail(
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 130,
+      minWidth: 130,
     },
     {
       field: "unitBuybackPrice",
       headerName: "Unit Buyback Price",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 150,
+      minWidth: 150,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 80,
+      minWidth: 80,
     },
     {
       field: "subtotal",
       headerName: "Subtotal",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 80,
+      minWidth: 80,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      flex: 1,
       maxWidth: 60,
       align: "center",
       sortable: false,
@@ -98,7 +93,6 @@ export default function BuybackOrderDetail(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      flex: 1,
       maxWidth: 70,
       align: "center",
       sortable: false,
@@ -174,9 +168,11 @@ export default function BuybackOrderDetail(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -187,8 +183,8 @@ export default function BuybackOrderDetail(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={14}
-            rowsPerPageOptions={[14]}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
             checkboxSelection

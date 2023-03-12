@@ -84,9 +84,11 @@ export default function VendorDetail(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -97,9 +99,9 @@ export default function VendorDetail(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={14}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
-            rowsPerPageOptions={[14]}
             getRowHeight={() => "auto"}
             checkboxSelection
             disableSelectionOnClick
