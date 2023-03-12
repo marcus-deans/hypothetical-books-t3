@@ -162,16 +162,12 @@ export default function AddPurchaseLine(
                   </div>
                   <div className="flex space-x-10 justify-center">
                     <FormControl>
-                      <FormLabel>Quantity</FormLabel>
-                      <input
-                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      <TextField
                         id="quantity"
                         name="quantity"
+                        label="Quantity"
                         type="text"
-                        placeholder="Quantity"
-                        min="1"
-                        size={45}
-                        // value={quantity}
+                        sx={{ width: 425 }}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
                         ): void => setQuantity(Number(event.target.value))}
@@ -179,16 +175,12 @@ export default function AddPurchaseLine(
                       />
                     </FormControl>
                     <FormControl>
-                      <FormLabel>Unit Wholesale Price</FormLabel>
-                      <input
-                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      <TextField
                         id="UnitWholesalePrice"
                         name="UnitWholesalePrice"
+                        label="Unit Wholesale Price"
                         type="text"
-                        placeholder="Unit Wholesale Price"
-                        min="0"
-                        size={45}
-                        // value={unitWholesalePrice}
+                        sx={{ width: 425 }}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
                         ): void =>
