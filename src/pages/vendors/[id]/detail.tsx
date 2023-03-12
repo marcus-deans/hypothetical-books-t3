@@ -34,6 +34,12 @@ export default function VendorDetail(
 
   const columns: GridColDef[] = [
     {
+      field: "id",
+      headerName: "Purchase Order ID",
+      headerClassName: "header-theme",
+      flex: 1,
+    },
+    {
       field: "date",
       headerName: "Purchase Order Date",
       headerClassName: "header-theme",
@@ -46,12 +52,6 @@ export default function VendorDetail(
           </div>
         );
       },
-    },
-    {
-      field: "id",
-      headerName: "Purchase Order ID",
-      headerClassName: "header-theme",
-      flex: 1,
     },
     {
       field: "vendor",
@@ -98,6 +98,13 @@ export default function VendorDetail(
             components={{
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
+            }}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: false,
+                },
+              },
             }}
             pageSize={10}
             rowsPerPageOptions={[10]}

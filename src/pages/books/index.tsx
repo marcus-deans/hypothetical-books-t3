@@ -123,6 +123,14 @@ export default function Books(
       headerName: "Retail Price",
       headerClassName: "header-theme",
       minWidth: 80,
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            ${params.row.retailPrice}
+          </div>
+        );
+      },
       align: "left",
     },
     {
@@ -136,6 +144,7 @@ export default function Books(
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
+      type: "number",
       width: 80,
       align: "left",
     },
@@ -143,6 +152,7 @@ export default function Books(
       field: "shelfSpace",
       headerName: "Shelf Space",
       headerClassName: "header-theme",
+      type: "number",
       minWidth: 95,
       align: "left",
     },
@@ -150,6 +160,7 @@ export default function Books(
       field: "lastMonthSales",
       headerName: "Monthly Sales",
       headerClassName: "header-theme",
+      type: "number",
       minWidth: 110,
       align: "left",
     },
@@ -157,6 +168,7 @@ export default function Books(
       field: "daysSupply",
       headerName: "Days Supply",
       headerClassName: "header-theme",
+      type: "number",
       minWidth: 100,
       align: "left",
     },
@@ -164,7 +176,16 @@ export default function Books(
       field: "bestBuyback",
       headerName: "Best Buyback",
       headerClassName: "header-theme",
+      type: "number",
       minWidth: 110,
+      renderCell: (params) => {
+        const newString = params.row.bestBuyback === "0" ? "-" : `$${params.row.bestBuyback}`;
+        return (
+          <div>
+            {newString}
+          </div>
+        );
+      },
       align: "left",
     },
     {
@@ -214,14 +235,14 @@ export default function Books(
         ? `${shelfSpace.toString()}* in.`
         : `${shelfSpace.toString()} in.`;
     const bestBuybackString =
-      bestBuybackPrice === 0 ? "-" : `$${bestBuybackPrice.toFixed(2)}`;
+      bestBuybackPrice === 0 ? "0" : `${bestBuybackPrice.toFixed(2)}`;
 
     return {
       id: book.id,
       title: book.title,
       author: book.authors.map((author) => author.name).join(", "),
       isbn_13: book.isbn_13,
-      retailPrice: `$${book.retailPrice.toFixed(2)}`,
+      retailPrice: `${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
       imgUrl: book.imgUrl,
