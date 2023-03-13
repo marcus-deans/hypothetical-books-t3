@@ -21,6 +21,11 @@ export default function DeleteGenre(
   const genreDetailsQuery = api.genres.getById.useQuery({
     id,
   });
+  const genreCountsQuery = api.genres.getAllWithOverallMetrics.useQuery({
+    cursor: null,
+    limit: 50,
+  });
+
   const deleteMutation = api.genres.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -29,8 +34,17 @@ export default function DeleteGenre(
     return <div>Loading...</div>;
   }
   const { data } = genreDetailsQuery;
+  const genresWithOverallMetrics = genreCountsQuery?.data?.items ?? [];
+  const currGenreCount = genresWithOverallMetrics.find(item => item.genre.name === data.name)?.bookCount;
+
 
   const handleDelete = () => {
+
+    if(currGenreCount && currGenreCount <= 0){
+      return; 
+      
+    }
+    else{
     setIsDeleting(true);
     try {
       const deleteResult = deleteMutation.mutate({ id: id });
@@ -41,6 +55,7 @@ export default function DeleteGenre(
       console.log(error);
       setIsDeleting(false);
     }
+  }
   };
 
   return (
