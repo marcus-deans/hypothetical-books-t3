@@ -138,7 +138,7 @@ export default function calculator(
     //Clear the autocomplete bar to add the next book
     if(bookValue){
       //use query to get the book we just searched
-    let specificBook = books.find(item => item.id === bookValue.id);
+    const specificBook = books.find(item => item.id === bookValue.id);
     if(specificBook){
     const displayBook = {
       id: specificBook.id,
@@ -151,6 +151,7 @@ export default function calculator(
       displayStyle:"Spine Out",
       shelfSpace:0,
     };
+    setDisplayedBooks((prev) => [...prev, displayBook])
     console.log(specificBook);
   }
   }
@@ -246,7 +247,7 @@ export default function calculator(
           }}
         >
           <StripedDataGrid
-            rows={[]}
+            rows={rows}
             columns={columns}
             autoHeight={true}
             pageSize={10}
