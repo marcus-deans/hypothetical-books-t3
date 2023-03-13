@@ -503,7 +503,6 @@ export default function Books(
             pageSize={10}
             rowsPerPageOptions={[10]}
             getRowHeight={() => "auto"}
-            checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>
