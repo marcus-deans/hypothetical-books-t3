@@ -107,7 +107,7 @@ export default function calculator(
   },
   ]
   interface BookCalcDetails {
-    id: number;
+    id: string;
     title: string;
     inventoryCount:number;
     displayCount:number;
@@ -140,7 +140,7 @@ export default function calculator(
       //use query to get the book we just searched
     const specificBook = books.find(item => item.id === bookValue.id);
     if(specificBook){
-    const displayBook = {
+    const displayBook:BookCalcDetails = {
       id: specificBook.id,
       title: specificBook.title,
       inventoryCount:specificBook.inventoryCount,
