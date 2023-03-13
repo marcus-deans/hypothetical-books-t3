@@ -127,6 +127,7 @@ export default function Books(
       renderCell: (params) => {
         return (
           <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
             ${params.row.retailPrice}
           </div>
         );
@@ -179,7 +180,10 @@ export default function Books(
       type: "number",
       minWidth: 110,
       renderCell: (params) => {
-        const newString = params.row.bestBuyback === "0" ? "-" : `$${params.row.bestBuyback}`;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const bestBuybackString = params.row.bestBuyback;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/restrict-template-expressions
+        const newString = bestBuybackString === "0" ? "-" : `$${bestBuybackString}`;
         return (
           <div>
             {newString}
