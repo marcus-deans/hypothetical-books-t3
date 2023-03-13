@@ -53,7 +53,9 @@ export default function calculator(
     { field: "displayCount",
     headerName: "Display Count",
     headerClassName: "header-theme",
-    flex:1,},
+    flex:1,
+    editable:true,
+  },
 {
     field: "width",
     headerName: "Width",
@@ -75,7 +77,9 @@ export default function calculator(
  { field: "displayStyle",
   headerName: "Display Style",
   headerClassName: "header-theme",
-  flex:1,},
+  flex:1,
+  editable:true,
+},
   {
     field: "shelfSpace",
     headerName: "Shelf Space",
