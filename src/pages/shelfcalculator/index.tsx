@@ -98,6 +98,7 @@ export default function calculator(
     thickness: number;
     displayStyle:string;
     shelfSpace:number;
+    usedDefault:boolean;
   }
   const [bookValue, setBookValue] = useState<{
     label: string;
@@ -147,13 +148,17 @@ export default function calculator(
       title: specificBook.title,
       inventoryCount:specificBook.inventoryCount,
       displayCount:specificBook.inventoryCount,
-      width: specificBook.width,
-      height: specificBook.height,
+      width: (specificBook.width===0)?6:specificBook.width,
+      height: (specificBook.height===0)?8:specificBook.height,
       thickness: specificBook.thickness,
       displayStyle:"Spine Out",
       shelfSpace:0,
+      usedDefault:false,
     };
     displayBook.shelfSpace = calcShelfSpace(displayBook.width, displayBook.height, displayBook.thickness, displayBook.displayStyle, displayBook.displayCount);
+    if(specificBook.width == 0 || specificBook.height == 0 || specificBook.thickness == 0){
+      displayBook.usedDefault = true;
+    }
     setDisplayedBooks((prev) => [...prev, displayBook])
     setTotalSpaceSum(totalSpaceSum + displayBook.shelfSpace);
     toast.success("Added "+ specificBook.title);
@@ -243,7 +248,7 @@ export default function calculator(
         {`Total Shelf Space: ${totalSpaceSum} inches`}
         </div>
         <div className="text-sm">
-          {'*: Shelf space from estimated width of 0.8"'}
+          {'*: Shelf space from estimated width of 0.8, height of 8, or width of 6'}
         </div>
       </div>
       </div>
