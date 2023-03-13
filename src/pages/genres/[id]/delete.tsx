@@ -13,6 +13,8 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { prisma } from "../../../server/db";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function DeleteGenre(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -40,12 +42,14 @@ export default function DeleteGenre(
 
   const handleDelete = () => {
 
-    if(currGenreCount && currGenreCount <= 0){
+    if(currGenreCount && currGenreCount > 0){
+      toast.error("This genre has more than 0 books and can not be deleted.")
       return; 
       
     }
     else{
     setIsDeleting(true);
+    console.log("delete proceeded")
     try {
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
@@ -71,6 +75,7 @@ export default function DeleteGenre(
         handleDelete={handleDelete}
         cancelUrl={`/genres/`}
       />
+      <ToastContainer></ToastContainer>
     </div>
   );
 }
