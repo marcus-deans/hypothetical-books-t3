@@ -1,5 +1,3 @@
-
-
 import { GridColDef } from "@mui/x-data-grid";
 import { InferGetServerSidePropsType } from "next"
 import Head from "next/head";
@@ -12,6 +10,9 @@ import { Autocomplete, TextField } from "@mui/material";
 import books from "../books";
 import { useState } from "react";
 import { apiBaseUrl } from "next-auth/client/_utils";
+import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // const shelfSpace =
 //     data.thickness === 0
@@ -22,30 +23,6 @@ import { apiBaseUrl } from "next-auth/client/_utils";
 // data.thickness === 0
 //   ? `${shelfSpace.toString()}* in.`
 //   : `${shelfSpace.toString()} in.`;
-
-// const bookDetailRows = [
-//     {
-//       imgUrl: data.imgUrl,
-//       id: data.id,
-//       title: data.title,
-//       isbn_13: data.isbn_13,
-//       genre: data.genre.name,
-//       retailPrice: `$${data.retailPrice.toFixed(2)}`,
-//       inventoryCount: data.inventoryCount,
-//       isbn_10: data.isbn_10,
-//       publisher: data.publisher,
-//       publicationYear: data.publicationYear,
-//       pageCount: data.pageCount,
-//       author: data.authors.map((author) => author.name).join(", "),
-//       width: bookWidth,
-//       thickness: bookThickness,
-//       height: bookHeight,
-//       shelfSpace: shelfSpaceString,
-//       lastMonthSales: lastMonthSales.toString(),
-//       daysSupply: daysSupplyString,
-//       bestBuyback: bestBuybackString,
-//     },
-//   ];
 
 
 export default function calculator(
@@ -152,54 +129,12 @@ export default function calculator(
       shelfSpace:0,
     };
     setDisplayedBooks((prev) => [...prev, displayBook])
-    console.log(specificBook);
+    toast.success("Added "+ specificBook.title);
   }
   }
     setBookInputValue("");
     setBookValue(null);
   };
-
-  // const rows = books.map((book) => {
-  //   const bookThickness = book.thickness;
-  //   let lastMonthSales = 0;
-  //   const today = new Date();
-  //   const thirtyDaysAgo = new Date(new Date().setDate(today.getDate() - 30));
-  //   for (const salesLine of book.salesLines) {
-  //     const salesLineDate = salesLine.salesReconciliation.date;
-  //     if (salesLineDate > thirtyDaysAgo) {
-  //       lastMonthSales += salesLine.quantity;
-  //     }
-  //   }
-  //   const daysSupply =
-  //     lastMonthSales === 0
-  //       ? Infinity
-  //       : Math.floor((book.inventoryCount / lastMonthSales) * 30);
-  //   let bestBuybackPrice = 0;
-  //   for (const costMostRecentVendor of book.costMostRecentVendor) {
-  //     const currentVendorOffer =
-  //       costMostRecentVendor.vendor.buybackRate *
-  //       0.01 *
-  //       costMostRecentVendor.purchaseLine.unitWholesalePrice;
-  //     bestBuybackPrice = Math.max(bestBuybackPrice, currentVendorOffer);
-  //   }
-
-  //   const bestBuybackString =
-  //     bestBuybackPrice === 0 ? "0" : `${bestBuybackPrice.toFixed(2)}`;
-
-  //   return {
-  //     id: book.id,
-  //     title: book.title,
-  //     author: book.authors.map((author) => author.name).join(", "),
-  //     isbn_13: book.isbn_13,
-  //     retailPrice: `${book.retailPrice.toFixed(2)}`,
-  //     genre: book.genre.name,
-  //     inventoryCount: book.inventoryCount,
-  //     imgUrl: book.imgUrl,
-  //     lastMonthSales: lastMonthSales.toString(),
-  //     daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),
-  //     bestBuyback: bestBuybackString,
-  //   };
-  // });
   return(
     <>
     <Head>
@@ -266,6 +201,7 @@ export default function calculator(
         </div>
       </div>
       </div>
+      <ToastContainer></ToastContainer>
     </>
   )
 }
