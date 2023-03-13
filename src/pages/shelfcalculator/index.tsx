@@ -11,6 +11,7 @@ import { api } from "../../utils/api";
 import { Autocomplete, TextField } from "@mui/material";
 import books from "../books";
 import { useState } from "react";
+import { apiBaseUrl } from "next-auth/client/_utils";
 
 // const shelfSpace =
 //     data.thickness === 0
@@ -52,11 +53,30 @@ export default function calculator(
 ){
   const columns: GridColDef[] = [
     {
+      field: "title",
+      headerName: "Title",
+      headerClassName: "header-theme",
+      flex: 1,
+      align: "left",
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/books/${params.id}/detail`}>{params.row.title} </a>
+          </div>
+        );
+      },
+    },
+    {
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
       flex:1,
     },
+    { field: "displayCount",
+    headerName: "Display Count",
+    headerClassName: "header-theme",
+    flex:1,},
 {
     field: "width",
     headerName: "Width",
@@ -86,22 +106,56 @@ export default function calculator(
     flex:1,
   },
   ]
+  interface BookCalcDetails {
+    id: number;
+    title: string;
+    inventoryCount:number;
+    displayCount:number;
+    width: number;
+    height: number;
+    thickness: number;
+    displayStyle:string;
+    shelfSpace:number;
+  }
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
   } | null>(null);
   const [bookInputValue, setBookInputValue] = useState("");
+  const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
 
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
   const books = booksQuery?.data?.items ?? [];
-
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
   }));
 
-  const handleSubmit = () => {
+  const rows = displayedBooks;
 
+  const handleSubmit = () => {
+    //Add book value to the rows
+    //Clear the autocomplete bar to add the next book
+    if(bookValue){
+      //use query to get the book we just searched
+    let specificBook = books.find(item => item.id === bookValue.id);
+    if(specificBook){
+    const displayBook = {
+      id: specificBook.id,
+      title: specificBook.title,
+      inventoryCount:specificBook.inventoryCount,
+      displayCount:specificBook.inventoryCount,
+      width: specificBook.width,
+      height: specificBook.height,
+      thickness: specificBook.thickness,
+      displayStyle:"Spine Out",
+      shelfSpace:0,
+    };
+    console.log(specificBook);
+  }
+  }
+    setBookInputValue("");
+    setBookValue(null);
   };
 
   // const rows = books.map((book) => {
