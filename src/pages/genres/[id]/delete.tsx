@@ -25,7 +25,6 @@ export default function DeleteGenre(
   });
   const genreCountsQuery = api.genres.getAllWithOverallMetrics.useQuery({
     cursor: null,
-    limit: 50,
   });
 
   const deleteMutation = api.genres.delete.useMutation();
