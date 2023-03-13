@@ -13,6 +13,7 @@ import { apiBaseUrl } from "next-auth/client/_utils";
 import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { createRowsInternalCache } from "@mui/x-data-grid/hooks/features/rows/gridRowsUtils";
 
 // const shelfSpace =
 //     data.thickness === 0
@@ -125,6 +126,15 @@ export default function calculator(
 
   const rows = displayedBooks;
 
+  const calcTotalShelfSpace = () =>{
+    let sum = 0;
+    rows.forEach((row) => {
+      sum += row.shelfSpace;
+    });
+    setTotalSpaceSum(sum)
+    
+  }
+
   const handleSubmit = () => {
     //Add book value to the rows
     //Clear the autocomplete bar to add the next book
@@ -145,6 +155,7 @@ export default function calculator(
     };
     displayBook.shelfSpace = calcShelfSpace(displayBook.width, displayBook.height, displayBook.thickness, displayBook.displayStyle, displayBook.displayCount);
     setDisplayedBooks((prev) => [...prev, displayBook])
+    setTotalSpaceSum(totalSpaceSum + displayBook.shelfSpace);
     toast.success("Added "+ specificBook.title);
   }  
   }
