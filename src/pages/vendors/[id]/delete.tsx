@@ -13,14 +13,25 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { prisma } from "../../../server/db";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function DeleteVendor(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
+
   const vendorDetailsQuery = api.vendors.getById.useQuery({
     id,
   });
+  const vendorCountQuery = api.vendors.getAllWithOverallMetrics.useQuery({
+    cursor: null,
+  });
+  const { data } = vendorDetailsQuery;
+
+  const vendorsWithOverallMetrics = vendorCountQuery?.data?.items ?? [];
+  const currVendorCount = vendorsWithOverallMetrics.find(item => item.vendor.name === data.name)?.purchaseOrderCount;
+
   const deleteMutation = api.vendors.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -28,9 +39,13 @@ export default function DeleteVendor(
   if (vendorDetailsQuery.status !== "success") {
     return <div>Loading...</div>;
   }
-  const { data } = vendorDetailsQuery;
 
   const handleDelete = () => {
+    console.log(currVendorCount);
+    if(currVendorCount && currVendorCount > 0){
+      toast.error("This vendor has associated purchase orders, so it can not be deleted.");
+      return;
+    }
     setIsDeleting(true);
     try {
       const deleteResult = deleteMutation.mutate({ id: id });
@@ -56,6 +71,7 @@ export default function DeleteVendor(
         handleDelete={handleDelete}
         cancelUrl={`/vendors/`}
       />
+      <ToastContainer></ToastContainer>
     </div>
   );
 }

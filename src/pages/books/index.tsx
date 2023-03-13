@@ -42,6 +42,7 @@ import type {
 import EditLink from "../../components/table-components/EditLink";
 import Modal from "@mui/material/Modal";
 import Image from "next/image";
+import DeleteLink from "../../components/table-components/DeleteLink";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -203,6 +204,20 @@ export default function Books(
       renderCell: (params: GridRenderCellParams) => (
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
         <EditLink url={`/books/${params.id}/edit`} />
+      ),
+    },
+    {
+      field: "delete",
+      headerName: "Delete",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 70,
+      align: "center",
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DeleteLink url={`/books/${params.id}/delete`} />
       ),
     },
   ];
@@ -513,7 +528,6 @@ export default function Books(
             pageSize={10}
             rowsPerPageOptions={[10]}
             getRowHeight={() => "auto"}
-            checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>

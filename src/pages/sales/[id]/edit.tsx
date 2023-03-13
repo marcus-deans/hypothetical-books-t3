@@ -76,7 +76,7 @@ export default function EditSalesReconciliation(
         <form className="rounded bg-white px-6 py-6 inline-block">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
-              Edit Sales Reconciliation
+              Edit Sales Record
             </div>
             <div className="relative space-y-3">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>

@@ -44,12 +44,12 @@ export default function DeleteSalesReconciliation(
   return (
     <div className="flex flex-col items-center justify-center py-2">
       <Head>
-        <title>Delete Sales Reconciliation</title>
+        <title>Delete Sales Record</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DeletePane
         itemIdentifier={data?.date.toDateString() ?? id}
-        itemName={"Sales Reconciliation"}
+        itemName={"Sales Record"}
         isDeleting={isDeleting}
         handleDelete={handleDelete}
         cancelUrl={`/sales/${encodeURIComponent(id)}/detail`}
