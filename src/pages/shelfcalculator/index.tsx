@@ -139,6 +139,8 @@ export default function calculator(
     setBookInputValue("");
     setBookValue(null);
   };
+
+
   return(
     <>
     <Head>
@@ -187,6 +189,7 @@ export default function calculator(
         >
           <StripedDataGrid
             rows={rows}
+            editMode="row"
             columns={columns}
             autoHeight={true}
             pageSize={10}
@@ -200,11 +203,16 @@ export default function calculator(
             }
           />
         </Box>
+        <div className = "text-lg">
+        Total Shelf Space: 
+        </div>
         <div className="text-sm">
           {'*: Shelf space from estimated width of 0.8"'}
         </div>
       </div>
       </div>
+
+
       <ToastContainer></ToastContainer>
     </>
   )
