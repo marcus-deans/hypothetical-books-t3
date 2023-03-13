@@ -1,4 +1,4 @@
-import { GridColDef } from "@mui/x-data-grid";
+import { GridColDef, GridSelectionModel } from "@mui/x-data-grid";
 import { InferGetServerSidePropsType } from "next"
 import Head from "next/head";
 import { getServerSideProps } from "../report"
@@ -104,6 +104,7 @@ export default function calculator(
   } | null>(null);
   const [bookInputValue, setBookInputValue] = useState("");
   const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
+  const [totalSpaceSum, setTotalSpaceSum] = useState(0);
 
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
   const books = booksQuery?.data?.items ?? [];
@@ -111,6 +112,16 @@ export default function calculator(
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
   }));
+  interface MyDataGridProps {
+    // Other props for the DataGrid component
+    onSelectionModelChange: (newSelection: GridSelectionModel) => void;
+  }
+  const handleSelectionModelChange = (newSelection: GridSelectionModel) => {
+    // Handle the new selection here
+    console.log('Selected rows:', newSelection);
+    // onSelectionModelChange(newSelection);
+  };
+
 
   const rows = displayedBooks;
 
@@ -132,13 +143,26 @@ export default function calculator(
       displayStyle:"Spine Out",
       shelfSpace:0,
     };
+    displayBook.shelfSpace = calcShelfSpace(displayBook.width, displayBook.height, displayBook.thickness, displayBook.displayStyle, displayBook.displayCount);
     setDisplayedBooks((prev) => [...prev, displayBook])
     toast.success("Added "+ specificBook.title);
-  }
+  }  
   }
     setBookInputValue("");
     setBookValue(null);
   };
+
+  const calcShelfSpace= (width:number, height:number, thickness:number, displayMode:String, displayCount:number)  => {
+      if(displayMode === "Spine Out"){
+        return ((thickness===0) ? 0.8*displayCount : thickness * displayCount);
+      }
+      if(displayMode === "Cover Out"){
+        return (height*width);
+      }
+      else{
+        return 0;
+      }
+  }
 
 
   return(
@@ -188,6 +212,7 @@ export default function calculator(
           }}
         >
           <StripedDataGrid
+            onSelectionModelChange ={handleSelectionModelChange}
             rows={rows}
             editMode="row"
             columns={columns}
@@ -204,7 +229,7 @@ export default function calculator(
           />
         </Box>
         <div className = "text-lg">
-        Total Shelf Space: 
+        {`Total Shelf Space: ${totalSpaceSum} inches`}
         </div>
         <div className="text-sm">
           {'*: Shelf space from estimated width of 0.8"'}
