@@ -160,8 +160,9 @@ export default function calculator(
     const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
       let currIdx = displayedBooks.indexOf(oldRow as BookCalcDetails)
       if (index === currIdx) {
+        newRow.displayMode = "Spine Out"
         newRow.shelfSpace = calcShelfSpace(newRow.width, newRow.height, newRow.thickness, newRow.displayMode, newRow.displayCount);
-
+        console.log(newRow)
         return newRow as BookCalcDetails;
         //Recalculate the shelf space
 
