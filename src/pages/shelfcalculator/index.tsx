@@ -1,4 +1,4 @@
-import { GridColDef, GridSelectionModel } from "@mui/x-data-grid";
+import { GridCellParams, GridColDef, GridSelectionModel } from "@mui/x-data-grid";
 import { InferGetServerSidePropsType } from "next"
 import Head from "next/head";
 import { getServerSideProps } from "../report"
@@ -6,7 +6,7 @@ import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import  Box  from "@mui/material/Box";
 import { api } from "../../utils/api";
 
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, MenuItem, Select, TextField } from "@mui/material";
 import books from "../books";
 import { useState } from "react";
 import { apiBaseUrl } from "next-auth/client/_utils";
@@ -82,6 +82,29 @@ export default function calculator(
   headerClassName: "header-theme",
   flex:1,
   editable:true,
+  renderCell: (params: GridCellParams) => {
+    const handleStatusChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+      const { id } = params.row;
+      const newValue = event.target.value;
+      const updatedRows = params.api.getRowModels().map((row) => {
+        if (row.id === id) {
+          return { ...row, status: newValue };
+        }
+        return row;
+      });
+      params.api.updateRows(updatedRows);
+    };
+
+    return (
+      <Select
+        value={params.value}
+        onChange={handleStatusChange}
+      >
+        <MenuItem value="Spine Out">Spine Out</MenuItem>
+        <MenuItem value="Spine In">Spine In</MenuItem>
+      </Select>
+    );
+  },
 },
   {
     field: "shelfSpace",
