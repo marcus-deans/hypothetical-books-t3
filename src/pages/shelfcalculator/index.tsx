@@ -1,4 +1,4 @@
-import { GridCellParams, GridColDef, GridSelectionModel } from "@mui/x-data-grid";
+import { GridCellParams, GridColDef, GridPreProcessEditCellProps, GridRowModel, GridSelectionModel } from "@mui/x-data-grid";
 import { InferGetServerSidePropsType } from "next"
 import Head from "next/head";
 import { getServerSideProps } from "../report"
@@ -58,6 +58,11 @@ export default function calculator(
     headerClassName: "header-theme",
     flex:1,
     editable:true,
+    preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
+      const hasError =
+        isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
+      return { ...params.props, error: hasError };
+    },
   },
 {
     field: "width",
@@ -82,29 +87,17 @@ export default function calculator(
   headerClassName: "header-theme",
   flex:1,
   editable:true,
-  renderCell: (params: GridCellParams) => {
-    const handleStatusChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-      const { id } = params.row;
-      const newValue = event.target.value;
-      const updatedRows = params.api.getRowModels().map((row) => {
-        if (row.id === id) {
-          return { ...row, status: newValue };
-        }
-        return row;
-      });
-      params.api.updateRows(updatedRows);
-    };
+  // renderCell: (params: GridCellParams) => {
 
-    return (
-      <Select
-        value={params.value}
-        onChange={handleStatusChange}
-      >
-        <MenuItem value="Spine Out">Spine Out</MenuItem>
-        <MenuItem value="Spine In">Spine In</MenuItem>
-      </Select>
-    );
-  },
+  //   return (
+  //     <Select
+  //       value={params.value}
+  //     >
+  //       <MenuItem value="Spine Out">Spine Out</MenuItem>
+  //       <MenuItem value="Spine In">Spine In</MenuItem>
+  //     </Select>
+  //   );
+  // },
 },
   {
     field: "shelfSpace",
@@ -139,10 +132,7 @@ export default function calculator(
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
   }));
-  interface MyDataGridProps {
-    // Other props for the DataGrid component
-    onSelectionModelChange: (newSelection: GridSelectionModel) => void;
-  }
+
   const handleSelectionModelChange = (newSelection: GridSelectionModel) => {
     // Handle the new selection here
     console.log('Selected rows:', newSelection);
@@ -165,6 +155,29 @@ export default function calculator(
     setTotalSpaceSum(sum)
     
   }
+  //Called after enter is hit
+  const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
+    const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
+      let currIdx = displayedBooks.indexOf(oldRow as BookCalcDetails)
+      if (index === currIdx) {
+        newRow.shelfSpace = calcShelfSpace(newRow.width, newRow.height, newRow.thickness, newRow.displayMode, newRow.displayCount);
+
+        return newRow as BookCalcDetails;
+        //Recalculate the shelf space
+
+      } else {
+        // The rest haven't changed
+        return displayedBook;
+      }
+    });
+    setDisplayedBooks(newDisplayedBooks);
+
+    return newRow;
+  };
+
+  const handleProcessRowUpdateError = (error: Error) => {
+    toast.error(error.message);
+  };
 
   const handleSubmit = () => {
     //Add book value to the rows
@@ -279,6 +292,8 @@ export default function calculator(
             rowsPerPageOptions={[10]}
             getRowHeight={() => "auto"}
             disableSelectionOnClick
+            processRowUpdate={processRowUpdate}
+            onProcessRowUpdateError={handleProcessRowUpdateError}
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>
               // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
