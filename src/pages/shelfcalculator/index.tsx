@@ -155,8 +155,8 @@ export default function calculator(
       title: specificBook.title,
       inventoryCount:specificBook.inventoryCount,
       displayCount:specificBook.inventoryCount,
-      width: (specificBook.width===0)?6:specificBook.width,
-      height: (specificBook.height===0)?8:specificBook.height,
+      width: specificBook.width,
+      height: specificBook.height,
       thickness: specificBook.thickness,
       displayStyle:"Spine Out",
       shelfSpace:"",
@@ -179,9 +179,18 @@ export default function calculator(
 
   const calcShelfSpace= (width:number, height:number, thickness:number, displayMode:String, displayCount:number)  => {
       if(displayMode === "Spine Out"){
-        return ((thickness===0) ? 0.8*displayCount : thickness * displayCount);
+        if(thickness === 0 ){
+          thickness = 0.8
+          return thickness*displayCount;
+        }
       }
       if(displayMode === "Cover Out"){
+        if(height == 0){
+          height = 8;
+        }
+        if(width == 0){
+          width = 6;
+        }
         return (height*width);
       }
       else{
