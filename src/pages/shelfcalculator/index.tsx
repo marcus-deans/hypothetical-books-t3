@@ -14,6 +14,8 @@ import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { createRowsInternalCache } from "@mui/x-data-grid/hooks/features/rows/gridRowsUtils";
+import { isReadable } from "stream";
+import { router } from "@trpc/server";
 
 // const shelfSpace =
 //     data.thickness === 0
@@ -97,7 +99,7 @@ export default function calculator(
     height: number;
     thickness: number;
     displayStyle:string;
-    shelfSpace:number;
+    shelfSpace:string;
     usedDefault:boolean;
   }
   const [bookValue, setBookValue] = useState<{
@@ -130,7 +132,12 @@ export default function calculator(
   const calcTotalShelfSpace = () =>{
     let sum = 0;
     rows.forEach((row) => {
-      sum += row.shelfSpace;
+      if(row.shelfSpace[row.shelfSpace.length-1] === "*"){
+        sum += parseInt(row.shelfSpace.substring(0, row.shelfSpace.length - 1));
+      }
+      else{
+      sum += parseInt(row.shelfSpace);
+      }
     });
     setTotalSpaceSum(sum)
     
@@ -152,13 +159,14 @@ export default function calculator(
       height: (specificBook.height===0)?8:specificBook.height,
       thickness: specificBook.thickness,
       displayStyle:"Spine Out",
-      shelfSpace:0,
+      shelfSpace:"",
       usedDefault:false,
     };
-    displayBook.shelfSpace = calcShelfSpace(displayBook.width, displayBook.height, displayBook.thickness, displayBook.displayStyle, displayBook.displayCount);
+    displayBook.shelfSpace = calcShelfSpace(displayBook.width, displayBook.height, displayBook.thickness, displayBook.displayStyle, displayBook.displayCount).toString();
     if(specificBook.width == 0 || specificBook.height == 0 || specificBook.thickness == 0){
       displayBook.usedDefault = true;
     }
+    displayBook.shelfSpace = (displayBook.usedDefault) ? displayBook.shelfSpace+"*" : displayBook.shelfSpace;
     setDisplayedBooks((prev) => [...prev, displayBook])
     setTotalSpaceSum(totalSpaceSum + displayBook.shelfSpace);
     toast.success("Added "+ specificBook.title);
