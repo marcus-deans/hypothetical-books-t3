@@ -161,7 +161,9 @@ export default function calculator(
       let currIdx = displayedBooks.indexOf(oldRow as BookCalcDetails)
       if (index === currIdx) {
         newRow.displayMode = "Spine Out"
-        newRow.shelfSpace = calcShelfSpace(newRow.width, newRow.height, newRow.thickness, newRow.displayMode, newRow.displayCount);
+        let newSpace = calcShelfSpace(newRow.width, newRow.height, newRow.thickness, newRow.displayMode, newRow.displayCount);
+        let spaceVal = newSpace.toFixed(2).toString();
+        newRow.shelfSpace = (newRow.usedDefault) ? (spaceVal)+"*" : spaceVal;
         console.log(newRow)
         return newRow as BookCalcDetails;
         //Recalculate the shelf space
@@ -220,7 +222,7 @@ export default function calculator(
         if(thickness === 0 ){
           thickness = 0.8;
         }
-        return thickness*displayCount;
+        return Number((thickness*displayCount));
       }
       if(displayMode === "Cover Out"){
         if(height == 0){
@@ -229,10 +231,10 @@ export default function calculator(
         if(width == 0){
           width = 6;
         }
-        return (height*width).toFixed(2);
+        return Number((height*width).toFixed(2));
       }
       else{
-        return 0;
+        return Number(0);
       }
   }
 
