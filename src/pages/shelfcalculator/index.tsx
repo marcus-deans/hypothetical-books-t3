@@ -166,9 +166,10 @@ export default function calculator(
     if(specificBook.width == 0 || specificBook.height == 0 || specificBook.thickness == 0){
       displayBook.usedDefault = true;
     }
-    displayBook.shelfSpace = (displayBook.usedDefault) ? displayBook.shelfSpace+"*" : displayBook.shelfSpace;
     setDisplayedBooks((prev) => [...prev, displayBook])
-    setTotalSpaceSum(totalSpaceSum + displayBook.shelfSpace);
+    setTotalSpaceSum(totalSpaceSum + parseFloat(displayBook.shelfSpace));
+    displayBook.shelfSpace = (displayBook.usedDefault) ? displayBook.shelfSpace+"*" : displayBook.shelfSpace;
+
     toast.success("Added "+ specificBook.title);
   }  
   }
@@ -256,7 +257,7 @@ export default function calculator(
         {`Total Shelf Space: ${totalSpaceSum} inches`}
         </div>
         <div className="text-sm">
-          {'*: Shelf space from estimated width of 0.8, height of 8, or width of 6'}
+          {'*: Shelf space from estimated width of 0.8, height of 8, or width of 6 for zero-valued parameters'}
         </div>
       </div>
       </div>
