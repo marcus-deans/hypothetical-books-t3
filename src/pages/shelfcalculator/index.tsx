@@ -42,7 +42,7 @@ export default function calculator(
         return (
           <div className="text-blue-600">
             {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <a href={`/books/${params.id}/detail`}>{params.row.title} </a>
+            <a href={`/books/${params.id}/edit`}>{params.row.title} </a>
           </div>
         );
       },
@@ -168,7 +168,8 @@ export default function calculator(
     }
     setDisplayedBooks((prev) => [...prev, displayBook])
     setTotalSpaceSum(totalSpaceSum + parseFloat(displayBook.shelfSpace));
-    displayBook.shelfSpace = (displayBook.usedDefault) ? displayBook.shelfSpace+"*" : displayBook.shelfSpace;
+    let spaceVal = Number.parseFloat(displayBook.shelfSpace).toFixed(2).toString();
+    displayBook.shelfSpace = (displayBook.usedDefault) ? (spaceVal)+"*" : spaceVal;
 
     toast.success("Added "+ specificBook.title);
   }  
