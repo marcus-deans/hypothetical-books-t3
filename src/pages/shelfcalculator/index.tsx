@@ -180,9 +180,9 @@ export default function calculator(
   const calcShelfSpace= (width:number, height:number, thickness:number, displayMode:String, displayCount:number)  => {
       if(displayMode === "Spine Out"){
         if(thickness === 0 ){
-          thickness = 0.8
-          return thickness*displayCount;
+          thickness = 0.8;
         }
+        return thickness*displayCount;
       }
       if(displayMode === "Cover Out"){
         if(height == 0){
@@ -191,7 +191,7 @@ export default function calculator(
         if(width == 0){
           width = 6;
         }
-        return (height*width);
+        return (height*width).toFixed(2);
       }
       else{
         return 0;
@@ -263,7 +263,7 @@ export default function calculator(
           />
         </Box>
         <div className = "text-lg">
-        {`Total Shelf Space: ${totalSpaceSum} inches`}
+        {`Total Shelf Space: ${totalSpaceSum.toFixed(2)} inches`}
         </div>
         <div className="text-sm">
           {'*: Shelf space from estimated width of 0.8, height of 8, or width of 6 for zero-valued parameters'}
