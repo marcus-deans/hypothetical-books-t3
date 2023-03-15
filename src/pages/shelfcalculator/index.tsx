@@ -173,7 +173,7 @@ export default function calculator(
       width: specificBook.width,
       height: specificBook.height,
       thickness: specificBook.thickness,
-      displayStyle:"SpineOut",
+      displayStyle:"Spine Out",
       shelfSpace:"",
       usedDefault:false,
     };
