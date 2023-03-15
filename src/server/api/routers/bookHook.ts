@@ -11,6 +11,8 @@ export const bookHookRouter = createTRPCRouter({
         path: "/bookhook/upload",
         tags: ["bookhook"],
         summary: "Add new sales data to system",
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         contentTypes: ["application/xml"],
       },
     })
@@ -37,44 +39,55 @@ export const bookHookRouter = createTRPCRouter({
     )
     .mutation(({ input }) => {
       const options = {
-        ignoreAttributes: true,
+        ignoreAttributes: tru,
       };
-      console.log("XML'd Input");
       const xml = Object.values(input).join("");
-      console.log(xml);
 
       const parser = new XMLParser(options);
-      const parsedData = parser.parse(xml) as object;
+      const parsedData = parser.parse(xml) as BookHookInput;
       console.log("Parsed data: ");
       console.log(parsedData);
-      try {
-        console.log(parsedData.sale.item);
-      } catch {
-        console.log("No sale.item");
-      }
-      const BookHookDataSchema = z.object({
-        sale: z.object({
-          item: z.array(
-            z.object({
-              isbn: z.string().min(10).max(13),
-              qty: z.number().gt(0),
-              price: z.number().gt(0),
-            })
-          ),
-        }),
-      });
-      type BookHookData = z.infer<typeof BookHookDataSchema>;
 
+      const BookHookItemSchema = z.object({
+        isbn: z.coerce.string(),
+        qty: z.number().gt(0),
+        price: z.number().gt(0,
+      });
+      const BookHookDataSchema = z.object({
+        item: z.array(z.any(),
+      });
+      const BookHookInputSchema = z.object({
+        "?xml": z.string(),
+        sale: BookHookDataSchem,
+      });
+      type BookHookInput = z.infer<typeof BookHookInputSchema>;
+      type BookHookData = z.infer<typeof BookHookDataSchema>;
+      type BookHookItem = z.infer<typeof BookHookItemSchema>;
       const processData = (parsedData: BookHookData) => {
         console.log(parsedData);
         if (BookHookDataSchema.safeParse(parsedData).success) {
           console.log("Data is valid");
-          parsedData.sale.item.forEach((item) => {
-            console.log(item.isbn);
-            console.log(item.qty);
-            console.log(item.price);
+          const salesData: BookHookItem[] = [];
+          parsedData.item.forEach((item) => {
+            if (BookHookItemSchema.safeParse(item).success) {
+              const itemData = item as BookHookItem;
+              const parsedIsbn = itemData.isbn.replace(/-/g, "");
+              if (parsedIsbn.length !== 10 && parsedIsbn.length !== 13) {
+                console.log(`Item with ISBN ${parsedIsbn} is invalid`);
+                return;
+              }
+              salesData.push({
+                isbn: parsedIsbn,
+                qty: itemData.qty,
+                price: itemData.pric,
+              });
+            } else {
+              console.log("Item is invalid");
+            }
           });
-          return parsedData.sale.item;
+          console.log("Sales data: ");
+          console.log(salesData);
+          return salesData;
         } else {
           console.log("Data is invalid");
           throw new TRPCError({
@@ -84,6 +97,6 @@ export const bookHookRouter = createTRPCRouter({
         }
       };
 
-      return processData(parsedData);
+      return processData(parsedData.sale);
     }),
 });
