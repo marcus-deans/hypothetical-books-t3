@@ -6,7 +6,7 @@ import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import  Box  from "@mui/material/Box";
 import { api } from "../../utils/api";
 
-import { Autocomplete, MenuItem, Select, TextField } from "@mui/material";
+import { Autocomplete, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
 import books from "../books";
 import { useState } from "react";
 import { apiBaseUrl } from "next-auth/client/_utils";
@@ -89,7 +89,7 @@ export default function calculator(
   editable:true,
   renderCell: (params: GridCellParams) => {
     return (
-      <Select
+      <Select 
         value={params.value}
       >
         <MenuItem value="SpineOut">Spine Out</MenuItem>
