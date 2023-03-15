@@ -87,17 +87,16 @@ export default function calculator(
   headerClassName: "header-theme",
   flex:1,
   editable:true,
-  // renderCell: (params: GridCellParams) => {
-
-  //   return (
-  //     <Select
-  //       value={params.value}
-  //     >
-  //       <MenuItem value="Spine Out">Spine Out</MenuItem>
-  //       <MenuItem value="Spine In">Spine In</MenuItem>
-  //     </Select>
-  //   );
-  // },
+  renderCell: (params: GridCellParams) => {
+    return (
+      <Select
+        value={params.value}
+      >
+        <MenuItem value="SpineOut">Spine Out</MenuItem>
+        <MenuItem value="CoverOut">Cover Out</MenuItem>
+      </Select>
+    );
+  },
 },
   {
     field: "shelfSpace",
@@ -133,38 +132,19 @@ export default function calculator(
     id: book.id,
   }));
 
-  const handleSelectionModelChange = (newSelection: GridSelectionModel) => {
-    // Handle the new selection here
-    console.log('Selected rows:', newSelection);
-    // onSelectionModelChange(newSelection);
-  };
 
 
   const rows = displayedBooks;
 
-  const calcTotalShelfSpace = () =>{
-    let sum = 0;
-    rows.forEach((row) => {
-      if(row.shelfSpace[row.shelfSpace.length-1] === "*"){
-        sum += parseInt(row.shelfSpace.substring(0, row.shelfSpace.length - 1));
-      }
-      else{
-      sum += parseInt(row.shelfSpace);
-      }
-    });
-    setTotalSpaceSum(sum)
-    
-  }
-  //Called after enter is hit
+
+
   const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
     const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
       let currIdx = displayedBooks.indexOf(oldRow as BookCalcDetails)
       if (index === currIdx) {
-        newRow.displayMode = "Spine Out"
-        let newSpace = calcShelfSpace(newRow.width, newRow.height, newRow.thickness, newRow.displayMode, newRow.displayCount);
+        let newSpace = calcShelfSpace(newRow.width, newRow.height, newRow.thickness, newRow.displayStyle, newRow.displayCount);
         let spaceVal = newSpace.toFixed(2).toString();
         newRow.shelfSpace = (newRow.usedDefault) ? (spaceVal)+"*" : spaceVal;
-        console.log(newRow)
         return newRow as BookCalcDetails;
         //Recalculate the shelf space
 
@@ -174,10 +154,14 @@ export default function calculator(
       }
     });
     setDisplayedBooks(newDisplayedBooks);
-
+    let newSpace = totalSpaceSum-parseSpace(oldRow.shelfSpace)+parseSpace(newRow.shelfSpace);
+    setTotalSpaceSum(newSpace);
     return newRow;
   };
 
+  const parseSpace = (shelfSpaceStr :string):number =>{
+      return parseFloat(shelfSpaceStr);
+  }
   const handleProcessRowUpdateError = (error: Error) => {
     toast.error(error.message);
   };
@@ -197,7 +181,7 @@ export default function calculator(
       width: specificBook.width,
       height: specificBook.height,
       thickness: specificBook.thickness,
-      displayStyle:"Spine Out",
+      displayStyle:"SpineOut",
       shelfSpace:"",
       usedDefault:false,
     };
@@ -217,14 +201,15 @@ export default function calculator(
     setBookValue(null);
   };
 
-  const calcShelfSpace= (width:number, height:number, thickness:number, displayMode:String, displayCount:number)  => {
-      if(displayMode === "Spine Out"){
+  const calcShelfSpace= (width:number, height:number, thickness:number, displayStyle:String, displayCount:number)  => {
+
+      if(displayStyle === "SpineOut"){
         if(thickness === 0 ){
           thickness = 0.8;
         }
         return Number((thickness*displayCount));
       }
-      if(displayMode === "Cover Out"){
+      if(displayStyle === "CoverOut"){
         if(height == 0){
           height = 8;
         }
@@ -286,7 +271,6 @@ export default function calculator(
           }}
         >
           <StripedDataGrid
-            onSelectionModelChange ={handleSelectionModelChange}
             rows={rows}
             editMode="row"
             columns={columns}
