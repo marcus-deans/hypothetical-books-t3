@@ -39,7 +39,7 @@ export const bookHookRouter = createTRPCRouter({
     )
     .mutation(({ input }) => {
       const options = {
-        ignoreAttributes: tru,
+        ignoreAttributes: true,
       };
       const xml = Object.values(input).join("");
 
@@ -51,14 +51,14 @@ export const bookHookRouter = createTRPCRouter({
       const BookHookItemSchema = z.object({
         isbn: z.coerce.string(),
         qty: z.number().gt(0),
-        price: z.number().gt(0,
+        price: z.number().gt(0),
       });
       const BookHookDataSchema = z.object({
-        item: z.array(z.any(),
+        item: z.array(z.any()),
       });
       const BookHookInputSchema = z.object({
         "?xml": z.string(),
-        sale: BookHookDataSchem,
+        sale: BookHookDataSchema,
       });
       type BookHookInput = z.infer<typeof BookHookInputSchema>;
       type BookHookData = z.infer<typeof BookHookDataSchema>;
@@ -79,7 +79,7 @@ export const bookHookRouter = createTRPCRouter({
               salesData.push({
                 isbn: parsedIsbn,
                 qty: itemData.qty,
-                price: itemData.pric,
+                price: itemData.price,
               });
             } else {
               console.log("Item is invalid");
@@ -91,12 +91,19 @@ export const bookHookRouter = createTRPCRouter({
         } else {
           console.log("Data is invalid");
           throw new TRPCError({
-            code: "BAD_REQUEST",
+            code: "PARSE_ERROR",
             message: "Invalid data",
           });
         }
       };
 
-      return processData(parsedData.sale);
+      const processedData = processData(parsedData.sale);
+      if (processedData.length == 0) {
+        throw new TRPCError({
+          code: "PARSE_ERROR",
+          message: "No ISBNs could be found",
+        });
+      }
+      return processedData;
     }),
 });
