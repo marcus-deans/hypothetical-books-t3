@@ -87,16 +87,8 @@ export default function calculator(
   headerClassName: "header-theme",
   flex:1,
   editable:true,
-  renderCell: (params: GridCellParams) => {
-    return (
-      <Select 
-        value={params.value}
-      >
-        <MenuItem value="SpineOut">Spine Out</MenuItem>
-        <MenuItem value="CoverOut">Cover Out</MenuItem>
-      </Select>
-    );
-  },
+  type: "singleSelect",
+  valueOptions: ["Spine Out", "Cover Out"]
 },
   {
     field: "shelfSpace",
@@ -203,13 +195,13 @@ export default function calculator(
 
   const calcShelfSpace= (width:number, height:number, thickness:number, displayStyle:String, displayCount:number)  => {
 
-      if(displayStyle === "SpineOut"){
+      if(displayStyle === "Spine Out"){
         if(thickness === 0 ){
           thickness = 0.8;
         }
         return Number((thickness*displayCount));
       }
-      if(displayStyle === "CoverOut"){
+      if(displayStyle === "Cover Out"){
         if(height == 0){
           height = 8;
         }
