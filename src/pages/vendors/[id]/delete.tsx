@@ -30,7 +30,9 @@ export default function DeleteVendor(
   const { data } = vendorDetailsQuery;
 
   const vendorsWithOverallMetrics = vendorCountQuery?.data?.items ?? [];
-  const currVendorCount = vendorsWithOverallMetrics.find(item => item.vendor.name === data.name)?.purchaseOrderCount;
+  const currVendorCount = vendorsWithOverallMetrics.find(
+    (item) => item.vendor.name === data?.name ?? ""
+  )?.purchaseOrderCount;
 
   const deleteMutation = api.vendors.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -42,8 +44,10 @@ export default function DeleteVendor(
 
   const handleDelete = () => {
     console.log(currVendorCount);
-    if(currVendorCount && currVendorCount > 0){
-      toast.error("This vendor has associated purchase orders, so it can not be deleted.");
+    if (currVendorCount && currVendorCount > 0) {
+      toast.error(
+        "This vendor has associated purchase orders, so it can not be deleted."
+      );
       return;
     }
     setIsDeleting(true);
