@@ -14,7 +14,7 @@ import { imagesRouter } from "./routers/imageUpload";
 import { buybackOrdersRouter } from "./routers/buybackOrders";
 import { buybackLinesRouter } from "./routers/buybackLines";
 import { csvPortsRouter } from "./routers/csvPorts";
-
+import { bookHookRouter } from "./routers/bookHook";
 /**
  * This is the primary router for your server.
  *
@@ -23,6 +23,7 @@ import { csvPortsRouter } from "./routers/csvPorts";
 export const appRouter = createTRPCRouter({
   example: exampleRouter,
   authors: authorsRouter,
+  bookHook: bookHookRouter,
   books: booksRouter,
   buybackOrders: buybackOrdersRouter,
   buybackLines: buybackLinesRouter,
