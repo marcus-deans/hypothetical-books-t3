@@ -28,7 +28,7 @@ import { router } from "@trpc/server";
 //   : `${shelfSpace.toString()} in.`;
 
 
-export default function calculator(
+export default function Calculator(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ){
   const columns: GridColDef[] = [
@@ -132,10 +132,10 @@ export default function calculator(
 
   const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
     const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
-      let currIdx = displayedBooks.indexOf(oldRow as BookCalcDetails)
+      const currIdx = displayedBooks.indexOf(oldRow as BookCalcDetails)
       if (index === currIdx) {
-        let newSpace = calcShelfSpace(newRow.width, newRow.height, newRow.thickness, newRow.displayStyle, newRow.displayCount);
-        let spaceVal = newSpace.toFixed(2).toString();
+        const newSpace = calcShelfSpace(Number(newRow.width), Number(newRow.height), Number(newRow.thickness), String(newRow.displayStyle), Number(newRow.displayCount));
+        const spaceVal = newSpace.toFixed(2).toString();
         newRow.shelfSpace = (newRow.usedDefault) ? (spaceVal)+"*" : spaceVal;
         return newRow as BookCalcDetails;
         //Recalculate the shelf space
@@ -146,7 +146,7 @@ export default function calculator(
       }
     });
     setDisplayedBooks(newDisplayedBooks);
-    let newSpace = totalSpaceSum-parseSpace(oldRow.shelfSpace)+parseSpace(newRow.shelfSpace);
+    const newSpace = totalSpaceSum-parseSpace(String(oldRow.shelfSpace))+parseSpace(String(newRow.shelfSpace));
     setTotalSpaceSum(newSpace);
     return newRow;
   };
@@ -183,7 +183,7 @@ export default function calculator(
     }
     setDisplayedBooks((prev) => [...prev, displayBook])
     setTotalSpaceSum(totalSpaceSum + parseFloat(displayBook.shelfSpace));
-    let spaceVal = Number.parseFloat(displayBook.shelfSpace).toFixed(2).toString();
+    const spaceVal = Number.parseFloat(displayBook.shelfSpace).toFixed(2).toString();
     displayBook.shelfSpace = (displayBook.usedDefault) ? (spaceVal)+"*" : spaceVal;
 
     toast.success("Added "+ specificBook.title);
@@ -193,7 +193,7 @@ export default function calculator(
     setBookValue(null);
   };
 
-  const calcShelfSpace= (width:number, height:number, thickness:number, displayStyle:String, displayCount:number)  => {
+  const calcShelfSpace= (width:number, height:number, thickness:number, displayStyle:string, displayCount:number)  => {
 
       if(displayStyle === "Spine Out"){
         if(thickness === 0 ){
