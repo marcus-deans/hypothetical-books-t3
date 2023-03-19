@@ -32,20 +32,21 @@ export default function Authors(
       field: "id",
       headerName: "Author ID",
       headerClassName: "header-theme",
+      align: "left",
       flex: 1,
     },
     {
       field: "name",
       headerName: "Author Name",
       headerClassName: "header-theme",
+      align: "left",
       flex: 1,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
+      minWidth: 70,
       align: "center",
       sortable: false,
       filterable: false,
@@ -58,8 +59,7 @@ export default function Authors(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
+      minWidth: 70,
       align: "center",
       sortable: false,
       filterable: false,
@@ -98,9 +98,11 @@ export default function Authors(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -118,8 +120,8 @@ export default function Authors(
                 },
               },
             }}
-            pageSize={14}
-            rowsPerPageOptions={[14]}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
             checkboxSelection

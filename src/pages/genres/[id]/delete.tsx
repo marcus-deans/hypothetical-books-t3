@@ -13,6 +13,8 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { prisma } from "../../../server/db";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function DeleteGenre(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -21,6 +23,10 @@ export default function DeleteGenre(
   const genreDetailsQuery = api.genres.getById.useQuery({
     id,
   });
+  const genreCountsQuery = api.genres.getAllWithOverallMetrics.useQuery({
+    cursor: null,
+  });
+
   const deleteMutation = api.genres.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -29,9 +35,20 @@ export default function DeleteGenre(
     return <div>Loading...</div>;
   }
   const { data } = genreDetailsQuery;
+  const genresWithOverallMetrics = genreCountsQuery?.data?.items ?? [];
+  const currGenreCount = genresWithOverallMetrics.find(item => item.genre.name === data.name)?.bookCount;
+
 
   const handleDelete = () => {
+
+    if(currGenreCount && currGenreCount > 0){
+      toast.error("This genre has more than 0 books and can not be deleted.")
+      return; 
+      
+    }
+    else{
     setIsDeleting(true);
+    console.log("delete proceeded")
     try {
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
@@ -41,6 +58,7 @@ export default function DeleteGenre(
       console.log(error);
       setIsDeleting(false);
     }
+  }
   };
 
   return (
@@ -56,6 +74,7 @@ export default function DeleteGenre(
         handleDelete={handleDelete}
         cancelUrl={`/genres/`}
       />
+      <ToastContainer></ToastContainer>
     </div>
   );
 }

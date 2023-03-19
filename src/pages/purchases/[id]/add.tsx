@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import type {
   GetServerSidePropsContext,
+  GetStaticPaths,
+  GetStaticPropsContext,
   InferGetServerSidePropsType,
+  InferGetStaticPropsType,
 } from "next";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
@@ -9,21 +12,24 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import Head from "next/head";
+import { toast, ToastContainer } from "react-toastify";
+import { prisma } from "../../../server/db";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddPurchaseLine(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
+  props: InferGetStaticPropsType<typeof getStaticProps>
+
 ) {
-  const purchaseOrdersQuery = api.purchaseOrders.getAll.useQuery({
-    cursor: null,
-    limit: 100,
+  const { id } = props;
+  const purchaseOrdersQuery = api.purchaseOrders.getById.useQuery({
+    id
   });
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
 
   const router = useRouter();
-  const purchaseOrders = purchaseOrdersQuery?.data?.items ?? [];
   const books = booksQuery?.data?.items ?? [];
   const [purchaseValue, setPurchaseValue] = useState<{
     label: string;
@@ -35,7 +41,6 @@ export default function AddPurchaseLine(
   } | null>(null);
   const [unitWholesalePrice, setUnitWholesalePrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [purchaseInputValue, setPurchaseInputValue] = useState("");
   const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   //TODO: fix this
@@ -45,8 +50,9 @@ export default function AddPurchaseLine(
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      if (!bookValue || !purchaseValue) {
-        throw new Error("Book and Purchase Order are required");
+      if (!bookValue) {
+        toast.error("Book is required")
+        throw new Error("Book is required");
       }
       if (
         isNaN(unitWholesalePrice) ||
@@ -54,6 +60,7 @@ export default function AddPurchaseLine(
         unitWholesalePrice <= 0 ||
         quantity <= 0
       ) {
+        toast.error("Unit Wholesale Price and Quantity must be positive numbers");
         throw new Error(
           "Unit Wholesale Price and Quantity must be positive numbers"
         );
@@ -62,11 +69,11 @@ export default function AddPurchaseLine(
         bookId: bookValue.id,
         quantity: quantity,
         unitWholesalePrice: unitWholesalePrice,
-        purchaseOrderId: purchaseValue.id,
+        purchaseOrderId: id,
       });
       setTimeout(() => {
         void router.push(
-          `/purchases/${encodeURIComponent(purchaseValue.id)}/detail`
+          `/purchases/${encodeURIComponent(id)}/detail`
         );
       }, 500);
     } catch (error) {
@@ -75,10 +82,6 @@ export default function AddPurchaseLine(
     }
   };
 
-  const purchaseOrderOptions = purchaseOrders.map((purchaseOrder) => ({
-    label: purchaseOrder.date.toLocaleDateString(),
-    id: purchaseOrder.id,
-  }));
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
@@ -86,118 +89,70 @@ export default function AddPurchaseLine(
 
   return (
     <>
-      <Head>
-        <title>Create Purchase Line</title>
-      </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
-          <div className="space-y-5">
-            <div className="mb-2 block text-lg font-bold text-gray-700">
-              Create Purchase Line
-            </div>
-            <div className="relative space-y-3">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
-              <div className="col-span-4">
-                <div className="space-y-20">
-                  <div className="flex space-x-10 justify-center">
-                    <FormControl>
-                      <FormLabel>Purchase Order</FormLabel>
-                      <FormHelperText>
-                        Select a purchase order by date
-                      </FormHelperText>
-                      <Autocomplete
-                        options={purchaseOrderOptions}
-                        placeholder={"Search sales reconciliations by date"}
-                        value={purchaseValue}
-                        onChange={(
-                          event,
-                          newValue: { label: string; id: string } | null
-                        ) => {
-                          setPurchaseValue(newValue);
-                        }}
-                        onInputChange={(
-                          event,
-                          newPurchaseInputValue: string
-                        ) => {
-                          setPurchaseInputValue(newPurchaseInputValue);
-                        }}
-                        sx={{ width: 425 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            inputProps={{
-                              ...params.inputProps,
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel>Book</FormLabel>
-                      <FormHelperText>Select a book by title</FormHelperText>
-                      <Autocomplete
-                        options={bookOptions}
-                        placeholder={"Search books by title"}
-                        value={bookValue}
-                        onChange={(
-                          event,
-                          newValue: { label: string; id: string } | null
-                        ) => {
-                          setBookValue(newValue);
-                        }}
-                        onInputChange={(event, newBookInputValue: string) => {
-                          setBookInputValue(newBookInputValue);
-                        }}
-                        sx={{ width: 425 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            inputProps={{
-                              ...params.inputProps,
-                            }}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </div>
-                  <div className="flex space-x-10 justify-center">
-                    <FormControl>
-                      <FormLabel>Quantity</FormLabel>
-                      <input
-                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                        id="quantity"
-                        name="quantity"
-                        type="text"
-                        placeholder="Quantity"
-                        min="1"
-                        size={45}
-                        // value={quantity}
-                        onChange={(
-                          event: React.ChangeEvent<HTMLInputElement>
-                        ): void => setQuantity(Number(event.target.value))}
-                        required
-                      />
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel>Unit Wholesale Price</FormLabel>
-                      <input
-                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                        id="UnitWholesalePrice"
-                        name="UnitWholesalePrice"
-                        type="text"
-                        placeholder="Unit Wholesale Price"
-                        min="0"
-                        size={45}
-                        // value={unitWholesalePrice}
-                        onChange={(
-                          event: React.ChangeEvent<HTMLInputElement>
-                        ): void =>
-                          setUnitWholesalePrice(Number(event.target.value))
-                        }
-                        required
-                      />
-                    </FormControl>
-                  </div>
+        <form className="inline-block rounded bg-white px-6 py-6">
+          <div className="mb-2 block text-lg font-bold text-gray-700">
+            Create Purchase Line
+          </div>
+          <div className="relative space-y-3">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
+            <div className="col-span-4">
+              <div className="space-y-20">
+                <div className="flex justify-center space-x-10">
+                  <FormControl>
+                    <FormLabel>Book</FormLabel>
+                    <FormHelperText>Select a book by title</FormHelperText>
+                    <Autocomplete
+                      options={bookOptions}
+                      placeholder={"Search books by title"}
+                      value={bookValue}
+                      onChange={(
+                        event,
+                        newValue: { label: string; id: string } | null
+                      ) => {
+                        setBookValue(newValue);
+                      }}
+                      onInputChange={(event, newBookInputValue: string) => {
+                        setBookInputValue(newBookInputValue);
+                      }}
+                      sx={{ width: 425 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                </div>
+                <div className="flex justify-center space-x-10">
+                  <TextField
+                    id="quantity"
+                    name="quantity"
+                    label="Quantity"
+                    type="text"
+                    onChange={(
+                      event: React.ChangeEvent<HTMLInputElement>
+                    ): void => setQuantity(Number(event.target.value))}
+                    required
+                  />
+                  <TextField
+                    id="UnitWholesalePrice"
+                    name="UnitWholesalePrice"
+                    label="Unit Wholesale Price"
+                    type="text"
+                    onChange={(
+                      event: React.ChangeEvent<HTMLInputElement>
+                    ): void => setUnitWholesalePrice(Number(event.target.value))}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">$</InputAdornment>
+                      ),
+                    }}
+                    required
+                  />
                 </div>
               </div>
             </div>
@@ -212,30 +167,42 @@ export default function AddPurchaseLine(
             </div>
           </div>
         </form>
+        <ToastContainer></ToastContainer>
       </div>
     </>
   );
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ id: string }>
+) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: createInnerTRPCContext({ session: null }),
-    //eslint-disable-next-line
     transformer: superjson,
   });
-  // const id = context.params?.id as string;
-  /*
-   * Prefetching the `post.byId` query here.
-   * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
-   */
-  await ssg.purchaseOrders.getAll.prefetch({ cursor: null, limit: 100 });
-  await ssg.books.getAll.prefetch({ cursor: null, limit: 100 });
-  // Make sure to return { props: { trpcState: ssg.dehydrate() } }
+  const id = context.params?.id as string;
+
+  await ssg.purchaseOrders.getById.prefetch({ id });
+
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      // id,
+      id,
     },
+    revalidate: 1,
   };
 }
+export const getStaticPaths: GetStaticPaths = async () => {
+  const purchaseOrders = await prisma.purchaseOrder.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  const paths = purchaseOrders.map((purchaseOrders) => ({
+    params: { id: purchaseOrders.id },
+  }));
+
+  return { paths, fallback: true };
+};

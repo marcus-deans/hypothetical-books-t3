@@ -66,13 +66,23 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
  */
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
+import type { OpenApiMeta } from "trpc-openapi";
 
-const t = initTRPC.context<typeof createTRPCContext>().create({
-  transformer: superjson,
-  errorFormatter({ shape }) {
-    return shape;
-  },
-});
+const t = initTRPC
+  .context<typeof createTRPCContext>()
+  .meta<OpenApiMeta>()
+  .create({
+    transformer: superjson,
+    errorFormatter({ error, shape }) {
+      if (
+        error.code === "INTERNAL_SERVER_ERROR" &&
+        process.env.NODE_ENV === "production"
+      ) {
+        return { ...shape, message: "Internal server error" };
+      }
+      return shape;
+    },
+  });
 
 /**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)

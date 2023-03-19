@@ -96,91 +96,79 @@ export default function BookDetail(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      minWidth: 200,
-      // flex: 1,
+      flex: 1,
+      minWidth: 250,
     },
     {
       field: "author",
       headerName: "Author",
       headerClassName: "header-theme",
       minWidth: 150,
-      // flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
-      // flex: 1,
-      maxWidth: 125,
+      minWidth: 125,
     },
     {
       field: "isbn_10",
       headerName: "ISBN 10",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 100,
     },
     {
       field: "publisher",
       headerName: "Publisher",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 200,
     },
     {
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 80,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 100,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 120,
     },
     {
       field: "publicationYear",
-      headerName: "Publication Year",
+      headerName: "Pub. Year",
       headerClassName: "header-theme",
-      // flex: 1,
-      minWidth: 125,
+      minWidth: 85,
     },
     {
       field: "pageCount",
       headerName: "Page Count",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 100,
     },
     {
       field: "width",
       headerName: "Width",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 70,
     },
     {
       field: "height",
       headerName: "Height",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 70,
     },
     {
       field: "thickness",
       headerName: "Thickness",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 90,
     },
     {
@@ -188,34 +176,29 @@ export default function BookDetail(
       headerName: "Shelf Space",
       headerClassName: "header-theme",
       maxWidth: 95,
-      // flex: 1,
     },
     {
       field: "lastMonthSales",
       headerName: "Last Month Sales",
       headerClassName: "header-theme",
       minWidth: 125,
-      // flex: 1,
     },
     {
       field: "daysSupply",
       headerName: "Days Supply",
       headerClassName: "header-theme",
       maxWidth: 100,
-      // flex: 1,
     },
     {
       field: "bestBuyback",
       headerName: "Best Buyback",
       headerClassName: "header-theme",
       maxWidth: 100,
-      // flex: 1,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 60,
       align: "center",
       sortable: false,
@@ -229,7 +212,6 @@ export default function BookDetail(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      // flex: 1,
       maxWidth: 70,
       align: "center",
       sortable: false,
@@ -326,7 +308,7 @@ export default function BookDetail(
       field: "id",
       headerName: "Sales Reconciliation ID",
       headerClassName: "header-theme",
-      flex: 1,
+      width: 210,
     },
     {
       field: "date",
@@ -346,15 +328,13 @@ export default function BookDetail(
       field: "unitWholesalePrice",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 150,
+      minWidth: 160,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 80,
+      minWidth: 80,
     },
   ];
 
@@ -373,7 +353,7 @@ export default function BookDetail(
       field: "id",
       headerName: "Purchase Order ID",
       headerClassName: "header-theme",
-      flex: 1,
+      width: 210,
     },
     {
       field: "date",
@@ -394,21 +374,18 @@ export default function BookDetail(
       headerName: "Vendor",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 250,
     },
     {
       field: "unitWholesalePrice",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 150,
+      minWidth: 160,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 80,
+      minWidth: 80,
     },
   ];
 
@@ -428,7 +405,7 @@ export default function BookDetail(
       field: "id",
       headerName: "Buyback ID",
       headerClassName: "header-theme",
-      flex: 1,
+      width: 210,
     },
     {
       field: "date",
@@ -449,21 +426,18 @@ export default function BookDetail(
       headerName: "Vendor",
       headerClassName: "header-theme",
       flex: 1,
-      maxWidth: 250,
     },
     {
       field: "unitBuybackPrice",
       headerName: "Unit Buyback Price",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 150,
+      minWidth: 160,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 80,
+      minWidth: 80,
     },
   ];
 
@@ -490,9 +464,11 @@ export default function BookDetail(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -503,8 +479,8 @@ export default function BookDetail(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={14}
-            rowsPerPageOptions={[14]}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
             checkboxSelection
@@ -521,9 +497,11 @@ export default function BookDetail(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -541,8 +519,8 @@ export default function BookDetail(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={14}
-            rowsPerPageOptions={[14]}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
             checkboxSelection
@@ -558,9 +536,11 @@ export default function BookDetail(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -578,8 +558,8 @@ export default function BookDetail(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={14}
-            rowsPerPageOptions={[14]}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
             checkboxSelection
@@ -595,9 +575,11 @@ export default function BookDetail(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -615,8 +597,8 @@ export default function BookDetail(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={14}
-            rowsPerPageOptions={[14]}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
             checkboxSelection

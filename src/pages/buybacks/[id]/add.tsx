@@ -29,10 +29,18 @@ export default function AddBuyBackLine(
   const buyBackOrdersQuery = api.buybackOrders.getById.useQuery({
     id,
   });
-  const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
   const router = useRouter();
-  const { data } = buyBackOrdersQuery;
-  const books = booksQuery?.data?.items ?? [];
+  const buyBackOrder = buyBackOrdersQuery?.data;
+  const purchaseOrderQuery = api.purchaseOrders.getByVendorWithOverallMetrics.useQuery({ 
+    vendorId: buyBackOrder?.vendorId ?? "",
+    cursor: null, 
+    limit: 100 
+  });
+  const purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
+  // From all purchase orders, get all of the books
+  const allBooks = purchaseOrders.flatMap((purchaseOrder) => purchaseOrder.purchaseOrder.purchaseLines.map((purchaseLine) => purchaseLine.book));
+  // Filter out duplicate books
+  const books = allBooks.filter((book, index, self) => self.findIndex((b) => b.id === book.id) === index);
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
@@ -86,6 +94,9 @@ export default function AddBuyBackLine(
 
   return (
     <>
+      <Head>
+        <title>Create Buyback Line</title>
+      </Head>
       <div className="pt-6">
         <form className="inline-block rounded bg-white px-6 py-6">
           <div className="mb-2 block text-lg font-bold text-gray-700">

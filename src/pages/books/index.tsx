@@ -42,6 +42,7 @@ import type {
 import EditLink from "../../components/table-components/EditLink";
 import Modal from "@mui/material/Modal";
 import Image from "next/image";
+import DeleteLink from "../../components/table-components/DeleteLink";
 
 export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -123,6 +124,15 @@ export default function Books(
       headerName: "Retail Price",
       headerClassName: "header-theme",
       minWidth: 80,
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.retailPrice}
+          </div>
+        );
+      },
       align: "left",
     },
     {
@@ -136,6 +146,7 @@ export default function Books(
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
+      type: "number",
       width: 80,
       align: "left",
     },
@@ -143,6 +154,7 @@ export default function Books(
       field: "shelfSpace",
       headerName: "Shelf Space",
       headerClassName: "header-theme",
+      type: "number",
       minWidth: 95,
       align: "left",
     },
@@ -150,6 +162,7 @@ export default function Books(
       field: "lastMonthSales",
       headerName: "Monthly Sales",
       headerClassName: "header-theme",
+      type: "number",
       minWidth: 110,
       align: "left",
     },
@@ -157,6 +170,7 @@ export default function Books(
       field: "daysSupply",
       headerName: "Days Supply",
       headerClassName: "header-theme",
+      type: "number",
       minWidth: 100,
       align: "left",
     },
@@ -164,7 +178,19 @@ export default function Books(
       field: "bestBuyback",
       headerName: "Best Buyback",
       headerClassName: "header-theme",
+      type: "number",
       minWidth: 110,
+      renderCell: (params) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const bestBuybackString = params.row.bestBuyback;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/restrict-template-expressions
+        const newString = bestBuybackString === "0" ? "-" : `$${bestBuybackString}`;
+        return (
+          <div>
+            {newString}
+          </div>
+        );
+      },
       align: "left",
     },
     {
@@ -178,6 +204,20 @@ export default function Books(
       renderCell: (params: GridRenderCellParams) => (
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
         <EditLink url={`/books/${params.id}/edit`} />
+      ),
+    },
+    {
+      field: "delete",
+      headerName: "Delete",
+      headerClassName: "header-theme",
+      flex: 1,
+      maxWidth: 70,
+      align: "center",
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+        <DeleteLink url={`/books/${params.id}/delete`} />
       ),
     },
   ];
@@ -214,14 +254,14 @@ export default function Books(
         ? `${shelfSpace.toString()}* in.`
         : `${shelfSpace.toString()} in.`;
     const bestBuybackString =
-      bestBuybackPrice === 0 ? "-" : `$${bestBuybackPrice.toFixed(2)}`;
+      bestBuybackPrice === 0 ? "0" : `${bestBuybackPrice.toFixed(2)}`;
 
     return {
       id: book.id,
       title: book.title,
       author: book.authors.map((author) => author.name).join(", "),
       isbn_13: book.isbn_13,
-      retailPrice: `$${book.retailPrice.toFixed(2)}`,
+      retailPrice: `${book.retailPrice.toFixed(2)}`,
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
       imgUrl: book.imgUrl,
@@ -488,7 +528,6 @@ export default function Books(
             pageSize={10}
             rowsPerPageOptions={[10]}
             getRowHeight={() => "auto"}
-            checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>
