@@ -41,6 +41,8 @@ model Book {
   display              Boolean                @default(true)
   imgUrl               String?
   costMostRecentVendor CostMostRecentVendor[]
+  relatedBooks         Book[]                 @relation("RelatedBooks")
+  booksRelatedTo       Book[]                 @relation("RelatedBooks")
 }
 
 model Genre {
