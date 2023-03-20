@@ -23,17 +23,14 @@ import {
   GridToolbarContainer,
   GridToolbarDensitySelector,
   GridToolbarFilterButton,
-  gridPaginatedVisibleSortedGridRowIdsSelector,
   gridVisibleSortedRowIdsSelector,
   useGridApiContext,
 } from "@mui/x-data-grid";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
-import logger from "../../utils/logger";
 import type { ButtonProps } from "@mui/material";
 import { Button, createSvgIcon } from "@mui/material";
 import * as CSV from "csv-string";
@@ -42,7 +39,6 @@ import type {
   CSVBookExportEntry,
 } from "../../schema/exports.schema";
 import EditLink from "../../components/table-components/EditLink";
-import Modal from "@mui/material/Modal";
 import Image from "next/image";
 import DeleteLink from "../../components/table-components/DeleteLink";
 
@@ -175,15 +171,12 @@ export default function Books(
       type: "number",
       minWidth: 110,
       renderCell: (params) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        /* eslint-disable */
         const bestBuybackString = params.row.bestBuyback;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/restrict-template-expressions
-        const newString = bestBuybackString === "0" ? "-" : `$${bestBuybackString}`;
-        return (
-          <div>
-            {newString}
-          </div>
-        );
+        const newString =
+          bestBuybackString === "0" ? "-" : `$${bestBuybackString}`;
+        /* eslint-enable */
+        return <div>{newString}</div>;
       },
       align: "left",
     },
@@ -345,6 +338,7 @@ export default function Books(
           retail_price: book.retail_price ? book.retail_price : NaN,
           genre: book.genre ? book.genre : "",
           inventory_count: book.inventory_count ? book.inventory_count : 0,
+          shelf_space_inches: 0,
           last_month_sales: 0,
           days_of_supply: Infinity,
           best_buyback_price: 0,
