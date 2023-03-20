@@ -1,6 +1,7 @@
 import z, { string } from 'zod'
 
 export const passwordSchema = z.object({
+  name: z.string().min(1, "Name is Required"),
   password: z.string()
     .min(1, "Password is Required")
 })

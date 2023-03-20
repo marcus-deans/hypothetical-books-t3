@@ -2,8 +2,8 @@ import type { FormEventHandler } from "react";
 import React, { useState } from "react";
 import { api } from "../../utils/api";
 
-export default function Register() {
-  const [userInfo, setUserInfo] = useState({ password: "", confirm: "" });
+export default function CreateUser() {
+  const [userInfo, setUserInfo] = useState({ name: "", password: "", confirm: "" });
   const mutation = api.users.setPassword.useMutation();
   const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     // validate your userinfo
@@ -11,7 +11,7 @@ export default function Register() {
     if (userInfo.password !== userInfo.confirm) {
       alert("Passwords must match");
     } else {
-      mutation.mutate({ password: userInfo.password });
+      mutation.mutate({ name: userInfo.name, password: userInfo.password });
       alert(
         "Password Successfully Set \n Please Return to Home Page and Log In"
       );

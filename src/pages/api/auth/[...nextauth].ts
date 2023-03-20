@@ -30,9 +30,28 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
           // console.log(hash(credentials.password as string, 10));
-          const user = await prisma.user.findFirst({});
+          const user = await prisma.user.findFirst({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              name: credentials.name,
+            }
+          });
           if (user !== null) {
             //compare the hash
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            if(credentials.password == user.password){
+              const userAccount = {
+                id: user.id,
+                name: user.name,
+                role: user.role,
+              };
+              console.log("returning");
+              return userAccount;
+            }
+            /*
 
             const res = await confirmPasswordwithHash(
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -45,13 +64,14 @@ export const authOptions: NextAuthOptions = {
             if (res === true) {
               const userAccount = {
                 id: user.id,
-                name: null,
-                email: null,
-                image: null,
+                name: user.name,
+                role: user.role,
               };
               console.log("returning");
               return userAccount;
-            } else {
+            
+            } 
+            */else {
               console.log("Hash not matched logging in");
               return null;
             }
