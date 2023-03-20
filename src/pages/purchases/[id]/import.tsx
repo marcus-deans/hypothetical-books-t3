@@ -17,7 +17,8 @@ import type {
 } from "../../../schema/imports.schema";
 import "react-toastify/dist/ReactToastify.css";
 import { Box, Button } from "@mui/material";
-import { GridColDef, GridToolbar } from "@mui/x-data-grid";
+import type { GridColDef, GridRowModel } from "@mui/x-data-grid";
+import { GridToolbar } from "@mui/x-data-grid";
 import StripedDataGrid from "../../../components/table-components/StripedDataGrid";
 
 interface LineDetails {
@@ -34,7 +35,7 @@ export default function ImportPurchase(
   const { id } = props;
   const router = useRouter();
   const [parsedHeaders, setParsedHeaders] = useState<string[]>([]);
-  const [parsedCsvData, setParsedCsvData] = useState<LineDetails[]>([]);
+  const [parsedCsvData, setParsedCsvData] = useState<CSVPurchaseInput[]>([]);
   const [file, setFile] = useState<File>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -51,9 +52,33 @@ export default function ImportPurchase(
   const mutatedImport = api.csvPorts.addPurchaseImport.useMutation();
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
+    if (e.target.files === null){
+      toast.error(
+        "File Corrupted"
+      );
+      return;
     }
+    if (e.target.files[0] === undefined){
+      toast.error(
+        "File Corrupted"
+      );
+      return;
+    }
+    const file = e.target.files[0];
+    if (file.type !== "text/csv") {
+      toast.error(
+        "Input file is not an a Comma Separated Values File. Please select a file with type .csv ."
+      );
+      return;
+    }
+    setFile(file);
+    Papa.parse(file, {
+      header: true,
+      dynamicTyping: false,
+      complete: function (results) {
+        setParsedHeaders(!!results.meta.fields ? results.meta.fields : []);
+      },
+    });
   };
 
   const handleUpload = (event: React.MouseEvent<HTMLElement>) => {
@@ -68,6 +93,16 @@ export default function ImportPurchase(
       );
       return;
     }
+    if(headersVerified.data === undefined){
+      toast.error("Header Verification Error due to file corruption.");
+      setIsSubmitting(false);
+      return;
+    }
+    if(headersVerified.data.verified == false){
+      toast.error("Header Error: " + headersVerified.data.message);
+      setIsSubmitting(false);
+      return;
+    }
 
     //now actually process the upload
     Papa.parse(file, {
@@ -75,65 +110,50 @@ export default function ImportPurchase(
       dynamicTyping: false,
       complete: function (results) {
         console.log(results);
-        setParsedHeaders(!!results.meta.fields ? results.meta.fields : []);
-        const parsedData: LineDetails[] = [];
-        results.data.forEach(function (value, index) {
-          const singleData = value as CSVPurchaseInput;
-          const singleDatawithId: LineDetails = {
-            id: index,
-            isbn: singleData.isbn,
-            quantity: singleData.quantity,
-            unit_wholesale_price: singleData.unit_wholesale_price,
-          }
-          parsedData.push(singleDatawithId);
+        const parsedData: CSVPurchaseInput[] = [];
+        results.data.forEach(function (value) {
+          parsedData.push(value as CSVPurchaseInput);
         });
         setParsedCsvData(parsedData);
       },
     });
-    
+
     console.log("Parsed Data: ");
     console.log(parsedCsvData);
-    /* Get rid of this when completed
-    setTimeout(() => {
-      void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
-    }, 500);
-
-    */
   };
-  const handleSubmit = (event: React.MouseEvent<HTMLElement>) => {
-    setIsSubmitting(true);
-    try {
-      const parsed = importVerified.data;
-      if (parsed === undefined) {
-        toast.error("You must upload a file first");
-        setIsSubmitting(false);
-        return;
-      }
-      if (!parsed.verified) {
-        toast.error("Error: " + parsed.message);
-        setIsSubmitting(false);
-        return;
-      }
-      const parsedData = importVerified.data.parsedData;
-      const parsedDataTyped: CSVPurchaseInputId[] = parsedData;
-      console.log(parsedDataTyped);
-      /*
-      mutatedImport.mutate({
-        data: parsedDataTyped,
-        purchaseOrderId: id,
-      });
-      */
-      toast.success("Successfully Imported File");
-      setIsLoaded(true);
-      /*
-      setTimeout(() => {
-        void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
-      }, 500);
-      */
-    } catch (error) {
-      console.log(error);
-      setIsSubmitting(false);
+  const rows = importVerified.isSuccess && !!importVerified.data ? importVerified.data.parsedData : [];
+  const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
+    console.log("New row: ", newRow);
+    if (!importVerified.data) {
+      return newRow;
     }
+    const newParsedData: CSVPurchaseInput[] = importVerified.data.parsedData.map((displayedRow, index) => {
+      const newRowTypedwithExtras = newRow as CSVPurchaseInputId;
+      if (index === newRow.id) {
+        // Increment the clicked counter
+        const newRowTyped: CSVPurchaseInput = {
+          isbn: newRowTypedwithExtras.isbn,
+          quantity: newRowTypedwithExtras.quantity.toString(),
+          unit_wholesale_price: newRowTypedwithExtras.unit_wholesale_price.toString(),
+        }
+        return newRowTyped;
+      } else {
+        // The rest haven't changed
+        const displayedRowTyped: CSVPurchaseInput = {
+          isbn: displayedRow.isbn,
+          quantity: displayedRow.quantity.toString(),
+          unit_wholesale_price: displayedRow.unit_wholesale_price.toString(),
+        }
+        return displayedRowTyped;
+      }
+    });
+    console.log("New import list: ", newParsedData);
+    setParsedCsvData(newParsedData);
+    return newRow;
+  };
+
+  const handleProcessRowUpdateError = (error: Error) => {
+    toast.error(error.message);
   };
   const columns: GridColDef[] = [
     {
@@ -141,32 +161,72 @@ export default function ImportPurchase(
       headerName: "ISBN-13",
       headerClassName: "header-theme",
       width: 125,
+      editable: true,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
       width: 125,
+      editable: true,
     },
     {
       field: "unit_wholesale_price",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
       width: 125,
+      editable: true,
+    },
+    {
+      field: "verified",
+      headerName: "Verified?",
+      headerClassName: "header-theme",
+      width: 125,
+    },
+    {
+      field: "reason",
+      headerName: "Reason for Verification Failure",
+      headerClassName: "header-theme",
+      width: 800,
     }
   ];
-  const rows = parsedCsvData;
-  
-  if(isLoaded){
+  const handleSubmit = (event: React.MouseEvent<HTMLElement>) => {
+    setIsSubmitting(true)
+    try {
+      if(importVerified.data === undefined){
+        toast.error("The data was never parsed through in the database. This Error should not be possible due to the submit button only being enabled if the data was parsed");
+        setIsSubmitting(false);
+        return;
+      }
+      if(!importVerified.data.verified){
+        toast.error("Data Not Verified. This Error should not be possible due to the submit button only being enabled if the data was verified");
+        setIsSubmitting(false);
+        return;
+      }
+      const parsedDataTyped: CSVPurchaseInputId[] = importVerified.data.parsedData;
+      mutatedImport.mutate({
+        data: parsedDataTyped,
+        purchaseOrderId: id,
+      });
+      toast.success("Successfully Imported File");
+      setTimeout(() => {
+        void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
+      }, 500);
+    } catch (error) {
+      console.log(error);
+      setIsSubmitting(false);
+    }
+  };
+  if (rows.length > 0) {
     return (
       <>
         <Head>
-          <title>Add Book</title>
+          <title>Import CSV</title>
         </Head>
         <div className="pt-6"></div>
         <div className="rounded-lg bg-white px-6 pt-6">
           <div className="mb-2 block text-lg font-bold text-gray-700">
-            Add Book
+            Import CSV
           </div>
           <Box
             sx={{
@@ -190,8 +250,8 @@ export default function ImportPurchase(
               getRowHeight={() => "auto"}
               checkboxSelection
               disableSelectionOnClick
-              //processRowUpdate={processRowUpdate}
-              //onProcessRowUpdateError={handleProcessRowUpdateError}
+              processRowUpdate={processRowUpdate}
+              onProcessRowUpdateError={handleProcessRowUpdateError}
               experimentalFeatures={{ newEditingApi: true }}
               getRowClassName={(params) =>
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -199,11 +259,20 @@ export default function ImportPurchase(
               }
             />
           </Box>
+          <div className="space flex py-3">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              disabled={!importVerified.data?.verified}>
+              {importVerified.data?.verified ? (isSubmitting ? "Submitting..." : "Submit") : "Data Must Be Verified Before Submit"}
+            </Button>
+          </div>
         </div>
       </>
     );
   }
-  else{
+  else {
     return (
       <>
         <Head>
@@ -234,16 +303,6 @@ export default function ImportPurchase(
                     <ToastContainer></ToastContainer>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <button
-                  className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={!importVerified.data?.verified}
-                >
-                  {importVerified.data?.verified ? (isSubmitting ? "Submitting..." : "Submit") : "Upload First Before Submit"}
-                </button>
               </div>
               <div></div>
             </div>

@@ -19,21 +19,25 @@ export const CSVBuybackInputSchema = z.object({
 })
 
 export const CSVPurchaseInputIdSchema = z.object({
+    id: z.number(),
     bookId: z.string(),
-    quantity: z.number().gt(0),
-    unit_wholesale_price: z.number().gt(0),
+    isbn: z.string(),
+    quantity: z.number(),
+    unit_wholesale_price: z.number(),
+    verified: z.boolean(),
+    reason: z.string(),
 })
 
 export const CSVSaleInputIdSchema = z.object({
     bookId: z.string(),
-    quantity: z.number().gt(0),
-    unit_retail_price: z.number().gt(0),
+    quantity: z.number(),
+    unit_retail_price: z.number(),
 })
 
 export const CSVBuybackInputIdSchema = z.object({
     bookId: z.string(),
-    quantity: z.number().gt(0),
-    unit_buyback_price: z.number().gt(0),
+    quantity: z.number(),
+    unit_buyback_price: z.number(),
 })
 
 

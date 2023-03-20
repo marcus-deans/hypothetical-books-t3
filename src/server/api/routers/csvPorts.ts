@@ -48,7 +48,7 @@ export const csvPortsRouter = createTRPCRouter({
       ) {
         return {
           verified: false,
-          message: "The file headers must be `isbn, quantity, unit_x_price`.",
+          message: "The file headers must be `isbn, quantity, unit_x_price` where x is wholesale, retail, or buyback." ,
         };
       }
       return {
@@ -75,24 +75,50 @@ export const csvPortsRouter = createTRPCRouter({
         };
       }
       const parsedData: CSVPurchaseInputId[] = [];
+      let index = 0;
       for (const entry of input) {
         const newEntry: CSVPurchaseInputId = {
+          id: index,
           bookId: "",
+          isbn: entry.isbn,
           quantity: -1,
           unit_wholesale_price: -1,
+          verified: true,
+          reason: ""
         };
+        index ++;
+        const quantitySplit = entry.quantity.split(".");
+        if (quantitySplit.length > 1) {
+          newEntry.verified = false;
+          newEntry.reason += "Has a decimal quantity. ";
+        }
+        const unitPriceSplit = entry.unit_wholesale_price.split(".");
+        if (unitPriceSplit.length > 1) {
+          if (unitPriceSplit[1] && unitPriceSplit[1].length > 2) {
+            newEntry.verified = false;
+            newEntry.reason += "Has a a price with more than 2 decimal places. ";
+          }
+        }
+        newEntry.quantity = parseFloat(entry.quantity);
+        newEntry.unit_wholesale_price = parseFloat(entry.unit_wholesale_price);
+        if(Number.isNaN(newEntry.quantity)){
+          newEntry.verified = false;
+          newEntry.reason += "Quantity is Either not in data row or NaN. ";
+          newEntry.quantity = 0;
+        }
+        if(Number.isNaN(newEntry.unit_wholesale_price)){
+          newEntry.verified = false;
+          newEntry.reason += "UWP is Either not in data row or NaN. ";
+          newEntry.unit_wholesale_price = 0;
+        }
         // cast it to either an isbn-13 or isbn-10
         const inputIsbn = entry.isbn.replace(/\s+/g, "").replace(/-/g, "");
         const validIsbnLengths: number[] = [10, 13];
         if (!validIsbnLengths.includes(inputIsbn.length)) {
-          return {
-            verified: false,
-            message:
-              "Book with Isbn: " +
-              entry.isbn +
-              " is not a valid ISBN due to length",
-            parsedData: [],
-          };
+          newEntry.verified = false;
+          newEntry.reason += "Not a valid ISBN due to length. ";
+          parsedData.push(newEntry);
+          continue; 
         }
         let bookInDatabase: Book | null = null;
         if (inputIsbn.length === 10) {
@@ -107,53 +133,28 @@ export const csvPortsRouter = createTRPCRouter({
           });
         }
         if (!bookInDatabase) {
-          return {
-            verified: false,
-            message:
-              "Book with Isbn: " + entry.isbn + " is not in the database",
-            parsedData: [],
-          };
+          newEntry.verified == false;
+          newEntry.reason += "This book is not in the database. "
+          parsedData.push(newEntry);
+          continue; 
         }
         newEntry.bookId = bookInDatabase.id;
-        const quantitySplit = entry.quantity.split(".");
-        if (quantitySplit.length > 1) {
-          return {
-            verified: false,
-            message:
-              "Book with Isbn: " + entry.isbn + " has a decimal quantity",
-            parsedData: [],
-          };
-        }
-        const unitPriceSplit = entry.unit_wholesale_price.split(".");
-        if (unitPriceSplit.length > 1) {
-          if (unitPriceSplit[1] && unitPriceSplit[1].length > 2) {
-            return {
-              verified: false,
-              message:
-                "Book with Isbn-13: " +
-                entry.isbn +
-                " has a a price with more than 3 decimal places",
-              parsedData: [],
-            };
-          }
-        }
-        newEntry.quantity = parseInt(entry.quantity);
-        newEntry.unit_wholesale_price = parseFloat(entry.unit_wholesale_price);
         if (
           newEntry.bookId == "" ||
           newEntry.quantity == -1 ||
           newEntry.unit_wholesale_price == -1
         ) {
-          return {
-            verified: false,
-            message: "Data not filled on line with book ISBN-13: " + entry.isbn,
-            parsedData: [],
-          };
+          newEntry.verified = false;
+          newEntry.reason += "Data row not filled completely. "
         }
         parsedData.push(newEntry);
       }
+      let allVerified = true;
+      parsedData.forEach(function (entry){
+        if(!entry.verified) allVerified = false;
+      })
       return {
-        verified: true,
+        verified: allVerified,
         message: "Data Successfully Parsed",
         parsedData: parsedData,
       };
