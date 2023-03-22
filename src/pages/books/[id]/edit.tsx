@@ -72,7 +72,6 @@ const modalStyle = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   bgcolor: 'background.paper',
-  border: '2px solid #000',
   boxShadow: 24,
   p: 3,
 };
@@ -250,7 +249,11 @@ export default function EditBook(
   };
 
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => 
+  {
+    setTempInventory(inventory);
+    setOpen(true);
+  };
   const handleClose = () => {
     setOpen(false);
   };
@@ -265,6 +268,7 @@ export default function EditBook(
     setIsSubmittingInvCorrection(false);
     setDialogOpen(false);
     handleClose();
+    toast.success("Inventory correction ready for final submission");
   };
 
   const handleDialogClose = () => {
@@ -289,6 +293,7 @@ export default function EditBook(
       } else {
         setOpen(false);
         setIsSubmittingInvCorrection(false);
+        toast.warn("No Changes Made");
       }
     } catch (error) {
       setIsSubmittingInvCorrection(false);
@@ -396,11 +401,11 @@ export default function EditBook(
                           <TextField
                             id="deltainv"
                             label="Change / Delta"
-                            value={parseInt(tempInventory) - parseInt(inventory)}
+                            value={isNaN(parseInt(tempInventory) - parseInt(inventory)) ? "--" : parseInt(tempInventory) - parseInt(inventory)}
                             variant={"outlined"}
                             sx={{
                               "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: parseInt(tempInventory) - parseInt(inventory) >= 0 ? "green" : "red",
+                                WebkitTextFillColor: isNaN(parseInt(tempInventory) - parseInt(inventory)) ? "black" : parseInt(tempInventory) - parseInt(inventory) >= 0 ? "green" : "red",
                               },
                               width: 125,
                             }}
