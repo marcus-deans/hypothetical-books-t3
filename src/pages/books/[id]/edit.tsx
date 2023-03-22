@@ -253,7 +253,6 @@ export default function EditBook(
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    setTempInventory(inventory);
   };
   const [openDialog, setDialogOpen] = React.useState(false);
 
@@ -281,14 +280,16 @@ export default function EditBook(
         toast.error("Inventory must be a valid number");
         throw new Error("Inventory is required");
       }
-      if (finalInventory < 0 && tempInventory !== inventory) {
+      if (finalInventory < 0) {
+        toast.error("Inventory must be a positive number");
+        throw new Error("Inventory is required");
+      }
+      if (finalInventory != parseInt(inventory)) {
         setDialogOpen(true);
       } else {
         setOpen(false);
-        setInventory(finalInventory.toString());
         setIsSubmittingInvCorrection(false);
       }
-
     } catch (error) {
       setIsSubmittingInvCorrection(false);
       return;
@@ -421,11 +422,11 @@ export default function EditBook(
                           aria-describedby="alert-dialog-description"
                         >
                           <DialogTitle id="alert-dialog-title">
-                            {"Negative Inventory Count Warning"}
+                            {"Inventory Correction Change!"}
                           </DialogTitle>
                           <DialogContent>
                             <DialogContentText id="alert-dialog-description">
-                              Are you sure you want to change the inventory for this book to be negative?
+                              Are you sure you want to manaully change the inventory for this book?
                             </DialogContentText>
                           </DialogContent>
                           <DialogActions>
@@ -433,14 +434,14 @@ export default function EditBook(
                               className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
                               type="button"
                               onClick={handleDialogClose}>
-                              Go Back
+                              No
                             </button>
                             <button
                               autoFocus
                               className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
                               type="button"
                               onClick={handleDialogAccept}>
-                              Submit
+                              Yes
                             </button>
                           </DialogActions>
                         </Dialog>
