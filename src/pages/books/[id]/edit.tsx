@@ -269,7 +269,7 @@ export default function EditBook(
   };
 
   const handleDialogAccept = () => {
-    setInventory(tempInventory);
+    setInventory(parseInt(tempInventory).toString());
     setIsSubmittingInvCorrection(false);
     setDialogOpen(false);
     handleClose();
@@ -284,14 +284,18 @@ export default function EditBook(
   const handleInventoryCorrection = () => {
     setIsSubmittingInvCorrection(true);
     try {
-      const finalInventory = parseInt(tempInventory);
+      const finalInventory = Number(tempInventory);
       if (isNaN(finalInventory)) {
         toast.error("Inventory must be a valid number");
-        throw new Error("Inventory is required");
+        throw new Error("Inventory is not a number");
+      }
+      if (!Number.isInteger(finalInventory)) {
+        toast.error("Inventory must be an integer");
+        throw new Error("Inventory is not an integer");
       }
       if (finalInventory < 0) {
         toast.error("Inventory must be a positive number");
-        throw new Error("Inventory is required");
+        throw new Error("Inventory is not positive");
       }
       if (finalInventory != parseInt(inventory)) {
         setDialogOpen(true);
@@ -392,6 +396,7 @@ export default function EditBook(
                             label="New Inventory"
                             defaultValue={inventory}
                             variant={"outlined"}
+                            type="number"
                             onChange={(
                               event: React.ChangeEvent<HTMLInputElement>
                             ): void => setTempInventory(event.target.value)}
