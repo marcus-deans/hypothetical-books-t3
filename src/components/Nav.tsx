@@ -98,6 +98,17 @@ function Nav() {
               </li>
               <li>
                 <Link
+                  href="/shelfcalculator"
+                  className={
+                    /shelfcalculator\/*/.test(currentRoute) ? active : nonActive
+                  }
+                  aria-current="page"
+                >
+                  Calculator
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/report"
                   className={
                     /report\/*/.test(currentRoute) ? active : nonActive

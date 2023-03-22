@@ -172,12 +172,6 @@ export default function BookDetail(
       maxWidth: 90,
     },
     {
-      field: "shelfSpace",
-      headerName: "Shelf Space",
-      headerClassName: "header-theme",
-      maxWidth: 95,
-    },
-    {
       field: "lastMonthSales",
       headerName: "Last Month Sales",
       headerClassName: "header-theme",
