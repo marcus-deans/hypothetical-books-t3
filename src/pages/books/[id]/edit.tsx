@@ -27,6 +27,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
 
 const ImageCard = ({
   url,
@@ -118,6 +120,8 @@ export default function EditBook(
     id: bookDetailsQuery?.data?.genre.id ?? "",
   });
   const [genreInputValue, setGenreInputValue] = useState("");
+  const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs(new Date()));
+  const currentDate = dateValue?.toDate();
 
   const handleSubmit = () => {
     setIsSubmitting(true);
