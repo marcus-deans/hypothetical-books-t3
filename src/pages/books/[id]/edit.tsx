@@ -10,7 +10,7 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { useRouter } from "next/router";
 import { api } from "../../../utils/api";
-import type { ChangeEvent } from "react";
+import Head from "next/head";
 import React, { MouseEventHandler, useRef, useState } from "react";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { Autocomplete, InputAdornment, TextField } from "@mui/material";
@@ -297,6 +297,9 @@ export default function EditBook(
 
   return (
     <>
+      <Head>
+        <title>Edit Book</title>
+      </Head>
       <div className="pt-6">
         <form className="inline-block rounded bg-white px-6 pt-3">
           <div className="mb-4 items-center">
