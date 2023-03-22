@@ -32,12 +32,16 @@ export default function sales(
       field: "id",
       headerName: "Sales Record ID",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 210,
     },
     {
       field: "date",
       headerName: "Record Date",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -52,18 +56,35 @@ export default function sales(
       field: "totalQuantity",
       headerName: "Total Quantity",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 110,
     },
     {
       field: "totalPrice",
       headerName: "Total Price",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.totalPrice}
+          </div>
+        );
+      },
       minWidth: 110,
     },
     {
       field: "totalUniqueBooks",
       headerName: "Total Unique Books",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 150,
     },
   ];
@@ -73,7 +94,7 @@ export default function sales(
       id: salesReconciliation.salesReconciliation.id,
       date: salesReconciliation.salesReconciliation.date.toLocaleDateString(),
       totalQuantity: salesReconciliation.totalQuantity,
-      totalPrice: `$${salesReconciliation.totalPrice.toFixed(2)}`,
+      totalPrice: `${salesReconciliation.totalPrice.toFixed(2)}`,
       totalUniqueBooks: salesReconciliation.totalUniqueBooks,
     };
   });

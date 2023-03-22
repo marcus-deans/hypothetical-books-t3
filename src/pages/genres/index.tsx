@@ -34,12 +34,16 @@ export default function Genres(
       field: "id",
       headerName: "Genre ID",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 210,
     },
     {
       field: "name",
       headerName: "Genre Name",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -54,6 +58,9 @@ export default function Genres(
       field: "bookCount",
       headerName: "Book Count",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 100,
     },
     {

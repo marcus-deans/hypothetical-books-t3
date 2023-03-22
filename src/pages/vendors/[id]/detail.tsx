@@ -37,12 +37,16 @@ export default function VendorDetail(
       field: "id",
       headerName: "Purchase Order ID",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
       field: "date",
       headerName: "Purchase Order Date",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -57,6 +61,8 @@ export default function VendorDetail(
       field: "vendor",
       headerName: "Vendor",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
     },
   ];

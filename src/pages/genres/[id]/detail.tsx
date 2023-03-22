@@ -34,6 +34,8 @@ export default function DetailGenre(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -48,12 +50,16 @@ export default function DetailGenre(
       field: "author",
       headerName: "Author",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       minWidth: 130,
     },
   ];

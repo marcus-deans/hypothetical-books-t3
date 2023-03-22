@@ -96,6 +96,8 @@ export default function BookDetail(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       minWidth: 250,
     },
@@ -103,96 +105,134 @@ export default function BookDetail(
       field: "author",
       headerName: "Author",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       minWidth: 150,
     },
     {
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       minWidth: 125,
     },
     {
       field: "isbn_10",
       headerName: "ISBN 10",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       maxWidth: 100,
     },
     {
       field: "publisher",
       headerName: "Publisher",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       maxWidth: 200,
     },
     {
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       maxWidth: 80,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       maxWidth: 100,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       maxWidth: 120,
     },
     {
       field: "publicationYear",
       headerName: "Pub. Year",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       minWidth: 85,
     },
     {
       field: "pageCount",
       headerName: "Page Count",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       maxWidth: 100,
     },
     {
       field: "width",
       headerName: "Width",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       maxWidth: 70,
     },
     {
       field: "height",
       headerName: "Height",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       maxWidth: 70,
     },
     {
       field: "thickness",
       headerName: "Thickness",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       maxWidth: 90,
     },
     {
       field: "shelfSpace",
       headerName: "Shelf Space",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       maxWidth: 95,
     },
     {
       field: "lastMonthSales",
       headerName: "Last Month Sales",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       minWidth: 125,
     },
     {
       field: "daysSupply",
       headerName: "Days Supply",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       maxWidth: 100,
     },
     {
       field: "bestBuyback",
       headerName: "Best Buyback",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       maxWidth: 100,
     },
     {
@@ -308,12 +348,16 @@ export default function BookDetail(
       field: "id",
       headerName: "Sales Reconciliation ID",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 210,
     },
     {
       field: "date",
       headerName: "Reconciliation Date",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -328,12 +372,26 @@ export default function BookDetail(
       field: "unitWholesalePrice",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.unitWholesalePrice}
+          </div>
+        );
+      },
       minWidth: 160,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 80,
     },
   ];
@@ -343,7 +401,7 @@ export default function BookDetail(
     return {
       id: salesReconciliation.id,
       date: salesReconciliation.date.toLocaleDateString(),
-      unitWholesalePrice: `$${salesLine.unitWholesalePrice.toFixed(2)}`,
+      unitWholesalePrice: `${salesLine.unitWholesalePrice.toFixed(2)}`,
       quantity: salesLine.quantity,
     };
   });
@@ -353,12 +411,16 @@ export default function BookDetail(
       field: "id",
       headerName: "Purchase Order ID",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 210,
     },
     {
       field: "date",
       headerName: "Purchase Date",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -373,18 +435,34 @@ export default function BookDetail(
       field: "vendor",
       headerName: "Vendor",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
       field: "unitWholesalePrice",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.unitWholesalePrice}
+          </div>
+        );
+      },
       minWidth: 160,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 80,
     },
   ];
@@ -395,7 +473,7 @@ export default function BookDetail(
       id: purchaseOrder.id,
       date: purchaseOrder.date.toLocaleDateString(),
       vendor: purchaseOrder.vendor.name,
-      unitWholesalePrice: `$${purchaseLine.unitWholesalePrice.toFixed(2)}`,
+      unitWholesalePrice: `${purchaseLine.unitWholesalePrice.toFixed(2)}`,
       quantity: purchaseLine.quantity,
     };
   });
@@ -405,12 +483,16 @@ export default function BookDetail(
       field: "id",
       headerName: "Buyback ID",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 210,
     },
     {
       field: "date",
       headerName: "Buyback Date",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -425,18 +507,34 @@ export default function BookDetail(
       field: "vendor",
       headerName: "Vendor",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
       field: "unitBuybackPrice",
       headerName: "Unit Buyback Price",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.unitBuybackPrice}
+          </div>
+        );
+      },
       minWidth: 160,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 80,
     },
   ];
@@ -447,7 +545,7 @@ export default function BookDetail(
       id: buybackOrder.id,
       date: buybackOrder.date.toLocaleDateString(),
       vendor: buybackOrder.vendor.name,
-      unitBuybackPrice: `$${buybackLine.unitBuybackPrice.toFixed(2)}`,
+      unitBuybackPrice: `${buybackLine.unitBuybackPrice.toFixed(2)}`,
       quantity: buybackLine.quantity,
     };
   });

@@ -33,6 +33,7 @@ export default function Authors(
       headerName: "Author ID",
       headerClassName: "header-theme",
       align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
@@ -40,6 +41,7 @@ export default function Authors(
       headerName: "Author Name",
       headerClassName: "header-theme",
       align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {

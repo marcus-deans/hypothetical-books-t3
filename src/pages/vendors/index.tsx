@@ -33,12 +33,16 @@ export default function Vendors(
       field: "id",
       headerName: "Vendor ID",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 210,
     },
     {
       field: "name",
       headerName: "Vendor Name",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -53,12 +57,18 @@ export default function Vendors(
       field: "buybackRate",
       headerName: "Buyback Rate",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 120,
     },
     {
       field: "purchaseOrderCount",
       headerName: "Purchase Order Count",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 170,
     },
     {
