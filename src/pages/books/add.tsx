@@ -89,45 +89,17 @@ export default function AddBook() {
   const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
   const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
   // const retrieveMutation = api.googleBooks.simpleRetrieveByISBN.useMutation();
+
+  const [parsedIsbns, setParsedIsbns] = useState<string[]>([]);
+  const retrievePricingQuery = api.googleBooks.retrievePricingData.useQuery(
+    { isbns: parsedIsbns },
+    { enabled: !!parsedIsbns }
+  );
   const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
   const handleType = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-  };
-
-  const queryBooksRunApi = async (isbns: string[]): Promise<Array<number>> => {
-    const bookPrices: Array<number> = [];
-    for (const isbn of isbns) {
-      console.log(`ISBN: ${isbn}`);
-      const queryURL = `https://booksrun.com/api/v3/price/buy/${isbn}?key=faajt0grxch1m5zcc9cp`;
-      try {
-        // const myInit = {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     "Access-Control-Allow-Origin": "*",
-        //     "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
-        //     "Access-Control-Allow-Headers":
-        //       "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
-        //   },
-        //   mode: "cors",
-        // };
-
-        // const response = await fetch(queryURL, myInit);
-        const response = await fetch(queryURL);
-        if (response.status !== 200) {
-          continue;
-        }
-        const bookPriceResponse = (await response.json()) as BooksRunResponse;
-        bookPrices.push(bookPriceResponse.offers.booksrun.new.price);
-      } catch (error) {
-        toast.error("Error retrieving book price from BooksRun");
-        bookPrices.push(0);
-        console.log(error);
-      }
-    }
-    return bookPrices;
   };
 
   const queryGoogleBooksApi = async (
@@ -153,30 +125,11 @@ export default function AddBook() {
     }
     return bookDetails;
   };
-  // return fetch(queryURL)
-  //   .then((response) => {
-  //     if (response.status !== 200) {
-  //       throw new Error("Error retrieving book");
-  //     }
-  //     return response;
-  //   })
-  //   .then((response) => response.json())
-  //   .then((response) => {
-  //     try {
-  //       const googleBookResponse = response as GoogleBookResponse;
-  //       const volumeInfo = googleBookResponse.items.map((item) => {
-  //         return item.volumeInfo;
-  //       });
-  //       console.log(volumeInfo);
-  //       return googleBookResponse;
-  //     } catch (error) {
-  //       return;
-  //     }
-  //   });
 
   const performQuery = async (isbnSearchList: string[]) => {
     const googleBooksData = await queryGoogleBooksApi(isbnSearchList);
-    // const booksRunData = await queryBooksRunApi(isbnSearchList);
+    setParsedIsbns(isbnSearchList);
+    const pricingData = retrievePricingQuery?.data ?? [];
     if (googleBooksData) {
       console.log("Setting retreived books with:");
       console.log(googleBooksData);
@@ -198,13 +151,13 @@ export default function AddBook() {
             isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
           }
         }
-        // let retailPrice = isNaN(Number(booksRunData[index]))
-        //   ? 0
-        //   : booksRunData[index];
-        // if (retailPrice === undefined) {
-        //   retailPrice = 0;
-        // }
-        const retailPrice = 0;
+        let retailPrice = 0;
+        if (pricingData[index] !== undefined) {
+          retailPrice = isNaN(Number(pricingData[index]))
+            ? 0
+            : Number(pricingData[index]);
+        }
+
         const displayBook = {
           imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
           id: index,
