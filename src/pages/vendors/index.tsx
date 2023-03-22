@@ -143,7 +143,7 @@ export default function Vendors(
             pageSize={10}
             rowsPerPageOptions={[10]}
             autoHeight={true}
-            getRowHeight={() => "auto"}
+            rowHeight={40}
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>

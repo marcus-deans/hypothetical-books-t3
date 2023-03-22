@@ -101,8 +101,7 @@ export default function DetailGenre(
           pageSize={10}
           rowsPerPageOptions={[10]}
           autoHeight={true}
-          getRowHeight={() => "auto"}
-          checkboxSelection
+          rowHeight={40}
           disableSelectionOnClick
           experimentalFeatures={{ newEditingApi: true }}
           getRowClassName={(params) =>
