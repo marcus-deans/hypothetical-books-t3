@@ -34,6 +34,12 @@ export default function VendorDetail(
 
   const columns: GridColDef[] = [
     {
+      field: "id",
+      headerName: "Purchase Order ID",
+      headerClassName: "header-theme",
+      flex: 1,
+    },
+    {
       field: "date",
       headerName: "Purchase Order Date",
       headerClassName: "header-theme",
@@ -46,12 +52,6 @@ export default function VendorDetail(
           </div>
         );
       },
-    },
-    {
-      field: "id",
-      headerName: "Purchase Order ID",
-      headerClassName: "header-theme",
-      flex: 1,
     },
     {
       field: "vendor",
@@ -84,9 +84,11 @@ export default function VendorDetail(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -97,9 +99,16 @@ export default function VendorDetail(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={14}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: false,
+                },
+              },
+            }}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
-            rowsPerPageOptions={[14]}
             getRowHeight={() => "auto"}
             checkboxSelection
             disableSelectionOnClick

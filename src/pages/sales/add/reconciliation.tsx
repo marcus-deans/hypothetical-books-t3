@@ -42,13 +42,13 @@ export default function AddSalesReconciliation() {
   return (
     <>
       <Head>
-        <title>Create Sales Reconciliation</title>
+        <title>Create Sales Record</title>
       </Head>
       <div className="text-neutral-50 overflow-hidden pt-6 inline-block">
         <form className="mb-4 items-center rounded bg-white shadow-md px-6 py-3">
           <div className="mb-4 space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
-              Create Sales Reconciliation
+              Create Sales Record
             </div>
             <div className="relative space-y-3">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>

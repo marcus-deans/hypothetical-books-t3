@@ -56,35 +56,30 @@ export default function SalesOrderDetail(
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 130,
+      minWidth: 130,
     },
     {
       field: "unitWholesalePrice",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 150,
+      minWidth: 150,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 80,
+      minWidth: 80,
     },
     {
       field: "subtotal",
       headerName: "Subtotal",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 80,
+      minWidth: 80,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      flex: 1,
       maxWidth: 60,
       align: "center",
       sortable: false,
@@ -98,7 +93,6 @@ export default function SalesOrderDetail(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      flex: 1,
       maxWidth: 70,
       align: "center",
       sortable: false,
@@ -134,7 +128,7 @@ export default function SalesOrderDetail(
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Sales Reconciliation on ${data.salesReconciliationWithOverallMetrics.date.toLocaleDateString()}`}{" "}
+          {`Sales Record on ${data.salesReconciliationWithOverallMetrics.date.toLocaleDateString()}`}{" "}
         </h1>
       </div>
       <div className="pt-3 space flex">
@@ -151,7 +145,7 @@ export default function SalesOrderDetail(
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
           >
-            Edit Sales Reconciliation
+            Edit Sales Record
           </Button>
         </Link>
         <Link className="items-end px-3" href={`/sales/${id}/delete`} passHref>
@@ -159,7 +153,7 @@ export default function SalesOrderDetail(
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
           >
-            Delete Sales Reconciliation
+            Delete Sales Record
           </Button>
         </Link>
         <Link className="items-end px-3" href={`/sales/${id}/import`} passHref>
@@ -175,9 +169,11 @@ export default function SalesOrderDetail(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -188,8 +184,8 @@ export default function SalesOrderDetail(
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               Toolbar: GridToolbar,
             }}
-            pageSize={14}
-            rowsPerPageOptions={[14]}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
             checkboxSelection

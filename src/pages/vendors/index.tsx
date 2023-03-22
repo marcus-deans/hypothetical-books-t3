@@ -33,8 +33,7 @@ export default function Vendors(
       field: "id",
       headerName: "Vendor ID",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 250,
+      width: 210,
     },
     {
       field: "name",
@@ -54,21 +53,18 @@ export default function Vendors(
       field: "buybackRate",
       headerName: "Buyback Rate",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 150,
+      minWidth: 120,
     },
     {
       field: "purchaseOrderCount",
       headerName: "Purchase Order Count",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 200,
+      minWidth: 170,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      flex: 1,
       maxWidth: 70,
       align: "center",
       sortable: false,
@@ -82,8 +78,7 @@ export default function Vendors(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 70,
+      maxWidth: 80,
       align: "center",
       sortable: false,
       filterable: false,
@@ -123,9 +118,11 @@ export default function Vendors(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -143,8 +140,8 @@ export default function Vendors(
                 },
               },
             }}
-            pageSize={14}
-            rowsPerPageOptions={[14]}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
             checkboxSelection

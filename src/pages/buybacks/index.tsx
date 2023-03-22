@@ -31,7 +31,7 @@ export default function sales(
       field: "id",
       headerName: "Buyback Order ID",
       headerClassName: "header-theme",
-      flex: 1,
+      width: 210,
     },
     {
       field: "date",
@@ -57,22 +57,19 @@ export default function sales(
       field: "totalQuantity",
       headerName: "Total Quantity",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 110,
+      minWidth: 110,
     },
     {
       field: "totalPrice",
       headerName: "Total Price",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 110,
+      minWidth: 110,
     },
     {
       field: "totalUniqueBooks",
       headerName: "Total Unique Books",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 150,
+      minWidth: 150,
     },
   ];
 
@@ -107,9 +104,11 @@ export default function sales(
         <Box
           sx={{
             height: "auto",
-            maxHeight: 750,
             "& .header-theme": {
               backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
             },
           }}
         >
@@ -127,8 +126,8 @@ export default function sales(
                 },
               },
             }}
-            pageSize={14}
-            rowsPerPageOptions={[14]}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
             checkboxSelection

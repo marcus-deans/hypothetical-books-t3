@@ -13,6 +13,8 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { prisma } from "../../../server/db";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function DeleteBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -21,6 +23,8 @@ export default function DeleteBook(
   const bookDetailsQuery = api.books.getById.useQuery({
     id,
   });
+
+  const bookCount = bookDetailsQuery.data?.inventoryCount;
   const deleteMutation = api.books.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -31,6 +35,10 @@ export default function DeleteBook(
   const { data } = bookDetailsQuery;
 
   const handleDelete = () => {
+    if(bookCount && bookCount > 0 ){
+      toast.error("This book does not have 0 inventory, so it cannot be deleted.")
+    }
+    else{
     setIsDeleting(true);
     try {
       const deleteResult = deleteMutation.mutate({ id: id });
@@ -41,6 +49,7 @@ export default function DeleteBook(
       console.log(error);
       setIsDeleting(false);
     }
+  }
   };
 
   return (
@@ -56,6 +65,7 @@ export default function DeleteBook(
         handleDelete={handleDelete}
         cancelUrl={`/books/`}
       />
+      <ToastContainer></ToastContainer>
     </div>
   );
 }

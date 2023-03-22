@@ -8,6 +8,7 @@ import { z } from "zod";
 export const serverSchema = z.object({
   DATABASE_URL: z.string().url(),
   GOOGLE_BOOKS_API_KEY: z.string(),
+  BOOKS_RUN_API_KEY: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
   AWS_S3_REGION: z.string(),
@@ -38,6 +39,7 @@ export const serverEnv = {
   AWS_SECRET_ACCESS_KEY: process.env.AWS_KEY_FOR_SECRET_ACCESS,
   AWS_S3_REGION: process.env.AWS_S3_REGION,
   AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
+  BOOKS_RUN_API_KEY: process.env.BOOKS_RUN_API_KEY,
   GOOGLE_BOOKS_API_KEY: process.env.GOOGLE_BOOKS_API_KEY,
   NODE_ENV: process.env.NODE_ENV,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
