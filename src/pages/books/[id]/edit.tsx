@@ -66,6 +66,8 @@ const ImageCard = ({
   );
 };
 
+/* eslint-disable */
+      // @ts-ignore
 const modalStyle = {
   position: 'absolute' as 'absolute',
   top: '40%',
@@ -73,8 +75,11 @@ const modalStyle = {
   transform: 'translate(-50%, -50%)',
   bgcolor: 'background.paper',
   boxShadow: 24,
+  borderRadius: '6px',
   p: 3,
 };
+/*eslint-enable */
+
 
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
