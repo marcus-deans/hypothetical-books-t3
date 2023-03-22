@@ -19,6 +19,14 @@ import type { S3 } from "aws-sdk/clients/browser_default";
 import Image from "next/image";
 import "react-toastify/dist/ReactToastify.css";
 import { env } from "../../../env/client.mjs";
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 const ImageCard = ({
   url,
@@ -58,6 +66,17 @@ const ImageCard = ({
   );
 };
 
+const modalStyle = {
+  position: 'absolute' as 'absolute',
+  top: '40%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 3,
+};
+
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
@@ -83,7 +102,10 @@ export default function EditBook(
   const [width, setWidth] = useState(data?.width.toString() ?? "");
   const [height, setHeight] = useState(data?.height.toString() ?? "");
   const [thickness, setThickness] = useState(data?.thickness.toString() ?? "");
+  const [inventory, setInventory] = useState(data?.inventoryCount.toString() ?? "");
+  const [tempInventory, setTempInventory] = useState("0");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittingInvCorrection, setIsSubmittingInvCorrection] = useState(false);
   const [genreValue, setGenreValue] = useState<{
     label: string;
     id: string;
@@ -227,6 +249,52 @@ export default function EditBook(
     await refetchImages();
   };
 
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => {
+    setOpen(false);
+    setTempInventory(inventory);
+  };
+  const [openDialog, setDialogOpen] = React.useState(false);
+
+  const handleDialogOpen = () => {
+    setDialogOpen(true);
+  };
+
+  const handleDialogAccept = () => {
+    setInventory(tempInventory);
+    setIsSubmittingInvCorrection(false);
+    setDialogOpen(false);
+    handleClose();
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setIsSubmittingInvCorrection(false);
+  };
+
+  const handleInventoryCorrection = () => {
+    setIsSubmittingInvCorrection(true);
+    try {
+      const finalInventory = parseInt(tempInventory);
+      if (isNaN(finalInventory)) {
+        toast.error("Inventory must be a valid number");
+        throw new Error("Inventory is required");
+      }
+      if (finalInventory < 0 && tempInventory !== inventory) {
+        setDialogOpen(true);
+      } else {
+        setOpen(false);
+        setInventory(finalInventory.toString());
+        setIsSubmittingInvCorrection(false);
+      }
+
+    } catch (error) {
+      setIsSubmittingInvCorrection(false);
+      return;
+    }
+  };
+
   return (
     <>
       <div className="pt-6">
@@ -241,11 +309,10 @@ export default function EditBook(
                 <div className="space-y-10">
                   <div className="flex justify-center space-x-10">
                     <div className="text-gra-700 text-md font-bold">
-                      {`${bookDetailsQuery?.data?.title ?? ""} by ${
-                        bookDetailsQuery?.data?.authors
-                          .map((author) => author.name)
-                          .join(", ") ?? ""
-                      }`}
+                      {`${bookDetailsQuery?.data?.title ?? ""} by ${bookDetailsQuery?.data?.authors
+                        .map((author) => author.name)
+                        .join(", ") ?? ""
+                        }`}
                     </div>
                     <div className="text-gra-700 text-md font-bold">
                       {`ISBN-13: ${bookDetailsQuery?.data?.isbn_13 ?? ""}`}
@@ -281,6 +348,101 @@ export default function EditBook(
                         width: 120,
                       }}
                     />
+                    <button className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700" type="button" onClick={handleOpen}>Inventory Correction</button>
+                    <Modal
+                      open={open}
+                      onClose={handleClose}
+                      aria-labelledby="modal-modal-title"
+                      aria-describedby="modal-modal-description"
+                    >
+                      <Box sx={modalStyle}>
+                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                          Inventory Correction
+                        </Typography>
+                        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                          <TextField
+                            id="currentInv"
+                            label="Current Inventory"
+                            value={inventory}
+                            variant={"outlined"}
+                            sx={{
+                              "& .MuiInputBase-input.Mui-disabled": {
+                                WebkitTextFillColor: "black",
+                              },
+                              width: 125,
+                            }}
+                            disabled
+                          />
+                          <TextField
+                            id="newinv"
+                            label="New Inventory"
+                            defaultValue={inventory}
+                            variant={"outlined"}
+                            onChange={(
+                              event: React.ChangeEvent<HTMLInputElement>
+                            ): void => setTempInventory(event.target.value)}
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                WebkitTextFillColor: parseInt(tempInventory) >= 0 ? "black" : "red",
+                              },
+                              width: 125,
+                            }}
+                            required
+                          />
+                          <TextField
+                            id="deltainv"
+                            label="Change / Delta"
+                            value={parseInt(tempInventory) - parseInt(inventory)}
+                            variant={"outlined"}
+                            sx={{
+                              "& .MuiInputBase-input.Mui-disabled": {
+                                WebkitTextFillColor: parseInt(tempInventory) - parseInt(inventory) >= 0 ? "green" : "red",
+                              },
+                              width: 125,
+                            }}
+                            disabled
+                          />
+                        </Typography>
+                        <div className="pt-6" />
+                        <button
+                          className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                          type="button"
+                          onClick={handleInventoryCorrection}
+                        >
+                          {isSubmittingInvCorrection ? "Submitting..." : "Submit"}
+                        </button>
+                        <Dialog
+                          open={openDialog}
+                          onClose={handleDialogClose}
+                          aria-labelledby="alert-dialog-title"
+                          aria-describedby="alert-dialog-description"
+                        >
+                          <DialogTitle id="alert-dialog-title">
+                            {"Negative Inventory Count Warning"}
+                          </DialogTitle>
+                          <DialogContent>
+                            <DialogContentText id="alert-dialog-description">
+                              Are you sure you want to change the inventory for this book to be negative?
+                            </DialogContentText>
+                          </DialogContent>
+                          <DialogActions>
+                            <button
+                              className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                              type="button"
+                              onClick={handleDialogClose}>
+                              Go Back
+                            </button>
+                            <button
+                              autoFocus
+                              className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                              type="button"
+                              onClick={handleDialogAccept}>
+                              Submit
+                            </button>
+                          </DialogActions>
+                        </Dialog>
+                      </Box>
+                    </Modal>
                   </div>
                   <div className="flex justify-center space-x-10">
                     <TextField
