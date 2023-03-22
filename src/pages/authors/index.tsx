@@ -46,7 +46,7 @@ export default function Authors(
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      minWidth: 70,
+      width: 70,
       align: "center",
       sortable: false,
       filterable: false,
@@ -59,7 +59,7 @@ export default function Authors(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      minWidth: 70,
+      width: 70,
       align: "center",
       sortable: false,
       filterable: false,
@@ -124,7 +124,6 @@ export default function Authors(
             rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
-            checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>

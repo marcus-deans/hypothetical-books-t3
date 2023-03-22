@@ -131,7 +131,6 @@ export default function sales(
             rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
-            checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>

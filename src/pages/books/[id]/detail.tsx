@@ -483,7 +483,6 @@ export default function BookDetail(
             rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
-            checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>
@@ -523,7 +522,6 @@ export default function BookDetail(
             rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
-            checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>
@@ -562,7 +560,6 @@ export default function BookDetail(
             rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
-            checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>
@@ -601,7 +598,6 @@ export default function BookDetail(
             rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
-            checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>

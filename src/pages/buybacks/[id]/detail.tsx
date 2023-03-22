@@ -187,7 +187,6 @@ export default function BuybackOrderDetail(
             rowsPerPageOptions={[10]}
             autoHeight={true}
             getRowHeight={() => "auto"}
-            checkboxSelection
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>
