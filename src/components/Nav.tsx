@@ -109,6 +109,17 @@ function Nav() {
               </li>
               <li>
                 <Link
+                  href="/designer"
+                  className={
+                    /designer\/*/.test(currentRoute) ? active : nonActive
+                  }
+                  aria-current="page"
+                >
+                  Designer
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/report"
                   className={
                     /report\/*/.test(currentRoute) ? active : nonActive
