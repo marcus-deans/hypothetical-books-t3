@@ -39,6 +39,8 @@ export default function SalesOrderDetail(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -56,24 +58,51 @@ export default function SalesOrderDetail(
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       minWidth: 130,
     },
     {
       field: "unitWholesalePrice",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.unitWholesalePrice}
+          </div>
+        );
+      },
       minWidth: 150,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 80,
     },
     {
       field: "subtotal",
       headerName: "Subtotal",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.subtotal}
+          </div>
+        );
+      },
       minWidth: 80,
     },
     {
@@ -111,9 +140,9 @@ export default function SalesOrderDetail(
         title: salesLine.book.title,
         bookId: salesLine.book.id,
         isbn_13: salesLine.book.isbn_13,
-        unitWholesalePrice: `$${salesLine.unitWholesalePrice.toFixed(2)}`,
+        unitWholesalePrice: `${salesLine.unitWholesalePrice.toFixed(2)}`,
         quantity: salesLine.quantity,
-        subtotal: `$${(
+        subtotal: `${(
           salesLine.unitWholesalePrice * salesLine.quantity
         ).toFixed(2)}`,
       };
@@ -187,8 +216,7 @@ export default function SalesOrderDetail(
             pageSize={10}
             rowsPerPageOptions={[10]}
             autoHeight={true}
-            getRowHeight={() => "auto"}
-            checkboxSelection
+            rowHeight={40}
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>
