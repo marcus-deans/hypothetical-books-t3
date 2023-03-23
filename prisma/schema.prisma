@@ -41,6 +41,7 @@ model Book {
   display              Boolean                @default(true)
   imgUrl               String?
   costMostRecentVendor CostMostRecentVendor[]
+  Correction           Correction[]
 }
 
 model Genre {
@@ -127,6 +128,18 @@ model BuybackLine {
   display          Boolean      @default(true)
 }
 
+model Correction {
+  id       String   @id @default(cuid())
+  date     DateTime
+  book     Book     @relation(fields: [bookId], references: [id])
+  bookId   String
+  quantity Int
+  // user     User     @relation(fields: [userId], references: [id])
+  // userId   String
+  User     User?    @relation(fields: [userId], references: [id])
+  userId   String?
+}
+
 model CostMostRecentVendor {
   id              String        @id @default(cuid())
   book            Book          @relation(fields: [bookId], references: [id])
@@ -175,10 +188,11 @@ model Session {
 }
 
 model User {
-  id                  String                @id @default(cuid())
-  password            String
-  accounts            Account[]
-  sessions            Session[]
+  id         String       @id @default(cuid())
+  password   String
+  accounts   Account[]
+  sessions   Session[]
+  Correction Correction[]
 }
 
 model VerificationToken {
