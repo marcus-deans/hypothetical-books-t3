@@ -343,190 +343,103 @@ export default function BookDetail(
     },
   ];
 
-  const salesReconciliationsColumns: GridColDef[] = [
-    {
-      field: "id",
-      headerName: "Sales Reconciliation ID",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      width: 210,
-    },
-    {
-      field: "date",
-      headerName: "Reconciliation Date",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      flex: 1,
-      renderCell: (params) => {
-        return (
-          <div className="text-blue-600">
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <a href={`/sales/${params.id}/detail`}>{params.row.date} </a>
-          </div>
-        );
-      },
-    },
-    {
-      field: "unitWholesalePrice",
-      headerName: "Unit Wholesale Price",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      type: "number",
-      renderCell: (params) => {
-        return (
-          <div>
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            ${params.row.unitWholesalePrice}
-          </div>
-        );
-      },
-      minWidth: 160,
-    },
-    {
-      field: "quantity",
-      headerName: "Quantity",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      type: "number",
-      minWidth: 80,
-    },
-  ];
-
   const salesReconciliationsRows = data.salesLines.map((salesLine) => {
     const salesReconciliation = salesLine.salesReconciliation;
     return {
       id: salesReconciliation.id,
-      date: salesReconciliation.date.toLocaleDateString(),
-      unitWholesalePrice: `${salesLine.unitWholesalePrice.toFixed(2)}`,
+      date: salesReconciliation.date.getTime(),
+      user: "N/A",
+      recordType: "Sale",
       quantity: salesLine.quantity,
+      price: `${salesLine.unitWholesalePrice.toFixed(2)}`,
+      vendor: "N/A",
+      inventoryTotal: "N/A",
     };
   });
-
-  const purchaseOrderColumns: GridColDef[] = [
-    {
-      field: "id",
-      headerName: "Purchase Order ID",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      width: 210,
-    },
-    {
-      field: "date",
-      headerName: "Purchase Date",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      flex: 1,
-      renderCell: (params) => {
-        return (
-          <div className="text-blue-600">
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <a href={`/purchases/${params.id}/detail`}>{params.row.date} </a>
-          </div>
-        );
-      },
-    },
-    {
-      field: "vendor",
-      headerName: "Vendor",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      flex: 1,
-    },
-    {
-      field: "unitWholesalePrice",
-      headerName: "Unit Wholesale Price",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      type: "number",
-      renderCell: (params) => {
-        return (
-          <div>
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            ${params.row.unitWholesalePrice}
-          </div>
-        );
-      },
-      minWidth: 160,
-    },
-    {
-      field: "quantity",
-      headerName: "Quantity",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      type: "number",
-      minWidth: 80,
-    },
-  ];
 
   const purchaseOrderRows = data.purchaseLines.map((purchaseLine) => {
     const purchaseOrder = purchaseLine.purchaseOrder;
     return {
       id: purchaseOrder.id,
-      date: purchaseOrder.date.toLocaleDateString(),
-      vendor: purchaseOrder.vendor.name,
-      unitWholesalePrice: `${purchaseLine.unitWholesalePrice.toFixed(2)}`,
+      date: purchaseOrder.date.getTime(),
+      user: "N/A",
+      recordType: "Purchase",
       quantity: purchaseLine.quantity,
+      price: `${purchaseLine.unitWholesalePrice.toFixed(2)}`,
+      vendor: purchaseOrder.vendor.name,
+      inventoryTotal: "N/A",
     };
   });
 
-  const buybackOrderColumns: GridColDef[] = [
+  const buybackOrderRows = data.buybackLines.map((buybackLine) => {
+    const buybackOrder = buybackLine.buybackOrder;
+    return {
+      id: buybackOrder.id,
+      date: buybackOrder.date.getTime(),
+      user: "N/A",
+      recordType: "Buyback",
+      quantity: buybackLine.quantity,
+      price: `${buybackLine.unitBuybackPrice.toFixed(2)}`,
+      vendor: buybackOrder.vendor.name,
+      inventoryTotal: "N/A",
+    };
+  });
+
+  // Merge all of the rows into one array
+  const masterRows = [
+    ...purchaseOrderRows,
+    ...buybackOrderRows,
+    ...salesReconciliationsRows,
+  ];
+
+  // Sort the rows by date
+  masterRows.sort((a, b) => {
+    return a.date - b.date;
+  });
+
+  const masterColumns: GridColDef[] = [
     {
       field: "id",
-      headerName: "Buyback ID",
+      headerName: "Transaction ID",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      width: 220,
+    },
+    {
+      field: "date",
+      headerName: "Date",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      width: 120,
+      renderCell: (params) => {
+        const recordType = params.row.recordType.toLowerCase();
+        const urlTag = recordType === "sale" ? "sales" : recordType === "purchase" ? "purchases" : recordType === "buyback" ? "buybacks" : "error";
+        const date = new Date(params.row.date);
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/${urlTag}/${params.id}/detail`}>{date.toLocaleDateString()} </a>
+          </div>
+        );
+      },
+    },
+    {
+      field: "user",
+      headerName: "User",
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
       width: 210,
     },
     {
-      field: "date",
-      headerName: "Buyback Date",
+      field: "recordType",
+      headerName: "Record Type",
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
       flex: 1,
-      renderCell: (params) => {
-        return (
-          <div className="text-blue-600">
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <a href={`/buybacks/${params.id}/detail`}>{params.row.date} </a>
-          </div>
-        );
-      },
-    },
-    {
-      field: "vendor",
-      headerName: "Vendor",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      flex: 1,
-    },
-    {
-      field: "unitBuybackPrice",
-      headerName: "Unit Buyback Price",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      type: "number",
-      renderCell: (params) => {
-        return (
-          <div>
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            ${params.row.unitBuybackPrice}
-          </div>
-        );
-      },
-      minWidth: 160,
     },
     {
       field: "quantity",
@@ -537,18 +450,42 @@ export default function BookDetail(
       type: "number",
       minWidth: 80,
     },
+    {
+      field: "inventoryTotal",
+      headerName: "Inventory Total",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      minWidth: 130,
+    },
+    {
+      field: "price",
+      headerName: "Price",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          // TODO: NEED TO FIGURE OUT IF BUYBACK, PURCHASE, SALE OR INVENTORY CORRECTION
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.price}
+          </div>
+        );
+      },
+      minWidth: 130,
+    },
+    {
+      field: "vendor",
+      headerName: "Vendor",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      width: 210,
+    },
   ];
-
-  const buybackOrderRows = data.buybackLines.map((buybackLine) => {
-    const buybackOrder = buybackLine.buybackOrder;
-    return {
-      id: buybackOrder.id,
-      date: buybackOrder.date.toLocaleDateString(),
-      vendor: buybackOrder.vendor.name,
-      unitBuybackPrice: `${buybackLine.unitBuybackPrice.toFixed(2)}`,
-      quantity: buybackLine.quantity,
-    };
-  });
 
   return (
     <>
@@ -589,8 +526,8 @@ export default function BookDetail(
             }
           />
         </Box>
-        <div className="text-sm">*: Estimated dimension</div>
-        <div className="pt-8 text-lg">Sales Reconciliations</div>
+        <div className="text-sm">*: Estimated dimension</div> 
+        <div className="pt-8 text-lg">Record History</div>
         <Box
           sx={{
             height: "auto",
@@ -603,84 +540,8 @@ export default function BookDetail(
           }}
         >
           <StripedDataGrid
-            rows={salesReconciliationsRows}
-            columns={salesReconciliationsColumns}
-            initialState={{
-              columns: {
-                columnVisibilityModel: {
-                  id: false,
-                },
-              },
-            }}
-            components={{
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              Toolbar: GridToolbar,
-            }}
-            pageSize={10}
-            rowsPerPageOptions={[10]}
-            autoHeight={true}
-            rowHeight={40}
-            disableSelectionOnClick
-            experimentalFeatures={{ newEditingApi: true }}
-            getRowClassName={(params) =>
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-            }
-          />
-        </Box>
-        <div className="pt-8 text-lg">Purchase Orders</div>
-        <Box
-          sx={{
-            height: "auto",
-            "& .header-theme": {
-              backgroundColor: "rgba(56, 116, 203, 0.35)",
-            },
-            "& .MuiDataGrid-cell--textLeft": {
-              textAlign: "left",
-            },
-          }}
-        >
-          <StripedDataGrid
-            rows={purchaseOrderRows}
-            columns={purchaseOrderColumns}
-            initialState={{
-              columns: {
-                columnVisibilityModel: {
-                  id: false,
-                },
-              },
-            }}
-            components={{
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              Toolbar: GridToolbar,
-            }}
-            pageSize={10}
-            rowsPerPageOptions={[10]}
-            autoHeight={true}
-            rowHeight={40}
-            disableSelectionOnClick
-            experimentalFeatures={{ newEditingApi: true }}
-            getRowClassName={(params) =>
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-            }
-          />
-        </Box>
-        <div className="pt-8 text-lg">Buybacks</div>
-        <Box
-          sx={{
-            height: "auto",
-            "& .header-theme": {
-              backgroundColor: "rgba(56, 116, 203, 0.35)",
-            },
-            "& .MuiDataGrid-cell--textLeft": {
-              textAlign: "left",
-            },
-          }}
-        >
-          <StripedDataGrid
-            rows={buybackOrderRows}
-            columns={buybackOrderColumns}
+            rows={masterRows}
+            columns={masterColumns}
             initialState={{
               columns: {
                 columnVisibilityModel: {
