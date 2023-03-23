@@ -421,8 +421,11 @@ export default function BookDetail(
       headerAlign: "left",
       width: 120,
       renderCell: (params) => {
+        /* eslint-disable */
+        // @ts-ignore
         const urlTag = params.row.recordType === "Sale" ? "sales" : params.row.recordType === "Purchase" ? "purchases" : params.row.recordType === "Buyback" ? "buybacks" : "error";
         const date = new Date(params.row.date);
+        /* eslint-enable */
         return (
           <div className="text-blue-600">
             {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
