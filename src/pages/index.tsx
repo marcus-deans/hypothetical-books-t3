@@ -7,12 +7,13 @@ import { getUserRole, getUserName } from "../utils/user";
 import { api } from "../utils/api";
 
 const Home: NextPage = (): JSX.Element => {
-  const {status, data} = useSession();
+  const {data: session, status} = useSession();
   const exist = api.users.doesAdminExist.useQuery();
+  const user = session?.user;
   //const role = getUserRole(props.newSession);
   //const username = getUserName(props.newSession);
-  if(data){
-    console.log(data.user);
+  if(user){
+    console.log(user.name);
   } else console.log("JWT is a bitch")
   if(status){
     "Please kill me now"
@@ -31,7 +32,7 @@ const Home: NextPage = (): JSX.Element => {
           {!auth && !exist.error && "Login" ? <h3 className="text-2xl mb-8 pt-4 text-gray-200">
             Please Log In
           </h3> : <h3 className="text-2xl mb-8 pt-4 text-gray-200">
-            Welcome Back {true? "" : "Nobody"}!
+            Welcome Back{user && user.name ? " " +user.name : "Nobody"}!
           </h3>}
           <div className="space-x-2">
           {!auth && !exist.error && "Login" ? <button
