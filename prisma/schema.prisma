@@ -41,7 +41,6 @@ model Book {
   display              Boolean                @default(true)
   imgUrl               String?
   costMostRecentVendor CostMostRecentVendor[]
-  InventoryCorrection  InventoryCorrection[]
 }
 
 model Genre {
@@ -180,7 +179,6 @@ model User {
   password            String
   accounts            Account[]
   sessions            Session[]
-  InventoryCorrection InventoryCorrection[]
 }
 
 model VerificationToken {
@@ -189,17 +187,6 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
-}
-
-model InventoryCorrection {
-  id                String   @id @default(cuid())
-  user              User     @relation(fields: [userId], references: [id])
-  userId            String
-  date              DateTime
-  book              Book     @relation(fields: [bookId], references: [id])
-  bookId            String
-  previousInventory Int
-  newInventory      Int
 }
 
 model Image {
