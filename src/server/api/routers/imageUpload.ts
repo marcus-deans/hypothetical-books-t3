@@ -131,29 +131,29 @@ export const imagesRouter = createTRPCRouter({
         });
       }*/
 
-      const image = await prisma.image.findFirst({
-        where: {
-          id: input.imageId,
-        },
-      });
+      // const image = await prisma.image.findFirst({
+      //   where: {
+      //     id: input.imageId,
+      //   },
+      // });
 
-      if (!image) {
-        throw new TRPCError({
-          message: "Invalid image access",
-          code: "NOT_FOUND",
-        });
-      }
+      // if (!image) {
+      //   throw new TRPCError({
+      //     message: "Invalid image access",
+      //     code: "NOT_FOUND",
+      //   });
+      // }
 
-      await prisma.image.delete({
-        where: {
-          id: input.imageId,
-        },
-      });
+      // await prisma.image.delete({
+      //   where: {
+      //     id: input.imageId,
+      //   },
+      // });
 
       await s3
         .deleteObject({
           Bucket: BUCKET_NAME,
-          Key: `${userId}/${input.imageId}`,
+          Key: `images/${input.imageId}`,
         })
         .promise();
     }),

@@ -280,6 +280,8 @@ export default function AddBook() {
       field: "image",
       headerName: "Cover",
       headerClassName: "header-theme",
+      width: 60,
+      align: "center",
       renderCell: (params) => {
         /* eslint-disable */
         let url = params.row.imgUrl as string;
@@ -299,32 +301,42 @@ export default function AddBook() {
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      minWidth: 250,
+      align: "left",
+      headerAlign: "left",
+      flex: 1,
     },
     {
       field: "authors",
       headerName: "Authors",
       headerClassName: "header-theme",
-      minWidth: 200,
+      align: "left",
+      headerAlign: "left",
+      flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 125,
     },
     {
       field: "isbn_10",
       headerName: "ISBN-10",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 110,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price ($)",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
-      width: 150,
+      maxWidth: 70,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError =
           isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
@@ -336,6 +348,8 @@ export default function AddBook() {
       field: "pageCount",
       headerName: "Page Count",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
       width: 100,
       editable: true,
@@ -344,28 +358,37 @@ export default function AddBook() {
       field: "publisher",
       headerName: "Publisher",
       headerClassName: "header-theme",
-      minWidth: 125,
+      align: "left",
+      headerAlign: "left",
+      minWidth: 150,
     },
     {
       field: "genre",
       headerName: "Genre",
       type: "string",
-      editable: true,
       headerClassName: "header-theme",
-      minWidth: 125,
+      align: "left",
+      headerAlign: "left",
+      editable: true,
+      minWidth: 150,
     },
     {
       field: "publicationYear",
-      headerName: "Publication Year",
+      headerName: "Pub. Year",
       headerClassName: "header-theme",
-      maxWidth: 125,
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      width: 85,
     },
     {
       field: "width",
       headerName: "Width (in.)",
-      type: "number",
       headerClassName: "header-theme",
-      maxWidth: 125,
+      type: "number",
+      align: "left",
+      headerAlign: "left",
+      width: 90,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError =
           isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
@@ -378,7 +401,9 @@ export default function AddBook() {
       headerName: "Height (in.)",
       type: "number",
       headerClassName: "header-theme",
-      maxWidth: 125,
+      align: "left",
+      headerAlign: "left",
+      width: 90,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError =
           isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
@@ -390,7 +415,9 @@ export default function AddBook() {
       field: "thickness",
       headerName: "Thickness (in.)",
       headerClassName: "header-theme",
-      width: 170,
+      align: "left",
+      headerAlign: "left",
+      width: 120,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError =
           isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
@@ -514,6 +541,9 @@ export default function AddBook() {
               "& .header-theme": {
                 backgroundColor: "rgba(56, 116, 203, 0.35)",
               },
+              "& .MuiDataGrid-cell--textLeft": {
+                textAlign: "left",
+              },
             }}
           >
             <StripedDataGrid
@@ -523,11 +553,10 @@ export default function AddBook() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 Toolbar: GridToolbar,
               }}
-              pageSize={6}
-              rowsPerPageOptions={[6]}
+              pageSize={10}
+              rowsPerPageOptions={[10]}
               autoHeight={true}
               getRowHeight={() => "auto"}
-              checkboxSelection
               disableSelectionOnClick
               processRowUpdate={processRowUpdate}
               onProcessRowUpdateError={handleProcessRowUpdateError}
@@ -539,9 +568,12 @@ export default function AddBook() {
             />
           </Box>
           <div className="space flex py-3">
-            <Button variant="contained" color="primary" onClick={handleConfirm}>
+            <button
+              className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+              type="button"
+              onClick={handleConfirm}>
               Confirm Add Books
-            </Button>
+            </button>
           </div>
         </div>
       </>

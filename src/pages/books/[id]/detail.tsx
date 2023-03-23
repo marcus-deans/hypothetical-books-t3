@@ -44,7 +44,7 @@ export default function BookDetail(
     transform: "translate(-50%, -50%)",
     width: 500,
     bgcolor: "background.paper",
-    border: "2px solid #000",
+    borderRadius: '6px',
     boxShadow: 24,
     p: 4,
   };
@@ -165,7 +165,7 @@ export default function BookDetail(
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 85,
+      width: 85,
     },
     {
       field: "pageCount",
@@ -217,7 +217,7 @@ export default function BookDetail(
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 125,
+      minWidth: 130,
     },
     {
       field: "daysSupply",
@@ -233,7 +233,7 @@ export default function BookDetail(
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      maxWidth: 100,
+      minWidth: 110,
     },
     {
       field: "edit",
