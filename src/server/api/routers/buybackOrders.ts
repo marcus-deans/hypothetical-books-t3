@@ -384,11 +384,14 @@ export const buybackOrdersRouter = createTRPCRouter({
       });
 
       for (const buybackLine of currentBuybackOrder?.buybackLines ?? []) {
-        const updatedBuybackLine = await prisma.buybackLine.update({
+        // const updatedBuybackLine = await prisma.buybackLine.update({
+        //   where: { id: buybackLine.id },
+        //   data: {
+        //     display: false,
+        //   },
+        // });
+        const updatedBuybackLine = await prisma.buybackLine.delete({
           where: { id: buybackLine.id },
-          data: {
-            display: false,
-          },
         });
         if (!updatedBuybackLine) {
           throw new TRPCError({
@@ -406,11 +409,14 @@ export const buybackOrdersRouter = createTRPCRouter({
         });
       }
 
-      const updatedBuybackOrder = await prisma.buybackOrder.update({
+      // const updatedBuybackOrder = await prisma.buybackOrder.update({
+      //   where: { id },
+      //   data: {
+      //     display: false,
+      //   },
+      // });
+      const updatedBuybackOrder = await prisma.buybackOrder.delete({
         where: { id },
-        data: {
-          display: false,
-        },
       });
       if (!updatedBuybackOrder) {
         throw new TRPCError({

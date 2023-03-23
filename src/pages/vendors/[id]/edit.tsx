@@ -13,6 +13,8 @@ import { useRouter } from "next/router";
 import { prisma } from "../../../server/db";
 import { InputAdornment, TextField } from "@mui/material";
 import Head from "next/head";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EditVendor(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -40,7 +42,7 @@ export default function EditVendor(
     setIsSubmitting(true);
     try {
       if (!vendorName || !buybackRate) {
-        alert("Vendor name and buyback rate are required");
+        toast.error("Vendor name and buyback rate are required");
         return;
       }
       const finalBuybackRate = Number(buybackRate);
@@ -49,7 +51,7 @@ export default function EditVendor(
         finalBuybackRate < 0 ||
         finalBuybackRate > 100
       ) {
-        alert("Buyback rate must be a number between 0 and 100");
+        toast.error("Buyback rate must be a number between 0 and 100");
         setIsSubmitting(false);
         return;
       }
@@ -121,6 +123,7 @@ export default function EditVendor(
           </div>
         </form>
       </div>
+      <ToastContainer></ToastContainer>
     </>
   );
 }

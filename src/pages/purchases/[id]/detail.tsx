@@ -39,6 +39,8 @@ export default function PurchaseOrderDetail(
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -56,31 +58,58 @@ export default function PurchaseOrderDetail(
       field: "isbn_13",
       headerName: "ISBN 13",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       minWidth: 130,
     },
     {
       field: "unitWholesalePrice",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.unitWholesalePrice}
+          </div>
+        );
+      },
       minWidth: 160,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 80,
     },
     {
       field: "subtotal",
       headerName: "Subtotal",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.subtotal}
+          </div>
+        );
+      },
       minWidth: 80,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      maxWidth: 70,
+      width: 70,
       align: "center",
       sortable: false,
       filterable: false,
@@ -93,8 +122,7 @@ export default function PurchaseOrderDetail(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      flex: 1,
-      maxWidth: 80,
+      width: 80,
       align: "center",
       sortable: false,
       filterable: false,
@@ -111,9 +139,9 @@ export default function PurchaseOrderDetail(
         title: purchaseLine.book.title,
         bookId: purchaseLine.book.id,
         isbn_13: purchaseLine.book.isbn_13,
-        unitWholesalePrice: `$${purchaseLine.unitWholesalePrice.toFixed(2)}`,
+        unitWholesalePrice: `${purchaseLine.unitWholesalePrice.toFixed(2)}`,
         quantity: purchaseLine.quantity,
-        subtotal: `$${(
+        subtotal: `${(
           purchaseLine.unitWholesalePrice * purchaseLine.quantity
         ).toFixed(2)}`,
       };
@@ -191,8 +219,7 @@ export default function PurchaseOrderDetail(
             pageSize={10}
             rowsPerPageOptions={[10]}
             autoHeight={true}
-            getRowHeight={() => "auto"}
-            checkboxSelection
+            rowHeight={40}
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>

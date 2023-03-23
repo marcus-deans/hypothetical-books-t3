@@ -32,12 +32,16 @@ export default function sales(
       field: "id",
       headerName: "Purchase Order ID",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
       field: "date",
       headerName: "Order Date",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -52,24 +56,43 @@ export default function sales(
       field: "vendor",
       headerName: "Vendor",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
       field: "totalQuantity",
       headerName: "Total Quantity",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 110,
     },
     {
       field: "totalPrice",
       headerName: "Total Price",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.totalPrice}
+          </div>
+        );
+      },
       minWidth: 110,
     },
     {
       field: "totalUniqueBooks",
       headerName: "Total Unique Books",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 150,
     },
   ];
@@ -80,7 +103,7 @@ export default function sales(
       date: purchaseOrder.purchaseOrder.date.toLocaleDateString(),
       totalQuantity: purchaseOrder.totalQuantity,
       vendor: purchaseOrder.purchaseOrder.vendor.name,
-      totalPrice: `$${purchaseOrder.totalPrice.toFixed(2)}`,
+      totalPrice: `${purchaseOrder.totalPrice.toFixed(2)}`,
       totalUniqueBooks: purchaseOrder.totalUniqueBooks,
     };
   });
@@ -130,8 +153,7 @@ export default function sales(
             pageSize={10}
             rowsPerPageOptions={[10]}
             autoHeight={true}
-            getRowHeight={() => "auto"}
-            checkboxSelection
+            rowHeight={40}
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>

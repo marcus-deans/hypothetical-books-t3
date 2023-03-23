@@ -33,6 +33,7 @@ export default function Authors(
       headerName: "Author ID",
       headerClassName: "header-theme",
       align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
@@ -40,13 +41,14 @@ export default function Authors(
       headerName: "Author Name",
       headerClassName: "header-theme",
       align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      minWidth: 70,
+      width: 70,
       align: "center",
       sortable: false,
       filterable: false,
@@ -59,7 +61,7 @@ export default function Authors(
       field: "delete",
       headerName: "Delete",
       headerClassName: "header-theme",
-      minWidth: 70,
+      width: 70,
       align: "center",
       sortable: false,
       filterable: false,
@@ -123,8 +125,7 @@ export default function Authors(
             pageSize={10}
             rowsPerPageOptions={[10]}
             autoHeight={true}
-            getRowHeight={() => "auto"}
-            checkboxSelection
+            rowHeight={40}
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>
