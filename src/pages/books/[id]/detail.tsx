@@ -385,7 +385,7 @@ export default function BookDetail(
     };
   });
 
-  // Merge all of the rows into one array
+  // TODO: ADD INVENTORY CORRECTION LOGIC
   const masterRows = [
     ...purchaseOrderRows,
     ...buybackOrderRows,
@@ -396,6 +396,13 @@ export default function BookDetail(
   masterRows.sort((a, b) => {
     return a.date - b.date;
   });
+
+  // Add the inventory total to each row
+  let inventoryTotal = 0;
+  for (const row of masterRows) {
+    inventoryTotal += row.recordType === "Purchase" ? row.quantity : -row.quantity; // TODO: NEED TO IMPLEMENT INVENTORY CORRECTION LOGIC
+    row.inventoryTotal = inventoryTotal.toString();
+  }
 
   const masterColumns: GridColDef[] = [
     {
@@ -414,8 +421,7 @@ export default function BookDetail(
       headerAlign: "left",
       width: 120,
       renderCell: (params) => {
-        const recordType = params.row.recordType.toLowerCase();
-        const urlTag = recordType === "sale" ? "sales" : recordType === "purchase" ? "purchases" : recordType === "buyback" ? "buybacks" : "error";
+        const urlTag = params.row.recordType === "Sale" ? "sales" : params.row.recordType === "Purchase" ? "purchases" : params.row.recordType === "Buyback" ? "buybacks" : "error";
         const date = new Date(params.row.date);
         return (
           <div className="text-blue-600">
