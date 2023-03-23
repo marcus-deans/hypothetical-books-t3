@@ -425,13 +425,23 @@ export default function BookDetail(
         // @ts-ignore
         const urlTag = params.row.recordType === "Sale" ? "sales" : params.row.recordType === "Purchase" ? "purchases" : params.row.recordType === "Buyback" ? "buybacks" : "error";
         const date = new Date(params.row.date);
-        /* eslint-enable */
-        return (
-          <div className="text-blue-600">
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <a href={`/${urlTag}/${params.id}/detail`}>{date.toLocaleDateString()} </a>
-          </div>
-        );
+        
+        if (urlTag !== "error" || params.row.recordType !== "Inventory Correction") {
+          /* eslint-enable */
+          return (
+            <div className="text-blue-600">
+              {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+              <a href={`/${urlTag}/${params.id}/detail`}>{date.toLocaleDateString()} </a>
+            </div>
+          );
+        }
+        else {
+          return (
+            <div>
+              {date.toLocaleDateString()}
+            </div>
+          );
+        }
       },
     },
     {
