@@ -84,7 +84,6 @@ export default function AddBook() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dataRetrieved, setDataRetrieved] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  // const [currentIsbn, setCurrentIsbn] = useState("");
   const [pricingData, setPricingData] = useState<number[]>([]);
   const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
   const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
@@ -95,6 +94,15 @@ export default function AddBook() {
     { isbns: parsedIsbns },
     { enabled: !!parsedIsbns }
   );
+
+  const [currentTitle, setCurrentTitle] = useState("");
+  const [currentAuthor, setCurrentAuthor] = useState("");
+  const findRelatedBooksQuery = api.books.findRelatedBooks.useQuery(
+    { title: currentTitle, author: currentAuthor },
+    { enabled: !!currentTitle && !!currentAuthor }
+  );
+  type relatedBookReturnType = typeof findRelatedBooksQuery.data;
+
   const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
@@ -158,6 +166,10 @@ export default function AddBook() {
             : Number(pricingData[index]);
         }
 
+        setCurrentTitle(retrievedBook.title);
+        setCurrentAuthor(retrievedBook.authors.join(", "));
+        const relatedBooks = findRelatedBooksQuery?.data ?? [];
+
         const displayBook = {
           imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
           id: index,
@@ -175,6 +187,7 @@ export default function AddBook() {
           height: 0,
           thickness: 0,
           retailPrice: retailPrice,
+          relatedBooks: relatedBooks,
         };
         setDisplayedBooks((prev) => [...prev, displayBook]);
       });
@@ -213,11 +226,12 @@ export default function AddBook() {
           height: row.height,
           thickness: row.thickness,
           retailPrice: row.retailPrice,
-          genreName: row.genre, //row.genre actually
+          genreName: row.genre,
           imgUrl: row.imgUrl,
           purchaseLines: [],
           salesLines: [],
           inventoryCount: 0,
+          relatedBooks: [], //TODO: implement properly
         });
       });
       setTimeout(() => {
@@ -350,6 +364,27 @@ export default function AddBook() {
         return { ...params.props, error: hasError };
       },
       editable: true,
+    },
+    {
+      field: "relatedBooks",
+      headerName: "Related Books",
+      headerClassName: "header-theme",
+      minWidth: 200,
+      renderCell: (params) => {
+        /* eslint-disable */
+        let relatedBooks = params.row.relatedBooks as relatedBookReturnType;
+        if (!relatedBooks) {
+          return <div />;
+        }
+        /* eslint-enable */
+        return (
+          <div>
+            {relatedBooks
+              .map((relatedBook) => relatedBook.item.title)
+              .join(", ")}
+          </div>
+        );
+      },
     },
   ];
 

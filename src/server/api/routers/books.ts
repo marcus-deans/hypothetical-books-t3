@@ -395,6 +395,7 @@ export const booksRouter = createTRPCRouter({
         purchaseLines: z.string().array(),
         salesLines: z.string().array(),
         inventoryCount: z.number().int(),
+        relatedBooks: z.string().array(),
       })
     )
 
@@ -481,6 +482,25 @@ export const booksRouter = createTRPCRouter({
         });
       }
 
+      for (const relatedBook of input.relatedBooks) {
+        await prisma.book.update({
+          where: { id: book.id },
+          data: {
+            relatedBooks: {
+              connect: [{ id: relatedBook }],
+            },
+          },
+        });
+        await prisma.book.update({
+          where: { id: relatedBook },
+          data: {
+            relatedBooks: {
+              connect: [{ id: book.id }],
+            },
+          },
+        });
+      }
+
       return book;
     }),
 
@@ -516,39 +536,34 @@ export const booksRouter = createTRPCRouter({
     }),
 
   findRelatedBooks: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .output(
-      z.array(
-        z.object({
-          item: z.object({
-            id: z.string(),
-            title: z.string(),
-            isbn_13: z.string().length(13),
-          }),
-          score: z.number(),
-          refIndex: z.number(),
-        })
-      )
+    .input(
+      z.object({
+        title: z.string(),
+        author: z.string(),
+      })
     )
-    .mutation(async ({ input }) => {
-      const { id } = input;
-
-      const book = await prisma.book.findUnique({
-        where: { id },
-      });
-      if (!book || !book.display) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `No book with id '${id}'`,
-        });
-      }
-
+    // .output(
+    //   z.array(
+    //     z.object({
+    //       item: z.object({
+    //         id: z.string(),
+    //         title: z.string(),
+    //         isbn_13: z.string().length(13),
+    //       }),
+    //       score: z.number(),
+    //       refIndex: z.number(),
+    //     })
+    //   )
+    // )
+    .query(async ({ input }) => {
       const allBooks = await prisma.book.findMany({
         where: { display: true },
-        select: {
-          id: true,
-          title: true,
-          isbn_13: true,
+        include: {
+          authors: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
       type allBooksType = (typeof allBooks)[number];
@@ -563,19 +578,24 @@ export const booksRouter = createTRPCRouter({
         keys: [
           {
             name: "title",
-            weight: 0.7,
+            weight: 0.6,
             getFn: (book: allBooksType) => book.title,
           },
           {
-            name: "isbn13",
-            weight: 0.3,
-            getFn: (book: allBooksType) => book.isbn_13,
+            name: "authors",
+            weight: 0.4,
+            getFn: (book: allBooksType) =>
+              book.authors.map((author) => author.name),
           },
         ],
       };
 
       const fuse = new Fuse(allBooks, options);
-      const searchResults = fuse.search(book.title);
-      return searchResults as returnBookType[];
+      const searchResults = fuse.search({
+        title: input.title,
+        authors: input.author,
+      });
+      const returnableSearchResult = searchResults as returnBookType[];
+      return returnableSearchResult.filter((result) => result.score > 0.7);
     }),
 });
