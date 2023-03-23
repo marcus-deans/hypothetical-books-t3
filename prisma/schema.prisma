@@ -188,11 +188,21 @@ model Session {
 }
 
 model User {
+<<<<<<< HEAD
   id         String       @id @default(cuid())
   password   String
   accounts   Account[]
   sessions   Session[]
   Correction Correction[]
+=======
+  id       String    @id @default(cuid())
+  name     String    @default("default")    
+  password String
+  role     String    @default("user")
+  display  Boolean   @default(true)
+  accounts Account[]
+  sessions Session[]
+>>>>>>> staging
 }
 
 model VerificationToken {
