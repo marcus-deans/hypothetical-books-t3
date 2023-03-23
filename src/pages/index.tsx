@@ -14,6 +14,7 @@ const Home: NextPage = (): JSX.Element => {
   //const username = getUserName(props.newSession);
   if(user){
     console.log(user.name);
+    console.log(user.role)
   } else console.log("JWT is a bitch")
   if(status){
     "Please kill me now"
