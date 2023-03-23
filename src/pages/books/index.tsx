@@ -91,9 +91,9 @@ export default function Books(
       field: "title",
       headerName: "Title",
       headerClassName: "header-theme",
-      flex: 1,
       align: "left",
-      minWidth: 250,
+      headerAlign: "left",
+      flex: 1,
       renderCell: (params) => {
         return (
           <div className="text-blue-600">
@@ -102,26 +102,31 @@ export default function Books(
           </div>
         );
       },
+      minWidth: 250,
     },
     {
       field: "author",
       headerName: "Author",
       headerClassName: "header-theme",
-      flex: 1,
       align: "left",
+      headerAlign: "left",
+      flex: 1,
       minWidth: 150,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       minWidth: 125,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price",
       headerClassName: "header-theme",
-      minWidth: 80,
+      align: "left",
+      headerAlign: "left",
       type: "number",
       renderCell: (params) => {
         return (
@@ -131,45 +136,59 @@ export default function Books(
           </div>
         );
       },
-      align: "left",
+      minWidth: 80,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      minWidth: 100,
       align: "left",
+      headerAlign: "left",
+      minWidth: 100,
     },
     {
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
       width: 80,
+    },
+    {
+      field: "shelfSpace",
+      headerName: "Shelf Space",
+      headerClassName: "header-theme",
       align: "left",
+      headerAlign: "left",
+      type: "number",
+      minWidth: 95,
     },
     {
       field: "lastMonthSales",
       headerName: "Monthly Sales",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
       minWidth: 110,
-      align: "left",
     },
     {
       field: "daysSupply",
       headerName: "Days Supply",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
       minWidth: 100,
-      align: "left",
     },
     {
       field: "bestBuyback",
       headerName: "Best Buyback",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
-      minWidth: 110,
       renderCell: (params) => {
         /* eslint-disable */
         const bestBuybackString = params.row.bestBuyback;
@@ -178,7 +197,7 @@ export default function Books(
         /* eslint-enable */
         return <div>{newString}</div>;
       },
-      align: "left",
+      minWidth: 110,
     },
     {
       field: "edit",

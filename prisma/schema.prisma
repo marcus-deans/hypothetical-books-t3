@@ -175,10 +175,10 @@ model Session {
 }
 
 model User {
-  id       String    @id @default(cuid())
-  password String
-  accounts Account[]
-  sessions Session[]
+  id                  String                @id @default(cuid())
+  password            String
+  accounts            Account[]
+  sessions            Session[]
 }
 
 model VerificationToken {
