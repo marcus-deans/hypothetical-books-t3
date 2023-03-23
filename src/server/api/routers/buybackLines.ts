@@ -269,12 +269,17 @@ export const buybackLinesRouter = createTRPCRouter({
         },
       });
 
-      const updatedBuybackLine = await prisma.buybackLine.update({
+      // const updatedBuybackLine = await prisma.buybackLine.update({
+      //   where: {
+      //     id: input.id,
+      //   },
+      //   data: {
+      //     display: false,
+      //   },
+      // });
+      const updatedBuybackLine = await prisma.buybackLine.delete({
         where: {
           id: input.id,
-        },
-        data: {
-          display: false,
         },
       });
       if (!updatedBuybackLine) {

@@ -285,15 +285,15 @@ export const salesLinesRouter = createTRPCRouter({
         },
       });
 
-      // const salesLine = await prisma.salesLine.delete({
-      //   where: { id },
-      // });
-      const updatedSalesLine = await prisma.salesLine.update({
+      const updatedSalesLine = await prisma.salesLine.delete({
         where: { id },
-        data: {
-          display: false,
-        },
       });
+      // const updatedSalesLine = await prisma.salesLine.update({
+      //   where: { id },
+      //   data: {
+      //     display: false,
+      //   },
+      // });
       if (!updatedSalesLine) {
         throw new TRPCError({
           code: "NOT_FOUND",
