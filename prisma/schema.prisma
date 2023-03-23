@@ -176,9 +176,9 @@ model Session {
 
 model User {
   id       String    @id @default(cuid())
-  name     String
+  name     String    @default("default")    
   password String
-  role     String
+  role     String    @default("user")
   display  Boolean   @default(true)
   accounts Account[]
   sessions Session[]

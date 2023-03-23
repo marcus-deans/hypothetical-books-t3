@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 // Prisma adapter for NextAuth, optional and can be removed
 //import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-import { compare, hash } from "bcrypt";
+import { compare } from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -40,19 +40,6 @@ export const authOptions: NextAuthOptions = {
           });
           if (user !== null) {
             //compare the hash
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if(credentials.password == user.password){
-              const userAccount = {
-                id: user.id,
-                name: user.name,
-                role: user.role,
-              };
-              console.log("returning");
-              return userAccount;
-            }
-            /*
-
             const res = await confirmPasswordwithHash(
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
@@ -60,18 +47,19 @@ export const authOptions: NextAuthOptions = {
               credentials.password,
               user.password
             );
-            // console.log(hash(credentials.password, 10));
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            
             if (res === true) {
               const userAccount = {
                 id: user.id,
                 name: user.name,
-                role: user.role,
+                email: null,
+                image: null,
               };
               console.log("returning");
               return userAccount;
-            
-            } 
-            */else {
+            } else {
               console.log("Hash not matched logging in");
               return null;
             }

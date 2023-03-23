@@ -9,6 +9,21 @@ import { passwordSchema } from "../../../schema/user.schema";
 import { contextProps } from "@trpc/react-query/shared";
 
 export const usersRouter = createTRPCRouter({
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const user = await prisma.user.findUnique({
+        where: { id },
+      });
+      if (!user || !user.display) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No user with id '${id}'`,
+        });
+      }
+      return user;
+    }),
   setPassword: publicProcedure
     .input(passwordSchema)
     .mutation(async ({ input }) => {
@@ -92,7 +107,6 @@ export const usersRouter = createTRPCRouter({
     .output(
       z.boolean()
     )
-    .input(z.object({ name: z.string() }))
     .query(async () => {
       const user = await prisma.user.findFirst({
         where: {
