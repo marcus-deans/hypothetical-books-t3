@@ -437,11 +437,14 @@ export const salesReconciliationsRouter = createTRPCRouter({
       }
 
       for (const salesLine of currentSalesReconciliation.salesLines) {
-        const updatedSalesLine = await prisma.salesLine.update({
+        // const updatedSalesLine = await prisma.salesLine.update({
+        //   where: { id: salesLine.id },
+        //   data: {
+        //     display: false,
+        //   },
+        // });
+        const updatedSalesLine = await prisma.salesLine.delete({
           where: { id: salesLine.id },
-          data: {
-            display: false,
-          },
         });
         if (!updatedSalesLine) {
           throw new TRPCError({
@@ -449,24 +452,26 @@ export const salesReconciliationsRouter = createTRPCRouter({
             message: `No sales line to delete with id '${salesLine.id}'`,
           });
         }
-        if (salesLine !== null) {
-          await prisma.book.update({
-            where: { id: salesLine.book.id },
-            data: {
-              inventoryCount: {
-                increment: salesLine.quantity,
-              },
+        await prisma.book.update({
+          where: { id: salesLine.book.id },
+          data: {
+            inventoryCount: {
+              increment: salesLine.quantity,
             },
-          });
-        }
+          },
+        });
       }
 
+      // const updatedSalesReconciliation =
+      //   await prisma.salesReconciliation.update({
+      //     where: { id },
+      //     data: {
+      //       display: false,
+      //     },
+      //   });
       const updatedSalesReconciliation =
-        await prisma.salesReconciliation.update({
+        await prisma.salesReconciliation.delete({
           where: { id },
-          data: {
-            display: false,
-          },
         });
 
       return updatedSalesReconciliation;
