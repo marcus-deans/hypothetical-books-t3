@@ -34,49 +34,38 @@ export const usersRouter = createTRPCRouter({
         message: "Account Created Successfully",
       };
     }),
-  changePassword: publicProcedure
+  changeUserPassword: publicProcedure
     .input(passwordSchema)
+    .output(z.object({
+      success: z.boolean(),
+      message: z.string(),
+    }))
     .mutation(async ({ input }) => {
-      input.password = await hash(input.password, 10);
-      const user = await prisma.user.findFirst({
-        where: {
-          name: input.name,
-        },
-      });
-      if (user?.id === undefined) {
+      if(!input.user){
         return {
-          status: 404,
+          success: false,
+          message: "No User Logged In"
+        }
+      }
+      input.password = await hash(input.password, 10);
+      if (input.user.id === undefined) {
+        return {
+          success: false,
           message: "Account not Found",
         };
       }
       await prisma.user.update({
         where: {
-          id: user.id,
+          id: input.user.id,
         },
         data: {
           password: input.password,
         },
       });
       return {
-        status: 201,
-        message: "Password Edited Successfully",
+        success: true,
+        message: "Password Changed Successfully",
       };
-    }),
-  getByName: publicProcedure
-    .input(passwordSchema)
-    .query(async ({ input }) => {
-      const user = await prisma.user.findFirst({
-        where: {
-          name: input.name,
-        },
-      });
-      if (!user) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `No genre with name '${input.name}'`,
-        });
-      }
-      return user;
     }),
   getAdmin: publicProcedure.query(async () => {
     return await prisma.user.findFirst({

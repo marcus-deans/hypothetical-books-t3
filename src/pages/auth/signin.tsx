@@ -17,15 +17,14 @@ export default function Signin() {
     const res = await signIn("credentials", {
       name: userInfo.name,
       password: userInfo.password,
-      redirect: true,
+      redirect: false,
     }).catch().then()
 
     if (res?.error) {
       alert("Password was incorrect.");
     } else {
-      alert("Sign-in Successful, please proceed.");
       setTimeout(() => {
-        void router.push(`/books`);
+        void router.push(`/`);
       }, 500);
     }
 
