@@ -88,10 +88,8 @@ export const authOptions: NextAuthOptions = {
     session: async ({session, token, user}) => {
       session.user = token.user as ({
         id: string;
-    } & {
-        name?: string | null | undefined;
-        email?: string | null | undefined;
-        image?: string | null | undefined;
+        name?: string;
+        role?: string;
     }) | undefined
       return Promise.resolve(session);
     },
