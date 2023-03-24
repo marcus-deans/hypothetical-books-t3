@@ -86,7 +86,13 @@ export const authOptions: NextAuthOptions = {
       return Promise.resolve(token);
     },
     session: async ({session, token, user}) => {
-      session.user = token.user;
+      session.user = token.user as ({
+        id: string;
+    } & {
+        name?: string | null | undefined;
+        email?: string | null | undefined;
+        image?: string | null | undefined;
+    }) | undefined
       return Promise.resolve(session);
     },
     // eslint-disable-next-line @typescript-eslint/require-await

@@ -15,23 +15,22 @@ export default function ChangePassword() {
   const user = session?.user as CustomUser;
   const mutation = api.users.changeUserPassword.useMutation();
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  const handleSubmit: MouseEventHandler<HTMLButtonElement> = (e) => {
+  const handleSubmit: MouseEventHandler<HTMLButtonElement> =  (e) => {
     // validate your userinfo
     e.preventDefault();
+    if(!user){
+      alert("Login before changing passwords");
+    }
     if (userInfo.password !== userInfo.confirm) {
       alert("Passwords must match");
     } else {
-      mutation.mutate({ user: user, password: userInfo.password });
-      if(mutation.isSuccess){
-        alert(mutation.data.message)
-        if(mutation.data.success){
-          setTimeout(() => {
-            void router.push("/");
-          }, 500);
-        } 
+        mutation.mutate({ user: user, password: userInfo.password });
+        alert("Successfully Changed Password")
+        setTimeout(() => {
+          void router.push("/");
+        }, 500);
       }
     }
-  };
   return (
     <div className="inline-block p-6 space-y-4 md:space-y-6 sm:p-8 w-3/12">
       <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">

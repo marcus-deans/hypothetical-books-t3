@@ -25,7 +25,10 @@ export const usersRouter = createTRPCRouter({
       return user;
     }),
   setPassword: publicProcedure
-    .input(passwordSchema)
+    .input(z.object({
+      name: z.string(),
+      password: z.string(),
+    }))
     .mutation(async ({ input }) => {
       input.password = await hash(input.password, 10);
       await prisma.user.create({ data: input });
