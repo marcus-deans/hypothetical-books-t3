@@ -317,6 +317,7 @@ export const booksRouter = createTRPCRouter({
               },
             },
           },
+          Correction: true,
         },
       });
       if (!book || !book.display) {

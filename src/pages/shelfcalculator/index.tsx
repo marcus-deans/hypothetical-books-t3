@@ -244,10 +244,13 @@ export default function Calculator(
       <Head>
         <title>Shelf Calculator</title>
       </Head>
-      <div className="rounded-lg bg-white px-6 pt-6">
+      <div className="pt-6"></div>
+      <div className="rounded-lg bg-white pt-3">
+        <div className="mb-2 block text-lg font-bold text-gray-700">
+          Shelf Calculator
+        </div>
         <Autocomplete
           options={bookOptions}
-          placeholder={"Search books by title"}
           value={bookValue}
           onChange={(event, newValue: { label: string; id: string } | null) => {
             setBookValue(newValue);
@@ -262,18 +265,20 @@ export default function Calculator(
               inputProps={{
                 ...params.inputProps,
               }}
+              label="Search books by title"
             />
           )}
         />
+        <div className="pt-3"/>
         <button
-          className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
+          className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
           type="button"
           id="button-addon2"
           onClick={handleSubmit}
         >
           Add Book
         </button>
-        <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+        <div className="mt-3 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
           <Box
             sx={{
               height: "auto",
@@ -303,10 +308,10 @@ export default function Calculator(
               }
             />
           </Box>
-          <div className="text-lg">
+          <div className="pt-1 text-lg">
             {`Total Shelf Space: ${totalSpaceSum.toFixed(2)} inches`}
           </div>
-          <div className="text-sm">
+          <div className="text-sm pb-1">
             {
               "*: Shelf space from estimated width of 0.8, height of 8, or width of 6 for zero-valued parameters"
             }

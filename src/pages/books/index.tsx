@@ -203,7 +203,7 @@ export default function Books(
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      width: 70,
+      width: 60,
       align: "center",
       sortable: false,
       filterable: false,

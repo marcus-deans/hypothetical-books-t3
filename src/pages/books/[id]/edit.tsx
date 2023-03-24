@@ -98,6 +98,7 @@ export default function EditBook(
   const genres = genreDetailsQuery?.data?.items ?? [];
   ``;
   const editMutation = api.books.edit.useMutation();
+  const addInventoryCorrectionMutation = api.corrections.add.useMutation();
   const { data } = bookDetailsQuery;
 
   const [retailPrice, setRetailPrice] = useState(
@@ -110,6 +111,7 @@ export default function EditBook(
   const [thickness, setThickness] = useState(data?.thickness.toString() ?? "");
   const [inventory, setInventory] = useState(data?.inventoryCount.toString() ?? "");
   const [tempInventory, setTempInventory] = useState("0");
+  const [finalInventoryCorrection, setFinalInventoryCorrection] = useState("0");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmittingInvCorrection, setIsSubmittingInvCorrection] = useState(false);
   const [genreValue, setGenreValue] = useState<{
@@ -121,7 +123,7 @@ export default function EditBook(
   });
   const [genreInputValue, setGenreInputValue] = useState("");
   const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs(new Date()));
-  const currentDate = dateValue?.toDate();
+  const [inventoryCorrection, setInventoryCorrection] = useState(false);
 
   const handleSubmit = () => {
     setIsSubmitting(true);
@@ -158,6 +160,13 @@ export default function EditBook(
         height: finalHeight,
         thickness: finalThickness,
       });
+
+      if (inventoryCorrection && finalInventoryCorrection !== "0") {
+        addInventoryCorrectionMutation.mutate({
+          bookId: id,
+          quantity: parseInt(tempInventory),
+        });
+      }
     } catch (error) {
       toast.error(`Error submitting form.`);
       console.log(error);
@@ -260,11 +269,12 @@ export default function EditBook(
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => 
   {
-    setTempInventory(inventory);
     setOpen(true);
+    setInventoryCorrection(false);
   };
   const handleClose = () => {
     setOpen(false);
+    setInventoryCorrection(false);
   };
   const [openDialog, setDialogOpen] = React.useState(false);
 
@@ -273,15 +283,17 @@ export default function EditBook(
   };
 
   const handleDialogAccept = () => {
-    setInventory(parseInt(tempInventory).toString());
     setIsSubmittingInvCorrection(false);
     setDialogOpen(false);
     handleClose();
+    setInventoryCorrection(true);
+    setFinalInventoryCorrection(tempInventory);
     toast.success("Inventory correction ready for final submission");
   };
 
   const handleDialogClose = () => {
     setDialogOpen(false);
+    setInventoryCorrection(false);
     setIsSubmittingInvCorrection(false);
   };
 
@@ -290,26 +302,28 @@ export default function EditBook(
     try {
       const finalInventory = Number(tempInventory);
       if (isNaN(finalInventory)) {
-        toast.error("Inventory must be a valid number");
+        toast.error("Inventory change must be a valid number");
         throw new Error("Inventory is not a number");
       }
       if (!Number.isInteger(finalInventory)) {
         toast.error("Inventory must be an integer");
         throw new Error("Inventory is not an integer");
       }
-      if (finalInventory < 0) {
-        toast.error("Inventory must be a positive number");
+      if (parseInt(inventory) + finalInventory < 0) {
+        toast.error("Final Inventory must be a positive number");
         throw new Error("Inventory is not positive");
       }
-      if (finalInventory != parseInt(inventory)) {
+      if (finalInventory !== 0 && parseInt(inventory) + finalInventory >= 0) {
         setDialogOpen(true);
       } else {
         setOpen(false);
         setIsSubmittingInvCorrection(false);
+        setInventoryCorrection(false);
         toast.warn("No Changes Made");
       }
     } catch (error) {
       setIsSubmittingInvCorrection(false);
+      setInventoryCorrection(false);
       return;
     }
   };
@@ -396,31 +410,30 @@ export default function EditBook(
                             disabled
                           />
                           <TextField
-                            id="newinv"
-                            label="New Inventory"
-                            defaultValue={inventory}
-                            variant={"outlined"}
-                            type="number"
+                            id="deltainv"
+                            label="Change / Delta"
+                            value={tempInventory}
                             onChange={(
                               event: React.ChangeEvent<HTMLInputElement>
                             ): void => setTempInventory(event.target.value)}
+                            variant={"outlined"}
+                            type="number"
                             sx={{
-                              "& .MuiInputBase-input": {
-                                WebkitTextFillColor: parseInt(tempInventory) >= 0 ? "black" : "red",
-                              },
                               width: 125,
                             }}
                             required
                           />
                           <TextField
-                            id="deltainv"
-                            label="Change / Delta"
-                            value={isNaN(parseInt(tempInventory) - parseInt(inventory)) ? "--" : parseInt(tempInventory) - parseInt(inventory)}
+                            id="newinv"
+                            label="New Inventory"
+                            value={isNaN(parseInt(inventory) + parseInt(tempInventory)) ? "--" : parseInt(inventory) + parseInt(tempInventory)}
                             variant={"outlined"}
+                            type="number"
                             sx={{
                               "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: isNaN(parseInt(tempInventory) - parseInt(inventory)) ? "black" : parseInt(tempInventory) - parseInt(inventory) >= 0 ? "green" : "red",
+                                WebkitTextFillColor: isNaN(parseInt(tempInventory)) ? "black" : parseInt(tempInventory) + parseInt(inventory) >= 0 ? "green" : "red",
                               },
+                              
                               width: 125,
                             }}
                             disabled
