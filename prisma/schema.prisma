@@ -134,10 +134,6 @@ model Correction {
   book     Book     @relation(fields: [bookId], references: [id])
   bookId   String
   quantity Int
-  // user     User     @relation(fields: [userId], references: [id])
-  // userId   String
-  User     User?    @relation(fields: [userId], references: [id])
-  userId   String?
 }
 
 model CostMostRecentVendor {
@@ -188,13 +184,6 @@ model Session {
 }
 
 model User {
-<<<<<<< HEAD
-  id         String       @id @default(cuid())
-  password   String
-  accounts   Account[]
-  sessions   Session[]
-  Correction Correction[]
-=======
   id       String    @id @default(cuid())
   name     String    @default("default")    
   password String
@@ -202,7 +191,6 @@ model User {
   display  Boolean   @default(true)
   accounts Account[]
   sessions Session[]
->>>>>>> staging
 }
 
 model VerificationToken {

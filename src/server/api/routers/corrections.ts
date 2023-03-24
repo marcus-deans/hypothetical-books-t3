@@ -18,7 +18,7 @@ export const correctionsRouter = createTRPCRouter({
       z.object({
         bookId: z.string(),
         quantity: z.number().int(),
-        userId: z.string(),
+        //userId: z.string(),
       })
     )
 
@@ -29,7 +29,7 @@ export const correctionsRouter = createTRPCRouter({
           inventoryCount: true,
         },
       });
-      if ((bookInventoryCount?.inventoryCount ?? 0) < input.quantity) {
+      if ((bookInventoryCount?.inventoryCount ?? 0) + input.quantity < 0) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
           message: `Not enough inventory for correction of ${input.quantity} books with id ${input.bookId}`,

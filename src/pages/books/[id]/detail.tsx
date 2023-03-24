@@ -385,11 +385,25 @@ export default function BookDetail(
     };
   });
 
+  const inventoryCorrectionRows = data.Correction.map((inventoryCorrection) => {
+    return {
+      id: inventoryCorrection.id,
+      date: inventoryCorrection.date.getTime(),
+      user: "N/A",
+      recordType: "Inventory Correction",
+      quantity: inventoryCorrection.quantity,
+      price: "0",
+      vendor: "N/A",
+      inventoryTotal: "N/A",
+    };
+  });
+
   // TODO: ADD INVENTORY CORRECTION LOGIC
   const masterRows = [
     ...purchaseOrderRows,
     ...buybackOrderRows,
     ...salesReconciliationsRows,
+    ...inventoryCorrectionRows,
   ];
 
   // Sort the rows by date
@@ -400,7 +414,7 @@ export default function BookDetail(
   // Add the inventory total to each row
   let inventoryTotal = 0;
   for (const row of masterRows) {
-    inventoryTotal += row.recordType === "Purchase" ? row.quantity : -row.quantity; // TODO: NEED TO IMPLEMENT INVENTORY CORRECTION LOGIC
+    inventoryTotal += (row.recordType === "Purchase" || row.recordType === "Inventory Correction") ? row.quantity : -row.quantity; // TODO: NEED TO IMPLEMENT INVENTORY CORRECTION LOGIC
     row.inventoryTotal = inventoryTotal.toString();
   }
 
@@ -486,8 +500,14 @@ export default function BookDetail(
       headerAlign: "left",
       type: "number",
       renderCell: (params) => {
+        if (params.row.recordType === "Inventory Correction") {
+          return (
+            <div>
+              N/A
+            </div>
+          );
+        }
         return (
-          // TODO: NEED TO FIGURE OUT IF BUYBACK, PURCHASE, SALE OR INVENTORY CORRECTION
           <div>
             {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
             ${params.row.price}

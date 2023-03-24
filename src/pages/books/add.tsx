@@ -303,6 +303,7 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
+      minWidth: 100,
       flex: 1,
     },
     {
@@ -311,6 +312,7 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
+      minWidth: 100,
       flex: 1,
     },
     {
@@ -378,7 +380,6 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      type: "number",
       width: 85,
     },
     {
