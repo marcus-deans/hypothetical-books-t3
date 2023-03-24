@@ -500,6 +500,7 @@ export default function BookDetail(
       headerAlign: "left",
       type: "number",
       renderCell: (params) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (params.row.recordType === "Inventory Correction") {
           return (
             <div>
