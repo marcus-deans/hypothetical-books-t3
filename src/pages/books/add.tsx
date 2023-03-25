@@ -88,7 +88,6 @@ export default function AddBook() {
   const [pricingData, setPricingData] = useState<number[]>([]);
   const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
   const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
-  // const retrieveMutation = api.googleBooks.simpleRetrieveByISBN.useMutation();
   const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
@@ -96,39 +95,7 @@ export default function AddBook() {
     setSearchQuery(e.target.value);
   };
 
-  const queryBooksRunApi = async (isbns: string[]): Promise<Array<number>> => {
-    const bookPrices: Array<number> = [];
-    for (const isbn of isbns) {
-      console.log(`ISBN: ${isbn}`);
-      const queryURL = `https://booksrun.com/api/v3/price/buy/${isbn}?key=faajt0grxch1m5zcc9cp`;
-      try {
-        // const myInit = {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     "Access-Control-Allow-Origin": "*",
-        //     "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
-        //     "Access-Control-Allow-Headers":
-        //       "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
-        //   },
-        //   mode: "cors",
-        // };
-
-        // const response = await fetch(queryURL, myInit);
-        const response = await fetch(queryURL);
-        if (response.status !== 200) {
-          continue;
-        }
-        const bookPriceResponse = (await response.json()) as BooksRunResponse;
-        bookPrices.push(bookPriceResponse.offers.booksrun.new.price);
-      } catch (error) {
-        toast.error("Error retrieving book price from BooksRun");
-        bookPrices.push(0);
-        console.log(error);
-      }
-    }
-    return bookPrices;
-  };
+  // const googleBooksQuery = api.googleBooks.retrieveByISBNs.useQuery({ isbns: });
 
   const queryGoogleBooksApi = async (
     isbns: string[]
@@ -572,7 +539,8 @@ export default function AddBook() {
             <button
               className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
               type="button"
-              onClick={handleConfirm}>
+              onClick={handleConfirm}
+            >
               Confirm Add Books
             </button>
           </div>

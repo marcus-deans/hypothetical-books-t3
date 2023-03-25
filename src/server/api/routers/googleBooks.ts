@@ -38,10 +38,11 @@ type GoogleBooksDetails = z.infer<typeof GoogleBooksDetailsSchema>;
 type GoogleBooksItems = z.infer<typeof GoogleBooksItemsSchema>;
 type GoogleBooksResponse = z.infer<typeof GoogleBooksResponseSchema>;
 
-// const inputData = BookHookInputSchema.safeParse(parsedData);
-
 export const googleBooksRouter = createTRPCRouter({
-  multipleRetrieveByIsbns: publicProcedure
+  /**
+   * Fetch book details from Google Books API
+   */
+  retrieveByISBNs: publicProcedure
     .input(z.object({ isbns: z.string().min(10).array() }))
     .query(async ({ input }) => {
       // logger.info("Fetching book from Google Books API");
@@ -75,6 +76,9 @@ export const googleBooksRouter = createTRPCRouter({
       return isbnDetails;
     }),
 
+  /**
+   * @deprecated
+   */
   simpleRetrieveByISBN: publicProcedure
     .input(z.object({ isbn: z.string().min(10) }))
     .query(async ({ input }) => {
@@ -108,6 +112,9 @@ export const googleBooksRouter = createTRPCRouter({
       // return jsonified;
     }),
 
+  /**
+   * @deprecated
+   */
   retrieveByISBN: publicProcedure
     .input(z.object({ isbn: z.string().min(10) }))
     .mutation(async ({ input }) => {
