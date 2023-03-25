@@ -41,7 +41,7 @@ model Book {
   display              Boolean                @default(true)
   imgUrl               String?
   costMostRecentVendor CostMostRecentVendor[]
-  Correction           Correction[]
+  correction           Correction[]
 }
 
 model Genre {

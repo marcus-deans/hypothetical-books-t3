@@ -145,9 +145,30 @@ export const bookHookRouter = createTRPCRouter({
         });
 
         if ((bookInventoryCount?.inventoryCount ?? 0) < sale.qty) {
-          throw new TRPCError({
-            code: "PRECONDITION_FAILED",
-            message: `Not enough inventory for sale of ${sale.qty}} of book with ISBN ${sale.isbn}`,
+          const difference =
+            sale.qty - (bookInventoryCount?.inventoryCount ?? 0);
+          console.log(
+            `Book with ISBN ${sale.isbn} has insufficient inventory, adding correction of ${difference}`
+          );
+          await prisma.correction.create({
+            data: {
+              book: {
+                connect: {
+                  id: currentBook.id,
+                },
+              },
+              quantity: difference,
+              date: new Date(),
+            },
+          });
+
+          await prisma.book.update({
+            where: { id: currentBook.id },
+            data: {
+              inventoryCount: {
+                increment: difference,
+              },
+            },
           });
         }
 

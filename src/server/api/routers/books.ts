@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
-import type { bookDetail} from "../../../schema/books.schema";
+import type { bookDetail } from "../../../schema/books.schema";
 import { bookDetailSchema } from "../../../schema/books.schema";
 import { env } from "../../../env/server.mjs";
 
@@ -179,29 +179,26 @@ export const booksRouter = createTRPCRouter({
         books: z.array(z.string()).optional(),
       })
     )
-    .output(
-      z.array(bookDetailSchema),
-    )
+    .output(z.array(bookDetailSchema))
     .query(async ({ input }) => {
-      
-      if(input.books === undefined){
+      if (input.books === undefined) {
         return [];
       }
       const bookList: bookDetail[] = [];
-      for (const entry of input.books){
+      for (const entry of input.books) {
         const isbn_13 = entry;
         const book = await prisma.book.findFirst({
-          where: { isbn_13 } ,
+          where: { isbn_13 },
           include: {
             authors: true,
             genre: true,
           },
-        })
+        });
         const authorObject = book?.authors;
-        const authorList : string[] = [];
-        authorObject?.forEach(function (author){
+        const authorList: string[] = [];
+        authorObject?.forEach(function (author) {
           authorList.push(author.name);
-        })
+        });
         const bookTyped: bookDetail = {
           title: book?.title,
           authors: authorList,
@@ -216,11 +213,10 @@ export const booksRouter = createTRPCRouter({
           retail_price: book?.retailPrice,
           genre: book?.genre.name,
           inventory_count: book?.inventoryCount,
-        }
+        };
         bookList.push(bookTyped);
       }
       return bookList;
-
     }),
 
   getById: publicProcedure
@@ -288,7 +284,7 @@ export const booksRouter = createTRPCRouter({
                 },
               },
             },
-          },
+          },npx
           salesLines: {
             include: {
               salesReconciliation: true,
@@ -317,7 +313,7 @@ export const booksRouter = createTRPCRouter({
               },
             },
           },
-          Correction: true,
+          correction: true,
         },
       });
       if (!book || !book.display) {
