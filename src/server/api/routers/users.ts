@@ -9,8 +9,26 @@ import { passwordSchema } from "../../../schema/user.schema";
 import { contextProps } from "@trpc/react-query/shared";
 
 export const usersRouter = createTRPCRouter({
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const user = await prisma.user.findUnique({
+        where: { id },
+      });
+      if (!user || !user.display) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No user with id '${id}'`,
+        });
+      }
+      return user;
+    }),
   setPassword: publicProcedure
-    .input(passwordSchema)
+    .input(z.object({
+      name: z.string(),
+      password: z.string(),
+    }))
     .mutation(async ({ input }) => {
       input.password = await hash(input.password, 10);
       await prisma.user.create({ data: input });
@@ -19,101 +37,74 @@ export const usersRouter = createTRPCRouter({
         message: "Account Created Successfully",
       };
     }),
-  changePassword: publicProcedure
+  changeUserPassword: publicProcedure
     .input(passwordSchema)
+    .output(z.object({
+      success: z.boolean(),
+      message: z.string(),
+    }))
     .mutation(async ({ input }) => {
-      input.password = await hash(input.password, 10);
-      const user = await prisma.user.findFirst();
-      if (user?.id === undefined) {
+      if(!input.user){
         return {
-          status: 404,
+          success: false,
+          message: "No User Logged In"
+        }
+      }
+      input.password = await hash(input.password, 10);
+      if (input.user.id === undefined) {
+        return {
+          success: false,
           message: "Account not Found",
         };
       }
       await prisma.user.update({
         where: {
-          id: user.id,
+          id: input.user.id,
         },
         data: {
           password: input.password,
         },
       });
       return {
-        status: 201,
-        message: "Password Edited Successfully",
+        success: true,
+        message: "Password Changed Successfully",
       };
     }),
-  getUser: publicProcedure.query(async () => {
-    return await prisma.user.findFirst();
+  getAdmin: publicProcedure.query(async () => {
+    return await prisma.user.findFirst({
+      where: {
+        name: "admin",
+      },
+    });
   }),
-  doesUserExist: publicProcedure
+  createAdmin: publicProcedure
+    .input(z.object({
+      password: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      input.password = await hash(input.password, 10);
+      await prisma.user.create({
+        data: {
+          name: "admin",
+          password: input.password,
+          role: "admin",
+        }
+      });
+      return {
+        status: 201,
+        message: "Account Created Successfully",
+      };
+    }),
+  doesAdminExist: publicProcedure
     .output(
-      z.object({
-        status: z.number(),
-        message: z.string(),
-      })
+      z.boolean()
     )
     .query(async () => {
-      const egg = await prisma.user.findFirst();
-      if (egg == undefined) {
-        return {
-          status: 404,
-          message: "No user found",
-        };
-      } else {
-        return {
-          status: 200,
-          message: "User Found",
-        };
-      }
-    }),
-  /*
-	login: publicProcedure
-		.input(passwordSchema)
-		.query(async ({ input }) => {
-			const { password } = input;
-      const allUser = await prisma.user.findFirst();
-			if (!allUser) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: `User was never registered`,
-				});
-			}
-
-
-      const correctPassword = verify(allUser.password, password)
-      if (!correctPassword) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: `Incorrect Password`,
-				});
-			}
-
-        return allUser;
-	    }),
-
-  byId: publicProcedure
-    .input(z.object({ id: z.string }))
-  input: UserSchema,
-  resolve: async ({ input, ctx }) => {
-    const { password : string} = input;
-    const exists = await ctx.prisma.user.findFirst({
-      where: { email },
-    });
-    if (exists) {
-      throw new trpc.TRPCError({
-        code: "CONFLICT",
-        message: "User already exists.",
+      const user = await prisma.user.findFirst({
+        where: {
+          name: "admin",
+        },
       });
-    }
-    const hashedPassword = await hash(password);
-    const result = await ctx.prisma.user.create({
-      data: { username, email, password: hashedPassword },
-    });
-    return {
-      status: 201,
-      message: "Account created successfully",
-      result: result.email,
-    };
-		*/
+      return (!(user == undefined));
+    }),
 });

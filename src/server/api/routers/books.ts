@@ -314,6 +314,7 @@ export const booksRouter = createTRPCRouter({
               },
             },
           },
+          correction: true,
         },
       });
       if (!book || !book.display) {
@@ -360,7 +361,7 @@ export const booksRouter = createTRPCRouter({
     )
 
     .mutation(async ({ input }) => {
-      const book = await prisma.book.update({
+      return await prisma.book.update({
         where: { id: input.id },
         data: {
           retailPrice: input.retailPrice,
@@ -372,8 +373,6 @@ export const booksRouter = createTRPCRouter({
           imgUrl: `https://${env.AWS_S3_BUCKET}.s3.amazonaws.com/images/${input.id}`,
         },
       });
-
-      return book;
     }),
 
   add: publicProcedure

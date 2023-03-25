@@ -1,3 +1,4 @@
+import { User } from "next-auth";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -94,6 +95,17 @@ function Nav() {
                   aria-current="page"
                 >
                   Genres
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/shelfcalculator"
+                  className={
+                    /shelfcalculator\/*/.test(currentRoute) ? active : nonActive
+                  }
+                  aria-current="page"
+                >
+                  Calculator
                 </Link>
               </li>
               <li>

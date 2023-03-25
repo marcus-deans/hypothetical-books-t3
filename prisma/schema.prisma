@@ -36,11 +36,11 @@ model Book {
   purchaseLines         PurchaseLine[]
   salesLines            SalesLine[]
   buybackLines          BuybackLine[]
-  // to Be determined
   inventoryCount        Int
   display               Boolean                @default(true)
   imgUrl                String?
   costMostRecentVendor  CostMostRecentVendor[]
+  correction           Correction[]
   relatedBooks          Book[]                 @relation("RelatedBooks")
   symmetricRelatedBooks Book[]                 @relation("RelatedBooks")
 }
@@ -129,6 +129,14 @@ model BuybackLine {
   display          Boolean      @default(true)
 }
 
+model Correction {
+  id       String   @id @default(cuid())
+  date     DateTime
+  book     Book     @relation(fields: [bookId], references: [id])
+  bookId   String
+  quantity Int
+}
+
 model CostMostRecentVendor {
   id              String        @id @default(cuid())
   book            Book          @relation(fields: [bookId], references: [id])
@@ -178,7 +186,10 @@ model Session {
 
 model User {
   id       String    @id @default(cuid())
+  name     String    @default("default")    
   password String
+  role     String    @default("user")
+  display  Boolean   @default(true)
   accounts Account[]
   sessions Session[]
 }

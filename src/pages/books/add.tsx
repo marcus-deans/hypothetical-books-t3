@@ -1,7 +1,6 @@
 import Head from "next/head";
 import React, { useState } from "react";
 import { api } from "../../utils/api";
-import { Button } from "@mui/material";
 import { useRouter } from "next/router";
 import type {
   GridColDef,
@@ -52,19 +51,6 @@ interface GoogleBookDetails {
     large: string | null;
   };
 }
-
-interface BooksRunResponse {
-  status: string;
-  message: string;
-  offers: {
-    booksrun: {
-      new: {
-        price: number;
-      };
-    };
-  };
-}
-
 interface BookDetails {
   id: number;
   imgUrl: string;
@@ -84,14 +70,14 @@ interface BookDetails {
 
 export default function AddBook() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [dataRetrieved, setDataRetrieved] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [pricingData, setPricingData] = useState<number[]>([]);
-  const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
   const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
-  // const retrieveMutation = api.googleBooks.simpleRetrieveByISBN.useMutation();
 
   const [parsedIsbns, setParsedIsbns] = useState<string[]>([]);
+  const retrieveDetailsQuery = api.googleBooks.retrieveByISBNs.useQuery(
+    { isbns: parsedIsbns },
+    { enabled: !!parsedIsbns }
+  );
   const retrievePricingQuery = api.googleBooks.retrievePricingData.useQuery(
     { isbns: parsedIsbns },
     { enabled: !!parsedIsbns }
@@ -105,46 +91,19 @@ export default function AddBook() {
   );
   type relatedBookReturnType = typeof findRelatedBooksQuery.data;
 
-  const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
   const handleType = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
-  const queryGoogleBooksApi = async (
-    isbns: string[]
-  ): Promise<Array<GoogleBookDetails>> => {
-    const bookDetails: Array<GoogleBookDetails> = [];
-    for (const isbn of isbns) {
-      console.log(`ISBN: ${isbn}`);
-      const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=AIzaSyCUvnosRtoQlB8Br25-ozT7Oq00x0FI50o`;
-      try {
-        const response = await fetch(queryURL);
-        if (response.status !== 200) {
-          continue;
-        }
-        const googleBookResponse =
-          (await response.json()) as GoogleBookResponse;
-        googleBookResponse.items.map((item) => {
-          bookDetails.push(item.volumeInfo);
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    return bookDetails;
-  };
-
-  const performQuery = async (isbnSearchList: string[]) => {
-    const googleBooksData = await queryGoogleBooksApi(isbnSearchList);
-    setParsedIsbns(isbnSearchList);
+  const performQuery = () => {
+    const googleBooksData = retrieveDetailsQuery?.data ?? [];
     const pricingData = retrievePricingQuery?.data ?? [];
     if (googleBooksData) {
       console.log("Setting retreived books with:");
       console.log(googleBooksData);
-      setRetrievedBooks(googleBooksData);
-      retrievedBooks.map((retrievedBook, index) => {
+      googleBooksData.map((retrievedBook, index) => {
         console.log("Adding retrieved book to rows");
         console.log(retrievedBook);
         let isbn_10 = null;
@@ -171,6 +130,8 @@ export default function AddBook() {
         setCurrentTitle(retrievedBook.title);
         setCurrentAuthor(retrievedBook.authors.join(", "));
         const relatedBooks = findRelatedBooksQuery?.data ?? [];
+        console.log("Related books:");
+        console.log(relatedBooks);
 
         const displayBook = {
           imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
@@ -201,13 +162,12 @@ export default function AddBook() {
     if (searchQuery === "") {
       return;
     }
-    setRetrievedBooks([]);
     setIsLoaded(false);
-
+    setDisplayedBooks([]);
     // 9781250158079, 9781101904954, 9780393072235
     const isbnSearchList = searchQuery.replace(/-/g, "").split(/[\s,;\t\n]+/g);
-
-    void performQuery(isbnSearchList);
+    setParsedIsbns(isbnSearchList);
+    performQuery();
     setSearchQuery("");
   };
 
@@ -268,6 +228,8 @@ export default function AddBook() {
       field: "image",
       headerName: "Cover",
       headerClassName: "header-theme",
+      width: 60,
+      align: "center",
       renderCell: (params) => {
         /* eslint-disable */
         let url = params.row.imgUrl as string;
@@ -287,32 +249,44 @@ export default function AddBook() {
       field: "title",
       headerName: "Book Title",
       headerClassName: "header-theme",
-      minWidth: 250,
+      align: "left",
+      headerAlign: "left",
+      minWidth: 100,
+      flex: 1,
     },
     {
       field: "authors",
       headerName: "Authors",
       headerClassName: "header-theme",
-      minWidth: 200,
+      align: "left",
+      headerAlign: "left",
+      minWidth: 100,
+      flex: 1,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 125,
     },
     {
       field: "isbn_10",
       headerName: "ISBN-10",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 110,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price ($)",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
-      width: 150,
+      maxWidth: 70,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError =
           isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
@@ -324,6 +298,8 @@ export default function AddBook() {
       field: "pageCount",
       headerName: "Page Count",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
       width: 100,
       editable: true,
@@ -332,28 +308,36 @@ export default function AddBook() {
       field: "publisher",
       headerName: "Publisher",
       headerClassName: "header-theme",
-      minWidth: 125,
+      align: "left",
+      headerAlign: "left",
+      minWidth: 150,
     },
     {
       field: "genre",
       headerName: "Genre",
       type: "string",
-      editable: true,
       headerClassName: "header-theme",
-      minWidth: 125,
+      align: "left",
+      headerAlign: "left",
+      editable: true,
+      minWidth: 150,
     },
     {
       field: "publicationYear",
-      headerName: "Publication Year",
+      headerName: "Pub. Year",
       headerClassName: "header-theme",
-      maxWidth: 125,
+      align: "left",
+      headerAlign: "left",
+      width: 85,
     },
     {
       field: "width",
       headerName: "Width (in.)",
-      type: "number",
       headerClassName: "header-theme",
-      maxWidth: 125,
+      type: "number",
+      align: "left",
+      headerAlign: "left",
+      width: 90,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError =
           isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
@@ -366,7 +350,9 @@ export default function AddBook() {
       headerName: "Height (in.)",
       type: "number",
       headerClassName: "header-theme",
-      maxWidth: 125,
+      align: "left",
+      headerAlign: "left",
+      width: 90,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError =
           isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
@@ -378,7 +364,9 @@ export default function AddBook() {
       field: "thickness",
       headerName: "Thickness (in.)",
       headerClassName: "header-theme",
-      width: 170,
+      align: "left",
+      headerAlign: "left",
+      width: 120,
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError =
           isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
@@ -460,41 +448,7 @@ export default function AddBook() {
   };
 
   const rows = displayedBooks;
-  // const rows: BookDetails[] = retrievedBooks.map((retrievedBook, index) => {
-  //   console.log("Adding retrieved book to rows");
-  //   console.log(retrievedBook);
-  //   let isbn_10 = null;
-  //   let isbn_13 = null;
-  //   if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
-  //     isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
-  //     if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
-  //       isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
-  //     }
-  //   }
-  //   if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_13") {
-  //     isbn_13 = retrievedBook.industryIdentifiers[1].identifier;
-  //     if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_10") {
-  //       isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
-  //     }
-  //   }
-  //
-  //   return {
-  //     imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
-  //     id: index,
-  //     title: retrievedBook.title,
-  //     authors: retrievedBook.authors.join(", "),
-  //     isbn_13: isbn_13 ?? "Unknown",
-  //     isbn_10: isbn_10 ?? "Unknown",
-  //     publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
-  //     pageCount: isNaN(retrievedBook.pageCount) ? 0 : retrievedBook.pageCount,
-  //     publisher: retrievedBook.publisher ?? "Unknown",
-  //     genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
-  //     width: 5,
-  //     height: 8,
-  //     thickness: 0.5,
-  //     retailPrice: 0,
-  //   };
-  // });
+
   // 9780812979688, 9781250158079
   if (isLoaded) {
     console.log("all rows");
@@ -553,6 +507,9 @@ export default function AddBook() {
               "& .header-theme": {
                 backgroundColor: "rgba(56, 116, 203, 0.35)",
               },
+              "& .MuiDataGrid-cell--textLeft": {
+                textAlign: "left",
+              },
             }}
           >
             <StripedDataGrid
@@ -562,11 +519,10 @@ export default function AddBook() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 Toolbar: GridToolbar,
               }}
-              pageSize={6}
-              rowsPerPageOptions={[6]}
+              pageSize={10}
+              rowsPerPageOptions={[10]}
               autoHeight={true}
               getRowHeight={() => "auto"}
-              checkboxSelection
               disableSelectionOnClick
               processRowUpdate={processRowUpdate}
               onProcessRowUpdateError={handleProcessRowUpdateError}
@@ -578,9 +534,13 @@ export default function AddBook() {
             />
           </Box>
           <div className="space flex py-3">
-            <Button variant="contained" color="primary" onClick={handleConfirm}>
+            <button
+              className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+              type="button"
+              onClick={handleConfirm}
+            >
               Confirm Add Books
-            </Button>
+            </button>
           </div>
         </div>
       </>

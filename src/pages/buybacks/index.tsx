@@ -31,12 +31,16 @@ export default function sales(
       field: "id",
       headerName: "Buyback Order ID",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       width: 210,
     },
     {
       field: "date",
       headerName: "Buyback Date",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -51,24 +55,43 @@ export default function sales(
       field: "vendor",
       headerName: "Vendor",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
       field: "totalQuantity",
       headerName: "Total Quantity",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 110,
     },
     {
       field: "totalPrice",
       headerName: "Total Price",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.totalPrice}
+          </div>
+        );
+      },
       minWidth: 110,
     },
     {
       field: "totalUniqueBooks",
       headerName: "Total Unique Books",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 150,
     },
   ];
@@ -79,7 +102,7 @@ export default function sales(
       date: buybackOrder.buybackOrder.date.toLocaleDateString(),
       totalQuantity: buybackOrder.totalQuantity,
       vendor: buybackOrder.buybackOrder.vendor.name,
-      totalPrice: `$${buybackOrder.totalPrice.toFixed(2)}`,
+      totalPrice: `${buybackOrder.totalPrice.toFixed(2)}`,
       totalUniqueBooks: buybackOrder.totalUniqueBooks,
     };
   });
@@ -129,8 +152,7 @@ export default function sales(
             pageSize={10}
             rowsPerPageOptions={[10]}
             autoHeight={true}
-            getRowHeight={() => "auto"}
-            checkboxSelection
+            rowHeight={40}
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>

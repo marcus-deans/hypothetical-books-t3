@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
 import Head from "next/head";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import React, { useState } from "react";
 import { api } from "../../utils/api";
 import type {
@@ -21,17 +23,14 @@ import {
   GridToolbarContainer,
   GridToolbarDensitySelector,
   GridToolbarFilterButton,
-  gridPaginatedVisibleSortedGridRowIdsSelector,
   gridVisibleSortedRowIdsSelector,
   useGridApiContext,
 } from "@mui/x-data-grid";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { GridToolbar } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
-import logger from "../../utils/logger";
 import type { ButtonProps } from "@mui/material";
 import { Button, createSvgIcon } from "@mui/material";
 import * as CSV from "csv-string";
@@ -40,7 +39,6 @@ import type {
   CSVBookExportEntry,
 } from "../../schema/exports.schema";
 import EditLink from "../../components/table-components/EditLink";
-import Modal from "@mui/material/Modal";
 import Image from "next/image";
 import DeleteLink from "../../components/table-components/DeleteLink";
 
@@ -93,9 +91,9 @@ export default function Books(
       field: "title",
       headerName: "Title",
       headerClassName: "header-theme",
-      flex: 1,
       align: "left",
-      minWidth: 250,
+      headerAlign: "left",
+      flex: 1,
       renderCell: (params) => {
         return (
           <div className="text-blue-600">
@@ -104,26 +102,31 @@ export default function Books(
           </div>
         );
       },
+      minWidth: 250,
     },
     {
       field: "author",
       headerName: "Author",
       headerClassName: "header-theme",
-      flex: 1,
       align: "left",
+      headerAlign: "left",
+      flex: 1,
       minWidth: 150,
     },
     {
       field: "isbn_13",
       headerName: "ISBN-13",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       minWidth: 125,
     },
     {
       field: "retailPrice",
       headerName: "Retail Price",
       headerClassName: "header-theme",
-      minWidth: 80,
+      align: "left",
+      headerAlign: "left",
       type: "number",
       renderCell: (params) => {
         return (
@@ -133,71 +136,74 @@ export default function Books(
           </div>
         );
       },
-      align: "left",
+      minWidth: 80,
     },
     {
       field: "genre",
       headerName: "Genre",
       headerClassName: "header-theme",
-      minWidth: 100,
       align: "left",
+      headerAlign: "left",
+      minWidth: 100,
     },
     {
       field: "inventoryCount",
       headerName: "Inventory",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
       width: 80,
-      align: "left",
     },
     {
       field: "shelfSpace",
       headerName: "Shelf Space",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
       minWidth: 95,
-      align: "left",
     },
     {
       field: "lastMonthSales",
       headerName: "Monthly Sales",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
       minWidth: 110,
-      align: "left",
     },
     {
       field: "daysSupply",
       headerName: "Days Supply",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
       minWidth: 100,
-      align: "left",
     },
     {
       field: "bestBuyback",
       headerName: "Best Buyback",
       headerClassName: "header-theme",
-      type: "number",
-      minWidth: 110,
-      renderCell: (params) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        const bestBuybackString = params.row.bestBuyback;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/restrict-template-expressions
-        const newString = bestBuybackString === "0" ? "-" : `$${bestBuybackString}`;
-        return (
-          <div>
-            {newString}
-          </div>
-        );
-      },
       align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        /* eslint-disable */
+        const bestBuybackString = params.row.bestBuyback;
+        const newString =
+          bestBuybackString === "0" ? "-" : `$${bestBuybackString}`;
+        /* eslint-enable */
+        return <div>{newString}</div>;
+      },
+      minWidth: 110,
     },
     {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
-      width: 70,
+      width: 60,
       align: "center",
       sortable: false,
       filterable: false,
@@ -224,10 +230,6 @@ export default function Books(
 
   const rows = books.map((book) => {
     const bookThickness = book.thickness;
-    const shelfSpace =
-      bookThickness === 0
-        ? (0.8 * book.inventoryCount).toFixed(2)
-        : (bookThickness * book.inventoryCount).toFixed(2);
     let lastMonthSales = 0;
     const today = new Date();
     const thirtyDaysAgo = new Date(new Date().setDate(today.getDate() - 30));
@@ -249,10 +251,7 @@ export default function Books(
         costMostRecentVendor.purchaseLine.unitWholesalePrice;
       bestBuybackPrice = Math.max(bestBuybackPrice, currentVendorOffer);
     }
-    const shelfSpaceString =
-      bookThickness === 0
-        ? `${shelfSpace.toString()}* in.`
-        : `${shelfSpace.toString()} in.`;
+
     const bestBuybackString =
       bestBuybackPrice === 0 ? "0" : `${bestBuybackPrice.toFixed(2)}`;
 
@@ -265,7 +264,6 @@ export default function Books(
       genre: book.genre.name,
       inventoryCount: book.inventoryCount,
       imgUrl: book.imgUrl,
-      shelfSpace: shelfSpaceString,
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),
       bestBuyback: bestBuybackString,
@@ -307,15 +305,15 @@ export default function Books(
       console.log("Starting Export");
       console.log(exportQuery);
       if (!exportQuery.isSuccess) {
-        alert("Data Not Fetched");
+        toast.error("Data Not Fetched");
         return;
       }
       if (exportedBooks === undefined) {
-        alert("No Books in Export");
+        toast.error("No Books in Export");
         return;
       }
       if (calculatedExportValues === undefined) {
-        alert("Data not Available on Table for Export");
+        toast.error("Data not Available on Table for Export");
         return;
       }
       console.log(calculatedExportValues);
@@ -334,7 +332,6 @@ export default function Books(
           "retail_price",
           "genre",
           "inventory_count",
-          "shelf_space_inches",
           "last_month_sales",
           "days_of_supply",
           "best_buyback_price",
@@ -342,7 +339,7 @@ export default function Books(
         data: [],
       };
       if (exportQuery.data.length !== calculatedExportValues?.length) {
-        alert("Backend Error in Database");
+        toast.error("Backend Error in Database");
         return;
       }
       exportQuery.data.forEach(function (book, index) {
@@ -370,8 +367,6 @@ export default function Books(
           const calculatedEntry = calculatedExportValues.at(index)!;
           if (calculatedEntry.at(0) !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const shelf = calculatedEntry.at(0)!;
-            entry.shelf_space_inches = parseFloat(shelf);
           }
           if (calculatedEntry.at(0) !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -407,7 +402,6 @@ export default function Books(
         { id: "retail_price", title: "retail_price" },
         { id: "genre", title: "genre" },
         { id: "inventory_count", title: "inventory_count" },
-        { id: "shelf_space_inches", title: "shelf_space_inches" },
         { id: "last_month_sales", title: "last_month_sales" },
         { id: "days_of_supply", title: "days_of_supply" },
         { id: "best_buyback_price", title: "best_buyback_price" },
@@ -431,7 +425,6 @@ export default function Books(
         lineArray.push(value.retail_price.toString());
         lineArray.push(value.genre.replace(",", "-"));
         lineArray.push(value.inventory_count.toString());
-        lineArray.push(value.shelf_space_inches.toString());
         lineArray.push(value.last_month_sales.toString());
         lineArray.push(value.days_of_supply.toString());
         lineArray.push(value.best_buyback_price.toString());
@@ -467,7 +460,6 @@ export default function Books(
               getRowsToExport: getFilteredRows,
               fields: [
                 "isbn_13",
-                "shelfSpace",
                 "lastMonthSales",
                 "daysSupply",
                 "bestBuyback",
@@ -536,10 +528,8 @@ export default function Books(
             }
           />
         </Box>
-        <div className="text-sm">
-          {'*: Shelf space from estimated width of 0.8"'}
-        </div>
       </div>
+      <ToastContainer></ToastContainer>
     </>
   );
 }
