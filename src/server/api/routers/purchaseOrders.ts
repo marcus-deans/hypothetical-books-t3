@@ -703,11 +703,14 @@ export const purchaseOrdersRouter = createTRPCRouter({
             message: `Cannot delete purchase order of ${purchasedCount} boks`,
           });
         }
-        const deletedPurchaseLine = await prisma.purchaseLine.update({
+        // const deletedPurchaseLine = await prisma.purchaseLine.update({
+        //   where: { id: purchaseLine.id },
+        //   data: {
+        //     display: false,
+        //   },
+        // });
+        const deletedPurchaseLine = await prisma.purchaseLine.delete({
           where: { id: purchaseLine.id },
-          data: {
-            display: false,
-          },
         });
         if (!deletedPurchaseLine) {
           throw new TRPCError({
@@ -725,11 +728,14 @@ export const purchaseOrdersRouter = createTRPCRouter({
         });
       }
 
-      const purchaseOrder = await prisma.purchaseOrder.update({
+      // const purchaseOrder = await prisma.purchaseOrder.update({
+      //   where: { id },
+      //   data: {
+      //     display: false,
+      //   },
+      // });
+      const purchaseOrder = await prisma.purchaseOrder.delete({
         where: { id },
-        data: {
-          display: false,
-        },
       });
       if (!purchaseOrder) {
         throw new TRPCError({

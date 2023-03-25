@@ -62,18 +62,41 @@ export default function BuybackOrderDetail(
       field: "unitBuybackPrice",
       headerName: "Unit Buyback Price",
       headerClassName: "header-theme",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.unitBuybackPrice}
+          </div>
+        );
+      },
       minWidth: 150,
     },
     {
       field: "quantity",
       headerName: "Quantity",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
       minWidth: 80,
     },
     {
       field: "subtotal",
       headerName: "Subtotal",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      renderCell: (params) => {
+        return (
+          <div>
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            ${params.row.subtotal}
+          </div>
+        );
+      },
       minWidth: 80,
     },
     {
@@ -110,9 +133,9 @@ export default function BuybackOrderDetail(
         bookId: buybackLine.book.id,
         title: buybackLine.book.title,
         isbn_13: buybackLine.book.isbn_13,
-        unitBuybackPrice: `$${buybackLine.unitBuybackPrice.toFixed(2)}`,
+        unitBuybackPrice: `${buybackLine.unitBuybackPrice.toFixed(2)}`,
         quantity: buybackLine.quantity,
-        subtotal: `$${(
+        subtotal: `${(
           buybackLine.unitBuybackPrice * buybackLine.quantity
         ).toFixed(2)}`,
       };
@@ -186,8 +209,7 @@ export default function BuybackOrderDetail(
             pageSize={10}
             rowsPerPageOptions={[10]}
             autoHeight={true}
-            getRowHeight={() => "auto"}
-            checkboxSelection
+            rowHeight={40}
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>
