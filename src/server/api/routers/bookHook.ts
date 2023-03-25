@@ -44,7 +44,13 @@ export const bookHookRouter = createTRPCRouter({
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           return Array.isArray(data) ? data : [data];
         }),
-        "@_date": z.string(),
+        "@_date": z
+          .union([z.string(), z.number(), z.date()])
+          .pipe(
+            z.coerce
+              .date()
+              .max(new Date(), { message: "Date is in the future" })
+          ),
       });
       const BookHookInputSchema = z.object({
         "?xml": z
@@ -64,15 +70,14 @@ export const bookHookRouter = createTRPCRouter({
       console.log("Parsed data: ");
       console.log(parsedData);
 
-      let salesDate = "";
-
+      let salesDate = new Date();
       const processedData: BookHookItem[] = [];
       const inputData = BookHookInputSchema.safeParse(parsedData);
       if (!inputData.success) {
         console.log("Data is invalid");
         throw new TRPCError({
           code: "PARSE_ERROR",
-          message: "Data did not match the expected format",
+          message: "The data did not match the expected format",
         });
       } else {
         console.log("Data is valid");
@@ -107,10 +112,9 @@ export const bookHookRouter = createTRPCRouter({
           message: "No ISBNs could be found",
         });
       }
-      const salesDateFormatted = new Date(salesDate);
       const salesReconciliation = await prisma.salesReconciliation.create({
         data: {
-          date: salesDateFormatted,
+          date: salesDate,
         },
       });
 
@@ -153,7 +157,7 @@ export const bookHookRouter = createTRPCRouter({
                 },
               },
               quantity: difference,
-              date: salesDateFormatted,
+              date: salesDate,
             },
           });
 
