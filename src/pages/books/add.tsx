@@ -1,7 +1,6 @@
 import Head from "next/head";
 import React, { useState } from "react";
 import { api } from "../../utils/api";
-import { Button } from "@mui/material";
 import { useRouter } from "next/router";
 import type {
   GridColDef,
@@ -50,19 +49,6 @@ interface GoogleBookDetails {
     large: string | null;
   };
 }
-
-interface BooksRunResponse {
-  status: string;
-  message: string;
-  offers: {
-    booksrun: {
-      new: {
-        price: number;
-      };
-    };
-  };
-}
-
 interface BookDetails {
   id: number;
   imgUrl: string;
@@ -82,13 +68,14 @@ interface BookDetails {
 
 export default function AddBook() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [dataRetrieved, setDataRetrieved] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [pricingData, setPricingData] = useState<number[]>([]);
-  const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
   const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
 
   const [parsedIsbns, setParsedIsbns] = useState<string[]>([]);
+  const retrieveDetailsQuery = api.googleBooks.retrieveByISBNs.useQuery(
+    { isbns: parsedIsbns },
+    { enabled: !!parsedIsbns }
+  );
   const retrievePricingQuery = api.googleBooks.retrievePricingData.useQuery(
     { isbns: parsedIsbns },
     { enabled: !!parsedIsbns }
@@ -102,47 +89,19 @@ export default function AddBook() {
   );
   type relatedBookReturnType = typeof findRelatedBooksQuery.data;
 
-  const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
   const handleType = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
-  // const googleBooksQuery = api.googleBooks.retrieveByISBNs.useQuery({ isbns: });
-  const queryGoogleBooksApi = async (
-    isbns: string[]
-  ): Promise<Array<GoogleBookDetails>> => {
-    const bookDetails: Array<GoogleBookDetails> = [];
-    for (const isbn of isbns) {
-      console.log(`ISBN: ${isbn}`);
-      const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=AIzaSyCUvnosRtoQlB8Br25-ozT7Oq00x0FI50o`;
-      try {
-        const response = await fetch(queryURL);
-        if (response.status !== 200) {
-          continue;
-        }
-        const googleBookResponse =
-          (await response.json()) as GoogleBookResponse;
-        googleBookResponse.items.map((item) => {
-          bookDetails.push(item.volumeInfo);
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    return bookDetails;
-  };
-
-  const performQuery = async (isbnSearchList: string[]) => {
-    const googleBooksData = await queryGoogleBooksApi(isbnSearchList);
-    setParsedIsbns(isbnSearchList);
+  const performQuery = () => {
+    const googleBooksData = retrieveDetailsQuery?.data ?? [];
     const pricingData = retrievePricingQuery?.data ?? [];
     if (googleBooksData) {
       console.log("Setting retreived books with:");
       console.log(googleBooksData);
-      setRetrievedBooks(googleBooksData);
-      retrievedBooks.map((retrievedBook, index) => {
+      googleBooksData.map((retrievedBook, index) => {
         console.log("Adding retrieved book to rows");
         console.log(retrievedBook);
         let isbn_10 = null;
@@ -169,6 +128,8 @@ export default function AddBook() {
         setCurrentTitle(retrievedBook.title);
         setCurrentAuthor(retrievedBook.authors.join(", "));
         const relatedBooks = findRelatedBooksQuery?.data ?? [];
+        console.log("Related books:");
+        console.log(relatedBooks);
 
         const displayBook = {
           imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
@@ -199,13 +160,12 @@ export default function AddBook() {
     if (searchQuery === "") {
       return;
     }
-    setRetrievedBooks([]);
     setIsLoaded(false);
-
+    setDisplayedBooks([]);
     // 9781250158079, 9781101904954, 9780393072235
     const isbnSearchList = searchQuery.replace(/-/g, "").split(/[\s,;\t\n]+/g);
-
-    void performQuery(isbnSearchList);
+    setParsedIsbns(isbnSearchList);
+    performQuery();
     setSearchQuery("");
   };
 
@@ -437,41 +397,7 @@ export default function AddBook() {
   };
 
   const rows = displayedBooks;
-  // const rows: BookDetails[] = retrievedBooks.map((retrievedBook, index) => {
-  //   console.log("Adding retrieved book to rows");
-  //   console.log(retrievedBook);
-  //   let isbn_10 = null;
-  //   let isbn_13 = null;
-  //   if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
-  //     isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
-  //     if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
-  //       isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
-  //     }
-  //   }
-  //   if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_13") {
-  //     isbn_13 = retrievedBook.industryIdentifiers[1].identifier;
-  //     if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_10") {
-  //       isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
-  //     }
-  //   }
-  //
-  //   return {
-  //     imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
-  //     id: index,
-  //     title: retrievedBook.title,
-  //     authors: retrievedBook.authors.join(", "),
-  //     isbn_13: isbn_13 ?? "Unknown",
-  //     isbn_10: isbn_10 ?? "Unknown",
-  //     publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
-  //     pageCount: isNaN(retrievedBook.pageCount) ? 0 : retrievedBook.pageCount,
-  //     publisher: retrievedBook.publisher ?? "Unknown",
-  //     genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
-  //     width: 5,
-  //     height: 8,
-  //     thickness: 0.5,
-  //     retailPrice: 0,
-  //   };
-  // });
+
   // 9780812979688, 9781250158079
   if (isLoaded) {
     console.log("all rows");

@@ -18,6 +18,13 @@ const GoogleBooksDetailsSchema = z.object({
   pageCount: z.number(),
   publisher: z.string().optional(),
   categories: z.string().array().optional(),
+  imageLinks: z.object({
+    smallThumbnail: z.string().optional(),
+    thumbnail: z.string().optional(),
+    small: z.string().optional(),
+    medium: z.string().optional(),
+    large: z.string().optional(),
+  }),
 });
 
 const GoogleBooksItemsSchema = z.object({
@@ -166,11 +173,21 @@ export const googleBooksRouter = createTRPCRouter({
       console.log("Fetching price details from API");
       const bookPrices: Array<number> = [];
 
+      const BooksRunOfferSchema = z.object({
+        price: z.number(),
+        cart_url: z.string(),
+      });
+      const BooksRunOffersSchema = z.object({
+        booksrun: z.object({
+          new: BooksRunOfferSchema.optional(),
+          used: BooksRunOfferSchema.optional(),
+        }),
+      });
       const BooksRunResponseSchema = z.object({
         result: z.object({
           status: z.string(),
           message: z.string(),
-          offers: z.any(),
+          offers: BooksRunOffersSchema,
         }),
       });
       type BooksRunResponse = z.infer<typeof BooksRunResponseSchema>;
@@ -182,22 +199,24 @@ export const googleBooksRouter = createTRPCRouter({
             .then((response) => response.json())
             .then((response) => {
               console.log(response);
-              if (BooksRunResponseSchema.safeParse(response).success) {
-                console.log("successfully parsed response");
-                const bookPriceResponse = response as BooksRunResponse;
-                type bookPriceDetails = {
-                  booksrun: {
-                    new: {
-                      price: number;
-                    };
-                  };
-                };
-                const bookPriceResponseDetails = bookPriceResponse.result
-                  .offers as bookPriceDetails;
-                bookPrices.push(bookPriceResponseDetails.booksrun.new.price);
-              } else {
-                console.log("Error retrieving book price from BooksRun");
+              const bookPriceResponse =
+                BooksRunResponseSchema.safeParse(response);
+              if (!bookPriceResponse.success) {
+                console.log("Could not parse response successfully");
                 bookPrices.push(0);
+                return;
+              } else {
+                console.log("Successfully retrieved book price from BooksRun");
+                try {
+                  const newPrice = BooksRunOfferSchema.parse(
+                    bookPriceResponse.data.result.offers.booksrun.new
+                  ).price;
+                  console.log(`New price ${newPrice}`);
+                  bookPrices.push(newPrice);
+                } catch (error) {
+                  console.log("Could not get new price");
+                  bookPrices.push(0);
+                }
               }
             });
         } catch (error) {
