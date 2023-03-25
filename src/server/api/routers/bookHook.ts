@@ -65,35 +65,38 @@ export const bookHookRouter = createTRPCRouter({
       let salesDate = "";
 
       const processedData: BookHookItem[] = [];
-      if (BookHookInputSchema.safeParse(parsedData).success) {
-        const inputData = parsedData as BookHookInput;
+      const inputData = BookHookInputSchema.safeParse(parsedData);
+      if (!inputData.success) {
+        console.log("Data is invalid");
+        throw new TRPCError({
+          code: "PARSE_ERROR",
+          message: "Data did not match the expected format",
+        });
+      } else {
         console.log("Data is valid");
-        inputData.sale.item.forEach((item) => {
-          salesDate = inputData.sale["@_date"];
-          if (BookHookItemSchema.safeParse(item).success) {
-            const itemData = item as BookHookItem;
-            const parsedIsbn = itemData.isbn.replace(/-/g, "");
+        salesDate = inputData.data.sale["@_date"];
+        inputData.data.sale.item.forEach((item) => {
+          const itemData = BookHookItemSchema.safeParse(item);
+          if (!itemData.success) {
+            console.log("Item is invalid");
+            return;
+          } else {
+            console.log("Current item is valid");
+            console.log(item);
+            const parsedIsbn = itemData.data.isbn.replace(/-/g, "");
             if (parsedIsbn.length !== 10 && parsedIsbn.length !== 13) {
               console.log(`Item with ISBN ${parsedIsbn} is invalid`);
               return;
             }
             processedData.push({
               isbn: parsedIsbn,
-              qty: itemData.qty,
-              price: itemData.price,
+              qty: itemData.data.qty,
+              price: itemData.data.price,
             });
-          } else {
-            console.log("Item is invalid");
           }
         });
         console.log("Sales data: ");
         console.log(processedData);
-      } else {
-        console.log("Data is invalid");
-        throw new TRPCError({
-          code: "PARSE_ERROR",
-          message: "Invalid data",
-        });
       }
 
       if (processedData.length == 0) {
@@ -148,7 +151,7 @@ export const bookHookRouter = createTRPCRouter({
                 },
               },
               quantity: difference,
-              date: new Date(),
+              date: salesDateFormatted,
             },
           });
 
