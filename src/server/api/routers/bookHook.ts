@@ -118,6 +118,7 @@ export const bookHookRouter = createTRPCRouter({
         },
       });
 
+      let addedCount = 0;
       for (const sale of processedData) {
         const currentBook = await prisma.book.findFirst({
           where: {
@@ -197,7 +198,15 @@ export const bookHookRouter = createTRPCRouter({
             },
           },
         });
+        addedCount++;
       }
-      return "Sales successfully added to system";
+      if (addedCount == 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message:
+            "No sales were added to the system, as no line items had correct format",
+        });
+      }
+      return `${addedCount} sales successfully added to system`;
     }),
 });
