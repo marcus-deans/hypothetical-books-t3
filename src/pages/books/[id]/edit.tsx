@@ -11,22 +11,21 @@ import superjson from "superjson";
 import { useRouter } from "next/router";
 import { api } from "../../../utils/api";
 import Head from "next/head";
-import React, { MouseEventHandler, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import type { S3 } from "aws-sdk/clients/browser_default";
 import Image from "next/image";
 import "react-toastify/dist/ReactToastify.css";
-import { env } from "../../../env/client.mjs";
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 
@@ -69,19 +68,18 @@ const ImageCard = ({
 };
 
 /* eslint-disable */
-      // @ts-ignore
+// @ts-ignore
 const modalStyle = {
-  position: 'absolute' as 'absolute',
-  top: '40%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  bgcolor: 'background.paper',
+  position: "absolute" as "absolute",
+  top: "40%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  bgcolor: "background.paper",
   boxShadow: 24,
-  borderRadius: '6px',
+  borderRadius: "6px",
   p: 3,
 };
 /*eslint-enable */
-
 
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -109,11 +107,14 @@ export default function EditBook(
   const [width, setWidth] = useState(data?.width.toString() ?? "");
   const [height, setHeight] = useState(data?.height.toString() ?? "");
   const [thickness, setThickness] = useState(data?.thickness.toString() ?? "");
-  const [inventory, setInventory] = useState(data?.inventoryCount.toString() ?? "");
+  const [inventory, setInventory] = useState(
+    data?.inventoryCount.toString() ?? ""
+  );
   const [tempInventory, setTempInventory] = useState("0");
   const [finalInventoryCorrection, setFinalInventoryCorrection] = useState("0");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmittingInvCorrection, setIsSubmittingInvCorrection] = useState(false);
+  const [isSubmittingInvCorrection, setIsSubmittingInvCorrection] =
+    useState(false);
   const [genreValue, setGenreValue] = useState<{
     label: string;
     id: string;
@@ -267,8 +268,7 @@ export default function EditBook(
   };
 
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => 
-  {
+  const handleOpen = () => {
     setOpen(true);
     setInventoryCorrection(false);
   };
@@ -345,10 +345,11 @@ export default function EditBook(
                 <div className="space-y-10">
                   <div className="flex justify-center space-x-10">
                     <div className="text-gra-700 text-md font-bold">
-                      {`${bookDetailsQuery?.data?.title ?? ""} by ${bookDetailsQuery?.data?.authors
-                        .map((author) => author.name)
-                        .join(", ") ?? ""
-                        }`}
+                      {`${bookDetailsQuery?.data?.title ?? ""} by ${
+                        bookDetailsQuery?.data?.authors
+                          .map((author) => author.name)
+                          .join(", ") ?? ""
+                      }`}
                     </div>
                     <div className="text-gra-700 text-md font-bold">
                       {`ISBN-13: ${bookDetailsQuery?.data?.isbn_13 ?? ""}`}
@@ -384,7 +385,13 @@ export default function EditBook(
                         width: 120,
                       }}
                     />
-                    <button className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700" type="button" onClick={handleOpen}>Inventory Correction</button>
+                    <button
+                      className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+                      type="button"
+                      onClick={handleOpen}
+                    >
+                      Inventory Correction
+                    </button>
                     <Modal
                       open={open}
                       onClose={handleClose}
@@ -392,7 +399,11 @@ export default function EditBook(
                       aria-describedby="modal-modal-description"
                     >
                       <Box sx={modalStyle}>
-                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                        <Typography
+                          id="modal-modal-title"
+                          variant="h6"
+                          component="h2"
+                        >
                           Inventory Correction
                         </Typography>
                         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
@@ -426,14 +437,28 @@ export default function EditBook(
                           <TextField
                             id="newinv"
                             label="New Inventory"
-                            value={isNaN(parseInt(inventory) + parseInt(tempInventory)) ? "--" : parseInt(inventory) + parseInt(tempInventory)}
+                            value={
+                              isNaN(
+                                parseInt(inventory) + parseInt(tempInventory)
+                              )
+                                ? "--"
+                                : parseInt(inventory) + parseInt(tempInventory)
+                            }
                             variant={"outlined"}
                             type="number"
                             sx={{
                               "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: isNaN(parseInt(tempInventory)) ? "black" : parseInt(tempInventory) + parseInt(inventory) >= 0 ? "green" : "red",
+                                WebkitTextFillColor: isNaN(
+                                  parseInt(tempInventory)
+                                )
+                                  ? "black"
+                                  : parseInt(tempInventory) +
+                                      parseInt(inventory) >=
+                                    0
+                                  ? "green"
+                                  : "red",
                               },
-                              
+
                               width: 125,
                             }}
                             disabled
@@ -445,7 +470,9 @@ export default function EditBook(
                           type="button"
                           onClick={handleInventoryCorrection}
                         >
-                          {isSubmittingInvCorrection ? "Submitting..." : "Submit"}
+                          {isSubmittingInvCorrection
+                            ? "Submitting..."
+                            : "Submit"}
                         </button>
                         <Dialog
                           open={openDialog}
@@ -458,21 +485,24 @@ export default function EditBook(
                           </DialogTitle>
                           <DialogContent>
                             <DialogContentText id="alert-dialog-description">
-                              Are you sure you want to manaully change the inventory for this book?
+                              Are you sure you want to manaully change the
+                              inventory for this book?
                             </DialogContentText>
                           </DialogContent>
                           <DialogActions>
                             <button
                               className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
                               type="button"
-                              onClick={handleDialogClose}>
+                              onClick={handleDialogClose}
+                            >
                               No
                             </button>
                             <button
                               autoFocus
                               className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
                               type="button"
-                              onClick={handleDialogAccept}>
+                              onClick={handleDialogAccept}
+                            >
                               Yes
                             </button>
                           </DialogActions>

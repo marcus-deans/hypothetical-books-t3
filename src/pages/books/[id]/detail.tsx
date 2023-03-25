@@ -44,7 +44,7 @@ export default function BookDetail(
     transform: "translate(-50%, -50%)",
     width: 500,
     bgcolor: "background.paper",
-    borderRadius: '6px',
+    borderRadius: "6px",
     boxShadow: 24,
     p: 4,
   };
@@ -385,7 +385,7 @@ export default function BookDetail(
     };
   });
 
-  const inventoryCorrectionRows = data.Correction.map((inventoryCorrection) => {
+  const inventoryCorrectionRows = data.correction.map((inventoryCorrection) => {
     return {
       id: inventoryCorrection.id,
       date: inventoryCorrection.date.getTime(),
@@ -414,7 +414,10 @@ export default function BookDetail(
   // Add the inventory total to each row
   let inventoryTotal = 0;
   for (const row of masterRows) {
-    inventoryTotal += (row.recordType === "Purchase" || row.recordType === "Inventory Correction") ? row.quantity : -row.quantity; // TODO: NEED TO IMPLEMENT INVENTORY CORRECTION LOGIC
+    inventoryTotal +=
+      row.recordType === "Purchase" || row.recordType === "Inventory Correction"
+        ? row.quantity
+        : -row.quantity; // TODO: NEED TO IMPLEMENT INVENTORY CORRECTION LOGIC
     row.inventoryTotal = inventoryTotal.toString();
   }
 
@@ -437,24 +440,31 @@ export default function BookDetail(
       renderCell: (params) => {
         /* eslint-disable */
         // @ts-ignore
-        const urlTag = params.row.recordType === "Sale" ? "sales" : params.row.recordType === "Purchase" ? "purchases" : params.row.recordType === "Buyback" ? "buybacks" : "error";
+        const urlTag =
+          params.row.recordType === "Sale"
+            ? "sales"
+            : params.row.recordType === "Purchase"
+            ? "purchases"
+            : params.row.recordType === "Buyback"
+            ? "buybacks"
+            : "error";
         const date = new Date(params.row.date);
-        
-        if (urlTag !== "error" || params.row.recordType !== "Inventory Correction") {
+
+        if (
+          urlTag !== "error" ||
+          params.row.recordType !== "Inventory Correction"
+        ) {
           /* eslint-enable */
           return (
             <div className="text-blue-600">
               {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-              <a href={`/${urlTag}/${params.id}/detail`}>{date.toLocaleDateString()} </a>
+              <a href={`/${urlTag}/${params.id}/detail`}>
+                {date.toLocaleDateString()}{" "}
+              </a>
             </div>
           );
-        }
-        else {
-          return (
-            <div>
-              {date.toLocaleDateString()}
-            </div>
-          );
+        } else {
+          return <div>{date.toLocaleDateString()}</div>;
         }
       },
     },
@@ -502,11 +512,7 @@ export default function BookDetail(
       renderCell: (params) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (params.row.recordType === "Inventory Correction") {
-          return (
-            <div>
-              N/A
-            </div>
-          );
+          return <div>N/A</div>;
         }
         return (
           <div>
@@ -566,7 +572,7 @@ export default function BookDetail(
             }
           />
         </Box>
-        <div className="text-sm">*: Estimated dimension</div> 
+        <div className="text-sm">*: Estimated dimension</div>
         <div className="pt-8 text-lg">Record History</div>
         <Box
           sx={{
