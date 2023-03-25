@@ -160,6 +160,56 @@ export const googleBooksRouter = createTRPCRouter({
       //   });
     }),
 
+  retrievePricingData: publicProcedure
+    .input(z.object({ isbns: z.string().min(10).array() }))
+    .query(async ({ input }) => {
+      console.log("Fetching price details from API");
+      const bookPrices: Array<number> = [];
+
+      const BooksRunResponseSchema = z.object({
+        result: z.object({
+          status: z.string(),
+          message: z.string(),
+          offers: z.any(),
+        }),
+      });
+      type BooksRunResponse = z.infer<typeof BooksRunResponseSchema>;
+      for (const isbn of input.isbns) {
+        console.log(`Fetching price details for ${isbn}`);
+        const queryURL = `https://booksrun.com/api/v3/price/buy/${isbn}?key=${env.BOOKS_RUN_API_KEY}`;
+        try {
+          await fetch(queryURL)
+            .then((response) => response.json())
+            .then((response) => {
+              console.log(response);
+              if (BooksRunResponseSchema.safeParse(response).success) {
+                console.log("successfully parsed response");
+                const bookPriceResponse = response as BooksRunResponse;
+                type bookPriceDetails = {
+                  booksrun: {
+                    new: {
+                      price: number;
+                    };
+                  };
+                };
+                const bookPriceResponseDetails = bookPriceResponse.result
+                  .offers as bookPriceDetails;
+                bookPrices.push(bookPriceResponseDetails.booksrun.new.price);
+              } else {
+                console.log("Error retrieving book price from BooksRun");
+                bookPrices.push(0);
+              }
+            });
+        } catch (error) {
+          console.log("Error retrieving book price from BooksRun");
+          bookPrices.push(0);
+          console.log(error);
+        }
+      }
+      console.log(bookPrices);
+      return bookPrices;
+    }),
+
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),

@@ -84,10 +84,24 @@ export default function AddBook() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dataRetrieved, setDataRetrieved] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  // const [currentIsbn, setCurrentIsbn] = useState("");
   const [pricingData, setPricingData] = useState<number[]>([]);
   const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
   const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
+
+  const [parsedIsbns, setParsedIsbns] = useState<string[]>([]);
+  const retrievePricingQuery = api.googleBooks.retrievePricingData.useQuery(
+    { isbns: parsedIsbns },
+    { enabled: !!parsedIsbns }
+  );
+
+  const [currentTitle, setCurrentTitle] = useState("");
+  const [currentAuthor, setCurrentAuthor] = useState("");
+  const findRelatedBooksQuery = api.books.findRelatedBooks.useQuery(
+    { title: currentTitle, author: currentAuthor },
+    { enabled: !!currentTitle && !!currentAuthor }
+  );
+  type relatedBookReturnType = typeof findRelatedBooksQuery.data;
+
   const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
@@ -96,7 +110,6 @@ export default function AddBook() {
   };
 
   // const googleBooksQuery = api.googleBooks.retrieveByISBNs.useQuery({ isbns: });
-
   const queryGoogleBooksApi = async (
     isbns: string[]
   ): Promise<Array<GoogleBookDetails>> => {
@@ -120,30 +133,11 @@ export default function AddBook() {
     }
     return bookDetails;
   };
-  // return fetch(queryURL)
-  //   .then((response) => {
-  //     if (response.status !== 200) {
-  //       throw new Error("Error retrieving book");
-  //     }
-  //     return response;
-  //   })
-  //   .then((response) => response.json())
-  //   .then((response) => {
-  //     try {
-  //       const googleBookResponse = response as GoogleBookResponse;
-  //       const volumeInfo = googleBookResponse.items.map((item) => {
-  //         return item.volumeInfo;
-  //       });
-  //       console.log(volumeInfo);
-  //       return googleBookResponse;
-  //     } catch (error) {
-  //       return;
-  //     }
-  //   });
 
   const performQuery = async (isbnSearchList: string[]) => {
     const googleBooksData = await queryGoogleBooksApi(isbnSearchList);
-    // const booksRunData = await queryBooksRunApi(isbnSearchList);
+    setParsedIsbns(isbnSearchList);
+    const pricingData = retrievePricingQuery?.data ?? [];
     if (googleBooksData) {
       console.log("Setting retreived books with:");
       console.log(googleBooksData);
@@ -165,13 +159,17 @@ export default function AddBook() {
             isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
           }
         }
-        // let retailPrice = isNaN(Number(booksRunData[index]))
-        //   ? 0
-        //   : booksRunData[index];
-        // if (retailPrice === undefined) {
-        //   retailPrice = 0;
-        // }
-        const retailPrice = 0;
+        let retailPrice = 0;
+        if (pricingData[index] !== undefined) {
+          retailPrice = isNaN(Number(pricingData[index]))
+            ? 0
+            : Number(pricingData[index]);
+        }
+
+        setCurrentTitle(retrievedBook.title);
+        setCurrentAuthor(retrievedBook.authors.join(", "));
+        const relatedBooks = findRelatedBooksQuery?.data ?? [];
+
         const displayBook = {
           imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
           id: index,
@@ -189,6 +187,7 @@ export default function AddBook() {
           height: 0,
           thickness: 0,
           retailPrice: retailPrice,
+          relatedBooks: relatedBooks,
         };
         setDisplayedBooks((prev) => [...prev, displayBook]);
       });
@@ -227,11 +226,12 @@ export default function AddBook() {
           height: row.height,
           thickness: row.thickness,
           retailPrice: row.retailPrice,
-          genreName: row.genre, //row.genre actually
+          genreName: row.genre,
           imgUrl: row.imgUrl,
           purchaseLines: [],
           salesLines: [],
           inventoryCount: 0,
+          relatedBooks: [], //TODO: implement properly
         });
       });
       setTimeout(() => {
@@ -392,6 +392,27 @@ export default function AddBook() {
         return { ...params.props, error: hasError };
       },
       editable: true,
+    },
+    {
+      field: "relatedBooks",
+      headerName: "Related Books",
+      headerClassName: "header-theme",
+      minWidth: 200,
+      renderCell: (params) => {
+        /* eslint-disable */
+        let relatedBooks = params.row.relatedBooks as relatedBookReturnType;
+        if (!relatedBooks) {
+          return <div />;
+        }
+        /* eslint-enable */
+        return (
+          <div>
+            {relatedBooks
+              .map((relatedBook) => relatedBook.item.title)
+              .join(", ")}
+          </div>
+        );
+      },
     },
   ];
 

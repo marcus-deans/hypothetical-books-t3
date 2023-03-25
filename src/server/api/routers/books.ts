@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server";
 import type { bookDetail } from "../../../schema/books.schema";
 import { bookDetailSchema } from "../../../schema/books.schema";
 import { env } from "../../../env/server.mjs";
+import Fuse from "fuse.js";
 
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -393,6 +394,7 @@ export const booksRouter = createTRPCRouter({
         purchaseLines: z.string().array(),
         salesLines: z.string().array(),
         inventoryCount: z.number().int(),
+        relatedBooks: z.string().array(),
       })
     )
 
@@ -479,6 +481,25 @@ export const booksRouter = createTRPCRouter({
         });
       }
 
+      for (const relatedBook of input.relatedBooks) {
+        await prisma.book.update({
+          where: { id: book.id },
+          data: {
+            relatedBooks: {
+              connect: [{ id: relatedBook }],
+            },
+          },
+        });
+        await prisma.book.update({
+          where: { id: relatedBook },
+          data: {
+            relatedBooks: {
+              connect: [{ id: book.id }],
+            },
+          },
+        });
+      }
+
       return book;
     }),
 
@@ -511,5 +532,69 @@ export const booksRouter = createTRPCRouter({
         });
       }
       return book;
+    }),
+
+  findRelatedBooks: publicProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        author: z.string(),
+      })
+    )
+    // .output(
+    //   z.array(
+    //     z.object({
+    //       item: z.object({
+    //         id: z.string(),
+    //         title: z.string(),
+    //         isbn_13: z.string().length(13),
+    //       }),
+    //       score: z.number(),
+    //       refIndex: z.number(),
+    //     })
+    //   )
+    // )
+    .query(async ({ input }) => {
+      const allBooks = await prisma.book.findMany({
+        where: { display: true },
+        include: {
+          authors: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+      type allBooksType = (typeof allBooks)[number];
+      type returnBookType = {
+        item: allBooksType;
+        score: number;
+        refIndex: number;
+      };
+
+      const options = {
+        includeScore: true,
+        keys: [
+          {
+            name: "title",
+            weight: 0.6,
+            getFn: (book: allBooksType) => book.title,
+          },
+          {
+            name: "authors",
+            weight: 0.4,
+            getFn: (book: allBooksType) =>
+              book.authors.map((author) => author.name),
+          },
+        ],
+      };
+
+      const fuse = new Fuse(allBooks, options);
+      const searchResults = fuse.search({
+        title: input.title,
+        authors: input.author,
+      });
+      const returnableSearchResult = searchResults as returnBookType[];
+      return returnableSearchResult.filter((result) => result.score > 0.7);
     }),
 });
