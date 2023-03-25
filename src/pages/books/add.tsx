@@ -13,6 +13,8 @@ import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import Modal from "@mui/material/Modal";
+import Typography from "@mui/material/Typography";
 
 interface GoogleBookResponse {
   kind: string;
@@ -242,6 +244,25 @@ export default function AddBook() {
     }
   };
 
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const modalStyle = {
+    position: "absolute" as "absolute",
+    backgroundColor: "white",
+    border: "2px solid #000",
+    boxShadow: "paper",
+    padding: "16px 32px 24px",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+  };
+
   const columns: GridColDef[] = [
     {
       field: "image",
@@ -373,15 +394,45 @@ export default function AddBook() {
       renderCell: (params) => {
         /* eslint-disable */
         let relatedBooks = params.row.relatedBooks as relatedBookReturnType;
-        if (!relatedBooks) {
-          return <div />;
+        console.log(relatedBooks);
+        if (relatedBooks!.length === 0) {
+          return (
+          <div>
+            No Related Books Found!
+          </div>
+          );
         }
         /* eslint-enable */
         return (
           <div>
-            {relatedBooks
-              .map((relatedBook) => relatedBook.item.title)
-              .join(", ")}
+            <button
+              type="button"
+              onClick={handleOpen}
+            >
+              See Related Books
+            </button>
+
+            <Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box sx={modalStyle}>
+                <Typography
+                  id="modal-modal-title"
+                  variant="h6"
+                  component="h2"
+                >
+                  Related Books for: {params.row.title}
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                  {relatedBooks!
+                    .map((relatedBook) => relatedBook.item.title)
+                    .join(",\n")}
+                </Typography>
+              </Box>
+            </Modal>
           </div>
         );
       },
