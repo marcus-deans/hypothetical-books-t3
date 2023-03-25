@@ -47,10 +47,12 @@ export const bookHookRouter = createTRPCRouter({
         "@_date": z.string(),
       });
       const BookHookInputSchema = z.object({
-        "?xml": z.object({
-          "@_version": z.string(),
-          "@_encoding": z.string(),
-        }),
+        "?xml": z
+          .object({
+            "@_version": z.string(),
+            "@_encoding": z.string(),
+          })
+          .optional(),
         sale: BookHookDataSchema,
       });
       type BookHookInput = z.infer<typeof BookHookInputSchema>;
