@@ -635,6 +635,11 @@ export const purchaseOrdersRouter = createTRPCRouter({
         date: z.date(),
         vendorId: z.string(),
         purchaseLines: z.array(z.string()),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          role: z.string(),
+        }),
       })
     )
 
@@ -649,6 +654,11 @@ export const purchaseOrdersRouter = createTRPCRouter({
           },
           purchaseLines: {
             create: [],
+          },
+          user: {
+            connect: {
+              id: input.user.id,
+            },
           },
           display: true,
         },

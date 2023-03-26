@@ -153,12 +153,14 @@ export default function AddBook() {
           relatedBooks: relatedBooks,
         };
         setDisplayedBooks((prev) => [...prev, displayBook]);
+        setCurrentTitle("");
+        setCurrentAuthor("");
       });
       setIsLoaded(true);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSearch = () => {
     if (searchQuery === "") {
       return;
     }
@@ -168,7 +170,7 @@ export default function AddBook() {
     const isbnSearchList = searchQuery.replace(/-/g, "").split(/[\s,;\t\n]+/g);
     setParsedIsbns(isbnSearchList);
     performQuery();
-    setSearchQuery("");
+    // setSearchQuery("");
   };
 
   const handleConfirm = () => {
@@ -179,9 +181,9 @@ export default function AddBook() {
         addMutation.mutate({
           title: row.title,
           authors: row.authors.split(","),
-          isbn_13: row.isbn_13 ?? "Unknown",
+          isbn_13: row.isbn_13,
           isbn_10: row.isbn_10,
-          publisher: row.publisher ?? "",
+          publisher: row.publisher,
           publicationYear: row.publicationYear,
           pageCount: row.pageCount,
           width: row.width,
@@ -479,7 +481,7 @@ export default function AddBook() {
                   className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
                   type="button"
                   id="button-addon2"
-                  onClick={handleSubmit}
+                  onClick={handleSearch}
                 >
                   <svg
                     aria-hidden="true"
@@ -497,6 +499,9 @@ export default function AddBook() {
                     ></path>
                   </svg>
                 </button>
+                <div className="pl-5 text-sm ">
+                  Click twice to complete search
+                </div>
               </div>
             </div>
           </div>
@@ -576,7 +581,7 @@ export default function AddBook() {
                   className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
                   type="button"
                   id="button-addon2"
-                  onClick={handleSubmit}
+                  onClick={handleSearch}
                 >
                   <svg
                     aria-hidden="true"
