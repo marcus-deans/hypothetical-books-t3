@@ -112,11 +112,8 @@ export default function AddBuybackOrder(
             </div>
             <div className="flex justify-center">
               <FormControl>
-                <FormLabel>Vendor Name</FormLabel>
-                <FormHelperText>Select a vendor by name</FormHelperText>
                 <Autocomplete
                   options={vendorOptions}
-                  placeholder={"Select a vendor by name"}
                   value={vendorValue}
                   onChange={(
                     event,
@@ -134,6 +131,7 @@ export default function AddBuybackOrder(
                       inputProps={{
                         ...params.inputProps,
                       }}
+                      label="Select a Vendor by Name"
                     />
                   )}
                 />

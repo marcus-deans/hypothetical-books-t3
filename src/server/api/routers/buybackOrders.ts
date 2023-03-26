@@ -87,6 +87,7 @@ export const buybackOrdersRouter = createTRPCRouter({
               name: true,
             },
           },
+          user: true,
         },
         cursor: cursor
           ? {
