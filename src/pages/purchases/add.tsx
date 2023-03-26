@@ -18,7 +18,7 @@ import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import dayjs from "dayjs";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
-import { CustomUser } from "../../schema/user.schema";
+import type { CustomUser } from "../../schema/user.schema";
 
 export default function AddPurchaseOrder(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -55,6 +55,7 @@ export default function AddPurchaseOrder(
         date: dateValue.toDate(),
         vendorId: vendorValue.id,
         purchaseLines: [],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!,
       });
       setTimeout(() => {
@@ -98,11 +99,8 @@ export default function AddPurchaseOrder(
             </div>
             <div className="flex justify-center">
               <FormControl>
-                <FormLabel>Vendor Name</FormLabel>
-                <FormHelperText>Select a vendor by name</FormHelperText>
                 <Autocomplete
                   options={vendorOptions}
-                  placeholder={"Select a vendor by name"}
                   value={vendorValue}
                   onChange={(
                     event,
@@ -120,6 +118,7 @@ export default function AddPurchaseOrder(
                       inputProps={{
                         ...params.inputProps,
                       }}
+                      label="Select a Vendor by Name"
                     />
                   )}
                 />
