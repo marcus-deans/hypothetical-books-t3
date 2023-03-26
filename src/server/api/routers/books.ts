@@ -360,9 +360,9 @@ export const booksRouter = createTRPCRouter({
         retailPrice: z.number().gte(0),
         genreId: z.string(),
         pageCount: z.number().gt(0),
-        width: z.number().gt(0),
-        height: z.number().gt(0),
-        thickness: z.number().gt(0),
+        width: z.number().gte(0),
+        height: z.number().gte(0),
+        thickness: z.number().gte(0),
       })
     )
 

@@ -307,6 +307,10 @@ export default function EditBook(
     setIsSubmittingInvCorrection(true);
     try {
       const finalInventory = Number(tempInventory);
+      if (user?.role !== "admin") {
+        toast.error("Only admins can change inventory");
+        throw new Error("User is not an admin");
+      }
       if (isNaN(finalInventory)) {
         toast.error("Inventory change must be a valid number");
         throw new Error("Inventory is not a number");
@@ -321,7 +325,8 @@ export default function EditBook(
       }
       if (finalInventory !== 0 && parseInt(inventory) + finalInventory >= 0) {
         setDialogOpen(true);
-      } else {
+      }
+      else {
         setOpen(false);
         setIsSubmittingInvCorrection(false);
         setInventoryCorrection(false);
@@ -391,13 +396,17 @@ export default function EditBook(
                         width: 120,
                       }}
                     />
-                    <button
-                      className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
-                      type="button"
-                      onClick={handleOpen}
-                    >
-                      Inventory Correction
-                    </button>
+                    {user?.role == "admin" ? 
+                      <button
+                        className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+                        type="button"
+                        onClick={handleOpen}
+                      >
+                        Inventory Correction
+                      </button> 
+                    : 
+                      null
+                    }
                     <Modal
                       open={open}
                       onClose={handleClose}
