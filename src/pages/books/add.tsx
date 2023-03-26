@@ -127,9 +127,7 @@ export default function AddBook() {
         }
 
         setCurrentTitle(retrievedBook.title);
-        console.log("Setting current title to: " + retrievedBook.title);
         setCurrentAuthor(retrievedBook.authors.join(", "));
-        console.log("Setting current author to: " + retrievedBook.authors);
         const relatedBooks = findRelatedBooksQuery?.data ?? [];
         console.log("Related books:");
         console.log(relatedBooks);

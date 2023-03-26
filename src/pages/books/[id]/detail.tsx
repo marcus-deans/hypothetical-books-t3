@@ -535,13 +535,15 @@ export default function BookDetail(
 
   const relatedBooksRows = data.relatedBooks.map((relatedBook) => {
     return {
+      /* eslint-disable */
       title: relatedBook.title,
-      author: relatedBook.author,
+      author: relatedBook.authors.map((author) => author.name).join(", "),
       publisher: relatedBook.publisher,
       publicationYear: relatedBook.publicationYear,
       isbn_13: relatedBook.isbn_13,
-      genre: relatedBook.genre,
+      genre: relatedBook.genre.name,
       pageCount: relatedBook.pageCount,
+      /* eslint-enable */
     };
   });
 
