@@ -20,7 +20,7 @@ import dayjs from "dayjs";
 import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 import { useSession } from "next-auth/react";
-import { CustomUser } from "../../schema/user.schema";
+import type { CustomUser } from "../../schema/user.schema";
 
 export default function AddBuybackOrder(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -69,6 +69,7 @@ export default function AddBuybackOrder(
         date: dateValue.toDate(),
         vendorId: vendorValue.id,
         buybackLines: [],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!,
       });
       setTimeout(() => {
