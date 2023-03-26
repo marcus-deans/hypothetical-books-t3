@@ -87,7 +87,6 @@ export default function AddBook() {
   const [currentAuthor, setCurrentAuthor] = useState("");
   const findRelatedBooksQuery = api.books.findRelatedBooks.useQuery(
     { title: currentTitle, author: currentAuthor },
-    { enabled: !!currentTitle && !!currentAuthor }
   );
   type relatedBookReturnType = typeof findRelatedBooksQuery.data;
 
@@ -128,7 +127,9 @@ export default function AddBook() {
         }
 
         setCurrentTitle(retrievedBook.title);
+        console.log("Setting current title to: " + retrievedBook.title);
         setCurrentAuthor(retrievedBook.authors.join(", "));
+        console.log("Setting current author to: " + retrievedBook.authors);
         const relatedBooks = findRelatedBooksQuery?.data ?? [];
         console.log("Related books:");
         console.log(relatedBooks);

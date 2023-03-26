@@ -321,6 +321,7 @@ export const booksRouter = createTRPCRouter({
               user: true,
             },
           },
+          relatedBooks: true,
         },
       });
       if (!book || !book.display) {
