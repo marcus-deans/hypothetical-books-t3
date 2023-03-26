@@ -570,11 +570,8 @@ export default function EditBook(
                   </div>
                   <div className="flex justify-center space-x-10">
                     <FormControl>
-                      <FormLabel>Genre Name</FormLabel>
-                      <FormHelperText>Select a genre by name</FormHelperText>
                       <Autocomplete
                         options={genreOptions}
-                        placeholder={"Select a genre by name"}
                         value={genreValue}
                         onChange={(
                           event,
@@ -592,6 +589,7 @@ export default function EditBook(
                             inputProps={{
                               ...params.inputProps,
                             }}
+                            label="Select a Genre by Name"
                           />
                         )}
                       />

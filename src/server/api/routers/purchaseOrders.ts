@@ -87,6 +87,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
               name: true,
             },
           },
+          user: true,
         },
         cursor: cursor
           ? {

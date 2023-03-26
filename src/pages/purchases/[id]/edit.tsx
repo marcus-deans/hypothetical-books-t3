@@ -112,10 +112,8 @@ export default function AddPurchaseOrder(
                   </div>
                   <div className="flex space-x-10 justify-center">
                     <FormControl>
-                      <FormHelperText>Select a vendor by name</FormHelperText>
                       <Autocomplete
                         options={vendorOptions}
-                        placeholder={"Select a vendor by name"}
                         value={vendorValue}
                         onChange={(
                           event,
@@ -133,6 +131,7 @@ export default function AddPurchaseOrder(
                             inputProps={{
                               ...params.inputProps
                             }}
+                            label="Select a Vendor by Name"
                           />
                         )}
                       />
