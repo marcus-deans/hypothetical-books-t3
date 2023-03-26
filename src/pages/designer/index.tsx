@@ -61,11 +61,15 @@ import type {
             displayCount: specificBook.inventoryCount,
             width: specificBook.width,
             height: specificBook.height,
+            image: null,
             thickness: specificBook.thickness,
             displayStyle: "Spine Out",
             shelfSpace: "",
             usedDefault: false,
           };
+          if(specificBook.imgUrl){
+            displayBook.image = specificBook.imgUrl;
+          }
           displayBook.shelfSpace = calcShelfSpace(
             displayBook.width,
             displayBook.height,
@@ -184,6 +188,7 @@ import type {
     displayStyle: string;
     shelfSpace: string;
     usedDefault: boolean;
+    image:string | null;
   }
   
 const BookCard = (book: BookCardProps ) => {
@@ -192,8 +197,9 @@ const BookCard = (book: BookCardProps ) => {
   return (
     <Card>
         <div>{book.title}</div>
-        <CardContent>
-      </CardContent>
+       <CardMedia
+       style={{ height: 0, paddingTop: "56.25%" }}
+       image={book.image}/>
     </Card>
 
       );
