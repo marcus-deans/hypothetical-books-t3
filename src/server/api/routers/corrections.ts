@@ -18,7 +18,11 @@ export const correctionsRouter = createTRPCRouter({
       z.object({
         bookId: z.string(),
         quantity: z.number().int(),
-        //userId: z.string(),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          role: z.string(),
+        }),
       })
     )
 
@@ -45,6 +49,11 @@ export const correctionsRouter = createTRPCRouter({
           },
           date: new Date(),
           quantity: input.quantity,
+          user: {
+            connect: {
+              id: input.user.id,
+            },
+          },
         },
       });
 

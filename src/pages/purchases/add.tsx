@@ -17,10 +17,14 @@ import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import dayjs from "dayjs";
 import Head from "next/head";
+import { useSession } from "next-auth/react";
+import { CustomUser } from "../../schema/user.schema";
 
 export default function AddPurchaseOrder(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
   const router = useRouter();
   const vendorsDetailsQuery = api.vendors.getAll.useQuery({
     cursor: null,
@@ -51,6 +55,7 @@ export default function AddPurchaseOrder(
         date: dateValue.toDate(),
         vendorId: vendorValue.id,
         purchaseLines: [],
+        user: user!,
       });
       setTimeout(() => {
         void router.push("/purchases");
