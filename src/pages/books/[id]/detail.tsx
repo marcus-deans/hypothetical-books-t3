@@ -236,6 +236,14 @@ export default function BookDetail(
       minWidth: 110,
     },
     {
+      field: "relatedBookCount",
+      headerName: "Related Book Count",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      minWidth: 150,
+    },
+    {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
@@ -340,6 +348,7 @@ export default function BookDetail(
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupplyString,
       bestBuyback: bestBuybackString,
+      relatedBookCount: data.relatedBooks.length.toString(),
     },
   ];
 
@@ -398,7 +407,6 @@ export default function BookDetail(
     };
   });
 
-  // TODO: ADD INVENTORY CORRECTION LOGIC
   const masterRows = [
     ...purchaseOrderRows,
     ...buybackOrderRows,
@@ -417,7 +425,7 @@ export default function BookDetail(
     inventoryTotal +=
       row.recordType === "Purchase" || row.recordType === "Inventory Correction"
         ? row.quantity
-        : -row.quantity; // TODO: NEED TO IMPLEMENT INVENTORY CORRECTION LOGIC
+        : -row.quantity;
     row.inventoryTotal = inventoryTotal.toString();
   }
 
