@@ -1,4 +1,4 @@
-import { expect, test } from "@jest/globals";
+import { expect, test } from "vitest";
 import { booksRouter } from "../src/server/api/routers/books";
 import { prisma } from "../src/server/db";
 import type { inferProcedureInput } from "@trpc/server";
@@ -8,8 +8,8 @@ test("basic related books", async () => {
 
   type Input = inferProcedureInput<(typeof booksRouter)["findRelatedBooks"]>;
   const input: Input = {
-    author: "Nassim",
-    title: "fragile",
+    author: "Nassim Nicholas Taleb",
+    title: "Antifragile",
   };
 
   const expectedResult = {

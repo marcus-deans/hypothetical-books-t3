@@ -580,17 +580,18 @@ export const booksRouter = createTRPCRouter({
 
       const options = {
         includeScore: true,
+        ignoreLocation: true,
         keys: [
           {
             name: "title",
-            weight: 0.6,
+            weight: 0.7,
             getFn: (book: allBooksType) => book.title,
           },
           {
             name: "authors",
-            weight: 0.4,
+            weight: 0.3,
             getFn: (book: allBooksType) =>
-              book.authors.map((author) => author.name),
+              book.authors.map((author) => author.name).join(","),
           },
         ],
       };
@@ -601,6 +602,13 @@ export const booksRouter = createTRPCRouter({
         authors: input.author,
       });
       const returnableSearchResult = searchResults as returnBookType[];
-      return returnableSearchResult.filter((result) => result.score > 0.7);
+      // console.log(
+      //   returnableSearchResult.map((result) =>
+      //     result.item.authors.map((author) => author.name).join(", ")
+      //   )
+      // );
+      console.log("Related book search results: ");
+      console.log(returnableSearchResult);
+      return returnableSearchResult;
     }),
 });

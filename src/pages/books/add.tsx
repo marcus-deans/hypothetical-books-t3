@@ -215,7 +215,7 @@ export default function AddBook() {
   };
 
   const modalStyle = {
-    position: "absolute" as "absolute",
+    position: "absolute" as const,
     backgroundColor: "white",
     border: "2px solid #000",
     boxShadow: "paper",
@@ -386,19 +386,13 @@ export default function AddBook() {
         let relatedBooks = params.row.relatedBooks as relatedBookReturnType;
         console.log(relatedBooks);
         if (relatedBooks!.length === 0) {
-          return (
-          <div>
-            No Related Books Found!
-          </div>
-          );
+          return <div>No Related Books Found!</div>;
         }
+        const title = params.row.title as string;
         /* eslint-enable */
         return (
           <div>
-            <button
-              type="button"
-              onClick={handleOpen}
-            >
+            <button type="button" onClick={handleOpen}>
               See Related Books
             </button>
 
@@ -409,16 +403,12 @@ export default function AddBook() {
               aria-describedby="modal-modal-description"
             >
               <Box sx={modalStyle}>
-                <Typography
-                  id="modal-modal-title"
-                  variant="h6"
-                  component="h2"
-                >
-                  Related Books for: {params.row.title}
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                  Related Books for: {title}
                 </Typography>
                 <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                  {relatedBooks!
-                    .map((relatedBook) => relatedBook.item.title)
+                  {relatedBooks
+                    ?.map((relatedBook) => relatedBook.item.title)
                     .join(",\n")}
                 </Typography>
               </Box>

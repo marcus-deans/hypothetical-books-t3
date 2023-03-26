@@ -28,7 +28,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
-import { CustomUser } from "../../../schema/user.schema";
+import type { CustomUser } from "../../../schema/user.schema";
 import { useSession } from "next-auth/react";
 
 const ImageCard = ({
