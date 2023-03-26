@@ -487,17 +487,31 @@ export const booksRouter = createTRPCRouter({
         });
       }
 
-      for (const relatedBook of input.relatedBooks) {
+      for (const relatedBookId of input.relatedBooks) {
+        const relatedBook = await prisma.book.findUnique({
+          where: { id: relatedBookId },
+          include: {
+            relatedBooks: true,
+          },
+        });
+
+        if (!relatedBook) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `No book with id '${relatedBookId}'`,
+          });
+        }
+
         await prisma.book.update({
           where: { id: book.id },
           data: {
             relatedBooks: {
-              connect: [{ id: relatedBook }],
+              connect: [{ id: relatedBookId }],
             },
           },
         });
         await prisma.book.update({
-          where: { id: relatedBook },
+          where: { id: relatedBookId },
           data: {
             relatedBooks: {
               connect: [{ id: book.id }],
