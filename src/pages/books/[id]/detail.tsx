@@ -362,7 +362,7 @@ export default function BookDetail(
     return {
       id: purchaseOrder.id,
       date: purchaseOrder.date.getTime(),
-      user: "N/A",
+      user: purchaseOrder.user?.name ?? "N/A",
       recordType: "Purchase",
       quantity: purchaseLine.quantity,
       price: `${purchaseLine.unitWholesalePrice.toFixed(2)}`,
@@ -376,7 +376,7 @@ export default function BookDetail(
     return {
       id: buybackOrder.id,
       date: buybackOrder.date.getTime(),
-      user: "N/A",
+      user: buybackOrder.user?.name ?? "N/A",
       recordType: "Buyback",
       quantity: buybackLine.quantity,
       price: `${buybackLine.unitBuybackPrice.toFixed(2)}`,
@@ -389,7 +389,7 @@ export default function BookDetail(
     return {
       id: inventoryCorrection.id,
       date: inventoryCorrection.date.getTime(),
-      user: "N/A",
+      user: inventoryCorrection.user?.name ?? "N/A",
       recordType: "Inventory Correction",
       quantity: inventoryCorrection.quantity,
       price: "0",

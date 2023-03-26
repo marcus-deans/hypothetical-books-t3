@@ -28,6 +28,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
+import { CustomUser } from "../../../schema/user.schema";
+import { useSession } from "next-auth/react";
 
 const ImageCard = ({
   url,
@@ -84,6 +86,8 @@ const modalStyle = {
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
   const { id } = props;
   const router = useRouter();
   const bookDetailsQuery = api.books.getByIdWithAllDetails.useQuery({
@@ -166,6 +170,7 @@ export default function EditBook(
         addInventoryCorrectionMutation.mutate({
           bookId: id,
           quantity: parseInt(tempInventory),
+          user: user!,
         });
       }
     } catch (error) {

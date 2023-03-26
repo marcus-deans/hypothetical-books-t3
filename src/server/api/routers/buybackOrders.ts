@@ -324,6 +324,11 @@ export const buybackOrdersRouter = createTRPCRouter({
         date: z.date(),
         vendorId: z.string(),
         buybackLines: z.array(z.string()),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          role: z.string(),
+        }),
       })
     )
 
@@ -338,6 +343,11 @@ export const buybackOrdersRouter = createTRPCRouter({
           },
           buybackLines: {
             create: [],
+          },
+          user: {
+            connect: {
+              id: input.user.id,
+            },
           },
           display: true,
         },

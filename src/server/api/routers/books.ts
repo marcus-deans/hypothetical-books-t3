@@ -281,6 +281,7 @@ export const booksRouter = createTRPCRouter({
                       name: true,
                     },
                   },
+                  user: true,
                 },
               },
             },
@@ -299,6 +300,7 @@ export const booksRouter = createTRPCRouter({
                       name: true,
                     },
                   },
+                  user: true,
                 },
               },
             },
@@ -313,7 +315,11 @@ export const booksRouter = createTRPCRouter({
               },
             },
           },
-          correction: true,
+          correction: {
+            include: {
+              user: true,
+            },
+          },
         },
       });
       if (!book || !book.display) {
