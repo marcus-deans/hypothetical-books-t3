@@ -19,10 +19,14 @@ import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import dayjs from "dayjs";
 import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { useSession } from "next-auth/react";
+import { CustomUser } from "../../schema/user.schema";
 
 export default function AddBuybackOrder(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
   const router = useRouter();
   const vendorsDetailsQuery = api.vendors.getAllWithBuybackPolicy.useQuery({
     cursor: null,
@@ -65,6 +69,7 @@ export default function AddBuybackOrder(
         date: dateValue.toDate(),
         vendorId: vendorValue.id,
         buybackLines: [],
+        user: user!,
       });
       setTimeout(() => {
         void router.push("/buybacks");
