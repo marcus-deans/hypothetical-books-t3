@@ -10,11 +10,12 @@ import type {
   import Box from "@mui/material/Box";
   import { api } from "../../utils/api";
   
-  import { Autocomplete, Card, CardContent, CardMedia, Typography, Grid, TextField, Select, MenuItem } from "@mui/material";
-  import { useState } from "react";
+  import { Autocomplete, Card, CardContent, CardMedia, Typography, Grid, TextField, Select, MenuItem, SelectChangeEvent } from "@mui/material";
+  import { ChangeEvent, useState } from "react";
   import { ToastContainer } from "react-toastify";
   import { toast } from "react-toastify";
   import "react-toastify/dist/ReactToastify.css";
+  import {Draggable, Droppable, DroppableContext} from 'react-beautiful-dnd';
   
   // const shelfSpace =
   //     data.thickness === 0
@@ -228,23 +229,24 @@ import { number } from "zod";
   }
   
 const BookCard = (book: BookCardProps ) => {
-  const [displayCount, setDisplayCount] = useState<number | null>(60);
+  console.log(book)
+  const [displayCount, setDisplayCount] = useState<number | null>(book.inventoryCount);
   const [displayStyle, setDisplayStyle] = useState<string>("Spine Out");
   
   const displayCountInputHandle = (event: React.ChangeEvent<HTMLInputElement>) =>{
-    const regex = /^\d*\.?\d+$/;
+    const regex =/^(0|\d*\.?\d+)$/;
     if (regex.test(event.target.value) || event.target.value == "") {
       setDisplayCount(Number(event.target.value));
     }
     else{
-      toast.error("Input not a positive number for width. Try again")
+      toast.error("Input not a positive number for " + book.title   + " display count. Try again")
     }
 
 
   }
 
-  const handleDisplayChange = () => {
-
+  const handleDisplayChange = (event: SelectChangeEvent<string>) => { 
+    setDisplayStyle(event.target.value as string)
   }
  
     return(
