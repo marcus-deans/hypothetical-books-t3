@@ -15,7 +15,7 @@ import type {
   import { ToastContainer } from "react-toastify";
   import { toast } from "react-toastify";
   import "react-toastify/dist/ReactToastify.css";
-  import {Draggable, Droppable, DroppableContext} from 'react-beautiful-dnd';
+  import {Draggable, Droppable, DragDropContext} from 'react-beautiful-dnd';
   
   // const shelfSpace =
   //     data.thickness === 0
