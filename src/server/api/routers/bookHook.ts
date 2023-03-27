@@ -3,6 +3,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { XMLParser } from "fast-xml-parser";
 import { prisma } from "../../db";
+import type { NextApiRequest } from "next";
 
 export const bookHookRouter = createTRPCRouter({
   upload: publicProcedure
@@ -15,6 +16,7 @@ export const bookHookRouter = createTRPCRouter({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         contentTypes: ["application/xml"],
+        protect: true,
       },
     })
     .input(z.object({ name: z.string().optional() }).catchall(z.any()))
@@ -35,7 +37,11 @@ export const bookHookRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        if (ctx.req.headers["x-real-ip"] != "152.3.54.108") {
+        if (!ctx.req) {
+          throw new Error("You are missing `req` or `res` in your call.");
+        }
+        const req = ctx.req as NextApiRequest;
+        if (req.headers["x-real-ip"] != "152.3.54.108") {
           throw new TRPCError({
             code: "UNAUTHORIZED",
             message:

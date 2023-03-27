@@ -22,51 +22,53 @@ import { type Session } from "next-auth";
 import { getServerAuthSession } from "../auth";
 import { prisma } from "../db";
 
-export type CreateContextOptions = {
-  session: Session | null;
-};
-
 /**
+ * Defines your inner context shape.
+ * Add fields here that the inner context brings.
+ */
+interface CreateInnerContextOptions extends Partial<CreateNextContextOptions> {
+  session: Session | null;
+}
+/**
+ * Inner context. Will always be available in your procedures, in contrast to the outer context.
  * This helper generates the "internals" for a tRPC context. If you need to use
  * it, you can export it from here
  *
- * Examples of things you may need it for:
- * - testing, so we dont have to mock Next.js' req/res
- * - trpc's `createSSGHelpers` where we don't have req/res
+ * Also useful for:
+ * - testing, so you don't have to mock Next.js' `req`/`res`
+ * - tRPC's `createSSGHelpers` where we don't have `req`/`res`
+ *
+ * @see https://trpc.io/docs/context#inner-and-outer-context
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
-export const createInnerTRPCContext = (
-  opts: CreateContextOptions,
-  req: NextApiRequest,
-  res: NextApiResponse
-) => {
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function createContextInner(opts?: CreateInnerContextOptions) {
   return {
-    session: opts.session,
     prisma,
-    req: req,
-    res: res,
+    session: opts?.session ?? null,
   };
-};
+}
 
 /**
+ * Outer context. Used in the routers and will e.g. bring `req` & `res` to the context as "not `undefined`".
  * This is the actual context you'll use in your router. It will be used to
  * process every request that goes through your tRPC endpoint
+ *
  * @link https://trpc.io/docs/context
+ * @see https://trpc.io/docs/context#inner-and-outer-context
  */
-export const createTRPCContext = async (opts: CreateNextContextOptions) => {
+export async function createTRPCContext(opts: CreateNextContextOptions) {
   const { req, res } = opts;
 
-  // Get the session from the server using the unstable_getServerSession wrapper function
   const session = await getServerAuthSession({ req, res });
-
-  return createInnerTRPCContext(
-    {
-      session,
-    },
-    req,
-    res
-  );
-};
+  const contextInner = await createContextInner({ session });
+  return {
+    ...contextInner,
+    req: opts.req,
+    res: opts.res,
+  };
+}
+export type Context = inferAsyncReturnType<typeof createContextInner>;
 
 /**
  * 2. INITIALIZATION
@@ -74,13 +76,14 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
  * This is where the trpc api is initialized, connecting the context and
  * transformer
  */
+import type { inferAsyncReturnType } from "@trpc/server";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { OpenApiMeta } from "trpc-openapi";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const t = initTRPC
-  .context<typeof createTRPCContext>()
+  .context<Context>()
   .meta<OpenApiMeta>()
   .create({
     transformer: superjson,

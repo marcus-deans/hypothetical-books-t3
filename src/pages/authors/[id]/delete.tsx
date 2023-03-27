@@ -7,7 +7,7 @@ import superjson from "superjson";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { api } from "../../../utils/api";
-import { createInnerTRPCContext } from "../../../server/api/trpc";
+import { createContextInner } from "../../../server/api/trpc";
 import DeletePane from "../../../components/DeletePane";
 import { useState } from "react";
 import { useRouter } from "next/router";
@@ -79,7 +79,7 @@ export async function getStaticProps(
 ) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createContextInner({ session: null }),
     transformer: superjson,
   });
   const id = context.params?.id as string;
