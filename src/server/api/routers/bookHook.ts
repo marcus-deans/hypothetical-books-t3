@@ -27,8 +27,27 @@ export const bookHookRouter = createTRPCRouter({
     //     })
     //   )
     // )
-    .output(z.string())
-    .mutation(async ({ input }) => {
+    .output(
+      z.object({
+        message: z.string(),
+        booksAdded: z.string().array(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        if (ctx.req.headers["x-real-ip"] != "152.3.54.108") {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message:
+              "You are attempting to access BookHook upload from an unauthorized IP address",
+          });
+        }
+      } catch (error) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "There was an error in your authorization",
+        });
+      }
       const options = {
         ignoreAttributes: false,
       };
@@ -118,7 +137,7 @@ export const bookHookRouter = createTRPCRouter({
         },
       });
 
-      let addedCount = 0;
+      const booksAdded: string[] = [];
       for (const sale of processedData) {
         const currentBook = await prisma.book.findFirst({
           where: {
@@ -198,15 +217,18 @@ export const bookHookRouter = createTRPCRouter({
             },
           },
         });
-        addedCount++;
+        booksAdded.push(sale.isbn);
       }
-      if (addedCount == 0) {
+      if (booksAdded.length == 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message:
             "No sales were added to the system, as no line items had correct format",
         });
       }
-      return `${addedCount} sales successfully added to system`;
+      return {
+        message: `${booksAdded.length} sales of below ISBNs were successfully added`,
+        booksAdded: booksAdded,
+      };
     }),
 });
