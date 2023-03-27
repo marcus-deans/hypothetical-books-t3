@@ -1,207 +1,44 @@
-import type {
-    GridColDef,
-    GridPreProcessEditCellProps,
-    GridRowModel,
-  } from "@mui/x-data-grid";
-  import type { InferGetServerSidePropsType } from "next";
-  import Head from "next/head";
-  import type { getServerSideProps } from "../report";
-  import StripedDataGrid from "../../components/table-components/StripedDataGrid";
-  import Box from "@mui/material/Box";
-  import { api } from "../../utils/api";
-  
-  import { Autocomplete, Card, CardContent, CardMedia, Typography, Grid, TextField } from "@mui/material";
-  import { useState } from "react";
-  import { ToastContainer } from "react-toastify";
-  import { toast } from "react-toastify";
-  import "react-toastify/dist/ReactToastify.css";
-  
-  // const shelfSpace =
-  //     data.thickness === 0
-  //       ? (0.8 * data.inventoryCount).toFixed(2)
-  //       : (data.thickness * data.inventoryCount).toFixed(2);
-  
-  // const shelfSpaceString =
-  // data.thickness === 0
-  //   ? `${shelfSpace.toString()}* in.`
-  //   : `${shelfSpace.toString()} in.`;
-  
-  export default function Designer(
-    props: InferGetServerSidePropsType<typeof getServerSideProps>
-  ) {
-    const [bookValue, setBookValue] = useState<{
-      label: string;
-      id: string;
-    } | null>(null);
-    const [bookInputValue, setBookInputValue] = useState("");
-    const [displayedBooks, setDisplayedBooks] = useState<BookCardProps[]>([]);
-    const [totalSpaceSum, setTotalSpaceSum] = useState(0);
-  
-    const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
-    const books = booksQuery?.data?.items ?? [];
-    const bookOptions = books.map((book) => ({
-      label: `${book.title} (${book.isbn_13})`,
-      id: book.id,
-    }));
-  
-    const rows = displayedBooks;
-  
-  
-    const handleSubmit = () => {
-      //Add book value to the rows
-      //Clear the autocomplete bar to add the next book
-      if (bookValue) {
-        //use query to get the book we just searched
-        const specificBook = books.find((item) => item.id === bookValue.id);
-        if (specificBook) {
-          const displayBook: BookCardProps = {
-            id: specificBook.id,
-            title: specificBook.title,
-            inventoryCount: specificBook.inventoryCount,
-            displayCount: specificBook.inventoryCount,
-            width: specificBook.width,
-            height: specificBook.height,
-            image: null,
-            thickness: specificBook.thickness,
-            displayStyle: "Spine Out",
-            shelfSpace: "",
-            usedDefault: false,
-          };
-          if(specificBook.imgUrl){
-            displayBook.image = specificBook.imgUrl;
-          }
-          displayBook.shelfSpace = calcShelfSpace(
-            displayBook.width,
-            displayBook.height,
-            displayBook.thickness,
-            displayBook.displayStyle,
-            displayBook.displayCount
-          ).toString();
-          if (
-            specificBook.width == 0 ||
-            specificBook.height == 0 ||
-            specificBook.thickness == 0
-          ) {
-            displayBook.usedDefault = true;
-          }
-          setDisplayedBooks((prev) => [...prev, displayBook]);
-          setTotalSpaceSum(totalSpaceSum + parseFloat(displayBook.shelfSpace));
-          const spaceVal = Number.parseFloat(displayBook.shelfSpace)
-            .toFixed(2)
-            .toString();
-          displayBook.shelfSpace = displayBook.usedDefault
-            ? spaceVal + "*"
-            : spaceVal;
-  
-          toast.success("Added " + specificBook.title);
-        }
-      }
-      setBookInputValue("");
-      setBookValue(null);
-    };
-  
-    const calcShelfSpace = (
-      width: number,
-      height: number,
-      thickness: number,
-      displayStyle: string,
-      displayCount: number
-    ) => {
-      if (displayStyle === "Spine Out") {
-        if (thickness === 0) {
-          thickness = 0.8;
-        }
-        return Number(thickness * displayCount);
-      }
-      if (displayStyle === "Cover Out") {
-        if (height == 0) {
-          height = 8;
-        }
-        if (width == 0) {
-          width = 6;
-        }
-        return Number((height * width).toFixed(2));
-      } else {
-        return Number(0);
-      }
-    };
-  
-    return (
-      <>
-        <Head>
-          <title>Shelf Calculator</title>
-        </Head>
-        <div className="rounded-lg bg-white px-6 pt-6">
-          <Autocomplete
-            options={bookOptions}
-            placeholder={"Search books by title"}
-            value={bookValue}
-            onChange={(event, newValue: { label: string; id: string } | null) => {
-              setBookValue(newValue);
-            }}
-            onInputChange={(event, newBookInputValue: string) => {
-              setBookInputValue(newBookInputValue);
-            }}
-            sx={{ width: 425 }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                inputProps={{
-                  ...params.inputProps,
-                }}
-              />
-            )}
-          />
-          <button
-            className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
-            type="button"
-            id="button-addon2"
-            onClick={handleSubmit}
-          >
-            Add Book
-          </button>
-        </div>
-        <div>
-        <Grid container spacing={3}>
-      {displayedBooks.map((bookC) => (
-        <Grid item xs={12} sm={6} md={4} key={bookC.id}>
-          <BookCard {...bookC}/>
-        </Grid>
-      ))}
-    </Grid>
-    </div>
-        <ToastContainer></ToastContainer>
-      </>
-    );
-  }
-  import React from "react";
+import Head from "next/head";
+import Link from "next/link";
 
+const index = () => {
 
-  interface BookCardProps {
-    id: string;
-    title: string;
-    inventoryCount: number;
-    displayCount: number;
-    width: number;
-    height: number;
-    thickness: number;
-    displayStyle: string;
-    shelfSpace: string;
-    usedDefault: boolean;
-    image:string | null;
-  }
-  
-const BookCard = (book: BookCardProps ) => {
-    
-    console.log(book)
   return (
-    <Card>
-        <div>{book.title}</div>
-       <CardMedia
-       style={{ height: 0, paddingTop: "56.25%" }}
-       image={book.image}/>
-    </Card>
-
-      );
-};
-
+    <>
+    <Head>
+      <title>Add Author</title>
+    </Head>
+      <div className="pt-6">
+        <div className="rounded bg-white px-6 py-6 inline-block">
+          <div className="space-y-5">
+            <div className="mb-2 block text-lg font-bold text-gray-700">
+              Welcome to Case Designer
+            </div>
+            <div className="relative space-y-3">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
+              <div className="col-span-4">
+                <div className="space-y-20">
+                  <div className="flex space-x-10 justify-center">
+                  </div>
+                  <Link href = "/designer/design" passHref>
+                <button className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg">Add a New Case</button>
+                </Link>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><div className="pt-6">
+        <div className="rounded bg-white px-6 py-6 inline-block">
+          <div className="space-y-5">
+            <div className="mb-2 block text-lg font-bold text-gray-700">
+              Select an Existing Case
+            </div>
+            <div className="relative space-y-3">
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+export default index
