@@ -14,44 +14,45 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
+import type { Book } from "@prisma/client";
 
-interface GoogleBookResponse {
-  kind: string;
-  totalItems: number;
-  items: GoogleBookItems[];
-}
+// interface GoogleBookResponse {
+//   kind: string;
+//   totalItems: number;
+//   items: GoogleBookItems[];
+// }
+//
+// interface GoogleBookItems {
+//   kind: string;
+//   id: string;
+//   etag: string;
+//   selfLink: string;
+//   volumeInfo: GoogleBookDetails;
+// }
+//
+// interface GoogleBookDetails {
+//   title: string;
+//   authors: string[];
+//   publishedDate: string;
+//   description: string | null;
+//   industryIdentifiers: {
+//     type: string;
+//     identifier: string;
+//   }[];
 
-interface GoogleBookItems {
-  kind: string;
-  id: string;
-  etag: string;
-  selfLink: string;
-  volumeInfo: GoogleBookDetails;
-}
-
-interface GoogleBookDetails {
-  title: string;
-  authors: string[];
-  publishedDate: string;
-  description: string | null;
-  industryIdentifiers: {
-    type: string;
-    identifier: string;
-  }[];
-
-  pageCount: number;
-
-  publisher: string | null;
-  categories: string[] | null;
-  imageLinks: {
-    smallThumbnail: string | null;
-    thumbnail: string | null;
-    small: string | null;
-    medium: string | null;
-    large: string | null;
-  };
-}
-interface BookDetails {
+//   pageCount: number;
+//
+//   publisher: string | null;
+//   categories: string[] | null;
+//   imageLinks: {
+//     smallThumbnail: string | null;
+//     thumbnail: string | null;
+//     small: string | null;
+//     medium: string | null;
+//     large: string | null;
+//   };
+// }
+interface BookDisplayDetails {
   id: number;
   imgUrl: string;
   title: string;
@@ -66,29 +67,21 @@ interface BookDetails {
   height: number;
   thickness: number;
   retailPrice: number;
+  relatedBooks: (Book & { authors: string[] })[];
 }
 
 export default function AddBook() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
+  // const [isLoaded, setIsLoaded] = useState(false);
+  const [displayedBooks, setDisplayedBooks] = useState<BookDisplayDetails[]>(
+    []
+  );
 
   const [parsedIsbns, setParsedIsbns] = useState<string[]>([]);
-  const retrieveDetailsQuery = api.googleBooks.retrieveByISBNs.useQuery(
+  const retrieveDetailsQuery = api.googleBooks.retrieveDetailsByISBNs.useQuery(
     { isbns: parsedIsbns },
     { enabled: !!parsedIsbns }
   );
-  const retrievePricingQuery = api.googleBooks.retrievePricingData.useQuery(
-    { isbns: parsedIsbns },
-    { enabled: !!parsedIsbns }
-  );
-
-  const [currentTitle, setCurrentTitle] = useState("");
-  const [currentAuthor, setCurrentAuthor] = useState("");
-  const findRelatedBooksQuery = api.books.findRelatedBooks.useQuery(
-    { title: currentTitle, author: currentAuthor },
-  );
-  type relatedBookReturnType = typeof findRelatedBooksQuery.data;
 
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
@@ -97,54 +90,48 @@ export default function AddBook() {
   };
 
   const performQuery = () => {
-    const googleBooksData = retrieveDetailsQuery?.data ?? [];
-    const pricingData = retrievePricingQuery?.data ?? [];
-    if (googleBooksData) {
-      console.log("Setting retreived books with:");
-      console.log(googleBooksData);
-      googleBooksData.map((retrievedBook, index) => {
+    const retrievedBooksData = retrieveDetailsQuery?.data ?? [];
+    if (retrievedBooksData) {
+      retrievedBooksData.map((retrievedBook, index) => {
+        const googleBooksDetails = retrievedBook.googleBooKDetails;
         console.log("Adding retrieved book to rows");
         console.log(retrievedBook);
         let isbn_10 = null;
         let isbn_13 = null;
-        if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
-          isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
-          if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
-            isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
-          }
-        }
-        if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_13") {
-          isbn_13 = retrievedBook.industryIdentifiers[1].identifier;
-          if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_10") {
-            isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
-          }
-        }
-        let retailPrice = 0;
-        if (pricingData[index] !== undefined) {
-          retailPrice = isNaN(Number(pricingData[index]))
-            ? 0
-            : Number(pricingData[index]);
-        }
 
-        setCurrentTitle(retrievedBook.title);
-        setCurrentAuthor(retrievedBook.authors.join(", "));
-        const relatedBooks = findRelatedBooksQuery?.data ?? [];
+        if (googleBooksDetails?.industryIdentifiers[0]?.type === "ISBN_13") {
+          isbn_13 = googleBooksDetails?.industryIdentifiers[0].identifier;
+          if (googleBooksDetails?.industryIdentifiers[1]?.type === "ISBN_10") {
+            isbn_10 = googleBooksDetails?.industryIdentifiers[1].identifier;
+          }
+        }
+        if (googleBooksDetails?.industryIdentifiers[1]?.type === "ISBN_13") {
+          isbn_13 = googleBooksDetails.industryIdentifiers[1].identifier;
+          if (googleBooksDetails?.industryIdentifiers[0]?.type === "ISBN_10") {
+            isbn_10 = googleBooksDetails.industryIdentifiers[0].identifier;
+          }
+        }
+        const retailPrice = retrievedBook.booksRunPrice;
+        const relatedBooks = retrievedBook.relatedBooks;
+
         console.log("Related books:");
         console.log(relatedBooks);
 
         const displayBook = {
-          imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
+          imgUrl: googleBooksDetails.imageLinks?.thumbnail ?? "",
           id: index,
-          title: retrievedBook.title,
-          authors: retrievedBook.authors.join(", "),
+          title: googleBooksDetails.title,
+          authors: googleBooksDetails.authors.join(", "),
           isbn_13: isbn_13 ?? "Unknown",
           isbn_10: isbn_10 ?? "Unknown",
-          publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
-          pageCount: isNaN(retrievedBook.pageCount)
+          publicationYear: new Date(
+            googleBooksDetails.publishedDate
+          ).getFullYear(),
+          pageCount: isNaN(googleBooksDetails.pageCount)
             ? 0
-            : retrievedBook.pageCount,
-          publisher: retrievedBook.publisher ?? "Unknown",
-          genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
+            : googleBooksDetails.pageCount,
+          publisher: googleBooksDetails?.publisher ?? "Unknown",
+          genre: googleBooksDetails?.categories?.join(", ") ?? "Unknown",
           width: 0,
           height: 0,
           thickness: 0,
@@ -152,10 +139,8 @@ export default function AddBook() {
           relatedBooks: relatedBooks,
         };
         setDisplayedBooks((prev) => [...prev, displayBook]);
-        setCurrentTitle("");
-        setCurrentAuthor("");
       });
-      setIsLoaded(true);
+      // setIsLoaded(true);
     }
   };
 
@@ -163,7 +148,7 @@ export default function AddBook() {
     if (searchQuery === "") {
       return;
     }
-    setIsLoaded(false);
+    // setIsLoaded(false);
     setDisplayedBooks([]);
     // 9781250158079, 9781101904954, 9780393072235
     const isbnSearchList = searchQuery.replace(/-/g, "").split(/[\s,;\t\n]+/g);
@@ -194,7 +179,7 @@ export default function AddBook() {
           purchaseLines: [],
           salesLines: [],
           inventoryCount: 0,
-          relatedBooks: [], //TODO: implement properly
+          relatedBooks: row.relatedBooks, //TODO: implement properly
         });
       });
       setTimeout(() => {
@@ -382,7 +367,8 @@ export default function AddBook() {
       minWidth: 200,
       renderCell: (params) => {
         /* eslint-disable */
-        let relatedBooks = params.row.relatedBooks as relatedBookReturnType;
+        type RelatedBooksDisplayType = typeof BookDisplayDetails.relatedBooks;
+        let relatedBooks = params.row.relatedBooks as RelatedBooksDisplayType;
         console.log(relatedBooks);
         if (relatedBooks!.length === 0) {
           return <div>No Related Books Found!</div>;
@@ -423,7 +409,7 @@ export default function AddBook() {
     const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
       if (index === newRow.id) {
         // Increment the clicked counter
-        return newRow as BookDetails;
+        return newRow as BookDisplayDetails;
       } else {
         // The rest haven't changed
         return displayedBook;
@@ -441,7 +427,7 @@ export default function AddBook() {
   const rows = displayedBooks;
 
   // 9780812979688, 9781250158079
-  if (isLoaded) {
+  if (retrieveDetailsQuery.isSuccess) {
     console.log("all rows");
     console.log(rows);
     return (

@@ -23,7 +23,7 @@ const UPLOAD_MAX_FILE_SIZE = 1000000;
 
 const getUrlExtension = (url: string) => {
   return url?.split(/[#?]/)[0]?.split(".")?.pop()?.trim();
-}
+};
 
 const createPresignedUrl = async (bookId: string) => {
   return new Promise((resolve, reject) => {
@@ -45,11 +45,9 @@ const createPresignedUrl = async (bookId: string) => {
       }
     );
   });
-}
+};
 
-const uploadToS3 = async (imgUrl: string, bookId: string) => {
-
-}
+const uploadToS3 = async (imgUrl: string, bookId: string) => {};
 
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -74,8 +72,8 @@ export const booksRouter = createTRPCRouter({
         where: { display: true },
         cursor: cursor
           ? {
-            id: cursor,
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
           title: "desc",
@@ -129,8 +127,8 @@ export const booksRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-            id: cursor,
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
           title: "asc",
@@ -197,8 +195,8 @@ export const booksRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-            id: cursor,
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
           title: "desc",
@@ -599,55 +597,57 @@ export const booksRouter = createTRPCRouter({
         }
       }
 
-      fetch(input.imgUrl)
-        .then(async response => {
-          const contentType = response.headers.get('content-type');
-          const blob = await response.blob();
-          const file = new File([blob], "tempFile.png", { type: contentType ? contentType : "image/png" });
-          if (!file) {
-            throw new TRPCError({
-              code: "PRECONDITION_FAILED",
-              message: `File not found`,
-            });
-          }
-          if (
-            file.type !== "image/jpeg" &&
-            file.type !== "image/png" &&
-            file.type !== "image/jpg"
-          ) {
-            throw new TRPCError({
-              code: "PRECONDITION_FAILED",
-              message: `File not an image type`,
-            });
-          }
-          const presignedUrl = await createPresignedUrl(book.id) as S3.PresignedPost;
-          const url = presignedUrl.url;
-          const fields = presignedUrl.fields;
-          const imageData = {
-            ...fields,
-            "Content-Type": file.type,
-            file,
-          };
-          const formData = new FormData();
-          for (const name in imageData) {
-            /* eslint-disable */
-            // @ts-ignore
-            formData.append(name, imageData[name]);
-            /*eslint-enable */
-          }
-          await fetch(url, {
-            method: "POST",
-            body: formData,
+      fetch(input.imgUrl).then(async (response) => {
+        const contentType = response.headers.get("content-type");
+        const blob = await response.blob();
+        const file = new File([blob], "tempFile.png", {
+          type: contentType ? contentType : "image/png",
+        });
+        if (!file) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: `File not found`,
           });
-
-
-          await prisma.book.update({
-            where: { id: book.id },
-            data: {
-              imgUrl: url,
-            },
+        }
+        if (
+          file.type !== "image/jpeg" &&
+          file.type !== "image/png" &&
+          file.type !== "image/jpg"
+        ) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: `File not an image type`,
           });
-        })
+        }
+        const presignedUrl = (await createPresignedUrl(
+          book.id
+        )) as S3.PresignedPost;
+        const url = presignedUrl.url;
+        const fields = presignedUrl.fields;
+        const imageData = {
+          ...fields,
+          "Content-Type": file.type,
+          file,
+        };
+        const formData = new FormData();
+        for (const name in imageData) {
+          /* eslint-disable */
+          // @ts-ignore
+          formData.append(name, imageData[name]);
+          /*eslint-enable */
+        }
+        await fetch(url, {
+          method: "POST",
+          body: formData,
+        });
+
+        await prisma.book.update({
+          where: { id: book.id },
+          data: {
+            imgUrl: url,
+          },
+        });
+      });
 
       console.log("Successfully uploaded image to S3");
 
@@ -683,77 +683,5 @@ export const booksRouter = createTRPCRouter({
         });
       }
       return book;
-    }),
-
-  findRelatedBooks: publicProcedure
-    .input(
-      z.object({
-        title: z.string(),
-        author: z.string(),
-      })
-    )
-    // .output(
-    //   z.array(
-    //     z.object({
-    //       item: z.object({
-    //         id: z.string(),
-    //         title: z.string(),
-    //         isbn_13: z.string().length(13),
-    //       }),
-    //       score: z.number(),
-    //       refIndex: z.number(),
-    //     })
-    //   )
-    // )
-    .query(async ({ input }) => {
-      const allBooks = await prisma.book.findMany({
-        where: { display: true },
-        include: {
-          authors: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      });
-      type allBooksType = (typeof allBooks)[number];
-      type returnBookType = {
-        item: allBooksType;
-        score: number;
-        refIndex: number;
-      };
-
-      const options = {
-        includeScore: true,
-        ignoreLocation: true,
-        keys: [
-          {
-            name: "title",
-            weight: 0.7,
-            getFn: (book: allBooksType) => book.title,
-          },
-          {
-            name: "authors",
-            weight: 0.3,
-            getFn: (book: allBooksType) =>
-              book.authors.map((author) => author.name).join(","),
-          },
-        ],
-      };
-
-      const fuse = new Fuse(allBooks, options);
-      const searchResults = fuse.search({
-        title: input.title,
-        authors: input.author,
-      });
-      const returnableSearchResult = searchResults as returnBookType[];
-      // console.log(
-      //   returnableSearchResult.map((result) =>
-      //     result.item.authors.map((author) => author.name).join(", ")
-      //   )
-      // );
-      console.log("Related book search results: ");
-      console.log(returnableSearchResult);
-      return returnableSearchResult;
     }),
 });
