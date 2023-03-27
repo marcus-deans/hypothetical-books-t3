@@ -29,6 +29,10 @@ const config = {
       {
         protocol: 'http',
         hostname: 'books.google.com',
+      },
+      {
+        protocol: 'http',
+        hostname: 'res.cloudinary.com',
       }
     ],
   },

@@ -9,6 +9,14 @@ import { env } from "../../../env/server.mjs";
 import type { S3 } from "aws-sdk/clients/browser_default";
 import * as AWS from "aws-sdk";
 
+import { v2 as cloudinary } from "cloudinary";
+// Configuration
+cloudinary.config({
+  cloud_name: "dtyhei91n",
+  api_key: "259515673926289",
+  api_secret: "pHSeZffT1BcDQ7u_-fVZyuy5eBA",
+});
+
 const s3 = new AWS.S3();
 AWS.config.update({
   accessKeyId: env.AWS_ACCESS_KEY_ID,
@@ -419,7 +427,7 @@ export const booksRouter = createTRPCRouter({
           width: input.width,
           height: input.height,
           thickness: input.thickness,
-          imgUrl: `https://${env.AWS_S3_BUCKET}.s3.amazonaws.com/images/${input.id}`,
+          // imgUrl: `https://${env.AWS_S3_BUCKET}.s3.amazonaws.com/images/${input.id}`,
         },
       });
     }),
@@ -593,59 +601,71 @@ export const booksRouter = createTRPCRouter({
         }
       }
 
-      await fetch(input.imgUrl).then(async (response) => {
-        const contentType = response.headers.get("content-type");
-        const blob = await response.blob();
-        const file = new File([blob], "tempFile.png", {
-          type: contentType ? contentType : "image/png",
-        });
-        if (!file) {
+      // await fetch(input.imgUrl).then(async (response) => {
+      //   const contentType = response.headers.get("content-type");
+      //   const blob = await response.blob();
+      //   const file = new File([blob], "tempFile.png", {
+      //     type: contentType ? contentType : "image/png",
+      //   });
+      //   if (!file) {
+      //     throw new TRPCError({
+      //       code: "PRECONDITION_FAILED",
+      //       message: `File not found`,
+      //     });
+      //   }
+      //   if (
+      //     file.type !== "image/jpeg" &&
+      //     file.type !== "image/png" &&
+      //     file.type !== "image/jpg"
+      //   ) {
+      //     throw new TRPCError({
+      //       code: "PRECONDITION_FAILED",
+      //       message: `File not an image type`,
+      //     });
+      //   }
+      //   const presignedUrl = (await createPresignedUrl(
+      //     book.id
+      //   )) as S3.PresignedPost;
+      //   const url = presignedUrl.url;
+      //   const fields = presignedUrl.fields;
+      //   const imageData = {
+      //     ...fields,
+      //     "Content-Type": file.type,
+      //     file,
+      //   };
+      //   const formData = new FormData();
+      //   for (const name in imageData) {
+      //     /* eslint-disable */
+      //     // @ts-ignore
+      //     formData.append(name, imageData[name]);
+      //     /*eslint-enable */
+      //   }
+      //   await fetch(url, {
+      //     method: "POST",
+      //     body: formData,
+      //   });
+      const cloudinaryUpload = await cloudinary.uploader
+        .upload(input.imgUrl, { public_id: book.id })
+        .then((data) => {
+          console.log(data);
+          console.log(data.secure_url);
+        })
+        .catch((err) => {
           throw new TRPCError({
-            code: "PRECONDITION_FAILED",
-            message: `File not found`,
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Error uploading image to cloudinary`,
           });
-        }
-        if (
-          file.type !== "image/jpeg" &&
-          file.type !== "image/png" &&
-          file.type !== "image/jpg"
-        ) {
-          throw new TRPCError({
-            code: "PRECONDITION_FAILED",
-            message: `File not an image type`,
-          });
-        }
-        const presignedUrl = (await createPresignedUrl(
-          book.id
-        )) as S3.PresignedPost;
-        const url = presignedUrl.url;
-        const fields = presignedUrl.fields;
-        const imageData = {
-          ...fields,
-          "Content-Type": file.type,
-          file,
-        };
-        const formData = new FormData();
-        for (const name in imageData) {
-          /* eslint-disable */
-          // @ts-ignore
-          formData.append(name, imageData[name]);
-          /*eslint-enable */
-        }
-        await fetch(url, {
-          method: "POST",
-          body: formData,
         });
+      const cloudinaryUrl = cloudinary.url(book.id);
 
-        await prisma.book.update({
-          where: { id: book.id },
-          data: {
-            imgUrl: url,
-          },
-        });
+      await prisma.book.update({
+        where: { id: book.id },
+        data: {
+          imgUrl: cloudinaryUrl,
+        },
       });
 
-      console.log("Successfully uploaded image to S3");
+      console.log("Successfully uploaded image to Cloudinary");
 
       return book;
     }),
