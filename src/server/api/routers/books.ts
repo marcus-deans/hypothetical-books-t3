@@ -6,8 +6,6 @@ import { TRPCError } from "@trpc/server";
 import type { bookDetail } from "../../../schema/books.schema";
 import { bookDetailSchema } from "../../../schema/books.schema";
 import { env } from "../../../env/server.mjs";
-import Fuse from "fuse.js";
-import { api } from "../../../utils/api";
 import type { S3 } from "aws-sdk/clients/browser_default";
 import * as AWS from "aws-sdk";
 
@@ -46,8 +44,6 @@ const createPresignedUrl = async (bookId: string) => {
     );
   });
 };
-
-const uploadToS3 = async (imgUrl: string, bookId: string) => {};
 
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -597,7 +593,7 @@ export const booksRouter = createTRPCRouter({
         }
       }
 
-      fetch(input.imgUrl).then(async (response) => {
+      await fetch(input.imgUrl).then(async (response) => {
         const contentType = response.headers.get("content-type");
         const blob = await response.blob();
         const file = new File([blob], "tempFile.png", {

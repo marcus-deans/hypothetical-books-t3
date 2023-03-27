@@ -122,17 +122,6 @@ const getBooksRunPrices = async (isbn: string): Promise<number> => {
   }
 };
 
-const allBooks = await prisma.book.findMany({
-  where: { display: true },
-  include: {
-    authors: {
-      select: {
-        name: true,
-      },
-    },
-  },
-});
-type allBooksType = (typeof allBooks)[number];
 type bookWithAuthorsType = Book & { authors: { name: string }[] };
 
 const getRelatedBooks = async (book: GoogleBooksDetails) => {
@@ -149,6 +138,7 @@ const getRelatedBooks = async (book: GoogleBooksDetails) => {
   if (!allBooks) {
     return [];
   }
+  type allBooksType = (typeof allBooks)[number];
   type returnBookType = {
     item: allBooksType;
     score: number;
@@ -192,7 +182,7 @@ const getRelatedBooks = async (book: GoogleBooksDetails) => {
 interface AllBookDetails {
   googleBooKDetails: GoogleBooksDetails;
   booksRunPrice: number;
-  relatedBooks: allBooksType[];
+  relatedBooks: bookWithAuthorsType[];
 }
 
 export const googleBooksRouter = createTRPCRouter({
