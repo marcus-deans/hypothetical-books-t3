@@ -10,7 +10,7 @@ import type {
   import Box from "@mui/material/Box";
   import { api } from "../../utils/api";
   
-  import { Autocomplete, Card, CardContent, CardMedia, Typography, Grid, TextField } from "@mui/material";
+  import { Autocomplete, Card, CardContent, CardMedia, Typography, Grid, TextField, Select, MenuItem } from "@mui/material";
   import { useState } from "react";
   import { ToastContainer } from "react-toastify";
   import { toast } from "react-toastify";
@@ -144,7 +144,7 @@ import type {
     return (
       <>
         <Head>
-          <title>Shelf Calculator</title>
+          <title>Shelf Designer</title>
         </Head>
         <form className="rounded-lg bg-white px-6 pt-6">
           <Autocomplete
@@ -228,6 +228,24 @@ import { number } from "zod";
   }
   
 const BookCard = (book: BookCardProps ) => {
+  const [displayCount, setDisplayCount] = useState<number | null>(60);
+  const [displayStyle, setDisplayStyle] = useState<string>("Spine Out");
+  
+  const displayCountInputHandle = (event: React.ChangeEvent<HTMLInputElement>) =>{
+    const regex = /^\d*\.?\d+$/;
+    if (regex.test(event.target.value) || event.target.value == "") {
+      setDisplayCount(Number(event.target.value));
+    }
+    else{
+      toast.error("Input not a positive number for width. Try again")
+    }
+
+
+  }
+
+  const handleDisplayChange = () => {
+
+  }
  
     return(
     <Card>
@@ -237,6 +255,28 @@ const BookCard = (book: BookCardProps ) => {
         style={{ height: 0, paddingTop: "56.25%" }}
         image={book.image}/>
       }
+          <Typography   >
+                          Display Count:
+          </Typography>
+      <input
+                      type="text" pattern="[0-9]*"
+                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      id="width"
+                      placeholder="Display Count"
+                      onChange={displayCountInputHandle}
+                      value = {displayCount ? displayCount : ""}
+                    />
+        <Typography   >
+                    Display Mode:
+        </Typography>
+        <Select
+          labelId="dropdown-label"
+          value={displayStyle}
+          onChange={handleDisplayChange}
+        >
+          <MenuItem value="Spine Out">Spine Out</MenuItem>
+          <MenuItem value="Cover Out">Cover Out</MenuItem>
+        </Select>
 
     </Card>
 

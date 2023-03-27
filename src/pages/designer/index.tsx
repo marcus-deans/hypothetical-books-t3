@@ -1,3 +1,4 @@
+import { Typography } from "@mui/material";
 import Head from "next/head";
 import Link from "next/link";
 
@@ -6,7 +7,7 @@ const index = () => {
   return (
     <>
     <Head>
-      <title>Add Author</title>
+      <title>Case Designer</title>
     </Head>
       <div className="pt-6">
         <div className="rounded bg-white px-6 py-6 inline-block">
@@ -29,7 +30,7 @@ const index = () => {
         </div>
       </div><div className="pt-6">
         <div className="rounded bg-white px-6 py-6 inline-block">
-          <div className="space-y-5">
+          <div className="space-y-5">                        
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Select an Existing Case
             </div>
