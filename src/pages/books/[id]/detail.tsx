@@ -236,6 +236,14 @@ export default function BookDetail(
       minWidth: 110,
     },
     {
+      field: "relatedBookCount",
+      headerName: "Related Book Count",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      minWidth: 150,
+    },
+    {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
@@ -340,6 +348,7 @@ export default function BookDetail(
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupplyString,
       bestBuyback: bestBuybackString,
+      relatedBookCount: data.relatedBooks.length.toString(),
     },
   ];
 
@@ -398,7 +407,6 @@ export default function BookDetail(
     };
   });
 
-  // TODO: ADD INVENTORY CORRECTION LOGIC
   const masterRows = [
     ...purchaseOrderRows,
     ...buybackOrderRows,
@@ -417,7 +425,7 @@ export default function BookDetail(
     inventoryTotal +=
       row.recordType === "Purchase" || row.recordType === "Inventory Correction"
         ? row.quantity
-        : -row.quantity; // TODO: NEED TO IMPLEMENT INVENTORY CORRECTION LOGIC
+        : -row.quantity;
     row.inventoryTotal = inventoryTotal.toString();
   }
 
@@ -533,6 +541,90 @@ export default function BookDetail(
     },
   ];
 
+  const relatedBooksRows = data.relatedBooks.map((relatedBook) => {
+    return {
+      /* eslint-disable */
+      title: relatedBook.title,
+      author: relatedBook.authors.map((author) => author.name).join(", "),
+      publisher: relatedBook.publisher,
+      publicationYear: relatedBook.publicationYear,
+      isbn_13: relatedBook.isbn_13,
+      genre: relatedBook.genre.name,
+      pageCount: relatedBook.pageCount,
+      /* eslint-enable */
+    };
+  });
+
+  const relatedBooksCols: GridColDef[] = [
+    {
+      field: "title",
+      headerName: "Title",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      flex: 1,
+      renderCell: (params) => {
+        return (
+          <div className="text-blue-600">
+            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
+            <a href={`/books/${params.id}/detail`}>{params.row.title} </a>
+          </div>
+        );
+      },
+      minWidth: 250,
+    },
+    {
+      field: "author",
+      headerName: "Author",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      flex: 1,
+      minWidth: 150,
+    },
+    {
+      field: "publisher",
+      headerName: "Publisher",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      maxWidth: 200,
+    },
+    {
+      field: "publicationYear",
+      headerName: "Pub. Year",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      width: 85,
+    },
+    {
+      field: "isbn_13",
+      headerName: "ISBN-13",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      minWidth: 125,
+    },
+    {
+      field: "genre",
+      headerName: "Genre",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      minWidth: 100,
+    },
+    {
+      field: "pageCount",
+      headerName: "Page Count",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      maxWidth: 100,
+    },
+  ];
+
   return (
     <>
       <Head>
@@ -588,6 +680,44 @@ export default function BookDetail(
           <StripedDataGrid
             rows={masterRows}
             columns={masterColumns}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  id: false,
+                },
+              },
+            }}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
+            autoHeight={true}
+            rowHeight={40}
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
+        <div className="pt-8 text-lg">Related Books</div>
+        <Box
+          sx={{
+            height: "auto",
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
+            },
+          }}
+        >
+          <StripedDataGrid
+            rows={relatedBooksRows}
+            columns={relatedBooksCols}
             initialState={{
               columns: {
                 columnVisibilityModel: {
