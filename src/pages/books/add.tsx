@@ -105,7 +105,6 @@ export default function AddBook() {
         setDisplayedBooks((prev) => [...prev, displayBook]);
       });
       setIsLoaded(true);
-      setDisplayedBooks((prev) => [...prev]);
     }
   };
 
@@ -119,7 +118,9 @@ export default function AddBook() {
     // Antifragile: 9780812979688
     const isbnSearchList = searchQuery.replace(/-/g, "").split(/[\s,;\t\n]+/g);
     setParsedIsbns(isbnSearchList);
+    void retrieveDetailsQuery.refetch();
     performQuery();
+    setDisplayedBooks((prev) => [...prev]);
     // setSearchQuery("");
   };
 
