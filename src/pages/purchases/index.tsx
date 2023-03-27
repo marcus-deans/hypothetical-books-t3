@@ -53,6 +53,14 @@ export default function sales(
       },
     },
     {
+      field: "user",
+      headerName: "User",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      flex: 1,
+    },
+    {
       field: "vendor",
       headerName: "Vendor",
       headerClassName: "header-theme",
@@ -101,6 +109,7 @@ export default function sales(
     return {
       id: purchaseOrder.purchaseOrder.id,
       date: purchaseOrder.purchaseOrder.date.toLocaleDateString(),
+      user: purchaseOrder.purchaseOrder.user?.name ?? "N/A",
       totalQuantity: purchaseOrder.totalQuantity,
       vendor: purchaseOrder.purchaseOrder.vendor.name,
       totalPrice: `${purchaseOrder.totalPrice.toFixed(2)}`,
