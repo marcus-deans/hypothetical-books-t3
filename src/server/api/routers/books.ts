@@ -326,7 +326,7 @@ export const booksRouter = createTRPCRouter({
               authors: true,
               genre: true,
             },
-          }
+          },
         },
       });
       if (!book || !book.display) {
@@ -493,11 +493,15 @@ export const booksRouter = createTRPCRouter({
         });
       }
 
+      const relatedBooksAddedIds = new Set<string>();
+
       for (const relatedBookId of input.relatedBooks) {
         const relatedBook = await prisma.book.findUnique({
           where: { id: relatedBookId },
           include: {
-            relatedBooks: true,
+            relatedBooks: {
+              select: { id: true },
+            },
           },
         });
 
@@ -524,6 +528,32 @@ export const booksRouter = createTRPCRouter({
             },
           },
         });
+
+        relatedBooksAddedIds.add(relatedBookId);
+
+        for (const checkBook of relatedBook.relatedBooks) {
+          if (!relatedBooksAddedIds.has(checkBook.id)) {
+            await prisma.book.update({
+              where: { id: book.id },
+              data: {
+                relatedBooks: {
+                  connect: [{ id: checkBook.id }],
+                },
+              },
+            });
+
+            await prisma.book.update({
+              where: { id: checkBook.id },
+              data: {
+                relatedBooks: {
+                  connect: [{ id: book.id }],
+                },
+              },
+            });
+
+            relatedBooksAddedIds.add(checkBook.id);
+          }
+        }
       }
 
       return book;
