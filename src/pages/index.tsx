@@ -40,7 +40,7 @@ const Home: NextPage = (): JSX.Element => {
               Log Out
             </button> : null}
             {auth ? <button className="rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700">
-              <Link href="/auth/changePassword">{auth && "Change Password"}</Link>
+              <Link href="/auth/changeMyPassword">{auth && "Change My Password"}</Link>
             </button> : null}
             {!auth && !exist ? <button className="rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700">
               <Link href="/auth/createAdmin">{!auth && !exist && "Create Admin Account"}</Link>

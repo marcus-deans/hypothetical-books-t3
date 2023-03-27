@@ -15,6 +15,8 @@ import DetailLink from "../../../components/table-components/DetailLink";
 import Head from "next/head";
 import type { CustomUser } from "../../../schema/user.schema";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { Button } from "@mui/material";
 
 export default function DetailUser(
     props: InferGetStaticPropsType<typeof getStaticProps>
@@ -41,12 +43,44 @@ export default function DetailUser(
                 <h1 className="inline-block text-2xl">
                     {" "}
                     {`Details for User ${data.name}`}
-                    {}
+                    { }
                 </h1>
             </div>
+            <Link className="items-end px-3" href={`/users/${id}/edit`} passHref>
+                <Button
+                    className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+                    variant="contained"
+                >
+                    Edit User Privilege
+                </Button>
+            </Link>
+            <Link
+                className="items-end px-3"
+                href={`/users/${id}/changeThisPassword`}
+                passHref
+            >
+                <Button
+                    className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+                    variant="contained"
+                >
+                    Reset User Password
+                </Button>
+            </Link>
+            <Link
+                className="items-end px-3"
+                href={`/users/${id}/delete`}
+                passHref
+            >
+                <Button
+                    className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+                    variant="contained"
+                >
+                    Delete User
+                </Button>
+            </Link>
             <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
                 <Box>
-                    {"The User is " + (data.role == "admin" ? " " : "not ") + "an admin."}
+                    {"This User is " + (data.role == "admin" ? " " : "not ") + "an admin."}
                 </Box>
             </div>
         </>

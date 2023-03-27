@@ -51,6 +51,31 @@ export const usersRouter = createTRPCRouter({
         nextCursor,
       };
     }),
+  setPrivilege: publicProcedure
+    .input(z.object({ id: z.string(), admin: z.boolean() }))
+    .mutation(async ({ input }) => {
+      const { id, admin } = input;
+      const currentUser = await prisma.user.findUnique({
+        where: { id },
+      });
+      if (currentUser?.name == "admin") {
+        return {
+          success: false,
+          message: "Cannot change privilege of admin account",
+        }
+      }
+      const user = await prisma.user.update({
+        where: { id },
+        data: { role: (admin ? "admin" : "user") },
+      });
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No user to change privilege with id '${id}'`,
+        });
+      }
+      return user;
+    }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
@@ -148,13 +173,13 @@ export const usersRouter = createTRPCRouter({
       message: z.string(),
     }))
     .mutation(async ({ input }) => {
-      if(input.name == ""){
+      if (input.name == "") {
         return {
           success: false,
           message: "Name cannot be blank",
         }
       }
-      if(input.name == "admin"){
+      if (input.name == "admin") {
         return {
           success: false,
           message: "User cannot have the name admin",
@@ -166,7 +191,7 @@ export const usersRouter = createTRPCRouter({
           display: true,
         }
       })
-      if(redundantUserName){
+      if (redundantUserName) {
         return {
           success: false,
           message: "Name Belongs to Active User",
@@ -196,5 +221,30 @@ export const usersRouter = createTRPCRouter({
         },
       });
       return (!(user == undefined));
+    }),
+  delete: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { id } = input;
+      const currentUser = await prisma.user.findUnique({
+        where: { id },
+      });
+      if (currentUser?.name == "admin") {
+        return {
+          success: false,
+          message: "Cannot delete super admin account",
+        }
+      }
+      const user = await prisma.user.update({
+        where: { id },
+        data: { display: false },
+      });
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No user to delete with id '${id}'`,
+        });
+      }
+      return user;
     }),
 });
