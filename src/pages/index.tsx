@@ -11,7 +11,6 @@ const Home: NextPage = (): JSX.Element => {
   const user = session?.user as CustomUser;
   const exist = api.users.doesAdminExist.useQuery().data;
   const auth = status == "authenticated";
-  console.log(user && user.name ? " " + user.name : "Nobody");
   return (
     <>
       <Head>
