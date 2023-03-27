@@ -37,7 +37,9 @@ import type {
     const [bookInputValue, setBookInputValue] = useState("");
     const [displayedBooks, setDisplayedBooks] = useState<BookCardProps[]>([]);
     const [totalSpaceSum, setTotalSpaceSum] = useState(0);
+    const [shelfWidth, setShelfWidth] = useState(60);
   
+    const widthInputHandle = () =>{}
     const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
     const books = booksQuery?.data?.items ?? [];
     const bookOptions = books.map((book) => ({
@@ -135,7 +137,7 @@ import type {
         <Head>
           <title>Shelf Calculator</title>
         </Head>
-        <div className="rounded-lg bg-white px-6 pt-6">
+        <form className="rounded-lg bg-white px-6 pt-6">
           <Autocomplete
             options={bookOptions}
             placeholder={"Search books by title"}
@@ -164,6 +166,7 @@ import type {
           >
             Add Book
           </button>
+          
           <button
             className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
             type="button"
@@ -172,7 +175,15 @@ import type {
           >
             Add Shelf
           </button>
-        </div>
+          <input
+                      type="text" pattern="[0-9]*"
+                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      id="width"
+                      type="text"
+                      placeholder="Shelf Width (60 Default)"
+                      onChange={widthInputHandle}
+                    />
+        </form>
         <div>
         <Grid container spacing={3}>
       {displayedBooks.map((bookC) => (
