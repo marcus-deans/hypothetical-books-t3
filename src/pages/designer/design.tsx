@@ -41,7 +41,7 @@ import type {
   
     const widthInputHandle = (event: React.ChangeEvent<HTMLInputElement>) =>{
       const regex = /^\d*\.?\d+$/;
-      if (regex.test(event.target.value) | event.target.value == "") {
+      if (regex.test(event.target.value) || event.target.value == "") {
         setShelfWidth(Number(event.target.value));
       }
       else{
