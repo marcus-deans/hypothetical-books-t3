@@ -37,9 +37,18 @@ import type {
     const [bookInputValue, setBookInputValue] = useState("");
     const [displayedBooks, setDisplayedBooks] = useState<BookCardProps[]>([]);
     const [totalSpaceSum, setTotalSpaceSum] = useState(0);
-    const [shelfWidth, setShelfWidth] = useState(60);
+    const [shelfWidth, setShelfWidth] = useState<number | null>(60);
   
-    const widthInputHandle = () =>{}
+    const widthInputHandle = (event: React.ChangeEvent<HTMLInputElement>) =>{
+      const regex = /^\d*\.?\d+$/;
+      if (regex.test(event.target.value) | event.target.value == "") {
+        setShelfWidth(Number(event.target.value));
+      }
+      else{
+        toast.error("Input not a positive number for width. Try again")
+      }
+
+    }
     const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
     const books = booksQuery?.data?.items ?? [];
     const bookOptions = books.map((book) => ({
@@ -179,9 +188,9 @@ import type {
                       type="text" pattern="[0-9]*"
                       className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
                       id="width"
-                      type="text"
                       placeholder="Shelf Width (60 Default)"
                       onChange={widthInputHandle}
+                      value = {shelfWidth ? (shelfWidth == 60 ? "" : shelfWidth): ""}
                     />
         </form>
         <div>
@@ -194,13 +203,14 @@ import type {
     </Grid>
     </div>
     <div>
-        {shelves.map((shelf) => {return(<div className ="rounded-lg bg-white px-6 pt-6 ">Shelf: {shelves.indexOf(shelf)}</div>)})};
+        {shelves.length > 0 && shelves.map((shelf) => {return(<div className ="rounded-lg bg-white px-6 pt-6 ">Shelf: {shelves.indexOf(shelf)}</div>)})}
     </div>
         <ToastContainer></ToastContainer>
       </>
     );
   }
   import React from "react";
+import { number } from "zod";
 
 
   interface BookCardProps {
