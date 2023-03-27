@@ -5,7 +5,7 @@ import type { inferProcedureInput } from "@trpc/server";
 import type { AppRouter } from "../src/server/api/root";
 import { appRouter } from "../src/server/api/root";
 // import { createInnerTRPCContext } from "../src/server/api/trpc";
-import { expect, test } from "@jest/globals";
+import { expect, test } from "vitest";
 import { prisma } from "../src/server/db";
 /**
  * interface GoogleBookDetails {

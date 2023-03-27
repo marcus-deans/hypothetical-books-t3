@@ -100,11 +100,8 @@ export default function AddPurchaseLine(
               <div className="space-y-20">
                 <div className="flex justify-center space-x-10">
                   <FormControl>
-                    <FormLabel>Book</FormLabel>
-                    <FormHelperText>Select a book by title</FormHelperText>
                     <Autocomplete
                       options={bookOptions}
-                      placeholder={"Search books by title"}
                       value={bookValue}
                       onChange={(
                         event,
@@ -122,6 +119,7 @@ export default function AddPurchaseLine(
                           inputProps={{
                             ...params.inputProps,
                           }}
+                          label="Select a Book by Title"
                         />
                       )}
                     />

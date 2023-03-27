@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server";
 import type { bookDetail } from "../../../schema/books.schema";
 import { bookDetailSchema } from "../../../schema/books.schema";
 import { env } from "../../../env/server.mjs";
+import Fuse from "fuse.js";
 
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -281,6 +282,7 @@ export const booksRouter = createTRPCRouter({
                       name: true,
                     },
                   },
+                  user: true,
                 },
               },
             },
@@ -299,6 +301,7 @@ export const booksRouter = createTRPCRouter({
                       name: true,
                     },
                   },
+                  user: true,
                 },
               },
             },
@@ -313,7 +316,17 @@ export const booksRouter = createTRPCRouter({
               },
             },
           },
-          correction: true,
+          correction: {
+            include: {
+              user: true,
+            },
+          },
+          relatedBooks: {
+            include: {
+              authors: true,
+              genre: true,
+            },
+          },
         },
       });
       if (!book || !book.display) {
@@ -353,9 +366,9 @@ export const booksRouter = createTRPCRouter({
         retailPrice: z.number().gte(0),
         genreId: z.string(),
         pageCount: z.number().gt(0),
-        width: z.number().gt(0),
-        height: z.number().gt(0),
-        thickness: z.number().gt(0),
+        width: z.number().gte(0),
+        height: z.number().gte(0),
+        thickness: z.number().gte(0),
       })
     )
 
@@ -393,6 +406,7 @@ export const booksRouter = createTRPCRouter({
         purchaseLines: z.string().array(),
         salesLines: z.string().array(),
         inventoryCount: z.number().int(),
+        relatedBooks: z.string().array(),
       })
     )
 
@@ -479,6 +493,69 @@ export const booksRouter = createTRPCRouter({
         });
       }
 
+      const relatedBooksAddedIds = new Set<string>();
+
+      for (const relatedBookId of input.relatedBooks) {
+        const relatedBook = await prisma.book.findUnique({
+          where: { id: relatedBookId },
+          include: {
+            relatedBooks: {
+              select: { id: true },
+            },
+          },
+        });
+
+        if (!relatedBook) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `No book with id '${relatedBookId}'`,
+          });
+        }
+
+        await prisma.book.update({
+          where: { id: book.id },
+          data: {
+            relatedBooks: {
+              connect: [{ id: relatedBookId }],
+            },
+          },
+        });
+        await prisma.book.update({
+          where: { id: relatedBookId },
+          data: {
+            relatedBooks: {
+              connect: [{ id: book.id }],
+            },
+          },
+        });
+
+        relatedBooksAddedIds.add(relatedBookId);
+
+        for (const checkBook of relatedBook.relatedBooks) {
+          if (!relatedBooksAddedIds.has(checkBook.id)) {
+            await prisma.book.update({
+              where: { id: book.id },
+              data: {
+                relatedBooks: {
+                  connect: [{ id: checkBook.id }],
+                },
+              },
+            });
+
+            await prisma.book.update({
+              where: { id: checkBook.id },
+              data: {
+                relatedBooks: {
+                  connect: [{ id: book.id }],
+                },
+              },
+            });
+
+            relatedBooksAddedIds.add(checkBook.id);
+          }
+        }
+      }
+
       return book;
     }),
 
@@ -511,5 +588,77 @@ export const booksRouter = createTRPCRouter({
         });
       }
       return book;
+    }),
+
+  findRelatedBooks: publicProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        author: z.string(),
+      })
+    )
+    // .output(
+    //   z.array(
+    //     z.object({
+    //       item: z.object({
+    //         id: z.string(),
+    //         title: z.string(),
+    //         isbn_13: z.string().length(13),
+    //       }),
+    //       score: z.number(),
+    //       refIndex: z.number(),
+    //     })
+    //   )
+    // )
+    .query(async ({ input }) => {
+      const allBooks = await prisma.book.findMany({
+        where: { display: true },
+        include: {
+          authors: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+      type allBooksType = (typeof allBooks)[number];
+      type returnBookType = {
+        item: allBooksType;
+        score: number;
+        refIndex: number;
+      };
+
+      const options = {
+        includeScore: true,
+        ignoreLocation: true,
+        keys: [
+          {
+            name: "title",
+            weight: 0.7,
+            getFn: (book: allBooksType) => book.title,
+          },
+          {
+            name: "authors",
+            weight: 0.3,
+            getFn: (book: allBooksType) =>
+              book.authors.map((author) => author.name).join(","),
+          },
+        ],
+      };
+
+      const fuse = new Fuse(allBooks, options);
+      const searchResults = fuse.search({
+        title: input.title,
+        authors: input.author,
+      });
+      const returnableSearchResult = searchResults as returnBookType[];
+      // console.log(
+      //   returnableSearchResult.map((result) =>
+      //     result.item.authors.map((author) => author.name).join(", ")
+      //   )
+      // );
+      console.log("Related book search results: ");
+      console.log(returnableSearchResult);
+      return returnableSearchResult;
     }),
 });
