@@ -127,7 +127,7 @@ export default function AddBook() {
   const handleConfirm = () => {
     try {
       displayedBooks.map((row) => {
-        console.log("dding book");
+        console.log("Adding book to database");
         console.log(row);
         addMutation.mutate({
           title: row.title,
@@ -318,6 +318,7 @@ export default function AddBook() {
     {
       field: "thickness",
       headerName: "Thickness (in.)",
+      type: "number",
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
@@ -368,10 +369,14 @@ export default function AddBook() {
                   {relatedBooks.map((relatedBook) => {
                     return (
                       <div>
-                        <div>{relatedBook.title} by {relatedBook.authors[0]?.name}</div>
+                        <div>
+                          {relatedBook.title} by {relatedBook.authors[0]?.name}
+                        </div>
                       </div>
                     );
-                  {/* eslint-enable */}
+                    {
+                      /* eslint-enable */
+                    }
                   })}
                 </Typography>
               </Box>
