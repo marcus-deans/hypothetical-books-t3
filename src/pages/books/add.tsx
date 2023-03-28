@@ -14,44 +14,9 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
+import type { Book } from "@prisma/client";
 
-interface GoogleBookResponse {
-  kind: string;
-  totalItems: number;
-  items: GoogleBookItems[];
-}
-
-interface GoogleBookItems {
-  kind: string;
-  id: string;
-  etag: string;
-  selfLink: string;
-  volumeInfo: GoogleBookDetails;
-}
-
-interface GoogleBookDetails {
-  title: string;
-  authors: string[];
-  publishedDate: string;
-  description: string | null;
-  industryIdentifiers: {
-    type: string;
-    identifier: string;
-  }[];
-
-  pageCount: number;
-
-  publisher: string | null;
-  categories: string[] | null;
-  imageLinks: {
-    smallThumbnail: string | null;
-    thumbnail: string | null;
-    small: string | null;
-    medium: string | null;
-    large: string | null;
-  };
-}
-interface BookDetails {
+interface BookDisplayDetails {
   id: number;
   imgUrl: string;
   title: string;
@@ -66,29 +31,21 @@ interface BookDetails {
   height: number;
   thickness: number;
   retailPrice: number;
+  relatedBooks: (Book & { authors: { name: string }[] })[];
 }
 
 export default function AddBook() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
-  const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
+  const [displayedBooks, setDisplayedBooks] = useState<BookDisplayDetails[]>(
+    []
+  );
 
   const [parsedIsbns, setParsedIsbns] = useState<string[]>([]);
-  const retrieveDetailsQuery = api.googleBooks.retrieveByISBNs.useQuery(
+  const retrieveDetailsQuery = api.googleBooks.retrieveDetailsByISBNs.useQuery(
     { isbns: parsedIsbns },
     { enabled: !!parsedIsbns }
   );
-  const retrievePricingQuery = api.googleBooks.retrievePricingData.useQuery(
-    { isbns: parsedIsbns },
-    { enabled: !!parsedIsbns }
-  );
-
-  const [currentTitle, setCurrentTitle] = useState("");
-  const [currentAuthor, setCurrentAuthor] = useState("");
-  const findRelatedBooksQuery = api.books.findRelatedBooks.useQuery(
-    { title: currentTitle, author: currentAuthor },
-  );
-  type relatedBookReturnType = typeof findRelatedBooksQuery.data;
 
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
@@ -97,54 +54,48 @@ export default function AddBook() {
   };
 
   const performQuery = () => {
-    const googleBooksData = retrieveDetailsQuery?.data ?? [];
-    const pricingData = retrievePricingQuery?.data ?? [];
-    if (googleBooksData) {
-      console.log("Setting retreived books with:");
-      console.log(googleBooksData);
-      googleBooksData.map((retrievedBook, index) => {
+    const retrievedBooksData = retrieveDetailsQuery?.data ?? [];
+    if (retrievedBooksData) {
+      retrievedBooksData.map((retrievedBook, index) => {
+        const googleBooksDetails = retrievedBook.googleBooKDetails;
         console.log("Adding retrieved book to rows");
         console.log(retrievedBook);
         let isbn_10 = null;
         let isbn_13 = null;
-        if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
-          isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
-          if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
-            isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
-          }
-        }
-        if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_13") {
-          isbn_13 = retrievedBook.industryIdentifiers[1].identifier;
-          if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_10") {
-            isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
-          }
-        }
-        let retailPrice = 0;
-        if (pricingData[index] !== undefined) {
-          retailPrice = isNaN(Number(pricingData[index]))
-            ? 0
-            : Number(pricingData[index]);
-        }
 
-        setCurrentTitle(retrievedBook.title);
-        setCurrentAuthor(retrievedBook.authors.join(", "));
-        const relatedBooks = findRelatedBooksQuery?.data ?? [];
+        if (googleBooksDetails?.industryIdentifiers[0]?.type === "ISBN_13") {
+          isbn_13 = googleBooksDetails?.industryIdentifiers[0].identifier;
+          if (googleBooksDetails?.industryIdentifiers[1]?.type === "ISBN_10") {
+            isbn_10 = googleBooksDetails?.industryIdentifiers[1].identifier;
+          }
+        }
+        if (googleBooksDetails?.industryIdentifiers[1]?.type === "ISBN_13") {
+          isbn_13 = googleBooksDetails.industryIdentifiers[1].identifier;
+          if (googleBooksDetails?.industryIdentifiers[0]?.type === "ISBN_10") {
+            isbn_10 = googleBooksDetails.industryIdentifiers[0].identifier;
+          }
+        }
+        const retailPrice = retrievedBook.booksRunPrice;
+        const relatedBooks = retrievedBook.relatedBooks;
+
         console.log("Related books:");
         console.log(relatedBooks);
 
         const displayBook = {
-          imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
+          imgUrl: googleBooksDetails.imageLinks?.thumbnail ?? "",
           id: index,
-          title: retrievedBook.title,
-          authors: retrievedBook.authors.join(", "),
+          title: googleBooksDetails.title,
+          authors: googleBooksDetails.authors.join(", "),
           isbn_13: isbn_13 ?? "Unknown",
           isbn_10: isbn_10 ?? "Unknown",
-          publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
-          pageCount: isNaN(retrievedBook.pageCount)
+          publicationYear: new Date(
+            googleBooksDetails.publishedDate
+          ).getFullYear(),
+          pageCount: isNaN(googleBooksDetails.pageCount)
             ? 0
-            : retrievedBook.pageCount,
-          publisher: retrievedBook.publisher ?? "Unknown",
-          genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
+            : googleBooksDetails.pageCount,
+          publisher: googleBooksDetails?.publisher ?? "Unknown",
+          genre: googleBooksDetails?.categories?.join(", ") ?? "Unknown",
           width: 0,
           height: 0,
           thickness: 0,
@@ -152,8 +103,6 @@ export default function AddBook() {
           relatedBooks: relatedBooks,
         };
         setDisplayedBooks((prev) => [...prev, displayBook]);
-        setCurrentTitle("");
-        setCurrentAuthor("");
       });
       setIsLoaded(true);
     }
@@ -163,18 +112,21 @@ export default function AddBook() {
     if (searchQuery === "") {
       return;
     }
-    setIsLoaded(false);
     setDisplayedBooks([]);
+    setIsLoaded(false);
     // 9781250158079, 9781101904954, 9780393072235
+    // Antifragile: 9780812979688
     const isbnSearchList = searchQuery.replace(/-/g, "").split(/[\s,;\t\n]+/g);
     setParsedIsbns(isbnSearchList);
+    void retrieveDetailsQuery.refetch();
     performQuery();
+    setDisplayedBooks((prev) => [...prev]);
     // setSearchQuery("");
   };
 
   const handleConfirm = () => {
     try {
-      rows.map((row) => {
+      displayedBooks.map((row) => {
         console.log("dding book");
         console.log(row);
         addMutation.mutate({
@@ -194,7 +146,7 @@ export default function AddBook() {
           purchaseLines: [],
           salesLines: [],
           inventoryCount: 0,
-          relatedBooks: [], //TODO: implement properly
+          relatedBooks: row.relatedBooks.map((relatedBook) => relatedBook.id),
         });
       });
       setTimeout(() => {
@@ -382,7 +334,10 @@ export default function AddBook() {
       minWidth: 200,
       renderCell: (params) => {
         /* eslint-disable */
-        let relatedBooks = params.row.relatedBooks as relatedBookReturnType;
+        type RelatedBooksDisplayType = (Book & {
+          authors: { name: string }[];
+        })[];
+        let relatedBooks = params.row.relatedBooks as RelatedBooksDisplayType;
         console.log(relatedBooks);
         if (relatedBooks!.length === 0) {
           return <div>No Related Books Found!</div>;
@@ -407,7 +362,7 @@ export default function AddBook() {
                 </Typography>
                 <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                   {relatedBooks
-                    ?.map((relatedBook) => relatedBook.item.title)
+                    ?.map((relatedBook) => relatedBook.title)
                     .join(",\n")}
                 </Typography>
               </Box>
@@ -423,7 +378,7 @@ export default function AddBook() {
     const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
       if (index === newRow.id) {
         // Increment the clicked counter
-        return newRow as BookDetails;
+        return newRow as BookDisplayDetails;
       } else {
         // The rest haven't changed
         return displayedBook;
@@ -438,12 +393,12 @@ export default function AddBook() {
     toast.error(error.message);
   };
 
-  const rows = displayedBooks;
+  // const rows = displayedBooks;
 
   // 9780812979688, 9781250158079
-  if (isLoaded) {
-    console.log("all rows");
-    console.log(rows);
+  if (retrieveDetailsQuery.isSuccess && isLoaded) {
+    // console.log("all rows");
+    // console.log(rows);
     return (
       <>
         <Head>
@@ -507,7 +462,7 @@ export default function AddBook() {
             }}
           >
             <StripedDataGrid
-              rows={rows}
+              rows={displayedBooks}
               columns={columns}
               components={{
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -536,6 +491,60 @@ export default function AddBook() {
               Confirm Add Books
             </button>
           </div>
+        </div>
+      </>
+    );
+  } else if (retrieveDetailsQuery.isFetching) {
+    return (
+      <>
+        <Head>
+          <title>Add Book</title>
+        </Head>
+        <div className="pt-6"></div>
+        <div className="rounded-lg bg-white px-6 pt-6">
+          <div className="mb-2 block text-lg font-bold text-gray-700">
+            Add Book
+          </div>
+          <div className="">
+            <div className="col-span-2 mb-3 flex items-end xl:w-96">
+              <div className="input-group relative mb-4 flex w-full flex-wrap items-stretch space-y-5">
+                <input
+                  type="search"
+                  className="form-control min-w-600 relative m-0 block w-full flex-auto rounded border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none"
+                  placeholder="Enter ISBNs"
+                  aria-label="Search"
+                  aria-describedby="button-addon2"
+                  value={searchQuery}
+                  onChange={(event) => console.log(event.target.value)}
+                />
+                <button
+                  className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
+                  type="button"
+                  id="button-addon2"
+                >
+                  <svg
+                    aria-hidden="true"
+                    focusable="false"
+                    data-prefix="fas"
+                    data-icon="search"
+                    className="w-4"
+                    role="img"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                    ></path>
+                  </svg>
+                </button>
+                <div className="pl-5 text-sm ">
+                  Click twice to complete search
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>Loading</div>
         </div>
       </>
     );
