@@ -56,6 +56,7 @@ const getGoogleBooksDetails = async (
     .then((response) => {
       const googleBookResponse = GoogleBooksResponseSchema.safeParse(response);
       if (!googleBookResponse.success) {
+        console.log(response);
         console.log(`Could not obtain book details for ISBN ${isbn}`);
         return null;
       } else {
@@ -99,6 +100,7 @@ const getBooksRunPrices = async (isbn: string): Promise<number> => {
       .then((response) => {
         const bookPriceResponse = BooksRunResponseSchema.safeParse(response);
         if (!bookPriceResponse.success) {
+          console.log(response);
           console.log("Could not parse response successfully");
           return 0;
         } else {
