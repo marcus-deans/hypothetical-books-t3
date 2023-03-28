@@ -56,7 +56,7 @@ export default function EditAuthor(
         <title>Edit Author</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Edit Author
@@ -65,7 +65,7 @@ export default function EditAuthor(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-20">
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <input
                       className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
                       id="author"
@@ -74,7 +74,6 @@ export default function EditAuthor(
                       onChange={inputHandler}
                     />
                   </div>
-
                 </div>
               </div>
             </div>
@@ -113,7 +112,7 @@ export async function getStaticProps(
 ) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     transformer: superjson,
   });
   const id = context.params?.id as string;

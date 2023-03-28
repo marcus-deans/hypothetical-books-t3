@@ -17,7 +17,7 @@ import superjson from "superjson";
 import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import dayjs from "dayjs";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSession } from "next-auth/react";
 import type { CustomUser } from "../../schema/user.schema";
@@ -45,7 +45,7 @@ export default function AddBuybackOrder(
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
-  } | null>(null); 
+  } | null>(null);
   const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs());
   const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -158,7 +158,7 @@ export default function AddBuybackOrder(
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     //eslint-disable-next-line
     transformer: superjson,
   });

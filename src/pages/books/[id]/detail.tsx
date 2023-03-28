@@ -768,7 +768,7 @@ export async function getStaticProps(
 ) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     //eslint-disable-next-line
     transformer: superjson,
   });
