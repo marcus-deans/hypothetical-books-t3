@@ -42,7 +42,7 @@ interface CreateInnerContextOptions extends Partial<CreateNextContextOptions> {
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
 // eslint-disable-next-line @typescript-eslint/require-await
-export async function createContextInner(opts?: CreateInnerContextOptions) {
+export async function createInnerTRPCContext(opts?: CreateInnerContextOptions) {
   return {
     prisma,
     session: opts?.session ?? null,
@@ -61,14 +61,14 @@ export async function createTRPCContext(opts: CreateNextContextOptions) {
   const { req, res } = opts;
 
   const session = await getServerAuthSession({ req, res });
-  const contextInner = await createContextInner({ session });
+  const contextInner = await createInnerTRPCContext({ session });
   return {
     ...contextInner,
     req: opts.req,
     res: opts.res,
   };
 }
-export type Context = inferAsyncReturnType<typeof createContextInner>;
+export type Context = inferAsyncReturnType<typeof createInnerTRPCContext>;
 
 /**
  * 2. INITIALIZATION

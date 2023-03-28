@@ -35,21 +35,22 @@ export default function DeleteBook(
   const { data } = bookDetailsQuery;
 
   const handleDelete = () => {
-    if(bookCount && bookCount > 0 ){
-      toast.error("This book does not have 0 inventory, so it cannot be deleted.")
+    if (bookCount && bookCount > 0) {
+      toast.error(
+        "This book does not have 0 inventory, so it cannot be deleted."
+      );
+    } else {
+      setIsDeleting(true);
+      try {
+        const deleteResult = deleteMutation.mutate({ id: id });
+        setTimeout(() => {
+          void router.push("/books");
+        }, 500);
+      } catch (error) {
+        console.log(error);
+        setIsDeleting(false);
+      }
     }
-    else{
-    setIsDeleting(true);
-    try {
-      const deleteResult = deleteMutation.mutate({ id: id });
-      setTimeout(() => {
-        void router.push("/books");
-      }, 500);
-    } catch (error) {
-      console.log(error);
-      setIsDeleting(false);
-    }
-  }
   };
 
   return (
@@ -89,7 +90,7 @@ export async function getStaticProps(
 ) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     transformer: superjson,
   });
   const id = context.params?.id as string;

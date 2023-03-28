@@ -97,7 +97,7 @@ export default function AddSalesLine(
         <title>Create Sales Line</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Create Sales Line
@@ -106,7 +106,7 @@ export default function AddSalesLine(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-20">
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
                       <Autocomplete
                         options={salesReconciliationOptions}
@@ -162,7 +162,7 @@ export default function AddSalesLine(
                       />
                     </FormControl>
                   </div>
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
                       <TextField
                         id="quantity"
@@ -217,7 +217,7 @@ export default function AddSalesLine(
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     //eslint-disable-next-line
     transformer: superjson,
   });

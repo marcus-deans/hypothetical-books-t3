@@ -112,7 +112,7 @@ export default function EditPurchaseLine(
         <title>Edit Purchase Line</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Edit Purchase Line
@@ -121,25 +121,29 @@ export default function EditPurchaseLine(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-20">
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
                       <Autocomplete
                         options={purchaseOrderOptions}
                         value={purchaseValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setPurchaseValue(newValue);
                         }}
-                        onInputChange={(event, newPurchaseInputValue: string) => {
+                        onInputChange={(
+                          event,
+                          newPurchaseInputValue: string
+                        ) => {
                           setPurchaseInputValue(newPurchaseInputValue);
                         }}
-                        sx={{ width: 425 }} renderInput={(params) => (
+                        sx={{ width: 425 }}
+                        renderInput={(params) => (
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
                             label="Select a Purchase Order by Date"
                           />
@@ -152,7 +156,7 @@ export default function EditPurchaseLine(
                         value={bookValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setBookValue(newValue);
                         }}
@@ -164,7 +168,7 @@ export default function EditPurchaseLine(
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
                             label="Select a Book by Title"
                           />
@@ -172,7 +176,7 @@ export default function EditPurchaseLine(
                       />
                     </FormControl>
                   </div>
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
                       <TextField
                         id="quantity"
@@ -251,7 +255,7 @@ export async function getStaticProps(
 ) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     transformer: superjson,
   });
   const id = context.params?.id as string;

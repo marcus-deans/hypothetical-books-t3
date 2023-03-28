@@ -325,8 +325,7 @@ export default function EditBook(
       }
       if (finalInventory !== 0 && parseInt(inventory) + finalInventory >= 0) {
         setDialogOpen(true);
-      }
-      else {
+      } else {
         setOpen(false);
         setIsSubmittingInvCorrection(false);
         setInventoryCorrection(false);
@@ -396,17 +395,15 @@ export default function EditBook(
                         width: 120,
                       }}
                     />
-                    {user?.role == "admin" ? 
+                    {user?.role == "admin" ? (
                       <button
                         className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
                         type="button"
                         onClick={handleOpen}
                       >
                         Inventory Correction
-                      </button> 
-                    : 
-                      null
-                    }
+                      </button>
+                    ) : null}
                     <Modal
                       open={open}
                       onClose={handleClose}
@@ -674,7 +671,7 @@ export async function getStaticProps(
 ) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     //eslint-disable-next-line
     transformer: superjson,
   });
