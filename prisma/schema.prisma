@@ -41,6 +41,7 @@ model Book {
   display              Boolean                @default(true)
   imgUrl               String?
   costMostRecentVendor CostMostRecentVendor[]
+  correction           Correction[]
 }
 
 model Genre {
@@ -125,6 +126,14 @@ model BuybackLine {
   buybackOrder     BuybackOrder @relation(fields: [buybackOrderId], references: [id])
   buybackOrderId   String
   display          Boolean      @default(true)
+}
+
+model Correction {
+  id       String   @id @default(cuid())
+  date     DateTime
+  book     Book     @relation(fields: [bookId], references: [id])
+  bookId   String
+  quantity Int
 }
 
 model CostMostRecentVendor {

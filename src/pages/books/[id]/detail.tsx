@@ -44,7 +44,7 @@ export default function BookDetail(
     transform: "translate(-50%, -50%)",
     width: 500,
     bgcolor: "background.paper",
-    border: "2px solid #000",
+    borderRadius: "6px",
     boxShadow: 24,
     p: 4,
   };
@@ -165,7 +165,7 @@ export default function BookDetail(
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 85,
+      width: 85,
     },
     {
       field: "pageCount",
@@ -217,7 +217,7 @@ export default function BookDetail(
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 125,
+      minWidth: 130,
     },
     {
       field: "daysSupply",
@@ -233,7 +233,7 @@ export default function BookDetail(
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      maxWidth: 100,
+      minWidth: 110,
     },
     {
       field: "edit",
@@ -385,11 +385,25 @@ export default function BookDetail(
     };
   });
 
+  const inventoryCorrectionRows = data.correction.map((inventoryCorrection) => {
+    return {
+      id: inventoryCorrection.id,
+      date: inventoryCorrection.date.getTime(),
+      user: "N/A",
+      recordType: "Inventory Correction",
+      quantity: inventoryCorrection.quantity,
+      price: "0",
+      vendor: "N/A",
+      inventoryTotal: "N/A",
+    };
+  });
+
   // TODO: ADD INVENTORY CORRECTION LOGIC
   const masterRows = [
     ...purchaseOrderRows,
     ...buybackOrderRows,
     ...salesReconciliationsRows,
+    ...inventoryCorrectionRows,
   ];
 
   // Sort the rows by date
@@ -400,7 +414,10 @@ export default function BookDetail(
   // Add the inventory total to each row
   let inventoryTotal = 0;
   for (const row of masterRows) {
-    inventoryTotal += row.recordType === "Purchase" ? row.quantity : -row.quantity; // TODO: NEED TO IMPLEMENT INVENTORY CORRECTION LOGIC
+    inventoryTotal +=
+      row.recordType === "Purchase" || row.recordType === "Inventory Correction"
+        ? row.quantity
+        : -row.quantity; // TODO: NEED TO IMPLEMENT INVENTORY CORRECTION LOGIC
     row.inventoryTotal = inventoryTotal.toString();
   }
 
@@ -423,24 +440,31 @@ export default function BookDetail(
       renderCell: (params) => {
         /* eslint-disable */
         // @ts-ignore
-        const urlTag = params.row.recordType === "Sale" ? "sales" : params.row.recordType === "Purchase" ? "purchases" : params.row.recordType === "Buyback" ? "buybacks" : "error";
+        const urlTag =
+          params.row.recordType === "Sale"
+            ? "sales"
+            : params.row.recordType === "Purchase"
+            ? "purchases"
+            : params.row.recordType === "Buyback"
+            ? "buybacks"
+            : "error";
         const date = new Date(params.row.date);
-        
-        if (urlTag !== "error" || params.row.recordType !== "Inventory Correction") {
+
+        if (
+          urlTag !== "error" ||
+          params.row.recordType !== "Inventory Correction"
+        ) {
           /* eslint-enable */
           return (
             <div className="text-blue-600">
               {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-              <a href={`/${urlTag}/${params.id}/detail`}>{date.toLocaleDateString()} </a>
+              <a href={`/${urlTag}/${params.id}/detail`}>
+                {date.toLocaleDateString()}{" "}
+              </a>
             </div>
           );
-        }
-        else {
-          return (
-            <div>
-              {date.toLocaleDateString()}
-            </div>
-          );
+        } else {
+          return <div>{date.toLocaleDateString()}</div>;
         }
       },
     },
@@ -486,8 +510,11 @@ export default function BookDetail(
       headerAlign: "left",
       type: "number",
       renderCell: (params) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        if (params.row.recordType === "Inventory Correction") {
+          return <div>N/A</div>;
+        }
         return (
-          // TODO: NEED TO FIGURE OUT IF BUYBACK, PURCHASE, SALE OR INVENTORY CORRECTION
           <div>
             {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
             ${params.row.price}
@@ -545,7 +572,7 @@ export default function BookDetail(
             }
           />
         </Box>
-        <div className="text-sm">*: Estimated dimension</div> 
+        <div className="text-sm">*: Estimated dimension</div>
         <div className="pt-8 text-lg">Record History</div>
         <Box
           sx={{
