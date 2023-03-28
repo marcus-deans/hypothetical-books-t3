@@ -321,6 +321,12 @@ export const booksRouter = createTRPCRouter({
               user: true,
             },
           },
+          relatedBooks: {
+            include: {
+              authors: true,
+              genre: true,
+            },
+          },
         },
       });
       if (!book || !book.display) {
@@ -487,23 +493,67 @@ export const booksRouter = createTRPCRouter({
         });
       }
 
-      for (const relatedBook of input.relatedBooks) {
+      const relatedBooksAddedIds = new Set<string>();
+
+      for (const relatedBookId of input.relatedBooks) {
+        const relatedBook = await prisma.book.findUnique({
+          where: { id: relatedBookId },
+          include: {
+            relatedBooks: {
+              select: { id: true },
+            },
+          },
+        });
+
+        if (!relatedBook) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `No book with id '${relatedBookId}'`,
+          });
+        }
+
         await prisma.book.update({
           where: { id: book.id },
           data: {
             relatedBooks: {
-              connect: [{ id: relatedBook }],
+              connect: [{ id: relatedBookId }],
             },
           },
         });
         await prisma.book.update({
-          where: { id: relatedBook },
+          where: { id: relatedBookId },
           data: {
             relatedBooks: {
               connect: [{ id: book.id }],
             },
           },
         });
+
+        relatedBooksAddedIds.add(relatedBookId);
+
+        for (const checkBook of relatedBook.relatedBooks) {
+          if (!relatedBooksAddedIds.has(checkBook.id)) {
+            await prisma.book.update({
+              where: { id: book.id },
+              data: {
+                relatedBooks: {
+                  connect: [{ id: checkBook.id }],
+                },
+              },
+            });
+
+            await prisma.book.update({
+              where: { id: checkBook.id },
+              data: {
+                relatedBooks: {
+                  connect: [{ id: book.id }],
+                },
+              },
+            });
+
+            relatedBooksAddedIds.add(checkBook.id);
+          }
+        }
       }
 
       return book;
@@ -580,17 +630,18 @@ export const booksRouter = createTRPCRouter({
 
       const options = {
         includeScore: true,
+        ignoreLocation: true,
         keys: [
           {
             name: "title",
-            weight: 0.6,
+            weight: 0.7,
             getFn: (book: allBooksType) => book.title,
           },
           {
             name: "authors",
-            weight: 0.4,
+            weight: 0.3,
             getFn: (book: allBooksType) =>
-              book.authors.map((author) => author.name),
+              book.authors.map((author) => author.name).join(","),
           },
         ],
       };
@@ -601,6 +652,13 @@ export const booksRouter = createTRPCRouter({
         authors: input.author,
       });
       const returnableSearchResult = searchResults as returnBookType[];
-      return returnableSearchResult.filter((result) => result.score > 0.7);
+      // console.log(
+      //   returnableSearchResult.map((result) =>
+      //     result.item.authors.map((author) => author.name).join(", ")
+      //   )
+      // );
+      console.log("Related book search results: ");
+      console.log(returnableSearchResult);
+      return returnableSearchResult;
     }),
 });
