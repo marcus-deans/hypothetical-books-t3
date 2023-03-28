@@ -7,7 +7,7 @@ import Head from "next/head";
 import Box from "@mui/material/Box";
 
 import { Autocomplete, TextField } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -124,6 +124,32 @@ export default function AddShelf(
     },
   ];
 
+  const calcShelfSpace = (
+    width: number,
+    height: number,
+    thickness: number,
+    displayStyle: string,
+    displayCount: number
+  ) => {
+    if (displayStyle === "Spine Out") {
+      if (thickness === 0) {
+        thickness = 0.8;
+      }
+      return Number(thickness * displayCount);
+    }
+    if (displayStyle === "Cover Out") {
+      if (height == 0) {
+        height = 8;
+      }
+      if (width == 0) {
+        width = 6;
+      }
+      return Number((height * width).toFixed(2));
+    } else {
+      return Number(0);
+    }
+  };
+
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
@@ -135,49 +161,66 @@ export default function AddShelf(
   const shelfQuery = api.shelves.getById.useQuery({ id: shelfId });
 
   const books = booksQuery?.data?.items ?? [];
-  const shelfDetails = shelfQuery?.data ?? [];
   const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
 
-  shelfDetails.booksOnShelf.map((bookOnShelf) => {
-    const book = bookOnShelf.book;
-    const displayBook: BookCalcDetails = {
-      id: uuidv4(),
-      internalId: book.id,
-      title: book.title,
-      inventoryCount: book.inventoryCount,
-      displayCount: book.inventoryCount,
-      width: book.width,
-      height: book.height,
-      thickness: book.thickness,
-      displayStyle: bookOnShelf.orientation,
-      shelfSpace: "",
-      usedDefault: false,
-    };
-    displayBook.shelfSpace = calcShelfSpace(
-      displayBook.width,
-      displayBook.height,
-      displayBook.thickness,
-      displayBook.displayStyle,
-      displayBook.displayCount
-    ).toString();
-    if (book.width == 0 || book.height == 0 || book.thickness == 0) {
-      displayBook.usedDefault = true;
-    }
-    setDisplayedBooks((prev) => [...prev, displayBook]);
-    setTotalSpaceSum(totalSpaceSum + parseFloat(displayBook.shelfSpace));
-    const spaceVal = Number.parseFloat(displayBook.shelfSpace)
-      .toFixed(2)
-      .toString();
-    displayBook.shelfSpace = displayBook.usedDefault
-      ? spaceVal + "*"
-      : spaceVal;
-  });
+  if (booksQuery.isLoading || shelfQuery.isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  console.log("Query successful, trying now");
+  let computedTotalSpace = 0;
+  let computedDisplayedBooks: BookCalcDetails[] = [];
+  if (shelfQuery.isSuccess) {
+    const shelfDetails = shelfQuery?.data ?? [];
+    computedTotalSpace = 0;
+    computedDisplayedBooks = shelfDetails.booksOnShelf.map((bookOnShelf) => {
+      console.log("Book on shelf:");
+      console.log(bookOnShelf);
+      const book = bookOnShelf.book;
+      const displayBook: BookCalcDetails = {
+        id: uuidv4(),
+        internalId: book.id,
+        title: book.title,
+        inventoryCount: book.inventoryCount,
+        displayCount: book.inventoryCount,
+        width: book.width,
+        height: book.height,
+        thickness: book.thickness,
+        displayStyle: bookOnShelf.orientation,
+        shelfSpace: "",
+        usedDefault: false,
+      };
+      displayBook.shelfSpace = calcShelfSpace(
+        displayBook.width,
+        displayBook.height,
+        displayBook.thickness,
+        displayBook.displayStyle,
+        displayBook.displayCount
+      ).toString();
+      if (book.width == 0 || book.height == 0 || book.thickness == 0) {
+        displayBook.usedDefault = true;
+      }
+      console.log("Attempting to update display book with");
+      console.log(displayBook);
+      computedTotalSpace += parseFloat(displayBook.shelfSpace);
+      const spaceVal = Number.parseFloat(displayBook.shelfSpace)
+        .toFixed(2)
+        .toString();
+      displayBook.shelfSpace = displayBook.usedDefault
+        ? spaceVal + "*"
+        : spaceVal;
+      return displayBook;
+    });
+  }
 
   const addMutation = api.shelves.add.useMutation();
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
   }));
+
+  setDisplayedBooks(computedDisplayedBooks);
+  setTotalSpaceSum(computedTotalSpace);
 
   const rows = displayedBooks;
 
@@ -293,32 +336,6 @@ export default function AddShelf(
     }
     setBookInputValue("");
     setBookValue(null);
-  };
-
-  const calcShelfSpace = (
-    width: number,
-    height: number,
-    thickness: number,
-    displayStyle: string,
-    displayCount: number
-  ) => {
-    if (displayStyle === "Spine Out") {
-      if (thickness === 0) {
-        thickness = 0.8;
-      }
-      return Number(thickness * displayCount);
-    }
-    if (displayStyle === "Cover Out") {
-      if (height == 0) {
-        height = 8;
-      }
-      if (width == 0) {
-        width = 6;
-      }
-      return Number((height * width).toFixed(2));
-    } else {
-      return Number(0);
-    }
   };
 
   return (

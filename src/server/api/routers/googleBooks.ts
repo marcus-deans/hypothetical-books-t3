@@ -125,6 +125,7 @@ const getBooksRunPrices = async (isbn: string): Promise<number> => {
 type bookWithAuthorsType = Book & { authors: { name: string }[] };
 
 const getRelatedBooks = async (book: GoogleBooksDetails) => {
+  console.log("Beginning related books search");
   const allBooks = await prisma.book.findMany({
     where: { display: true },
     include: {
@@ -168,6 +169,8 @@ const getRelatedBooks = async (book: GoogleBooksDetails) => {
     title: book.title,
     authors: book.authors.join(", "),
   });
+  console.log("Related book search results");
+  console.log(searchResults);
   const returnableSearchResult = searchResults as returnBookType[];
   // console.log(
   //   returnableSearchResult.map((result) =>
