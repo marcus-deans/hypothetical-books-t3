@@ -20,10 +20,10 @@ export default function AddVendor() {
       const finalBuybackRate = Number(buybackRate);
       if (
         isNaN(finalBuybackRate) ||
-        finalBuybackRate <= 0 ||
+        finalBuybackRate < 0 ||
         finalBuybackRate >= 100
       ) {
-        alert("Buyback rate must be a number between 0 and 100");
+        alert("Buyback rate must be a number between 0 and 100, or 0 to represent no buybacks for this vendor");
         return;
       }
       addMutation.mutate({ name: vendorName, buybackRate: finalBuybackRate });
