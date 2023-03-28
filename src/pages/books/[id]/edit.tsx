@@ -32,7 +32,7 @@ import type { CustomUser } from "../../../schema/user.schema";
 import { useSession } from "next-auth/react";
 import { throwError } from "rxjs";
 
-const ImageCard = ({
+export const ImageCard = ({
   url,
   id,
   deleteImage,
@@ -189,16 +189,6 @@ export default function EditBook(
     id: genre.id,
   }));
 
-  const { mutateAsync: createPresignedUrl } =
-    api.imageUpload.createPresignedUrl.useMutation();
-  // trpc.useMutation('image.createPresignedUrl');
-
-  // const { mutateAsync: getImageUrl } =
-  //   api.imageUpload.getImageUrl.useMutation();
-
-  // const { data: image, refetch: refetchImages } =
-  //   api.imageUpload.getImageFromId.useQuery({ bookId: id });
-  // trpc.useQuery(['image.getImagesForUser'])
   const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     setFile(null);
@@ -229,11 +219,7 @@ export default function EditBook(
       );
       return;
     }
-    // const presignedUrl = (await createPresignedUrl({
-    //   bookId: id,
-    // })) as S3.PresignedPost;
-    // const url = presignedUrl.url;
-    // const fields = presignedUrl.fields;
+
     const imageData = {
       // ...fields,
       "Content-Type": file.type,
@@ -247,7 +233,6 @@ export default function EditBook(
     }
     formData.append("upload_preset", "ilppmkg4");
     formData.append("folder", id);
-    // formData.append("public_id", id);
     /*eslint-enable */
 
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/dtyhei91n/image/upload/`;
@@ -272,8 +257,6 @@ export default function EditBook(
       .catch((error) => {
         console.error(error);
       });
-    // const imageUrl = await getImageUrl({ bookId: id });
-    // setImgUrl(imageUrl);
     setFile(null);
     if (fileRef.current) {
       fileRef.current.value = "";
@@ -290,10 +273,7 @@ export default function EditBook(
     event.preventDefault();
     // await refetchImages();
     setImageDeleted(true);
-    setImgUrl("");
-    console.log("In between resets");
     setImgUrl(defaultUrl);
-    console.info(imgUrl);
     toast.success("Image Removed");
   };
 

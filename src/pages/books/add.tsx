@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import type { Book } from "@prisma/client";
+import TableImageEdit from "../../components/TableImageEdit";
 
 interface BookDisplayDetails {
   id: number;
@@ -108,7 +109,8 @@ export default function AddBook() {
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
     if (searchQuery === "") {
       return;
     }
@@ -158,6 +160,8 @@ export default function AddBook() {
   };
 
   const [open, setOpen] = React.useState(false);
+  const [coverOpen, setCoverOpen] = React.useState(false);
+  const [imgUrls, setImgUrls] = React.useState<string[]>([]);
   const handleOpen = () => {
     setOpen(true);
   };
@@ -176,6 +180,17 @@ export default function AddBook() {
     transform: "translate(-50%, -50%)",
   };
 
+  const handleImgUrlUpdate = (newImgUrl: string, index: number) => {
+    const newImgUrls = imgUrls.map((url, pos) => {
+      if (pos === index) {
+        return newImgUrl;
+      } else {
+        return url;
+      }
+    });
+    setImgUrls(newImgUrls);
+  };
+
   const columns: GridColDef[] = [
     {
       field: "image",
@@ -185,7 +200,9 @@ export default function AddBook() {
       align: "center",
       renderCell: (params) => {
         /* eslint-disable */
+        const id = params.row.id as string;
         let url = params.row.imgUrl as string;
+        // setImgUrls((prev) => [...prev, url]);
         /* eslint-enable */
         if (!url || url === "") {
           url =
@@ -194,6 +211,21 @@ export default function AddBook() {
         return (
           <div className="text-blue-600">
             <Image alt={"Book cover"} src={url} width={40} height={60} />
+            <Modal
+              open={coverOpen}
+              onClose={() => setCoverOpen(false)}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box className="align-items-center" sx={modalStyle}>
+                {/*<TableImageEdit*/}
+                {/*  id={id}*/}
+                {/*  imgUrl={url}*/}
+                {/*  setImgUrl={handleImgUrlUpdate}*/}
+                {/*/>*/}
+                Testing
+              </Box>
+            </Modal>
           </div>
         );
       },
