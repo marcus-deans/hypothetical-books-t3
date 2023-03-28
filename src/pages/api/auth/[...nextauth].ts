@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 //import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import { compare } from "bcrypt";
+import type { CustomUser } from "../../../schema/user.schema";
 
 const prisma = new PrismaClient();
 
@@ -81,7 +82,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({user, token}){
       if(user){
-        token.user = user;
+        token.user = user as CustomUser;
       }
       return Promise.resolve(token);
     },
