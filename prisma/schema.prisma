@@ -173,10 +173,11 @@ model Case {
 }
 
 model Shelf {
-  id     String @id @default(cuid())
-  case   Case   @relation(fields: [caseId], references: [id])
-  caseId String
-  books  Book[]
+  id        String @id @default(cuid())
+  case      Case   @relation(fields: [caseId], references: [id])
+  caseId    String
+  spaceUsed Float
+  books     Book[]
 }
 
 model Example {
