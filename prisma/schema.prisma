@@ -43,6 +43,8 @@ model Book {
   correction            Correction[]
   relatedBooks          Book[]                 @relation("RelatedBooks")
   symmetricRelatedBooks Book[]                 @relation("RelatedBooks")
+  Shelf                 Shelf?                 @relation(fields: [shelfId], references: [id])
+  shelfId               String?
 }
 
 model Genre {
@@ -157,6 +159,26 @@ model CostMostRecentVendor {
   @@unique(fields: [bookId, vendorId], name: "costMostRecentVendorId")
 }
 
+model Case {
+  id         String   @id @default(cuid())
+  name       String
+  creator    User     @relation(name: "creator", fields: [creatorId], references: [id])
+  creatorId  String
+  editor     User     @relation(name: "editor", fields: [editorId], references: [id])
+  editorId   String
+  editedAt   DateTime @updatedAt
+  width      Float
+  shelfCount Int
+  shelves    Shelf[]
+}
+
+model Shelf {
+  id     String @id @default(cuid())
+  case   Case   @relation(fields: [caseId], references: [id])
+  caseId String
+  books  Book[]
+}
+
 model Example {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -191,16 +213,18 @@ model Session {
 }
 
 model User {
-  id            String          @id @default(cuid())
-  name          String          @default("default")
-  password      String
-  role          String          @default("user")
-  display       Boolean         @default(true)
-  accounts      Account[]
-  sessions      Session[]
-  Correction    Correction[]
-  PurchaseOrder PurchaseOrder[]
-  BuybackOrder  BuybackOrder[]
+  id              String          @id @default(cuid())
+  name            String          @default("default")
+  password        String
+  role            String          @default("user")
+  display         Boolean         @default(true)
+  accounts        Account[]
+  sessions        Session[]
+  Correction      Correction[]
+  PurchaseOrder   PurchaseOrder[]
+  BuybackOrder    BuybackOrder[]
+  casesCreated    Case[]          @relation(name: "creator")
+  casesLastEdited Case[]          @relation(name: "editor")
 }
 
 model VerificationToken {
