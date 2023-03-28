@@ -166,14 +166,14 @@ export default function AddBook() {
   };
 
   const modalStyle = {
-    position: "absolute" as const,
-    backgroundColor: "white",
-    border: "2px solid #000",
-    boxShadow: "paper",
-    padding: "16px 32px 24px",
-    top: "50%",
+    position: "absolute" as "absolute",
+    top: "40%",
     left: "50%",
     transform: "translate(-50%, -50%)",
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    borderRadius: "6px",
+    p: 3,
   };
 
   const columns: GridColDef[] = [
@@ -340,14 +340,15 @@ export default function AddBook() {
         let relatedBooks = params.row.relatedBooks as RelatedBooksDisplayType;
         console.log(relatedBooks);
         if (relatedBooks!.length === 0) {
-          return <div>No Related Books Found!</div>;
+          return <div>No Related Books Found! (0)</div>;
         }
         const title = params.row.title as string;
+        const authors = params.row.authors as string;
         /* eslint-enable */
         return (
           <div>
             <button type="button" onClick={handleOpen}>
-              See Related Books
+              See Related Books ({relatedBooks.length})
             </button>
 
             <Modal
@@ -358,12 +359,16 @@ export default function AddBook() {
             >
               <Box sx={modalStyle}>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
-                  Related Books for: {title}
+                  Related Books for: {title} by {authors}
                 </Typography>
                 <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                  {relatedBooks
-                    ?.map((relatedBook) => relatedBook.title)
-                    .join(",\n")}
+                  {relatedBooks.map((relatedBook) => {
+                    return (
+                      <div>
+                        <div>{relatedBook.title} by {relatedBook.authors[0]?.name}</div>
+                      </div>
+                    );
+                  })}
                 </Typography>
               </Box>
             </Modal>

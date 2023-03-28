@@ -544,6 +544,7 @@ export default function BookDetail(
   const relatedBooksRows = data.relatedBooks.map((relatedBook) => {
     return {
       /* eslint-disable */
+      id: relatedBook.id,
       title: relatedBook.title,
       author: relatedBook.authors.map((author) => author.name).join(", "),
       publisher: relatedBook.publisher,
@@ -588,7 +589,7 @@ export default function BookDetail(
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      maxWidth: 200,
+      minWidth: 180,
     },
     {
       field: "publicationYear",
