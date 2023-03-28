@@ -589,7 +589,7 @@ export default function BookDetail(
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      maxWidth: 200,
+      minWidth: 180,
     },
     {
       field: "publicationYear",
