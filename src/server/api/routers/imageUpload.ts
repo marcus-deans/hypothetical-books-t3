@@ -5,6 +5,7 @@ import * as AWS from "aws-sdk";
 import type { Image } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../../env/server.mjs";
+import { prisma } from "../../db";
 
 import { v2 as cloudinary } from "cloudinary";
 // Configuration
