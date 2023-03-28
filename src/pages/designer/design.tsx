@@ -17,15 +17,6 @@ import type {
   import "react-toastify/dist/ReactToastify.css";
   import {Draggable, Droppable, DragDropContext} from 'react-beautiful-dnd';
   
-  // const shelfSpace =
-  //     data.thickness === 0
-  //       ? (0.8 * data.inventoryCount).toFixed(2)
-  //       : (data.thickness * data.inventoryCount).toFixed(2);
-  
-  // const shelfSpaceString =
-  // data.thickness === 0
-  //   ? `${shelfSpace.toString()}* in.`
-  //   : `${shelfSpace.toString()} in.`;
   
   export default function Designer(
     props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -210,10 +201,6 @@ import type {
       </>
     );
   }
-  import React from "react";
-import { number } from "zod";
-
-
   interface BookCardProps {
     id: string;
     title: string;
