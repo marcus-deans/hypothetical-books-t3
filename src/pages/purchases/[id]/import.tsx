@@ -12,21 +12,14 @@ import { ToastContainer, toast } from "react-toastify";
 import { api } from "../../../utils/api";
 import Papa from "papaparse";
 import type {
-  CSVPurchaseInput,
-  CSVPurchaseInputId,
+  CSVInput,
+  CSVInputId
 } from "../../../schema/imports.schema";
 import "react-toastify/dist/ReactToastify.css";
 import { Box, Button } from "@mui/material";
 import type { GridColDef, GridRowModel } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import StripedDataGrid from "../../../components/table-components/StripedDataGrid";
-
-interface LineDetails {
-  id: number;
-  isbn: string;
-  quantity: string;
-  unit_wholesale_price: string;
-}
 
 
 export default function ImportPurchase(
@@ -35,7 +28,7 @@ export default function ImportPurchase(
   const { id } = props;
   const router = useRouter();
   const [parsedHeaders, setParsedHeaders] = useState<string[]>([]);
-  const [parsedCsvData, setParsedCsvData] = useState<CSVPurchaseInput[]>([]);
+  const [parsedCsvData, setParsedCsvData] = useState<CSVInput[]>([]);
   const [file, setFile] = useState<File>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -45,7 +38,7 @@ export default function ImportPurchase(
     },
     { enabled: parsedHeaders.length !== 0 }
   );
-  const importVerified = api.csvPorts.verifyPurchaseCSV.useQuery(
+  const importVerified = api.csvPorts.verifyCSV.useQuery(
     parsedCsvData,
     { enabled: headersVerified.isSuccess && headersVerified.data?.verified }
   );
@@ -110,9 +103,9 @@ export default function ImportPurchase(
       dynamicTyping: false,
       complete: function (results) {
         console.log(results);
-        const parsedData: CSVPurchaseInput[] = [];
+        const parsedData: CSVInput[] = [];
         results.data.forEach(function (value) {
-          parsedData.push(value as CSVPurchaseInput);
+          parsedData.push(value as CSVInput);
         });
         setParsedCsvData(parsedData);
       },
@@ -127,22 +120,22 @@ export default function ImportPurchase(
     if (!importVerified.data) {
       return newRow;
     }
-    const newParsedData: CSVPurchaseInput[] = importVerified.data.parsedData.map((displayedRow, index) => {
-      const newRowTypedwithExtras = newRow as CSVPurchaseInputId;
+    const newParsedData: CSVInput[] = importVerified.data.parsedData.map((displayedRow, index) => {
+      const newRowTypedwithExtras = newRow as CSVInputId;
       if (index === newRow.id) {
         // Increment the clicked counter
-        const newRowTyped: CSVPurchaseInput = {
+        const newRowTyped: CSVInput = {
           isbn: newRowTypedwithExtras.isbn,
           quantity: newRowTypedwithExtras.quantity.toString(),
-          unit_wholesale_price: newRowTypedwithExtras.unit_wholesale_price.toString(),
+          unit_price: newRowTypedwithExtras.unit_price.toString(),
         }
         return newRowTyped;
       } else {
         // The rest haven't changed
-        const displayedRowTyped: CSVPurchaseInput = {
+        const displayedRowTyped: CSVInput = {
           isbn: displayedRow.isbn,
           quantity: displayedRow.quantity.toString(),
-          unit_wholesale_price: displayedRow.unit_wholesale_price.toString(),
+          unit_price: displayedRow.unit_price.toString(),
         }
         return displayedRowTyped;
       }
@@ -157,8 +150,15 @@ export default function ImportPurchase(
   };
   const columns: GridColDef[] = [
     {
+      field: "title",
+      headerName: "Title",
+      headerClassName: "header-theme",
+      width: 125,
+      editable: true,
+    },
+    {
       field: "isbn",
-      headerName: "ISBN-13",
+      headerName: "ISBN",
       headerClassName: "header-theme",
       width: 125,
       editable: true,
@@ -171,7 +171,7 @@ export default function ImportPurchase(
       editable: true,
     },
     {
-      field: "unit_wholesale_price",
+      field: "unit_price",
       headerName: "Unit Wholesale Price",
       headerClassName: "header-theme",
       width: 125,
@@ -203,7 +203,7 @@ export default function ImportPurchase(
         setIsSubmitting(false);
         return;
       }
-      const parsedDataTyped: CSVPurchaseInputId[] = importVerified.data.parsedData;
+      const parsedDataTyped: CSVInputId[] = importVerified.data.parsedData;
       mutatedImport.mutate({
         data: parsedDataTyped,
         purchaseOrderId: id,
