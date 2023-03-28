@@ -43,6 +43,7 @@
     "aws-sdk": "^2.1322.0",
     "bcrypt": "^5.1.0",
     "classnames": "^2.3.2",
+    "cloudinary": "^1.35.0",
     "csv-generate": "^4.2.2",
     "csv-string": "^4.1.1",
     "dayjs": "^1.11.7",

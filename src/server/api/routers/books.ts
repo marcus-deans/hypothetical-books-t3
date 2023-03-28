@@ -6,7 +6,52 @@ import { TRPCError } from "@trpc/server";
 import type { bookDetail } from "../../../schema/books.schema";
 import { bookDetailSchema } from "../../../schema/books.schema";
 import { env } from "../../../env/server.mjs";
-import Fuse from "fuse.js";
+import type { S3 } from "aws-sdk/clients/browser_default";
+import * as AWS from "aws-sdk";
+
+import { v2 as cloudinary } from "cloudinary";
+// Configuration
+cloudinary.config({
+  cloud_name: env.CLOUDINARY_CLOUD_NAME,
+  api_key: env.CLOUDINARY_API_KEY,
+  api_secret: env.CLOUDINARY_API_SECRET,
+});
+
+const s3 = new AWS.S3();
+AWS.config.update({
+  accessKeyId: env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+});
+
+const BUCKET_NAME = env.AWS_S3_BUCKET;
+const UPLOADING_TIME_LIMIT = 30;
+const UPLOAD_MAX_FILE_SIZE = 1000000;
+
+const getUrlExtension = (url: string) => {
+  return url?.split(/[#?]/)[0]?.split(".")?.pop()?.trim();
+};
+
+const createPresignedUrl = async (bookId: string) => {
+  return new Promise((resolve, reject) => {
+    s3.createPresignedPost(
+      {
+        Fields: {
+          key: `images/${bookId}`,
+        },
+        Conditions: [
+          ["starts-with", "$Content-Type", "image/"],
+          ["content-length-range", 0, UPLOAD_MAX_FILE_SIZE],
+        ],
+        Expires: UPLOADING_TIME_LIMIT,
+        Bucket: BUCKET_NAME,
+      },
+      (err, signed) => {
+        if (err) return reject(err);
+        resolve(signed);
+      }
+    );
+  });
+};
 
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -369,10 +414,32 @@ export const booksRouter = createTRPCRouter({
         width: z.number().gte(0),
         height: z.number().gte(0),
         thickness: z.number().gte(0),
+        imgUrl: z.string(),
       })
     )
 
     .mutation(async ({ input }) => {
+      const currentImgUrl = await prisma.book.findUnique({
+        where: { id: input.id },
+        select: { imgUrl: true },
+      });
+      if (!currentImgUrl || !currentImgUrl.imgUrl) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No book with id '${input.id}'`,
+        });
+      }
+      try {
+        await cloudinary.uploader.destroy(
+          currentImgUrl.imgUrl,
+          function (error, result) {
+            console.log(result, error);
+          }
+        );
+      } catch (error) {
+        console.error("Could not delete existing image from cloudinary", error);
+      }
+
       return await prisma.book.update({
         where: { id: input.id },
         data: {
@@ -382,7 +449,7 @@ export const booksRouter = createTRPCRouter({
           width: input.width,
           height: input.height,
           thickness: input.thickness,
-          imgUrl: `https://${env.AWS_S3_BUCKET}.s3.amazonaws.com/images/${input.id}`,
+          imgUrl: input.imgUrl,
         },
       });
     }),
@@ -556,6 +623,29 @@ export const booksRouter = createTRPCRouter({
         }
       }
 
+      const cloudinaryUpload = await cloudinary.uploader
+        .upload(input.imgUrl, { public_id: book.id })
+        .then((data) => {
+          console.log(data);
+          console.log(data.secure_url);
+        })
+        .catch((err) => {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Error uploading image to cloudinary`,
+          });
+        });
+      const cloudinaryUrl = cloudinary.url(book.id);
+
+      await prisma.book.update({
+        where: { id: book.id },
+        data: {
+          imgUrl: cloudinaryUrl,
+        },
+      });
+
+      console.log("Successfully uploaded image to Cloudinary");
+
       return book;
     }),
 
@@ -588,77 +678,5 @@ export const booksRouter = createTRPCRouter({
         });
       }
       return book;
-    }),
-
-  findRelatedBooks: publicProcedure
-    .input(
-      z.object({
-        title: z.string(),
-        author: z.string(),
-      })
-    )
-    // .output(
-    //   z.array(
-    //     z.object({
-    //       item: z.object({
-    //         id: z.string(),
-    //         title: z.string(),
-    //         isbn_13: z.string().length(13),
-    //       }),
-    //       score: z.number(),
-    //       refIndex: z.number(),
-    //     })
-    //   )
-    // )
-    .query(async ({ input }) => {
-      const allBooks = await prisma.book.findMany({
-        where: { display: true },
-        include: {
-          authors: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      });
-      type allBooksType = (typeof allBooks)[number];
-      type returnBookType = {
-        item: allBooksType;
-        score: number;
-        refIndex: number;
-      };
-
-      const options = {
-        includeScore: true,
-        ignoreLocation: true,
-        keys: [
-          {
-            name: "title",
-            weight: 0.7,
-            getFn: (book: allBooksType) => book.title,
-          },
-          {
-            name: "authors",
-            weight: 0.3,
-            getFn: (book: allBooksType) =>
-              book.authors.map((author) => author.name).join(","),
-          },
-        ],
-      };
-
-      const fuse = new Fuse(allBooks, options);
-      const searchResults = fuse.search({
-        title: input.title,
-        authors: input.author,
-      });
-      const returnableSearchResult = searchResults as returnBookType[];
-      // console.log(
-      //   returnableSearchResult.map((result) =>
-      //     result.item.authors.map((author) => author.name).join(", ")
-      //   )
-      // );
-      console.log("Related book search results: ");
-      console.log(returnableSearchResult);
-      return returnableSearchResult;
     }),
 });
