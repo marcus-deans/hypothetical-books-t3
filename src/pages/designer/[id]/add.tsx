@@ -3,12 +3,8 @@ import type {
   GridPreProcessEditCellProps,
   GridRowModel,
 } from "@mui/x-data-grid";
-import type { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
-import type { getServerSideProps } from "../report";
-import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
-import { api } from "../../utils/api";
 
 import { Autocomplete, TextField } from "@mui/material";
 import { useState } from "react";
@@ -16,6 +12,22 @@ import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 as uuidv4 } from "uuid";
+import type {
+  GetStaticPaths,
+  GetStaticPropsContext,
+  InferGetStaticPropsType,
+} from "next";
+import { prisma } from "../../../server/db";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { appRouter } from "../../../server/api/root";
+import { createInnerTRPCContext } from "../../../server/api/trpc";
+import superjson from "superjson";
+import { api } from "../../../utils/api";
+import StripedDataGrid from "../../../components/table-components/StripedDataGrid";
+import { z } from "zod";
+import { useSession } from "next-auth/react";
+import type { CustomUser } from "../../../schema/user.schema";
+import { useRouter } from "next/router";
 // const shelfSpace =
 //     data.thickness === 0
 //       ? (0.8 * data.inventoryCount).toFixed(2)
@@ -26,9 +38,15 @@ import { v4 as uuidv4 } from "uuid";
 //   ? `${shelfSpace.toString()}* in.`
 //   : `${shelfSpace.toString()} in.`;
 
-export default function Calculator(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
+export default function AddShelf(
+  props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
+  const { data: session, status } = useSession();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const user = session?.user as CustomUser;
+  const id = props.id;
+  const router = useRouter();
+
   const columns: GridColDef[] = [
     {
       field: "title",
@@ -125,6 +143,7 @@ export default function Calculator(
 
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
   const books = booksQuery?.data?.items ?? [];
+  const addMutation = api.shelves.add.useMutation();
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
@@ -173,6 +192,41 @@ export default function Calculator(
   };
   const handleProcessRowUpdateError = (error: Error) => {
     toast.error(error.message);
+  };
+
+  const handleSave = () => {
+    // caseId: z.string(),
+    //   spaceUsed: z.number(),
+    //   bookDetails: z
+    //   .object({
+    //     bookId: z.string(),
+    //     orientation: z.string(),
+    //   })
+    //   .array(),
+    //   user: z.object({
+    //   id: z.string(),
+    //   name: z.string(),
+    //   role: z.string(),
+    // }),
+    try {
+      addMutation.mutate({
+        caseId: id,
+        spaceUsed: totalSpaceSum,
+        bookDetails: displayedBooks.map((book) => {
+          return {
+            bookId: book.internalId,
+            orientation: book.displayStyle,
+          };
+        }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        user: user!,
+      });
+      setTimeout(() => {
+        void router.push(`/designer/${id}/detail`);
+      }, 500);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleSubmit = () => {
@@ -330,9 +384,51 @@ export default function Calculator(
             }
           </div>
         </div>
+        <button
+          className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+          type="button"
+          id="button-addon2"
+          onClick={handleSave}
+        >
+          Save Shelf
+        </button>
       </div>
 
       <ToastContainer></ToastContainer>
     </>
   );
+}
+export const getStaticPaths: GetStaticPaths = async () => {
+  const cases = await prisma.case.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  const paths = cases.map((caseA) => ({
+    params: { id: caseA.id },
+  }));
+
+  return { paths, fallback: true };
+};
+
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ id: string }>
+) {
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+    transformer: superjson,
+  });
+  const id = context.params?.id as string;
+
+  await ssg.cases.getById.prefetch({ id });
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      id,
+    },
+    revalidate: 1,
+  };
 }

@@ -3,32 +3,55 @@ import type {
   GridPreProcessEditCellProps,
   GridRowModel,
 } from "@mui/x-data-grid";
-import type { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
-import type { getServerSideProps } from "../report";
-import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
-import { api } from "../../utils/api";
 
 import { Autocomplete, TextField } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 as uuidv4 } from "uuid";
-// const shelfSpace =
-//     data.thickness === 0
-//       ? (0.8 * data.inventoryCount).toFixed(2)
-//       : (data.thickness * data.inventoryCount).toFixed(2);
+import type {
+  GetStaticPaths,
+  GetStaticPropsContext,
+  InferGetStaticPropsType,
+} from "next";
+import { prisma } from "../../../../server/db";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { appRouter } from "../../../../server/api/root";
+import { createInnerTRPCContext } from "../../../../server/api/trpc";
+import superjson from "superjson";
+import { api } from "../../../../utils/api";
+import StripedDataGrid from "../../../../components/table-components/StripedDataGrid";
+import { useSession } from "next-auth/react";
+import type { CustomUser } from "../../../../schema/user.schema";
+import { useRouter } from "next/router";
 
-// const shelfSpaceString =
-// data.thickness === 0
-//   ? `${shelfSpace.toString()}* in.`
-//   : `${shelfSpace.toString()} in.`;
+interface BookCalcDetails {
+  id: string;
+  internalId: string;
+  title: string;
+  inventoryCount: number;
+  displayCount: number;
+  width: number;
+  height: number;
+  thickness: number;
+  displayStyle: string;
+  shelfSpace: string;
+  usedDefault: boolean;
+}
 
-export default function Calculator(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
+export default function AddShelf(
+  props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
+  const { data: session, status } = useSession();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const user = session?.user as CustomUser;
+  const id = props.id;
+  const shelfId = props.shelfId;
+  const router = useRouter();
+
   const columns: GridColDef[] = [
     {
       field: "title",
@@ -101,34 +124,111 @@ export default function Calculator(
     },
   ];
 
-  interface BookCalcDetails {
-    id: string;
-    internalId: string;
-    title: string;
-    inventoryCount: number;
-    displayCount: number;
-    width: number;
-    height: number;
-    thickness: number;
-    displayStyle: string;
-    shelfSpace: string;
-    usedDefault: boolean;
-  }
+  const calcShelfSpace = (
+    width: number,
+    height: number,
+    thickness: number,
+    displayStyle: string,
+    displayCount: number
+  ) => {
+    if (displayStyle === "Spine Out") {
+      if (thickness === 0) {
+        thickness = 0.8;
+      }
+      return Number(thickness * displayCount);
+    }
+    if (displayStyle === "Cover Out") {
+      if (height == 0) {
+        height = 8;
+      }
+      if (width == 0) {
+        width = 6;
+      }
+      return Number((height * width).toFixed(2));
+    } else {
+      return Number(0);
+    }
+  };
 
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
   } | null>(null);
   const [bookInputValue, setBookInputValue] = useState("");
-  const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
   const [totalSpaceSum, setTotalSpaceSum] = useState(0);
-
+  const [fetchShelfDetails, setFetchShelfDetails] = useState(true);
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
+  const shelfQuery = api.shelves.getById.useQuery(
+    { id: shelfId },
+    { enabled: fetchShelfDetails, staleTime: 1200000 }
+  );
+
   const books = booksQuery?.data?.items ?? [];
+  const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
+
+  if (booksQuery.isLoading || shelfQuery.isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  // let computedTotalSpace = 0;
+  // let computedDisplayedBooks: BookCalcDetails[] = [];
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (shelfQuery.isSuccess) {
+      setFetchShelfDetails(false);
+      const shelfDetails = shelfQuery?.data ?? [];
+      let computedTotalSpace = 0;
+      const computedDisplayedBooks = shelfDetails.booksOnShelf.map(
+        (bookOnShelf) => {
+          const book = bookOnShelf.book;
+          const displayBook: BookCalcDetails = {
+            id: uuidv4(),
+            internalId: book.id,
+            title: book.title,
+            inventoryCount: book.inventoryCount,
+            displayCount: book.inventoryCount,
+            width: book.width,
+            height: book.height,
+            thickness: book.thickness,
+            displayStyle: bookOnShelf.orientation,
+            shelfSpace: "",
+            usedDefault: false,
+          };
+          displayBook.shelfSpace = calcShelfSpace(
+            displayBook.width,
+            displayBook.height,
+            displayBook.thickness,
+            displayBook.displayStyle,
+            displayBook.displayCount
+          ).toString();
+          if (book.width == 0 || book.height == 0 || book.thickness == 0) {
+            displayBook.usedDefault = true;
+          }
+          computedTotalSpace += parseFloat(displayBook.shelfSpace);
+          const spaceVal = Number.parseFloat(displayBook.shelfSpace)
+            .toFixed(2)
+            .toString();
+          displayBook.shelfSpace = displayBook.usedDefault
+            ? spaceVal + "*"
+            : spaceVal;
+          return displayBook;
+        }
+      );
+      console.log(computedDisplayedBooks);
+      setDisplayedBooks(computedDisplayedBooks);
+      setTotalSpaceSum(computedTotalSpace);
+    }
+  }),
+    [shelfQuery.isSuccess, shelfQuery.data];
+
+  const addMutation = api.shelves.add.useMutation();
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
   }));
+
+  // setTotalSpaceSum(computedTotalSpace);
 
   const rows = displayedBooks;
 
@@ -173,6 +273,28 @@ export default function Calculator(
   };
   const handleProcessRowUpdateError = (error: Error) => {
     toast.error(error.message);
+  };
+
+  const handleSave = () => {
+    try {
+      addMutation.mutate({
+        caseId: id,
+        spaceUsed: totalSpaceSum,
+        bookDetails: displayedBooks.map((book) => {
+          return {
+            bookId: book.internalId,
+            orientation: book.displayStyle,
+          };
+        }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        user: user!,
+      });
+      setTimeout(() => {
+        void router.push(`/designer/${id}/detail`);
+      }, 500);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleSubmit = () => {
@@ -223,32 +345,6 @@ export default function Calculator(
     }
     setBookInputValue("");
     setBookValue(null);
-  };
-
-  const calcShelfSpace = (
-    width: number,
-    height: number,
-    thickness: number,
-    displayStyle: string,
-    displayCount: number
-  ) => {
-    if (displayStyle === "Spine Out") {
-      if (thickness === 0) {
-        thickness = 0.8;
-      }
-      return Number(thickness * displayCount);
-    }
-    if (displayStyle === "Cover Out") {
-      if (height == 0) {
-        height = 8;
-      }
-      if (width == 0) {
-        width = 6;
-      }
-      return Number((height * width).toFixed(2));
-    } else {
-      return Number(0);
-    }
   };
 
   return (
@@ -330,9 +426,59 @@ export default function Calculator(
             }
           </div>
         </div>
+        <button
+          className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+          type="button"
+          id="button-addon2"
+          onClick={handleSave}
+        >
+          Save Shelf
+        </button>
       </div>
 
       <ToastContainer></ToastContainer>
     </>
   );
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const shelves = await prisma.shelf.findMany({
+    select: {
+      id: true,
+      case: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+  const paths = shelves.map((shelf) => ({
+    params: { id: shelf.case.id, shelfId: shelf.id },
+  }));
+
+  return { paths, fallback: true };
+};
+
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ id: string; shelfId: string }>
+) {
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+    transformer: superjson,
+  });
+  const id = context.params?.id as string;
+  const shelfId = context.params?.shelfId as string;
+
+  await ssg.shelves.getById.prefetch({ id: shelfId });
+  await ssg.books.getAll.prefetch({ limit: 100, cursor: null });
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      id,
+      shelfId,
+    },
+    revalidate: 1,
+  };
 }
