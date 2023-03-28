@@ -121,13 +121,12 @@ export default function AddBook() {
     void retrieveDetailsQuery.refetch();
     performQuery();
     setDisplayedBooks((prev) => [...prev]);
-    // setSearchQuery("");
   };
 
   const handleConfirm = () => {
     try {
       displayedBooks.map((row) => {
-        console.log("dding book");
+        console.log("Adding book to database");
         console.log(row);
         addMutation.mutate({
           title: row.title,
@@ -319,6 +318,7 @@ export default function AddBook() {
       field: "thickness",
       headerName: "Thickness (in.)",
       headerClassName: "header-theme",
+      type: "number",
       align: "left",
       headerAlign: "left",
       width: 120,
@@ -368,10 +368,14 @@ export default function AddBook() {
                   {relatedBooks.map((relatedBook) => {
                     return (
                       <div>
-                        <div>{relatedBook.title} by {relatedBook.authors[0]?.name}</div>
+                        <div>
+                          {relatedBook.title} by {relatedBook.authors[0]?.name}
+                        </div>
                       </div>
                     );
-                  {/* eslint-enable */}
+                    {
+                      /* eslint-enable */
+                    }
                   })}
                 </Typography>
               </Box>
@@ -402,12 +406,8 @@ export default function AddBook() {
     toast.error(error.message);
   };
 
-  // const rows = displayedBooks;
-
   // 9780812979688, 9781250158079
   if (retrieveDetailsQuery.isSuccess && isLoaded) {
-    // console.log("all rows");
-    // console.log(rows);
     return (
       <>
         <Head>
