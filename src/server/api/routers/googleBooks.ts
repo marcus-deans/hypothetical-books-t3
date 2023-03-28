@@ -54,10 +54,11 @@ const getGoogleBooksDetails = async (
   return await fetch(queryURL)
     .then((response) => response.json())
     .then((response) => {
+      console.info(response);
       const googleBookResponse = GoogleBooksResponseSchema.safeParse(response);
       if (!googleBookResponse.success) {
-        console.log(response);
-        console.log(`Could not obtain book details for ISBN ${isbn}`);
+        console.error(response);
+        console.error(`Could not obtain book details for ISBN ${isbn}`);
         return null;
       } else {
         const volumeInfo = googleBookResponse.data.items.map((item) => {
