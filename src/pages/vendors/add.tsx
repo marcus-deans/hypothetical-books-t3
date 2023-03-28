@@ -14,7 +14,7 @@ export default function AddVendor() {
     try {
       setIsSubmitting(true);
       if (!vendorName || !buybackRate) {
-        alert("Vendor name and buyback rate are required. To have no buybacks for this vendor, enter value of 0");
+        alert("Vendor name and buyback rate are required. To not allow buybacks for this vendor, enter value of 0");
         return;
       }
       const finalBuybackRate = Number(buybackRate);
