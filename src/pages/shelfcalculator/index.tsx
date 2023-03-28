@@ -15,7 +15,7 @@ import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { v4 as uuidv4 } from "uuid";
 // const shelfSpace =
 //     data.thickness === 0
 //       ? (0.8 * data.inventoryCount).toFixed(2)
@@ -37,10 +37,13 @@ export default function Calculator(
       flex: 1,
       align: "left",
       renderCell: (params) => {
+        /* eslint-disable */
+        const bookId = params.row.internalId as string;
+        const bookTitle = params.row.title as string;
+        /* eslint-enable */
         return (
           <div className="text-blue-600">
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <a href={`/books/${params.id}/edit`}>{params.row.title} </a>
+            <a href={`/books/${bookId}/detail`}>{bookTitle} </a>
           </div>
         );
       },
@@ -100,6 +103,7 @@ export default function Calculator(
 
   interface BookCalcDetails {
     id: string;
+    internalId: string;
     title: string;
     inventoryCount: number;
     displayCount: number;
@@ -130,8 +134,8 @@ export default function Calculator(
 
   const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
     const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
-      const currIdx = displayedBooks.indexOf(oldRow as BookCalcDetails);
-      if (index === currIdx) {
+      const oldId = (oldRow as BookCalcDetails).id;
+      if (displayedBook.id === oldId) {
         const newSpace = calcShelfSpace(
           Number(newRow.width),
           Number(newRow.height),
@@ -172,7 +176,8 @@ export default function Calculator(
       const specificBook = books.find((item) => item.id === bookValue.id);
       if (specificBook) {
         const displayBook: BookCalcDetails = {
-          id: specificBook.id,
+          id: uuidv4(),
+          internalId: specificBook.id,
           title: specificBook.title,
           inventoryCount: specificBook.inventoryCount,
           displayCount: specificBook.inventoryCount,
@@ -258,6 +263,7 @@ export default function Calculator(
           onInputChange={(event, newBookInputValue: string) => {
             setBookInputValue(newBookInputValue);
           }}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
           sx={{ width: 425 }}
           renderInput={(params) => (
             <TextField
@@ -269,7 +275,7 @@ export default function Calculator(
             />
           )}
         />
-        <div className="pt-3"/>
+        <div className="pt-3" />
         <button
           className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
           type="button"
@@ -311,7 +317,7 @@ export default function Calculator(
           <div className="pt-1 text-lg">
             {`Total Shelf Space: ${totalSpaceSum.toFixed(2)} inches`}
           </div>
-          <div className="text-sm pb-1">
+          <div className="pb-1 text-sm">
             {
               "*: Shelf space from estimated width of 0.8, height of 8, or width of 6 for zero-valued parameters"
             }

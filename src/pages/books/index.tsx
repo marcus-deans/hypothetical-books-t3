@@ -200,6 +200,15 @@ export default function Books(
       minWidth: 110,
     },
     {
+      field: "numRelatedBooks",
+      headerName: "Num Related Books",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      minWidth: 100,
+    },
+    {
       field: "edit",
       headerName: "Edit",
       headerClassName: "header-theme",
@@ -267,6 +276,7 @@ export default function Books(
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),
       bestBuyback: bestBuybackString,
+      numRelatedBooks: book.relatedBooks.length,
     };
   });
 
@@ -297,6 +307,7 @@ export default function Books(
         });
         calculated.push(calculatedEntry);
       });
+      console.log(calculated);
       setExportedBooks(books);
       setCalculatedExportValues(calculated);
     };
@@ -335,6 +346,7 @@ export default function Books(
           "last_month_sales",
           "days_of_supply",
           "best_buyback_price",
+          "num_related_books",
         ],
         data: [],
       };
@@ -349,40 +361,32 @@ export default function Books(
           isbn_13: book.isbn_13 ? book.isbn_13 : "",
           isbn_10: book.isbn_10 ? book.isbn_10 : "",
           publisher: book.publisher ? book.publisher : "",
-          publication_year: book.publication_year ? book.publication_year : NaN,
-          page_count: book.page_count ? book.page_count : NaN,
-          height: book.height ? book.height : NaN,
-          width: book.width ? book.width : NaN,
-          thickness: book.thickness ? book.thickness : NaN,
-          retail_price: book.retail_price ? book.retail_price : NaN,
+          publication_year: book.publication_year ? book.publication_year.toString() : "",
+          page_count: book.page_count ? book.page_count.toString() : "",
+          height: book.height ? book.height.toString() : "",
+          width: book.width ? book.width.toString() : "",
+          thickness: book.thickness ? book.thickness.toString() : "",
+          retail_price: book.retail_price ? book.retail_price.toString() : "0",
           genre: book.genre ? book.genre : "",
-          inventory_count: book.inventory_count ? book.inventory_count : 0,
-          shelf_space_inches: 0,
-          last_month_sales: 0,
-          days_of_supply: Infinity,
-          best_buyback_price: 0,
+          inventory_count: book.inventory_count != null ? book.inventory_count.toString() : "0",
+          shelf_space_inches: "0",
+          last_month_sales: "0",
+          days_of_supply: "(inf)",
+          best_buyback_price: "0",
+          num_related_books: "0",
         };
         if (calculatedExportValues.at(index) !== undefined) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const calculatedEntry = calculatedExportValues.at(index)!;
-          if (calculatedEntry.at(0) !== undefined) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          }
-          if (calculatedEntry.at(0) !== undefined) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const last_month = calculatedEntry.at(1)!;
-            entry.last_month_sales = parseInt(last_month);
-          }
-          if (calculatedEntry.at(0) !== undefined) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const days = calculatedEntry.at(2)!;
-            entry.days_of_supply = parseInt(days);
-          }
-          if (calculatedEntry.at(0) !== undefined) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const best = calculatedEntry.at(3)!;
-            entry.best_buyback_price = parseFloat(best);
-          }
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          entry.last_month_sales = (calculatedEntry.at(0) !== undefined ? calculatedEntry.at(0)! : "0");
+          console.log("last_month_sales: " + entry.last_month_sales);
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          entry.days_of_supply = calculatedEntry.at(1) !== undefined ? calculatedEntry.at(1)! : "0";
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          entry.best_buyback_price = calculatedEntry.at(2) !== undefined ? calculatedEntry.at(2)! : "0";
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          entry.num_related_books = calculatedEntry.at(3) !== undefined ? calculatedEntry.at(3)! : "0";
         }
         exportedData.data.push(entry);
       });
@@ -405,6 +409,7 @@ export default function Books(
         { id: "last_month_sales", title: "last_month_sales" },
         { id: "days_of_supply", title: "days_of_supply" },
         { id: "best_buyback_price", title: "best_buyback_price" },
+        { id: "num_related_books", title: "num_related_books" },
       ];
 
       const csvRows: string[][] = [];
@@ -412,22 +417,23 @@ export default function Books(
       csvRows.push(exportedData.headers);
       exportedData.data.forEach(function (value) {
         const lineArray: string[] = [];
-        lineArray.push(value.title.replace(",", "-"));
-        lineArray.push(value.authors.replace(",", "-"));
-        lineArray.push(value.isbn_13.replace(",", "-"));
-        lineArray.push(value.isbn_10.replace(",", "-"));
-        lineArray.push(value.publisher.replace(",", "-"));
-        lineArray.push(value.publication_year.toString());
-        lineArray.push(value.page_count.toString());
-        lineArray.push(value.height.toString());
-        lineArray.push(value.width.toString());
-        lineArray.push(value.thickness.toString());
-        lineArray.push(value.retail_price.toString());
-        lineArray.push(value.genre.replace(",", "-"));
-        lineArray.push(value.inventory_count.toString());
-        lineArray.push(value.last_month_sales.toString());
-        lineArray.push(value.days_of_supply.toString());
-        lineArray.push(value.best_buyback_price.toString());
+        lineArray.push(value.title.replace(",", " -"));
+        lineArray.push(value.authors.replace(",", " -"));
+        lineArray.push(value.isbn_13.replace(",", " -"));
+        lineArray.push(value.isbn_10.replace(",", " -"));
+        lineArray.push(value.publisher.replace(",", " -"));
+        lineArray.push(value.publication_year);
+        lineArray.push(value.page_count);
+        lineArray.push(value.height);
+        lineArray.push(value.width);
+        lineArray.push(value.thickness);
+        lineArray.push(value.retail_price);
+        lineArray.push(value.genre.replace(",", " -"));
+        lineArray.push(value.inventory_count);
+        lineArray.push(value.last_month_sales);
+        lineArray.push(value.days_of_supply);
+        lineArray.push(value.best_buyback_price);
+        lineArray.push(value.num_related_books);
         csvRows.push(lineArray);
       });
 
@@ -463,6 +469,7 @@ export default function Books(
                 "lastMonthSales",
                 "daysSupply",
                 "bestBuyback",
+                "numRelatedBooks",
               ],
               delimiter: ",",
             })
@@ -543,7 +550,7 @@ export default function Books(
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: await createInnerTRPCContext({ session: null }),
+    ctx: createInnerTRPCContext({ session: null }),
     //eslint-disable-next-line
     transformer: superjson,
   });

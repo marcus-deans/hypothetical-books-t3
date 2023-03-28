@@ -196,6 +196,7 @@ export const booksRouter = createTRPCRouter({
               },
             },
           },
+          relatedBooks: true,
         },
         cursor: cursor
           ? {
