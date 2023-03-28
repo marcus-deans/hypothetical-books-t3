@@ -88,6 +88,11 @@ export const shelvesRouter = createTRPCRouter({
             orientation: z.string(),
           })
           .array(),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          role: z.string(),
+        }),
       })
     )
     .mutation(async ({ input }) => {
@@ -99,6 +104,17 @@ export const shelvesRouter = createTRPCRouter({
             },
           },
           spaceUsed: input.spaceUsed,
+        },
+      });
+
+      await prisma.case.update({
+        where: { id: newShelf.caseId },
+        data: {
+          editor: {
+            connect: {
+              id: input.user.id,
+            },
+          },
         },
       });
 
@@ -136,6 +152,11 @@ export const shelvesRouter = createTRPCRouter({
             orientation: z.string(),
           })
           .array(),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          role: z.string(),
+        }),
       })
     )
     .mutation(async ({ input }) => {
@@ -143,6 +164,17 @@ export const shelvesRouter = createTRPCRouter({
         where: { id: input.id },
         data: {
           spaceUsed: input.spaceUsed,
+        },
+      });
+
+      await prisma.case.update({
+        where: { id: newShelf.caseId },
+        data: {
+          editor: {
+            connect: {
+              id: input.user.id,
+            },
+          },
         },
       });
 

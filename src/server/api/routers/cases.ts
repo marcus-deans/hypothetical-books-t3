@@ -83,7 +83,7 @@ export const casesRouter = createTRPCRouter({
       if (!caseDesign) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No genre with id '${id}'`,
+          message: `No case with id '${id}'`,
         });
       }
       return caseDesign;

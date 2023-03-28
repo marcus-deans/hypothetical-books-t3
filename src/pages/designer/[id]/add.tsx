@@ -24,6 +24,10 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../utils/api";
 import StripedDataGrid from "../../../components/table-components/StripedDataGrid";
+import { z } from "zod";
+import { useSession } from "next-auth/react";
+import type { CustomUser } from "../../../schema/user.schema";
+import { useRouter } from "next/router";
 // const shelfSpace =
 //     data.thickness === 0
 //       ? (0.8 * data.inventoryCount).toFixed(2)
@@ -37,7 +41,11 @@ import StripedDataGrid from "../../../components/table-components/StripedDataGri
 export default function AddShelf(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
+  const { data: session, status } = useSession();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const user = session?.user as CustomUser;
   const id = props.id;
+  const router = useRouter();
 
   const columns: GridColDef[] = [
     {
@@ -135,6 +143,7 @@ export default function AddShelf(
 
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
   const books = booksQuery?.data?.items ?? [];
+  const addMutation = api.shelves.add.useMutation();
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
@@ -176,6 +185,40 @@ export default function AddShelf(
   };
   const handleProcessRowUpdateError = (error: Error) => {
     toast.error(error.message);
+  };
+
+  const handleSave = () => {
+    // caseId: z.string(),
+    //   spaceUsed: z.number(),
+    //   bookDetails: z
+    //   .object({
+    //     bookId: z.string(),
+    //     orientation: z.string(),
+    //   })
+    //   .array(),
+    //   user: z.object({
+    //   id: z.string(),
+    //   name: z.string(),
+    //   role: z.string(),
+    // }),
+    try {
+      addMutation.mutate({
+        caseId: id,
+        spaceUsed: totalSpaceSum,
+        bookDetails: displayedBooks.map((book) => {
+          return {
+            bookId: book.internalId,
+            orientation: book.displayStyle,
+          };
+        }),
+        user: user!,
+      });
+      setTimeout(() => {
+        void router.push(`/designer/${id}/detail`);
+      }, 500);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleSubmit = () => {
@@ -333,7 +376,14 @@ export default function AddShelf(
             }
           </div>
         </div>
-        {/*<Button></Button>*/}
+        <button
+          className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+          type="button"
+          id="button-addon2"
+          onClick={handleSave}
+        >
+          Save Shelf
+        </button>
       </div>
 
       <ToastContainer></ToastContainer>
