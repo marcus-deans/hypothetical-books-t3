@@ -24,8 +24,7 @@ export default function CaseDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const casesDetailsQuery =
-    api.cases.getById.useQuery({ id });
+  const casesDetailsQuery = api.cases.getById.useQuery({ id });
 
   // if (router.isFallback) {
   if (casesDetailsQuery.status !== "success") {
@@ -36,81 +35,62 @@ export default function CaseDetail(
 
   const columns: GridColDef[] = [
     {
-      field: "title",
-      headerName: "Book Title",
+      field: "shelf",
+      headerName: "Shelf Design",
       headerClassName: "header-theme",
       flex: 1,
       renderCell: (params) => {
         return (
           <div className="text-blue-600">
             {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions */}
-            <a href={`/books/${params.row.bookId}/detail`}>
+            <a href={`/designer/${id}/${params.row.shelfId}`}>
               {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
-              {params.row.title}{" "}
+              {params.row.shelfId}{" "}
             </a>
           </div>
         );
       },
     },
     {
-      field: "isbn_13",
-      headerName: "ISBN 13",
+      field: "spaceUsed",
+      headerName: "Space Used (inches)",
       headerClassName: "header-theme",
-      minWidth: 130,
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      minWidth: 170,
     },
     {
-      field: "unitBuybackPrice",
-      headerName: "Unit Buyback Price",
+      field: "numberBooks",
+      headerName: "Number Of Books",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
+      minWidth: 80,
+    },
+    {
+      field: "books",
+      headerName: "Books",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      flex: 1,
       renderCell: (params) => {
+        type BookDetail = { id: string; title: string };
         return (
           <div>
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            ${params.row.unitBuybackPrice}
+            {/* eslint-disable */}
+            {params.row.books.map((book: BookDetail) => (
+              <div key={book.id} className="text-blue-600">
+                <a href={`/books/${book.id}/detail`}>{book.title} </a>
+              </div>
+            ))}
+            {/* eslint-enable */}
           </div>
         );
       },
       minWidth: 150,
-    },
-    {
-      field: "quantity",
-      headerName: "Quantity",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      type: "number",
-      minWidth: 80,
-    },
-    {
-      field: "subtotal",
-      headerName: "Subtotal",
-      headerClassName: "header-theme",
-      align: "left",
-      headerAlign: "left",
-      type: "number",
-      renderCell: (params) => {
-        return (
-          <div>
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            ${params.row.subtotal}
-          </div>
-        );
-      },
-      minWidth: 80,
-    },
-    {
-      field: "edit",
-      headerName: "Edit",
-      headerClassName: "header-theme",
-      maxWidth: 60,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <EditLink url={`/designer/${id}/${params.id}/edit`} />
-      ),
     },
     {
       field: "delete",
@@ -126,17 +106,22 @@ export default function CaseDetail(
       ),
     },
   ];
-  const rows = data.shelves.map(
-    (shelf) => {
+  const rows = data.shelves.map((shelf) => {
+    const bookDetails = shelf.books.map((book) => {
       return {
-        id: shelf.id,
-        case: shelf.case,
-        caseId: shelf.caseId,
-        spaceUsed: shelf.spaceUsed,
-        books: shelf.books
+        id: book.id,
+        title: book.title,
       };
-    }
-  );
+    });
+
+    return {
+      id: shelf.id,
+      caseId: shelf.caseId,
+      spaceUsed: shelf.spaceUsed,
+      books: bookDetails,
+      numberBooks: shelf.books.length,
+    };
+  });
 
   return (
     <>

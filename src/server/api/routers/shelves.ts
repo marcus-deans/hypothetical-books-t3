@@ -105,10 +105,8 @@ export const shelvesRouter = createTRPCRouter({
         await prisma.shelf.update({
           where: { id: input.id },
           data: {
-            booksIds: {
-              connect: {
-                id: bookId,
-              },
+            books: {
+              connect: [{ id: bookId }],
             },
           },
         });

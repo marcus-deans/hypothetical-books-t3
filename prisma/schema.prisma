@@ -43,8 +43,7 @@ model Book {
   correction            Correction[]
   relatedBooks          Book[]                 @relation("RelatedBooks")
   symmetricRelatedBooks Book[]                 @relation("RelatedBooks")
-  Shelf                 Shelf?                 @relation(fields: [shelfId], references: [id])
-  shelfId               String?
+  shelves               Shelf[]
 }
 
 model Genre {
