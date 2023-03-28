@@ -54,6 +54,7 @@ const getGoogleBooksDetails = async (
   return await fetch(queryURL)
     .then((response) => response.json())
     .then((response) => {
+      console.info("Obtained below response from Google Books API");
       console.info(response);
       const googleBookResponse = GoogleBooksResponseSchema.safeParse(response);
       if (!googleBookResponse.success) {
