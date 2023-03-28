@@ -3,10 +3,7 @@ import type {
   GridPreProcessEditCellProps,
   GridRowModel,
 } from "@mui/x-data-grid";
-import type { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
-import type { getServerSideProps } from "../report";
-import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
 
 import { Autocomplete, TextField } from "@mui/material";
@@ -26,6 +23,7 @@ import { appRouter } from "../../../../server/api/root";
 import { createInnerTRPCContext } from "../../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../../utils/api";
+import StripedDataGrid from "../../../../components/table-components/StripedDataGrid";
 // const shelfSpace =
 //     data.thickness === 0
 //       ? (0.8 * data.inventoryCount).toFixed(2)
