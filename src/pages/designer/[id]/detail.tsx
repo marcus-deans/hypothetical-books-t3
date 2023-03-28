@@ -130,11 +130,13 @@ export default function CaseDetail(
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Cases Edited At ${data.editedAt.toLocaleDateString()}`}{" "}
+          {`Case ${
+            data.name
+          } - Last edited at ${data.editedAt.toLocaleDateString()}`}{" "}
         </h1>
       </div>
       <div className="space flex pt-3">
-        <Link className="items-end pr-3" href={`/buybacks/${id}/add`} passHref>
+        <Link className="items-end pr-3" href={`/designer/${id}/add`} passHref>
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
