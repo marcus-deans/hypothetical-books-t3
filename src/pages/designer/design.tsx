@@ -26,6 +26,9 @@ import type {
       label: string;
       id: string;
     } | null>(null);
+
+    const [selectedBook, setSelectedBook] = useState<BookCardProps>();
+
     const [bookInputValue, setBookInputValue] = useState("");
     const [displayedBooks, setDisplayedBooks] = useState<BookCardProps[]>([]);
     const [totalSpaceSum, setTotalSpaceSum] = useState(0);
@@ -48,7 +51,9 @@ import type {
       id: book.id,
     }));
   
-    const rows = displayedBooks;
+    const selectBookinCard = (book:BookCardProps) =>{
+      setSelectedBook(book);
+    }
 
     const handleAddShelf = () =>{
         setShelves([...shelves, []]);
@@ -186,16 +191,18 @@ import type {
                     />
         </form>
         <div>
-        <Grid container spacing={3}>
+       <Grid container spacing={3}>
       {displayedBooks.map((bookC) => (
+        
         <Grid item xs={3} sm={2} md={2} key={bookC.id}>
-          <BookCard {...bookC}/>
+          <BookCard  {bookC & {selectBookHandle:selectBookinCard}}/>
+
         </Grid>
       ))}
     </Grid>
     </div>
     <div>
-        {shelves.length > 0 && shelves.map((shelf) => {return(<div className ="rounded-lg bg-white px-6 pt-6 ">Shelf: {shelves.indexOf(shelf)}</div>)})}
+        {shelves.length > 0 && shelves.map((shelf) => {return(<div className ="rounded-lg bg-white px-6 pt-6 ">Shelf {shelves.indexOf(shelf)} {selectedBook && <button className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg">Place Book</button>}</div>)})}
     </div>
         <ToastContainer></ToastContainer>
       </>
@@ -214,8 +221,13 @@ import type {
     usedDefault: boolean;
     image:string | null;
   }
+
+  interface PassedProps extends BookCardProps{
+    selectBookHandle: (book:BookCardProps) => void
+  }
   
-const BookCard = (book: BookCardProps ) => {
+const BookCard = (book: PassedProps,  
+) => {
   console.log(book)
   const [displayCount, setDisplayCount] = useState<number | null>(book.inventoryCount);
   const [displayStyle, setDisplayStyle] = useState<string>("Spine Out");
@@ -266,7 +278,7 @@ const BookCard = (book: BookCardProps ) => {
           <MenuItem value="Spine Out">Spine Out</MenuItem>
           <MenuItem value="Cover Out">Cover Out</MenuItem>
         </Select>
-
+      <button className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg">Move Book</button>
     </Card>
 
       );
