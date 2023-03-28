@@ -419,6 +419,27 @@ export const booksRouter = createTRPCRouter({
     )
 
     .mutation(async ({ input }) => {
+      const currentImgUrl = await prisma.book.findUnique({
+        where: { id: input.id },
+        select: { imgUrl: true },
+      });
+      if (!currentImgUrl || !currentImgUrl.imgUrl) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No book with id '${input.id}'`,
+        });
+      }
+      try {
+        await cloudinary.uploader.destroy(
+          currentImgUrl.imgUrl,
+          function (error, result) {
+            console.log(result, error);
+          }
+        );
+      } catch (error) {
+        console.error("Could not delete existing image from cloudinary", error);
+      }
+
       return await prisma.book.update({
         where: { id: input.id },
         data: {
@@ -602,49 +623,6 @@ export const booksRouter = createTRPCRouter({
         }
       }
 
-      // await fetch(input.imgUrl).then(async (response) => {
-      //   const contentType = response.headers.get("content-type");
-      //   const blob = await response.blob();
-      //   const file = new File([blob], "tempFile.png", {
-      //     type: contentType ? contentType : "image/png",
-      //   });
-      //   if (!file) {
-      //     throw new TRPCError({
-      //       code: "PRECONDITION_FAILED",
-      //       message: `File not found`,
-      //     });
-      //   }
-      //   if (
-      //     file.type !== "image/jpeg" &&
-      //     file.type !== "image/png" &&
-      //     file.type !== "image/jpg"
-      //   ) {
-      //     throw new TRPCError({
-      //       code: "PRECONDITION_FAILED",
-      //       message: `File not an image type`,
-      //     });
-      //   }
-      //   const presignedUrl = (await createPresignedUrl(
-      //     book.id
-      //   )) as S3.PresignedPost;
-      //   const url = presignedUrl.url;
-      //   const fields = presignedUrl.fields;
-      //   const imageData = {
-      //     ...fields,
-      //     "Content-Type": file.type,
-      //     file,
-      //   };
-      //   const formData = new FormData();
-      //   for (const name in imageData) {
-      //     /* eslint-disable */
-      //     // @ts-ignore
-      //     formData.append(name, imageData[name]);
-      //     /*eslint-enable */
-      //   }
-      //   await fetch(url, {
-      //     method: "POST",
-      //     body: formData,
-      //   });
       const cloudinaryUpload = await cloudinary.uploader
         .upload(input.imgUrl, { public_id: book.id })
         .then((data) => {

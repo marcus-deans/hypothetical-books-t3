@@ -96,7 +96,7 @@ export const imagesRouter = createTRPCRouter({
         });
       }
 
-      return currentBook.imgurl;
+      return currentBook.imgUrl;
     }),
 
   deleteCloudinaryImageFromId: publicProcedure
