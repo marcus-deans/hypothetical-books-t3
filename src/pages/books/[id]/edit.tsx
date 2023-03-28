@@ -30,19 +30,17 @@ import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import type { CustomUser } from "../../../schema/user.schema";
 import { useSession } from "next-auth/react";
+import { throwError } from "rxjs";
 
 const ImageCard = ({
   url,
   id,
-  refetchImages,
+  deleteImage,
 }: {
   url: string;
   id: string;
-  refetchImages: () => Promise<void>;
+  deleteImage: (event: React.MouseEvent<HTMLElement>) => void;
 }) => {
-  const { mutateAsync: deleteImage } = api.imageUpload.delete.useMutation();
-  // trpc.useMutation('image.delete');
-
   return (
     <div className="mt-6 flex flex-1 justify-center">
       <div className="transform rounded-xl bg-white p-3 shadow-xl transition-all duration-500 hover:shadow-2xl">
@@ -54,15 +52,7 @@ const ImageCard = ({
           height={100}
         />
         <div className="mt-2 flex justify-start">
-          <button
-            // eslint-disable-next-line
-            onClick={async () => {
-              await deleteImage({ imageId: id });
-              await refetchImages();
-            }}
-          >
-            Remove
-          </button>
+          <button onClick={deleteImage}>Remove</button>
         </div>
       </div>
     </div>
@@ -103,10 +93,18 @@ export default function EditBook(
   const addInventoryCorrectionMutation = api.corrections.add.useMutation();
   const { data } = bookDetailsQuery;
 
+  const [file, setFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const defaultUrl =
+    "https://s3-us-west-2.amazonaws.com/s.cdpn.io/387928/book%20placeholder.png";
   const [retailPrice, setRetailPrice] = useState(
     data?.retailPrice.toString() ?? ""
   );
-  const [imgUrl, setImgUrl] = useState(data?.imgUrl ?? "");
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
+  const [imageDeleted, setImageDeleted] = useState(false);
+  const [imgUrl, setImgUrl] = useState(
+    imageDeleted ? defaultUrl : data?.imgUrl ?? ""
+  );
   const [pageCount, setPageCount] = useState(data?.pageCount.toString() ?? "");
   const [width, setWidth] = useState(data?.width.toString() ?? "");
   const [height, setHeight] = useState(data?.height.toString() ?? "");
@@ -164,6 +162,7 @@ export default function EditBook(
         width: finalWidth,
         height: finalHeight,
         thickness: finalThickness,
+        imgUrl: imgUrl,
       });
 
       if (inventoryCorrection && finalInventoryCorrection !== "0") {
@@ -190,10 +189,6 @@ export default function EditBook(
     id: genre.id,
   }));
 
-  const [file, setFile] = useState<File | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const defaultUrl =
-    "https://s3-us-west-2.amazonaws.com/s.cdpn.io/387928/book%20placeholder.png";
   const { mutateAsync: createPresignedUrl } =
     api.imageUpload.createPresignedUrl.useMutation();
   // trpc.useMutation('image.createPresignedUrl');
@@ -201,16 +196,18 @@ export default function EditBook(
   // const { mutateAsync: getImageUrl } =
   //   api.imageUpload.getImageUrl.useMutation();
 
-  const { data: image, refetch: refetchImages } =
-    api.imageUpload.getImageFromId.useQuery({ bookId: id });
+  // const { data: image, refetch: refetchImages } =
+  //   api.imageUpload.getImageFromId.useQuery({ bookId: id });
   // trpc.useQuery(['image.getImagesForUser'])
   const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     setFile(null);
+    setFileInputKey(Date.now());
     toast.success("Deleted Image");
   };
 
   const handleFileChange = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
     const newFile = e.currentTarget?.files?.[0];
     if (newFile) {
       setFile(newFile);
@@ -232,13 +229,13 @@ export default function EditBook(
       );
       return;
     }
-    const presignedUrl = (await createPresignedUrl({
-      bookId: id,
-    })) as S3.PresignedPost;
-    const url = presignedUrl.url;
-    const fields = presignedUrl.fields;
+    // const presignedUrl = (await createPresignedUrl({
+    //   bookId: id,
+    // })) as S3.PresignedPost;
+    // const url = presignedUrl.url;
+    // const fields = presignedUrl.fields;
     const imageData = {
-      ...fields,
+      // ...fields,
       "Content-Type": file.type,
       file,
     };
@@ -247,16 +244,36 @@ export default function EditBook(
       /* eslint-disable */
       // @ts-ignore
       formData.append(name, imageData[name]);
-      /*eslint-enable */
     }
-    console.log(`URL: ${url}`);
-    await fetch(url, {
+    formData.append("upload_preset", "ilppmkg4");
+    formData.append("folder", id);
+    // formData.append("public_id", id);
+    /*eslint-enable */
+
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/dtyhei91n/image/upload/`;
+    // console.log(`URL: ${url}`);
+    await fetch(cloudinaryUrl, {
       method: "POST",
       body: formData,
-    });
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data) {
+          throw new Error("Error uploading image");
+        }
+        /* eslint-disable */
+        console.log(data);
+        if (data.url && data.url !== "") {
+          console.log(data.url);
+          setImgUrl(data.url);
+          /* eslint-enable */
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     // const imageUrl = await getImageUrl({ bookId: id });
     // setImgUrl(imageUrl);
-    await refetchImages();
     setFile(null);
     if (fileRef.current) {
       fileRef.current.value = "";
@@ -269,8 +286,15 @@ export default function EditBook(
     void asyncUpload();
     //Implement API call to send image back
   };
-  const refetchUserImages = async () => {
-    await refetchImages();
+  const handleRemoveImage = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    // await refetchImages();
+    setImageDeleted(true);
+    setImgUrl("");
+    console.log("In between resets");
+    setImgUrl(defaultUrl);
+    console.info(imgUrl);
+    toast.success("Image Removed");
   };
 
   const [open, setOpen] = React.useState(false);
@@ -325,8 +349,7 @@ export default function EditBook(
       }
       if (finalInventory !== 0 && parseInt(inventory) + finalInventory >= 0) {
         setDialogOpen(true);
-      }
-      else {
+      } else {
         setOpen(false);
         setIsSubmittingInvCorrection(false);
         setInventoryCorrection(false);
@@ -396,17 +419,15 @@ export default function EditBook(
                         width: 120,
                       }}
                     />
-                    {user?.role == "admin" ? 
+                    {user?.role == "admin" ? (
                       <button
                         className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
                         type="button"
                         onClick={handleOpen}
                       >
                         Inventory Correction
-                      </button> 
-                    : 
-                      null
-                    }
+                      </button>
+                    ) : null}
                     <Modal
                       open={open}
                       onClose={handleClose}
@@ -592,6 +613,9 @@ export default function EditBook(
                         onInputChange={(event, newInputValue: string) => {
                           setGenreInputValue(newInputValue);
                         }}
+                        isOptionEqualToValue={(option, value) => {
+                          return option.id === value.id;
+                        }}
                         sx={{ width: 400 }}
                         renderInput={(params) => (
                           <TextField
@@ -609,6 +633,7 @@ export default function EditBook(
                 <div className="inline-block flex justify-center space-x-5 pt-6">
                   <input
                     type="file"
+                    key={fileInputKey}
                     onChange={handleFileChange}
                     className="rounded bg-blue-500 py-2 px-4 font-bold text-white"
                   />
@@ -628,8 +653,8 @@ export default function EditBook(
                 </div>
                 <div className="flex justify-center">
                   <ImageCard
-                    refetchImages={refetchUserImages}
-                    url={image?.url ?? defaultUrl}
+                    deleteImage={handleRemoveImage}
+                    url={imgUrl ?? defaultUrl}
                     id={id}
                     key={id}
                   />
@@ -674,7 +699,7 @@ export async function getStaticProps(
 ) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     //eslint-disable-next-line
     transformer: superjson,
   });

@@ -141,7 +141,7 @@ export default function Authors(
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     //eslint-disable-next-line
     transformer: superjson,
   });

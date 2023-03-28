@@ -160,7 +160,7 @@ export default function SalesOrderDetail(
           {`Sales Record on ${data.salesReconciliationWithOverallMetrics.date.toLocaleDateString()}`}{" "}
         </h1>
       </div>
-      <div className="pt-3 space flex">
+      <div className="space flex pt-3">
         <Link className="items-end pr-3" href={"/sales/add/line"} passHref>
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
@@ -186,13 +186,13 @@ export default function SalesOrderDetail(
           </Button>
         </Link>
         <Link className="items-end px-3" href={`/sales/${id}/import`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Import CSV
-        </Button>
-      </Link>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Import CSV
+          </Button>
+        </Link>
       </div>
       <div className="mt-5 h-3/4 space-y-4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
         <Box
@@ -253,7 +253,7 @@ export async function getStaticProps(
 ) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     transformer: superjson,
   });
   const id = context.params?.id as string;

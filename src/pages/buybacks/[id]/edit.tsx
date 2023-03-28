@@ -10,7 +10,12 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-import { Autocomplete, FormControl, FormHelperText, FormLabel } from "@mui/material";
+import {
+  Autocomplete,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+} from "@mui/material";
 import type {
   GetStaticPaths,
   GetStaticPropsContext,
@@ -25,7 +30,8 @@ export default function EditBuyBack(
 ) {
   const { id } = props;
   const router = useRouter();
-  const buybackDetailsQuery = api.buybackOrders.getByIdWithOverallMetrics.useQuery({ id: id });
+  const buybackDetailsQuery =
+    api.buybackOrders.getByIdWithOverallMetrics.useQuery({ id: id });
   const vendorsDetailsQuery = api.vendors.getAll.useQuery({
     cursor: null,
     limit: 100,
@@ -47,8 +53,7 @@ export default function EditBuyBack(
       buybackDetailsQuery?.data?.buybackOrderWithOverallMetrics.vendor.name ??
       "",
     id:
-      buybackDetailsQuery?.data?.buybackOrderWithOverallMetrics.vendor.id ??
-      "",
+      buybackDetailsQuery?.data?.buybackOrderWithOverallMetrics.vendor.id ?? "",
   });
   const [vendorInputValue, setVendorInputValue] = useState("");
   const handleDatePickChange = (newValue: Dayjs | null) => {
@@ -87,7 +92,7 @@ export default function EditBuyBack(
         <title>Edit BuyBack</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Edit Buyback
@@ -96,7 +101,7 @@ export default function EditBuyBack(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-5">
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DesktopDatePicker
                         label="Buyback Date"
@@ -109,14 +114,14 @@ export default function EditBuyBack(
                       />
                     </LocalizationProvider>
                   </div>
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
                       <Autocomplete
                         options={vendorOptions}
                         value={vendorValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setVendorValue(newValue);
                         }}
@@ -128,7 +133,7 @@ export default function EditBuyBack(
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
                             label="Select a Vendor by Name"
                           />
@@ -174,7 +179,7 @@ export async function getStaticProps(
 ) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: createInnerTRPCContext({ session: null }),
+    ctx: await createInnerTRPCContext({ session: null }),
     transformer: superjson,
   });
   const id = context.params?.id as string;

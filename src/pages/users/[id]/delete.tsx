@@ -15,65 +15,63 @@ import Head from "next/head";
 import { prisma } from "../../../server/db";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSession } from "next-auth/react";
+import type { CustomUser } from "../../../schema/user.schema";
 
-export default function DeleteVendor(
+export default function DeleteUser(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
+  const exist = api.users.doesAdminExist.useQuery().data;
   const { id } = props;
-
-  const vendorDetailsQuery = api.vendors.getById.useQuery({
+  const userDetailsQuery = api.users.getById.useQuery({
     id,
   });
-  const vendorCountQuery = api.vendors.getAllWithOverallMetrics.useQuery({
-    cursor: null,
-  });
-  const { data } = vendorDetailsQuery;
 
-  const vendorsWithOverallMetrics = vendorCountQuery?.data?.items ?? [];
-  const currVendorCount = vendorsWithOverallMetrics.find(
-    (item) => item.vendor.name === data?.name ?? ""
-  )?.purchaseOrderCount;
-
-  const deleteMutation = api.vendors.delete.useMutation();
+  const deleteMutation = api.users.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   // if (router.isFallback) {
-  if (vendorDetailsQuery.status !== "success") {
+  if (userDetailsQuery.status !== "success") {
     return <div>Loading...</div>;
   }
+  const { data } = userDetailsQuery;
 
   const handleDelete = () => {
-    console.log(currVendorCount);
-    if (currVendorCount && currVendorCount > 0) {
-      toast.error(
-        "This vendor has associated purchase orders, so it can not be deleted."
-      );
+    if (userDetailsQuery.data.name == "admin") {
+      toast.error("This account cannot be deleted because it is named admin");
       return;
-    }
-    setIsDeleting(true);
-    try {
-      const deleteResult = deleteMutation.mutate({ id: id });
-      setTimeout(() => {
-        void router.push("/vendors");
-      }, 500);
-    } catch (error) {
-      console.log(error);
-      setIsDeleting(false);
+    } else if (userDetailsQuery.data.name == user?.name) {
+      toast.error("This account cannot be deleted because it your own account");
+      return;
+    } else {
+      setIsDeleting(true);
+      console.log("delete proceeded");
+      try {
+        const deleteResult = deleteMutation.mutate({ id: id });
+        setTimeout(() => {
+          void router.push("/users");
+        }, 500);
+      } catch (error) {
+        console.log(error);
+        setIsDeleting(false);
+      }
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center py-2">
       <Head>
-        <title>Delete Vendor</title>
+        <title>Delete User</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DeletePane
         itemIdentifier={data?.name ?? id}
-        itemName={"Vendor"}
+        itemName={"User"}
         isDeleting={isDeleting}
         handleDelete={handleDelete}
-        cancelUrl={`/vendors/`}
+        cancelUrl={`/users/${id}/detail`}
       />
       <ToastContainer></ToastContainer>
     </div>
@@ -81,14 +79,14 @@ export default function DeleteVendor(
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const vendors = await prisma.vendor.findMany({
+  const users = await prisma.user.findMany({
     select: {
       id: true,
     },
   });
 
-  const paths = vendors.map((vendor) => ({
-    params: { id: vendor.id },
+  const paths = users.map((user) => ({
+    params: { id: user.id },
   }));
 
   return { paths, fallback: true };
@@ -104,7 +102,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.vendors.getById.prefetch({ id });
+  await ssg.users.getById.prefetch({ id });
 
   return {
     props: {
