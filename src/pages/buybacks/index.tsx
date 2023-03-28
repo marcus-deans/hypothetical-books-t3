@@ -52,6 +52,14 @@ export default function sales(
       },
     },
     {
+      field: "user",
+      headerName: "User",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      flex: 1,
+    },
+    {
       field: "vendor",
       headerName: "Vendor",
       headerClassName: "header-theme",
@@ -100,6 +108,7 @@ export default function sales(
     return {
       id: buybackOrder.buybackOrder.id,
       date: buybackOrder.buybackOrder.date.toLocaleDateString(),
+      user: buybackOrder.buybackOrder.user?.name ?? "N/A",
       totalQuantity: buybackOrder.totalQuantity,
       vendor: buybackOrder.buybackOrder.vendor.name,
       totalPrice: `${buybackOrder.totalPrice.toFixed(2)}`,

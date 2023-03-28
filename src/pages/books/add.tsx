@@ -1,7 +1,6 @@
 import Head from "next/head";
 import React, { useState } from "react";
 import { api } from "../../utils/api";
-import { Button } from "@mui/material";
 import { useRouter } from "next/router";
 import type {
   GridColDef,
@@ -13,6 +12,8 @@ import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import Modal from "@mui/material/Modal";
+import Typography from "@mui/material/Typography";
 
 interface GoogleBookResponse {
   kind: string;
@@ -50,19 +51,6 @@ interface GoogleBookDetails {
     large: string | null;
   };
 }
-
-interface BooksRunResponse {
-  status: string;
-  message: string;
-  offers: {
-    booksrun: {
-      new: {
-        price: number;
-      };
-    };
-  };
-}
-
 interface BookDetails {
   id: number;
   imgUrl: string;
@@ -82,106 +70,39 @@ interface BookDetails {
 
 export default function AddBook() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [dataRetrieved, setDataRetrieved] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  // const [currentIsbn, setCurrentIsbn] = useState("");
-  const [pricingData, setPricingData] = useState<number[]>([]);
-  const [retrievedBooks, setRetrievedBooks] = useState<GoogleBookDetails[]>([]);
   const [displayedBooks, setDisplayedBooks] = useState<BookDetails[]>([]);
-  // const retrieveMutation = api.googleBooks.simpleRetrieveByISBN.useMutation();
-  const unknownGenreQuery = api.genres.getByName.useQuery({ name: "Unknown" });
+
+  const [parsedIsbns, setParsedIsbns] = useState<string[]>([]);
+  const retrieveDetailsQuery = api.googleBooks.retrieveByISBNs.useQuery(
+    { isbns: parsedIsbns },
+    { enabled: !!parsedIsbns }
+  );
+  const retrievePricingQuery = api.googleBooks.retrievePricingData.useQuery(
+    { isbns: parsedIsbns },
+    { enabled: !!parsedIsbns }
+  );
+
+  const [currentTitle, setCurrentTitle] = useState("");
+  const [currentAuthor, setCurrentAuthor] = useState("");
+  const findRelatedBooksQuery = api.books.findRelatedBooks.useQuery(
+    { title: currentTitle, author: currentAuthor },
+  );
+  type relatedBookReturnType = typeof findRelatedBooksQuery.data;
+
   const addMutation = api.books.add.useMutation();
   const router = useRouter();
   const handleType = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
-  const queryBooksRunApi = async (isbns: string[]): Promise<Array<number>> => {
-    const bookPrices: Array<number> = [];
-    for (const isbn of isbns) {
-      console.log(`ISBN: ${isbn}`);
-      const queryURL = `https://booksrun.com/api/v3/price/buy/${isbn}?key=faajt0grxch1m5zcc9cp`;
-      try {
-        // const myInit = {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     "Access-Control-Allow-Origin": "*",
-        //     "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
-        //     "Access-Control-Allow-Headers":
-        //       "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
-        //   },
-        //   mode: "cors",
-        // };
-
-        // const response = await fetch(queryURL, myInit);
-        const response = await fetch(queryURL);
-        if (response.status !== 200) {
-          continue;
-        }
-        const bookPriceResponse = (await response.json()) as BooksRunResponse;
-        bookPrices.push(bookPriceResponse.offers.booksrun.new.price);
-      } catch (error) {
-        toast.error("Error retrieving book price from BooksRun");
-        bookPrices.push(0);
-        console.log(error);
-      }
-    }
-    return bookPrices;
-  };
-
-  const queryGoogleBooksApi = async (
-    isbns: string[]
-  ): Promise<Array<GoogleBookDetails>> => {
-    const bookDetails: Array<GoogleBookDetails> = [];
-    for (const isbn of isbns) {
-      console.log(`ISBN: ${isbn}`);
-      const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=AIzaSyCUvnosRtoQlB8Br25-ozT7Oq00x0FI50o`;
-      try {
-        const response = await fetch(queryURL);
-        if (response.status !== 200) {
-          continue;
-        }
-        const googleBookResponse =
-          (await response.json()) as GoogleBookResponse;
-        googleBookResponse.items.map((item) => {
-          bookDetails.push(item.volumeInfo);
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    return bookDetails;
-  };
-  // return fetch(queryURL)
-  //   .then((response) => {
-  //     if (response.status !== 200) {
-  //       throw new Error("Error retrieving book");
-  //     }
-  //     return response;
-  //   })
-  //   .then((response) => response.json())
-  //   .then((response) => {
-  //     try {
-  //       const googleBookResponse = response as GoogleBookResponse;
-  //       const volumeInfo = googleBookResponse.items.map((item) => {
-  //         return item.volumeInfo;
-  //       });
-  //       console.log(volumeInfo);
-  //       return googleBookResponse;
-  //     } catch (error) {
-  //       return;
-  //     }
-  //   });
-
-  const performQuery = async (isbnSearchList: string[]) => {
-    const googleBooksData = await queryGoogleBooksApi(isbnSearchList);
-    // const booksRunData = await queryBooksRunApi(isbnSearchList);
+  const performQuery = () => {
+    const googleBooksData = retrieveDetailsQuery?.data ?? [];
+    const pricingData = retrievePricingQuery?.data ?? [];
     if (googleBooksData) {
       console.log("Setting retreived books with:");
       console.log(googleBooksData);
-      setRetrievedBooks(googleBooksData);
-      retrievedBooks.map((retrievedBook, index) => {
+      googleBooksData.map((retrievedBook, index) => {
         console.log("Adding retrieved book to rows");
         console.log(retrievedBook);
         let isbn_10 = null;
@@ -198,13 +119,19 @@ export default function AddBook() {
             isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
           }
         }
-        // let retailPrice = isNaN(Number(booksRunData[index]))
-        //   ? 0
-        //   : booksRunData[index];
-        // if (retailPrice === undefined) {
-        //   retailPrice = 0;
-        // }
-        const retailPrice = 0;
+        let retailPrice = 0;
+        if (pricingData[index] !== undefined) {
+          retailPrice = isNaN(Number(pricingData[index]))
+            ? 0
+            : Number(pricingData[index]);
+        }
+
+        setCurrentTitle(retrievedBook.title);
+        setCurrentAuthor(retrievedBook.authors.join(", "));
+        const relatedBooks = findRelatedBooksQuery?.data ?? [];
+        console.log("Related books:");
+        console.log(relatedBooks);
+
         const displayBook = {
           imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
           id: index,
@@ -222,25 +149,27 @@ export default function AddBook() {
           height: 0,
           thickness: 0,
           retailPrice: retailPrice,
+          relatedBooks: relatedBooks,
         };
         setDisplayedBooks((prev) => [...prev, displayBook]);
+        setCurrentTitle("");
+        setCurrentAuthor("");
       });
       setIsLoaded(true);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSearch = () => {
     if (searchQuery === "") {
       return;
     }
-    setRetrievedBooks([]);
     setIsLoaded(false);
-
+    setDisplayedBooks([]);
     // 9781250158079, 9781101904954, 9780393072235
     const isbnSearchList = searchQuery.replace(/-/g, "").split(/[\s,;\t\n]+/g);
-
-    void performQuery(isbnSearchList);
-    setSearchQuery("");
+    setParsedIsbns(isbnSearchList);
+    performQuery();
+    // setSearchQuery("");
   };
 
   const handleConfirm = () => {
@@ -251,20 +180,21 @@ export default function AddBook() {
         addMutation.mutate({
           title: row.title,
           authors: row.authors.split(","),
-          isbn_13: row.isbn_13 ?? "Unknown",
+          isbn_13: row.isbn_13,
           isbn_10: row.isbn_10,
-          publisher: row.publisher ?? "",
+          publisher: row.publisher,
           publicationYear: row.publicationYear,
           pageCount: row.pageCount,
           width: row.width,
           height: row.height,
           thickness: row.thickness,
           retailPrice: row.retailPrice,
-          genreName: row.genre, //row.genre actually
+          genreName: row.genre,
           imgUrl: row.imgUrl,
           purchaseLines: [],
           salesLines: [],
           inventoryCount: 0,
+          relatedBooks: [], //TODO: implement properly
         });
       });
       setTimeout(() => {
@@ -273,6 +203,25 @@ export default function AddBook() {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const modalStyle = {
+    position: "absolute" as const,
+    backgroundColor: "white",
+    border: "2px solid #000",
+    boxShadow: "paper",
+    padding: "16px 32px 24px",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
   };
 
   const columns: GridColDef[] = [
@@ -426,6 +375,47 @@ export default function AddBook() {
       },
       editable: true,
     },
+    {
+      field: "relatedBooks",
+      headerName: "Related Books",
+      headerClassName: "header-theme",
+      minWidth: 200,
+      renderCell: (params) => {
+        /* eslint-disable */
+        let relatedBooks = params.row.relatedBooks as relatedBookReturnType;
+        console.log(relatedBooks);
+        if (relatedBooks!.length === 0) {
+          return <div>No Related Books Found!</div>;
+        }
+        const title = params.row.title as string;
+        /* eslint-enable */
+        return (
+          <div>
+            <button type="button" onClick={handleOpen}>
+              See Related Books
+            </button>
+
+            <Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box sx={modalStyle}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                  Related Books for: {title}
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                  {relatedBooks
+                    ?.map((relatedBook) => relatedBook.item.title)
+                    .join(",\n")}
+                </Typography>
+              </Box>
+            </Modal>
+          </div>
+        );
+      },
+    },
   ];
 
   const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
@@ -449,41 +439,7 @@ export default function AddBook() {
   };
 
   const rows = displayedBooks;
-  // const rows: BookDetails[] = retrievedBooks.map((retrievedBook, index) => {
-  //   console.log("Adding retrieved book to rows");
-  //   console.log(retrievedBook);
-  //   let isbn_10 = null;
-  //   let isbn_13 = null;
-  //   if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_13") {
-  //     isbn_13 = retrievedBook.industryIdentifiers[0].identifier;
-  //     if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_10") {
-  //       isbn_10 = retrievedBook.industryIdentifiers[1].identifier;
-  //     }
-  //   }
-  //   if (retrievedBook?.industryIdentifiers[1]?.type === "ISBN_13") {
-  //     isbn_13 = retrievedBook.industryIdentifiers[1].identifier;
-  //     if (retrievedBook?.industryIdentifiers[0]?.type === "ISBN_10") {
-  //       isbn_10 = retrievedBook.industryIdentifiers[0].identifier;
-  //     }
-  //   }
-  //
-  //   return {
-  //     imgUrl: retrievedBook.imageLinks?.thumbnail ?? "",
-  //     id: index,
-  //     title: retrievedBook.title,
-  //     authors: retrievedBook.authors.join(", "),
-  //     isbn_13: isbn_13 ?? "Unknown",
-  //     isbn_10: isbn_10 ?? "Unknown",
-  //     publicationYear: new Date(retrievedBook.publishedDate).getFullYear(),
-  //     pageCount: isNaN(retrievedBook.pageCount) ? 0 : retrievedBook.pageCount,
-  //     publisher: retrievedBook.publisher ?? "Unknown",
-  //     genre: retrievedBook?.categories?.join(", ") ?? "Unknown",
-  //     width: 5,
-  //     height: 8,
-  //     thickness: 0.5,
-  //     retailPrice: 0,
-  //   };
-  // });
+
   // 9780812979688, 9781250158079
   if (isLoaded) {
     console.log("all rows");
@@ -514,7 +470,7 @@ export default function AddBook() {
                   className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
                   type="button"
                   id="button-addon2"
-                  onClick={handleSubmit}
+                  onClick={handleSearch}
                 >
                   <svg
                     aria-hidden="true"
@@ -532,6 +488,9 @@ export default function AddBook() {
                     ></path>
                   </svg>
                 </button>
+                <div className="pl-5 text-sm ">
+                  Click twice to complete search
+                </div>
               </div>
             </div>
           </div>
@@ -572,7 +531,8 @@ export default function AddBook() {
             <button
               className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
               type="button"
-              onClick={handleConfirm}>
+              onClick={handleConfirm}
+            >
               Confirm Add Books
             </button>
           </div>
@@ -610,7 +570,7 @@ export default function AddBook() {
                   className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
                   type="button"
                   id="button-addon2"
-                  onClick={handleSubmit}
+                  onClick={handleSearch}
                 >
                   <svg
                     aria-hidden="true"

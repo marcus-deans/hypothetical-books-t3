@@ -3,136 +3,89 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../../env/server.mjs";
-import type { JSONSchemaType } from "ajv";
-import Ajv from "ajv";
 
-const ajv = new Ajv();
+const GoogleBooksDetailsSchema = z.object({
+  title: z.string(),
+  authors: z.string().array(),
+  publishedDate: z.string(),
+  description: z.string().nullable(),
+  industryIdentifiers: z
+    .object({
+      type: z.string(),
+      identifier: z.string(),
+    })
+    .array(),
+  pageCount: z.number(),
+  publisher: z.string().optional(),
+  categories: z.string().array().optional(),
+  imageLinks: z.object({
+    smallThumbnail: z.string().optional(),
+    thumbnail: z.string().optional(),
+    small: z.string().optional(),
+    medium: z.string().optional(),
+    large: z.string().optional(),
+  }),
+});
 
-interface GoogleBookDetails {
-  title: string;
-  authors: string[];
-  publishedDate: string;
-  description: string | null;
-  industryIdentifiers: {
-    type: string;
-    identifier: string;
-  }[];
+const GoogleBooksItemsSchema = z.object({
+  kind: z.string(),
+  id: z.string(),
+  etag: z.string(),
+  selfLink: z.string(),
+  volumeInfo: GoogleBooksDetailsSchema,
+});
 
-  pageCount: number;
-  publisher: string | null;
-  categories: string[] | null;
-}
+const GoogleBooksResponseSchema = z.object({
+  kind: z.string(),
+  totalItems: z.number(),
+  items: GoogleBooksItemsSchema.array(),
+});
 
-const industryIdentifiersSchema: JSONSchemaType<
-  GoogleBookDetails["industryIdentifiers"]
-> = {
-  type: "array",
-  items: {
-    type: "object",
-    properties: {
-      type: { type: "string" },
-      identifier: { type: "string" },
-    },
-    additionalProperties: false,
-    required: ["type", "identifier"],
-  },
-};
-
-const detailSchema: JSONSchemaType<GoogleBookDetails> = {
-  type: "object",
-  properties: {
-    title: { type: "string" },
-    authors: { type: "array", items: { type: "string" } },
-    publishedDate: { type: "string" },
-    description: { type: "string" },
-    industryIdentifiers: industryIdentifiersSchema,
-    pageCount: { type: "integer" },
-    publisher: { type: "string" },
-    categories: { type: "array", items: { type: "string" } },
-  },
-  required: [
-    "title",
-    "authors",
-    "publishedDate",
-    "description",
-    "industryIdentifiers",
-    "pageCount",
-  ],
-  additionalProperties: false,
-};
-
-interface GoogleBookItems {
-  kind: string;
-  id: string;
-  etag: string;
-  selfLink: string;
-  volumeInfo: GoogleBookDetails;
-}
-
-const itemsSchema: JSONSchemaType<GoogleBookItems> = {
-  type: "object",
-  properties: {
-    kind: { type: "string" },
-    id: { type: "string" },
-    etag: { type: "string" },
-    selfLink: { type: "string" },
-    volumeInfo: detailSchema,
-  },
-  required: ["kind", "id", "etag", "selfLink", "volumeInfo"],
-  additionalProperties: false,
-};
-
-interface GoogleBookResponse {
-  kind: string;
-  totalItems: number;
-  items: GoogleBookItems[];
-}
-
-const responseSchema: JSONSchemaType<GoogleBookResponse> = {
-  type: "object",
-  properties: {
-    kind: { type: "string" },
-    totalItems: { type: "number" },
-    items: { type: "array", items: itemsSchema },
-  },
-  required: ["kind", "totalItems", "items"],
-  additionalProperties: false,
-};
-
-const validate = ajv.compile(responseSchema);
-// const logger = new Logger({ name: "googleBooksRouterLogger" });
+type GoogleBooksDetails = z.infer<typeof GoogleBooksDetailsSchema>;
+type GoogleBooksItems = z.infer<typeof GoogleBooksItemsSchema>;
+type GoogleBooksResponse = z.infer<typeof GoogleBooksResponseSchema>;
 
 export const googleBooksRouter = createTRPCRouter({
-  multipleRetrieveByIsbns: publicProcedure
+  /**
+   * Fetch book details from Google Books API
+   */
+  retrieveByISBNs: publicProcedure
     .input(z.object({ isbns: z.string().min(10).array() }))
     .query(async ({ input }) => {
       // logger.info("Fetching book from Google Books API");
-      console.log("Fetching book from Google Books API");
+      console.log("Fetching books from Google Books API");
       console.log(input.isbns);
-      const isbnDetails: GoogleBookDetails[] = [];
+      const isbnDetails: GoogleBooksDetails[] = [];
       for (const isbn of input.isbns) {
         console.log(`ISBN: ${isbn}`);
         const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
         await fetch(queryURL)
           .then((response) => response.json())
           .then((response) => {
-            const googleBookResponse = response as GoogleBookResponse;
-            const volumeInfo = googleBookResponse.items.map((item) => {
-              return item.volumeInfo;
-            });
-            // console.log(`Volume Info`);
-            // console.log(volumeInfo);
-            const bookDetails = volumeInfo[0];
-            if (bookDetails) {
-              console.log("Book Details: ");
-              console.log(bookDetails);
-              isbnDetails.push(bookDetails);
+            const googleBookResponse =
+              GoogleBooksResponseSchema.safeParse(response);
+            if (!googleBookResponse.success) {
+              console.log(`Could not obtain book details for ISBN ${isbn}`);
+              return;
+            } else {
+              const volumeInfo = googleBookResponse.data.items.map((item) => {
+                return item.volumeInfo;
+              });
+              const bookDetails = volumeInfo[0];
+              if (bookDetails) {
+                console.log("Book Details: ");
+                console.log(bookDetails);
+                isbnDetails.push(bookDetails);
+              }
             }
           });
       }
       return isbnDetails;
     }),
 
+  /**
+   * @deprecated
+   */
   simpleRetrieveByISBN: publicProcedure
     .input(z.object({ isbn: z.string().min(10) }))
     .query(async ({ input }) => {
@@ -142,7 +95,7 @@ export const googleBooksRouter = createTRPCRouter({
       return fetch(queryURL)
         .then((response) => response.json())
         .then((response) => {
-          const googleBookResponse = response as GoogleBookResponse;
+          const googleBookResponse = response as GoogleBooksResponse;
           const volumeInfo = googleBookResponse.items.map((item) => {
             return item.volumeInfo;
           });
@@ -166,6 +119,9 @@ export const googleBooksRouter = createTRPCRouter({
       // return jsonified;
     }),
 
+  /**
+   * @deprecated
+   */
   retrieveByISBN: publicProcedure
     .input(z.object({ isbn: z.string().min(10) }))
     .mutation(async ({ input }) => {
@@ -187,7 +143,7 @@ export const googleBooksRouter = createTRPCRouter({
 
       try {
         const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${input.isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
-        const retrievedBook = await request<GoogleBookDetails>(queryURL);
+        const retrievedBook = await request<GoogleBooksDetails>(queryURL);
         // if (!validate(retrievedBook)) {
         //   throw new TRPCError({
         //     message: "Book could not be found",
@@ -209,6 +165,68 @@ export const googleBooksRouter = createTRPCRouter({
       //   .then((res) => {
       //     return res as GoogleBookDetails;
       //   });
+    }),
+
+  retrievePricingData: publicProcedure
+    .input(z.object({ isbns: z.string().min(10).array() }))
+    .query(async ({ input }) => {
+      console.log("Fetching price details from API");
+      const bookPrices: Array<number> = [];
+
+      const BooksRunOfferSchema = z.object({
+        price: z.number(),
+        cart_url: z.string(),
+      });
+      const BooksRunOffersSchema = z.object({
+        booksrun: z.object({
+          new: BooksRunOfferSchema.optional(),
+          used: BooksRunOfferSchema.optional(),
+        }),
+      });
+      const BooksRunResponseSchema = z.object({
+        result: z.object({
+          status: z.string(),
+          message: z.string(),
+          offers: BooksRunOffersSchema,
+        }),
+      });
+      type BooksRunResponse = z.infer<typeof BooksRunResponseSchema>;
+      for (const isbn of input.isbns) {
+        console.log(`Fetching price details for ${isbn}`);
+        const queryURL = `https://booksrun.com/api/v3/price/buy/${isbn}?key=${env.BOOKS_RUN_API_KEY}`;
+        try {
+          await fetch(queryURL)
+            .then((response) => response.json())
+            .then((response) => {
+              console.log(response);
+              const bookPriceResponse =
+                BooksRunResponseSchema.safeParse(response);
+              if (!bookPriceResponse.success) {
+                console.log("Could not parse response successfully");
+                bookPrices.push(0);
+                return;
+              } else {
+                console.log("Successfully retrieved book price from BooksRun");
+                try {
+                  const newPrice = BooksRunOfferSchema.parse(
+                    bookPriceResponse.data.result.offers.booksrun.new
+                  ).price;
+                  console.log(`New price ${newPrice}`);
+                  bookPrices.push(newPrice);
+                } catch (error) {
+                  console.log("Could not get new price");
+                  bookPrices.push(0);
+                }
+              }
+            });
+        } catch (error) {
+          console.log("Error retrieving book price from BooksRun");
+          bookPrices.push(0);
+          console.log(error);
+        }
+      }
+      console.log(bookPrices);
+      return bookPrices;
     }),
 
   getSecretMessage: protectedProcedure.query(() => {

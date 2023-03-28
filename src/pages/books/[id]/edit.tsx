@@ -28,6 +28,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
+import type { CustomUser } from "../../../schema/user.schema";
+import { useSession } from "next-auth/react";
 
 const ImageCard = ({
   url,
@@ -84,6 +86,8 @@ const modalStyle = {
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
   const { id } = props;
   const router = useRouter();
   const bookDetailsQuery = api.books.getByIdWithAllDetails.useQuery({
@@ -166,6 +170,8 @@ export default function EditBook(
         addInventoryCorrectionMutation.mutate({
           bookId: id,
           quantity: parseInt(tempInventory),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          user: user!,
         });
       }
     } catch (error) {
@@ -301,6 +307,10 @@ export default function EditBook(
     setIsSubmittingInvCorrection(true);
     try {
       const finalInventory = Number(tempInventory);
+      if (user?.role !== "admin") {
+        toast.error("Only admins can change inventory");
+        throw new Error("User is not an admin");
+      }
       if (isNaN(finalInventory)) {
         toast.error("Inventory change must be a valid number");
         throw new Error("Inventory is not a number");
@@ -315,7 +325,8 @@ export default function EditBook(
       }
       if (finalInventory !== 0 && parseInt(inventory) + finalInventory >= 0) {
         setDialogOpen(true);
-      } else {
+      }
+      else {
         setOpen(false);
         setIsSubmittingInvCorrection(false);
         setInventoryCorrection(false);
@@ -385,13 +396,17 @@ export default function EditBook(
                         width: 120,
                       }}
                     />
-                    <button
-                      className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
-                      type="button"
-                      onClick={handleOpen}
-                    >
-                      Inventory Correction
-                    </button>
+                    {user?.role == "admin" ? 
+                      <button
+                        className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+                        type="button"
+                        onClick={handleOpen}
+                      >
+                        Inventory Correction
+                      </button> 
+                    : 
+                      null
+                    }
                     <Modal
                       open={open}
                       onClose={handleClose}
@@ -565,11 +580,8 @@ export default function EditBook(
                   </div>
                   <div className="flex justify-center space-x-10">
                     <FormControl>
-                      <FormLabel>Genre Name</FormLabel>
-                      <FormHelperText>Select a genre by name</FormHelperText>
                       <Autocomplete
                         options={genreOptions}
-                        placeholder={"Select a genre by name"}
                         value={genreValue}
                         onChange={(
                           event,
@@ -587,6 +599,7 @@ export default function EditBook(
                             inputProps={{
                               ...params.inputProps,
                             }}
+                            label="Select a Genre by Name"
                           />
                         )}
                       />

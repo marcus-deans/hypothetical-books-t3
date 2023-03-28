@@ -6,7 +6,7 @@ import type {
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import superjson from "superjson";
 import { useRouter } from "next/router";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import type {
   GetStaticPaths,
@@ -121,13 +121,8 @@ export default function EditSalesLine(
                 <div className="space-y-20">
                   <div className="flex space-x-10 justify-center">
                     <FormControl>
-                      <FormLabel>Sales Record</FormLabel>
-                      <FormHelperText>
-                        Select a sales record by date
-                      </FormHelperText>
                       <Autocomplete
                         options={salesReconciliationOptions}
-                        placeholder={"Search sales record by date"}
                         value={salesValue}
                         onChange={(
                           event,
@@ -145,16 +140,14 @@ export default function EditSalesLine(
                             inputProps={{
                               ...params.inputProps
                             }}
+                            label="Select a Sales Record by Date"
                           />
                         )}
                       />
                     </FormControl>
                     <FormControl>
-                      <FormLabel>Book</FormLabel>
-                      <FormHelperText>Select a book by title</FormHelperText>
                       <Autocomplete
                         options={bookOptions}
-                        placeholder={"Search books by title"}
                         value={bookValue}
                         onChange={(
                           event,
@@ -172,6 +165,7 @@ export default function EditSalesLine(
                             inputProps={{
                               ...params.inputProps
                             }}
+                            label="Select a Book by Title"
                           />
                         )}
                       />
@@ -179,15 +173,13 @@ export default function EditSalesLine(
                   </div>
                   <div className="flex space-x-10 justify-center">
                     <FormControl>
-                      <FormLabel>Quantity</FormLabel>
-                      <input
-                        className="focus:shadow-outline appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      <TextField
                         id="quantity"
                         name="quantity"
+                        label="Quantity"
                         type="text"
-                        min="1"
-                        size={45}
                         value={quantity}
+                        sx={{ width: 425 }}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
                         ): void => setQuantity(Number(event.target.value))}
@@ -195,21 +187,23 @@ export default function EditSalesLine(
                       />
                     </FormControl>
                     <FormControl>
-                      <FormLabel>Unit Wholesale Price</FormLabel>
-                      <input
-                        className="focus:shadow-outline appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      <TextField
                         id="UnitWholesalePrice"
                         name="UnitWholesalePrice"
+                        label="Unit Wholesale Price"
                         type="text"
                         value={unitWholesalePrice}
-                        min="0"
-                        size={45}
-                        // value={unitWholesalePrice}
+                        sx={{ width: 425 }}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
                         ): void =>
                           setUnitWholesalePrice(Number(event.target.value))
                         }
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">$</InputAdornment>
+                          ),
+                        }}
                         required
                       />
                     </FormControl>
