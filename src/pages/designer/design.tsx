@@ -1,6 +1,4 @@
-import type { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
-import type { getServerSideProps } from "../report";
 import { api } from "../../utils/api";
 
 import type { SelectChangeEvent } from "@mui/material";
@@ -21,9 +19,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 as uuidv4 } from "uuid";
 
-export default function Designer(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
-) {
+export default function Designer() {
   const [shelves, setShelves] = useState<BookCardProps[][]>([]);
   const [bookValue, setBookValue] = useState<{
     label: string;
