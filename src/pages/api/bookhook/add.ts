@@ -4,40 +4,43 @@ import { XMLParser } from "fast-xml-parser";
 import { prisma } from "../../../server/db";
 
 type ResponseData = {
-  code: string;
+  type: string;
   message: string;
 };
-const addToBookhook = async (
+export default async function addToBookhookHandler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>
-) => {
+) {
   try {
     if (
       req.headers["x-real-ip"] != "152.3.54.108" &&
-      req.headers["x-real-ip"] != "127.0.0.1"
+      req.headers["x-real-ip"] != "192.168.1.126"
     ) {
       res.status(403).json({
-        code: "UNAUTHORIZED",
+        type: "UNAUTHORIZED",
         message: "There was an error in your authorization",
       });
+      return;
     }
   } catch (error) {
     res.status(403).json({
-      code: "UNAUTHORIZED",
+      type: "UNAUTHORIZED",
       message: "There was an error in your authorization",
     });
+    return;
   }
-  const InputSchema = z
-    .object({
-      name: z.string().optional(),
-    })
-    .catchall(z.any());
-  const input = InputSchema.parse(req.body);
+  // const InputSchema = z
+  //   .object({
+  //     name: z.string().optional(),
+  //   })
+  //   .catchall(z.any());
+  // const input = InputSchema.parse(req.body);
 
   const options = {
     ignoreAttributes: false,
   };
-  const xml = Object.values(input).join("");
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  const xml = Object.values(req.body).join("");
 
   const BookHookItemSchema = z.object({
     isbn: z.coerce.string(),
@@ -79,9 +82,10 @@ const addToBookhook = async (
   if (!inputData.success) {
     console.log("Data is invalid");
     res.status(400).json({
-      code: "PARSE_ERROR",
+      type: "PARSE_ERROR",
       message: "The data did not match the expected format",
     });
+    return;
   } else {
     console.log("Data is valid");
     salesDate = inputData.data.sale["@_date"];
@@ -111,9 +115,10 @@ const addToBookhook = async (
 
   if (processedData.length == 0) {
     res.status(400).json({
-      code: "PARSE_ERROR",
+      type: "PARSE_ERROR",
       message: "No ISBNs could be found",
     });
+    return;
   }
   const salesReconciliation = await prisma.salesReconciliation.create({
     data: {
@@ -204,15 +209,16 @@ const addToBookhook = async (
   }
   if (booksAdded.length == 0) {
     res.status(404).json({
-      code: "NOT_FOUND",
+      type: "NOT_FOUND",
       message:
         "No sales were added to the system, as no line items had correct format",
     });
+    return;
   }
   res.status(200).json({
-    code: "SUCCESS",
+    type: "SUCCESS",
     message: `${
       booksAdded.length
     } sales were successfully added with ISBNs: ${booksAdded.join(", ")}`,
   });
-};
+}
