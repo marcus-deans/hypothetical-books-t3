@@ -37,12 +37,16 @@ export default function VendorDetail(
       field: "id",
       headerName: "Purchase Order ID",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
     },
     {
       field: "date",
       headerName: "Purchase Order Date",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
         return (
@@ -57,6 +61,8 @@ export default function VendorDetail(
       field: "vendor",
       headerName: "Vendor",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       flex: 1,
     },
   ];
@@ -77,7 +83,8 @@ export default function VendorDetail(
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`${data.name}`}{" Details"}
+          {`${data.name}`}
+          {" Details"}
         </h1>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
@@ -109,8 +116,7 @@ export default function VendorDetail(
             pageSize={10}
             rowsPerPageOptions={[10]}
             autoHeight={true}
-            getRowHeight={() => "auto"}
-            checkboxSelection
+            rowHeight={40}
             disableSelectionOnClick
             experimentalFeatures={{ newEditingApi: true }}
             getRowClassName={(params) =>

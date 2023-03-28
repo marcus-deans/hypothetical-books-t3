@@ -1,8 +1,13 @@
+import { User } from "next-auth";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import type { CustomUser } from "../schema/user.schema";
 
 function Nav() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
   const currentRoute = router.pathname;
   const nonActive =
     "block py-2 pl-3 pr-4 text-blue bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-white dark:bg-blue-600 md:dark:bg-transparent hover:blue";
@@ -11,13 +16,14 @@ function Nav() {
   return (
     <nav className="border-gray-200 bg-white px-2 dark:border-gray-700 dark:bg-gray-900">
       <div className="flex justify-between">
-        <div className="container ml-4 flex flex-row flex-wrap items-center">
+        <div className="container ml-4 my-3 flex flex-row flex-wrap items-center">
           <Link href="/" className="flex items-center">
             <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
               Hypothetical Books
             </span>
           </Link>
         </div>
+        {user ? 
         <div>
           <div
             className="hidden w-full md:block md:w-auto"
@@ -98,6 +104,17 @@ function Nav() {
               </li>
               <li>
                 <Link
+                  href="/shelfcalculator"
+                  className={
+                    /shelfcalculator\/*/.test(currentRoute) ? active : nonActive
+                  }
+                  aria-current="page"
+                >
+                  Calculator
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/report"
                   className={
                     /report\/*/.test(currentRoute) ? active : nonActive
@@ -107,9 +124,23 @@ function Nav() {
                   Reports
                 </Link>
               </li>
+              {user && user.role == "admin" ? 
+              <li>
+                <Link
+                href="/users"
+                className={
+                  /user\/*/.test(currentRoute) ? active : nonActive
+                }
+                aria-current="page"
+              >
+                Users
+              </Link>
+              </li>
+              : null}
             </ul>
           </div>
         </div>
+        : null}
       </div>
     </nav>
   );

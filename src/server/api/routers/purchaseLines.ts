@@ -359,8 +359,24 @@ export const purchaseLinesRouter = createTRPCRouter({
               inventoryCount: true,
             },
           },
+          purchaseOrder: {
+            include: {
+              vendor: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
         },
       });
+      if (!currentPurchaseLine) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No purchase line found with id '${id}'`,
+        });
+      }
 
       const purchasedCount = currentPurchaseLine?.quantity ?? 0;
 
@@ -374,14 +390,8 @@ export const purchaseLinesRouter = createTRPCRouter({
         });
       }
 
-      // const purchaseLine = await prisma.purchaseLine.delete({
-      //   where: { id },
-      // });
-      const purchaseLine = await prisma.purchaseLine.update({
+      const purchaseLine = await prisma.purchaseLine.delete({
         where: { id },
-        data: {
-          display: false,
-        },
       });
       if (!purchaseLine) {
         throw new TRPCError({
@@ -390,8 +400,10 @@ export const purchaseLinesRouter = createTRPCRouter({
         });
       }
 
+      const currentBookId = currentPurchaseLine.bookId;
+      const currentVendorId = currentPurchaseLine.purchaseOrder.vendorId;
       await prisma.book.update({
-        where: { id: currentPurchaseLine?.book.id },
+        where: { id: currentBookId },
         data: {
           inventoryCount: {
             decrement: purchasedCount,
@@ -399,7 +411,79 @@ export const purchaseLinesRouter = createTRPCRouter({
         },
       });
 
-      return purchaseLine;
+      // Check if this was part of cost-most-recent for this book and vendor combination
+      const costMostRecentVendor = await prisma.costMostRecentVendor.findUnique(
+        {
+          where: {
+            costMostRecentVendorId: {
+              bookId: currentBookId,
+              vendorId: currentVendorId,
+            },
+          },
+          include: {
+            purchaseLine: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        }
+      );
+
+      if (costMostRecentVendor?.purchaseLineId !== currentPurchaseLine.id) {
+        return purchaseLine; // CMR is not affected
+      } else {
+        // need to recompute CMR
+        const mostRecentPurchaseLine = await prisma.purchaseLine.findFirst({
+          where: {
+            bookId: currentBookId,
+            purchaseOrder: {
+              vendor: {
+                id: currentVendorId,
+              },
+            },
+          },
+          orderBy: {
+            purchaseOrder: {
+              date: "desc",
+            },
+          },
+        });
+
+        if (!mostRecentPurchaseLine) {
+          await prisma.costMostRecentVendor.delete({
+            where: {
+              costMostRecentVendorId: {
+                bookId: currentBookId,
+                vendorId: currentVendorId,
+              },
+            },
+          });
+          return purchaseLine;
+        } else {
+          await prisma.costMostRecentVendor.update({
+            where: {
+              costMostRecentVendorId: {
+                bookId: currentBookId,
+                vendorId: currentVendorId,
+              },
+            },
+            data: {
+              purchaseLine: {
+                connect: {
+                  id: mostRecentPurchaseLine.id,
+                },
+              },
+              purchaseOrder: {
+                connect: {
+                  id: mostRecentPurchaseLine.purchaseOrderId,
+                },
+              },
+            },
+          });
+        }
+        return purchaseLine;
+      }
     }),
 
   getSecretMessage: protectedProcedure.query(() => {

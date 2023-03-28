@@ -3,7 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 // Prisma adapter for NextAuth, optional and can be removed
 //import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-import { compare, hash } from "bcrypt";
+import { compare } from "bcrypt";
+import type { CustomUser } from "../../../schema/user.schema";
 
 const prisma = new PrismaClient();
 
@@ -30,10 +31,16 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
           // console.log(hash(credentials.password as string, 10));
-          const user = await prisma.user.findFirst({});
+          const user = await prisma.user.findFirst({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              name: credentials.name,
+            }
+          });
           if (user !== null) {
             //compare the hash
-
             const res = await confirmPasswordwithHash(
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
@@ -41,13 +48,14 @@ export const authOptions: NextAuthOptions = {
               credentials.password,
               user.password
             );
-            // console.log(hash(credentials.password, 10));
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            
             if (res === true) {
               const userAccount = {
                 id: user.id,
-                name: null,
-                email: null,
-                image: null,
+                name: user.name,
+                role: user.role,
               };
               console.log("returning");
               return userAccount;
@@ -74,12 +82,16 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({user, token}){
       if(user){
-        token.user = user;
+        token.user = user as CustomUser;
       }
       return Promise.resolve(token);
     },
     session: async ({session, token, user}) => {
-      session.user = user;
+      session.user = token.user as ({
+        id: string;
+        name?: string;
+        role?: string;
+    }) | undefined
       return Promise.resolve(session);
     },
     // eslint-disable-next-line @typescript-eslint/require-await

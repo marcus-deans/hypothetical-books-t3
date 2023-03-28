@@ -14,13 +14,17 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import { Autocomplete, TextField } from "@mui/material";
-import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
+import { FormControl } from "@mui/joy";
 import dayjs from "dayjs";
 import Head from "next/head";
+import { useSession } from "next-auth/react";
+import type { CustomUser } from "../../schema/user.schema";
 
 export default function AddPurchaseOrder(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
   const router = useRouter();
   const vendorsDetailsQuery = api.vendors.getAll.useQuery({
     cursor: null,
@@ -51,6 +55,8 @@ export default function AddPurchaseOrder(
         date: dateValue.toDate(),
         vendorId: vendorValue.id,
         purchaseLines: [],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        user: user!,
       });
       setTimeout(() => {
         void router.push("/purchases");
@@ -93,11 +99,8 @@ export default function AddPurchaseOrder(
             </div>
             <div className="flex justify-center">
               <FormControl>
-                <FormLabel>Vendor Name</FormLabel>
-                <FormHelperText>Select a vendor by name</FormHelperText>
                 <Autocomplete
                   options={vendorOptions}
-                  placeholder={"Select a vendor by name"}
                   value={vendorValue}
                   onChange={(
                     event,
@@ -115,6 +118,7 @@ export default function AddPurchaseOrder(
                       inputProps={{
                         ...params.inputProps,
                       }}
+                      label="Select a Vendor by Name"
                     />
                   )}
                 />

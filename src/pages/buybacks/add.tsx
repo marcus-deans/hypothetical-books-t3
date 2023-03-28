@@ -17,12 +17,16 @@ import superjson from "superjson";
 import { Autocomplete, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import dayjs from "dayjs";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSession } from "next-auth/react";
+import type { CustomUser } from "../../schema/user.schema";
 
 export default function AddBuybackOrder(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
   const router = useRouter();
   const vendorsDetailsQuery = api.vendors.getAllWithBuybackPolicy.useQuery({
     cursor: null,
@@ -41,7 +45,8 @@ export default function AddBuybackOrder(
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
-  } | null>(null); const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs());
+  } | null>(null);
+  const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs());
   const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [vendorValue, setVendorValue] = useState<{
@@ -64,6 +69,8 @@ export default function AddBuybackOrder(
         date: dateValue.toDate(),
         vendorId: vendorValue.id,
         buybackLines: [],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        user: user!,
       });
       setTimeout(() => {
         void router.push("/buybacks");
@@ -106,11 +113,8 @@ export default function AddBuybackOrder(
             </div>
             <div className="flex justify-center">
               <FormControl>
-                <FormLabel>Vendor Name</FormLabel>
-                <FormHelperText>Select a vendor by name</FormHelperText>
                 <Autocomplete
                   options={vendorOptions}
-                  placeholder={"Select a vendor by name"}
                   value={vendorValue}
                   onChange={(
                     event,
@@ -128,6 +132,7 @@ export default function AddBuybackOrder(
                       inputProps={{
                         ...params.inputProps,
                       }}
+                      label="Select a Vendor by Name"
                     />
                   )}
                 />

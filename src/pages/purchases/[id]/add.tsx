@@ -21,11 +21,10 @@ import "react-toastify/dist/ReactToastify.css";
 
 export default function AddPurchaseLine(
   props: InferGetStaticPropsType<typeof getStaticProps>
-
 ) {
   const { id } = props;
   const purchaseOrdersQuery = api.purchaseOrders.getById.useQuery({
-    id
+    id,
   });
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
 
@@ -51,7 +50,7 @@ export default function AddPurchaseLine(
     setIsSubmitting(true);
     try {
       if (!bookValue) {
-        toast.error("Book is required")
+        toast.error("Book is required");
         throw new Error("Book is required");
       }
       if (
@@ -60,7 +59,9 @@ export default function AddPurchaseLine(
         unitWholesalePrice <= 0 ||
         quantity <= 0
       ) {
-        toast.error("Unit Wholesale Price and Quantity must be positive numbers");
+        toast.error(
+          "Unit Wholesale Price and Quantity must be positive numbers"
+        );
         throw new Error(
           "Unit Wholesale Price and Quantity must be positive numbers"
         );
@@ -72,9 +73,7 @@ export default function AddPurchaseLine(
         purchaseOrderId: id,
       });
       setTimeout(() => {
-        void router.push(
-          `/purchases/${encodeURIComponent(id)}/detail`
-        );
+        void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
       console.log(error);
@@ -100,11 +99,8 @@ export default function AddPurchaseLine(
               <div className="space-y-20">
                 <div className="flex justify-center space-x-10">
                   <FormControl>
-                    <FormLabel>Book</FormLabel>
-                    <FormHelperText>Select a book by title</FormHelperText>
                     <Autocomplete
                       options={bookOptions}
-                      placeholder={"Search books by title"}
                       value={bookValue}
                       onChange={(
                         event,
@@ -122,6 +118,7 @@ export default function AddPurchaseLine(
                           inputProps={{
                             ...params.inputProps,
                           }}
+                          label="Select a Book by Title"
                         />
                       )}
                     />
@@ -145,7 +142,9 @@ export default function AddPurchaseLine(
                     type="text"
                     onChange={(
                       event: React.ChangeEvent<HTMLInputElement>
-                    ): void => setUnitWholesalePrice(Number(event.target.value))}
+                    ): void =>
+                      setUnitWholesalePrice(Number(event.target.value))
+                    }
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">$</InputAdornment>

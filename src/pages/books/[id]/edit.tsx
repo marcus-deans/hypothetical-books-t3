@@ -10,28 +10,37 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { useRouter } from "next/router";
 import { api } from "../../../utils/api";
-import type { ChangeEvent } from "react";
-import React, { MouseEventHandler, useRef, useState } from "react";
+import Head from "next/head";
+import React, { useRef, useState } from "react";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import type { S3 } from "aws-sdk/clients/browser_default";
 import Image from "next/image";
 import "react-toastify/dist/ReactToastify.css";
-import { env } from "../../../env/client.mjs";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
+import type { CustomUser } from "../../../schema/user.schema";
+import { useSession } from "next-auth/react";
+import { throwError } from "rxjs";
 
 const ImageCard = ({
   url,
   id,
-  refetchImages,
+  deleteImage,
 }: {
   url: string;
   id: string;
-  refetchImages: () => Promise<void>;
+  deleteImage: (event: React.MouseEvent<HTMLElement>) => void;
 }) => {
-  const { mutateAsync: deleteImage } = api.imageUpload.delete.useMutation();
-  // trpc.useMutation('image.delete');
-
   return (
     <div className="mt-6 flex flex-1 justify-center">
       <div className="transform rounded-xl bg-white p-3 shadow-xl transition-all duration-500 hover:shadow-2xl">
@@ -43,24 +52,32 @@ const ImageCard = ({
           height={100}
         />
         <div className="mt-2 flex justify-start">
-          <button
-            // eslint-disable-next-line
-            onClick={async () => {
-              await deleteImage({ imageId: id });
-              await refetchImages();
-            }}
-          >
-            Remove
-          </button>
+          <button onClick={deleteImage}>Remove</button>
         </div>
       </div>
     </div>
   );
 };
 
+/* eslint-disable */
+// @ts-ignore
+const modalStyle = {
+  position: "absolute" as "absolute",
+  top: "40%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  borderRadius: "6px",
+  p: 3,
+};
+/*eslint-enable */
+
 export default function EditBook(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
   const { id } = props;
   const router = useRouter();
   const bookDetailsQuery = api.books.getByIdWithAllDetails.useQuery({
@@ -73,17 +90,33 @@ export default function EditBook(
   const genres = genreDetailsQuery?.data?.items ?? [];
   ``;
   const editMutation = api.books.edit.useMutation();
+  const addInventoryCorrectionMutation = api.corrections.add.useMutation();
   const { data } = bookDetailsQuery;
 
+  const [file, setFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const defaultUrl =
+    "https://s3-us-west-2.amazonaws.com/s.cdpn.io/387928/book%20placeholder.png";
   const [retailPrice, setRetailPrice] = useState(
     data?.retailPrice.toString() ?? ""
   );
-  const [imgUrl, setImgUrl] = useState(data?.imgUrl ?? "");
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
+  const [imageDeleted, setImageDeleted] = useState(false);
+  const [imgUrl, setImgUrl] = useState(
+    imageDeleted ? defaultUrl : data?.imgUrl ?? ""
+  );
   const [pageCount, setPageCount] = useState(data?.pageCount.toString() ?? "");
   const [width, setWidth] = useState(data?.width.toString() ?? "");
   const [height, setHeight] = useState(data?.height.toString() ?? "");
   const [thickness, setThickness] = useState(data?.thickness.toString() ?? "");
+  const [inventory, setInventory] = useState(
+    data?.inventoryCount.toString() ?? ""
+  );
+  const [tempInventory, setTempInventory] = useState("0");
+  const [finalInventoryCorrection, setFinalInventoryCorrection] = useState("0");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittingInvCorrection, setIsSubmittingInvCorrection] =
+    useState(false);
   const [genreValue, setGenreValue] = useState<{
     label: string;
     id: string;
@@ -92,6 +125,8 @@ export default function EditBook(
     id: bookDetailsQuery?.data?.genre.id ?? "",
   });
   const [genreInputValue, setGenreInputValue] = useState("");
+  const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs(new Date()));
+  const [inventoryCorrection, setInventoryCorrection] = useState(false);
 
   const handleSubmit = () => {
     setIsSubmitting(true);
@@ -127,7 +162,17 @@ export default function EditBook(
         width: finalWidth,
         height: finalHeight,
         thickness: finalThickness,
+        imgUrl: imgUrl,
       });
+
+      if (inventoryCorrection && finalInventoryCorrection !== "0") {
+        addInventoryCorrectionMutation.mutate({
+          bookId: id,
+          quantity: parseInt(tempInventory),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          user: user!,
+        });
+      }
     } catch (error) {
       toast.error(`Error submitting form.`);
       console.log(error);
@@ -144,10 +189,6 @@ export default function EditBook(
     id: genre.id,
   }));
 
-  const [file, setFile] = useState<File | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const defaultUrl =
-    "https://s3-us-west-2.amazonaws.com/s.cdpn.io/387928/book%20placeholder.png";
   const { mutateAsync: createPresignedUrl } =
     api.imageUpload.createPresignedUrl.useMutation();
   // trpc.useMutation('image.createPresignedUrl');
@@ -155,16 +196,18 @@ export default function EditBook(
   // const { mutateAsync: getImageUrl } =
   //   api.imageUpload.getImageUrl.useMutation();
 
-  const { data: image, refetch: refetchImages } =
-    api.imageUpload.getImageFromId.useQuery({ bookId: id });
+  // const { data: image, refetch: refetchImages } =
+  //   api.imageUpload.getImageFromId.useQuery({ bookId: id });
   // trpc.useQuery(['image.getImagesForUser'])
   const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     setFile(null);
+    setFileInputKey(Date.now());
     toast.success("Deleted Image");
   };
 
   const handleFileChange = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
     const newFile = e.currentTarget?.files?.[0];
     if (newFile) {
       setFile(newFile);
@@ -186,13 +229,13 @@ export default function EditBook(
       );
       return;
     }
-    const presignedUrl = (await createPresignedUrl({
-      bookId: id,
-    })) as S3.PresignedPost;
-    const url = presignedUrl.url;
-    const fields = presignedUrl.fields;
+    // const presignedUrl = (await createPresignedUrl({
+    //   bookId: id,
+    // })) as S3.PresignedPost;
+    // const url = presignedUrl.url;
+    // const fields = presignedUrl.fields;
     const imageData = {
-      ...fields,
+      // ...fields,
       "Content-Type": file.type,
       file,
     };
@@ -201,16 +244,36 @@ export default function EditBook(
       /* eslint-disable */
       // @ts-ignore
       formData.append(name, imageData[name]);
-      /*eslint-enable */
     }
-    console.log(`URL: ${url}`);
-    await fetch(url, {
+    formData.append("upload_preset", "ilppmkg4");
+    formData.append("folder", id);
+    // formData.append("public_id", id);
+    /*eslint-enable */
+
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/dtyhei91n/image/upload/`;
+    // console.log(`URL: ${url}`);
+    await fetch(cloudinaryUrl, {
       method: "POST",
       body: formData,
-    });
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data) {
+          throw new Error("Error uploading image");
+        }
+        /* eslint-disable */
+        console.log(data);
+        if (data.url && data.url !== "") {
+          console.log(data.url);
+          setImgUrl(data.url);
+          /* eslint-enable */
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     // const imageUrl = await getImageUrl({ bookId: id });
     // setImgUrl(imageUrl);
-    await refetchImages();
     setFile(null);
     if (fileRef.current) {
       fileRef.current.value = "";
@@ -223,12 +286,87 @@ export default function EditBook(
     void asyncUpload();
     //Implement API call to send image back
   };
-  const refetchUserImages = async () => {
-    await refetchImages();
+  const handleRemoveImage = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    // await refetchImages();
+    setImageDeleted(true);
+    setImgUrl("");
+    console.log("In between resets");
+    setImgUrl(defaultUrl);
+    console.info(imgUrl);
+    toast.success("Image Removed");
+  };
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+    setInventoryCorrection(false);
+  };
+  const handleClose = () => {
+    setOpen(false);
+    setInventoryCorrection(false);
+  };
+  const [openDialog, setDialogOpen] = React.useState(false);
+
+  const handleDialogOpen = () => {
+    setDialogOpen(true);
+  };
+
+  const handleDialogAccept = () => {
+    setIsSubmittingInvCorrection(false);
+    setDialogOpen(false);
+    handleClose();
+    setInventoryCorrection(true);
+    setFinalInventoryCorrection(tempInventory);
+    toast.success("Inventory correction ready for final submission");
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setInventoryCorrection(false);
+    setIsSubmittingInvCorrection(false);
+  };
+
+  const handleInventoryCorrection = () => {
+    setIsSubmittingInvCorrection(true);
+    try {
+      const finalInventory = Number(tempInventory);
+      if (user?.role !== "admin") {
+        toast.error("Only admins can change inventory");
+        throw new Error("User is not an admin");
+      }
+      if (isNaN(finalInventory)) {
+        toast.error("Inventory change must be a valid number");
+        throw new Error("Inventory is not a number");
+      }
+      if (!Number.isInteger(finalInventory)) {
+        toast.error("Inventory must be an integer");
+        throw new Error("Inventory is not an integer");
+      }
+      if (parseInt(inventory) + finalInventory < 0) {
+        toast.error("Final Inventory must be a positive number");
+        throw new Error("Inventory is not positive");
+      }
+      if (finalInventory !== 0 && parseInt(inventory) + finalInventory >= 0) {
+        setDialogOpen(true);
+      } else {
+        setOpen(false);
+        setIsSubmittingInvCorrection(false);
+        setInventoryCorrection(false);
+        toast.warn("No Changes Made");
+      }
+    } catch (error) {
+      setIsSubmittingInvCorrection(false);
+      setInventoryCorrection(false);
+      return;
+    }
   };
 
   return (
     <>
+      <Head>
+        <title>Edit Book</title>
+      </Head>
       <div className="pt-6">
         <form className="inline-block rounded bg-white px-6 pt-3">
           <div className="mb-4 items-center">
@@ -281,6 +419,132 @@ export default function EditBook(
                         width: 120,
                       }}
                     />
+                    {user?.role == "admin" ? (
+                      <button
+                        className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+                        type="button"
+                        onClick={handleOpen}
+                      >
+                        Inventory Correction
+                      </button>
+                    ) : null}
+                    <Modal
+                      open={open}
+                      onClose={handleClose}
+                      aria-labelledby="modal-modal-title"
+                      aria-describedby="modal-modal-description"
+                    >
+                      <Box sx={modalStyle}>
+                        <Typography
+                          id="modal-modal-title"
+                          variant="h6"
+                          component="h2"
+                        >
+                          Inventory Correction
+                        </Typography>
+                        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                          <TextField
+                            id="currentInv"
+                            label="Current Inventory"
+                            value={inventory}
+                            variant={"outlined"}
+                            sx={{
+                              "& .MuiInputBase-input.Mui-disabled": {
+                                WebkitTextFillColor: "black",
+                              },
+                              width: 125,
+                            }}
+                            disabled
+                          />
+                          <TextField
+                            id="deltainv"
+                            label="Change / Delta"
+                            value={tempInventory}
+                            onChange={(
+                              event: React.ChangeEvent<HTMLInputElement>
+                            ): void => setTempInventory(event.target.value)}
+                            variant={"outlined"}
+                            type="number"
+                            sx={{
+                              width: 125,
+                            }}
+                            required
+                          />
+                          <TextField
+                            id="newinv"
+                            label="New Inventory"
+                            value={
+                              isNaN(
+                                parseInt(inventory) + parseInt(tempInventory)
+                              )
+                                ? "--"
+                                : parseInt(inventory) + parseInt(tempInventory)
+                            }
+                            variant={"outlined"}
+                            type="number"
+                            sx={{
+                              "& .MuiInputBase-input.Mui-disabled": {
+                                WebkitTextFillColor: isNaN(
+                                  parseInt(tempInventory)
+                                )
+                                  ? "black"
+                                  : parseInt(tempInventory) +
+                                      parseInt(inventory) >=
+                                    0
+                                  ? "green"
+                                  : "red",
+                              },
+
+                              width: 125,
+                            }}
+                            disabled
+                          />
+                        </Typography>
+                        <div className="pt-6" />
+                        <button
+                          className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                          type="button"
+                          onClick={handleInventoryCorrection}
+                        >
+                          {isSubmittingInvCorrection
+                            ? "Submitting..."
+                            : "Submit"}
+                        </button>
+                        <Dialog
+                          open={openDialog}
+                          onClose={handleDialogClose}
+                          aria-labelledby="alert-dialog-title"
+                          aria-describedby="alert-dialog-description"
+                        >
+                          <DialogTitle id="alert-dialog-title">
+                            {"Inventory Correction Change!"}
+                          </DialogTitle>
+                          <DialogContent>
+                            <DialogContentText id="alert-dialog-description">
+                              Are you sure you want to manaully change the
+                              inventory for this book?
+                            </DialogContentText>
+                          </DialogContent>
+                          <DialogActions>
+                            <button
+                              className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                              type="button"
+                              onClick={handleDialogClose}
+                            >
+                              No
+                            </button>
+                            <button
+                              autoFocus
+                              className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                              type="button"
+                              onClick={handleDialogAccept}
+                            >
+                              Yes
+                            </button>
+                          </DialogActions>
+                        </Dialog>
+                      </Box>
+                    </Modal>
                   </div>
                   <div className="flex justify-center space-x-10">
                     <TextField
@@ -337,11 +601,8 @@ export default function EditBook(
                   </div>
                   <div className="flex justify-center space-x-10">
                     <FormControl>
-                      <FormLabel>Genre Name</FormLabel>
-                      <FormHelperText>Select a genre by name</FormHelperText>
                       <Autocomplete
                         options={genreOptions}
-                        placeholder={"Select a genre by name"}
                         value={genreValue}
                         onChange={(
                           event,
@@ -352,6 +613,9 @@ export default function EditBook(
                         onInputChange={(event, newInputValue: string) => {
                           setGenreInputValue(newInputValue);
                         }}
+                        isOptionEqualToValue={(option, value) => {
+                          return option.id === value.id;
+                        }}
                         sx={{ width: 400 }}
                         renderInput={(params) => (
                           <TextField
@@ -359,6 +623,7 @@ export default function EditBook(
                             inputProps={{
                               ...params.inputProps,
                             }}
+                            label="Select a Genre by Name"
                           />
                         )}
                       />
@@ -368,6 +633,7 @@ export default function EditBook(
                 <div className="inline-block flex justify-center space-x-5 pt-6">
                   <input
                     type="file"
+                    key={fileInputKey}
                     onChange={handleFileChange}
                     className="rounded bg-blue-500 py-2 px-4 font-bold text-white"
                   />
@@ -387,8 +653,8 @@ export default function EditBook(
                 </div>
                 <div className="flex justify-center">
                   <ImageCard
-                    refetchImages={refetchUserImages}
-                    url={image?.url ?? defaultUrl}
+                    deleteImage={handleRemoveImage}
+                    url={imgUrl ?? defaultUrl}
                     id={id}
                     key={id}
                   />

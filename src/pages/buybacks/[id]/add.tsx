@@ -31,16 +31,23 @@ export default function AddBuyBackLine(
   });
   const router = useRouter();
   const buyBackOrder = buyBackOrdersQuery?.data;
-  const purchaseOrderQuery = api.purchaseOrders.getByVendorWithOverallMetrics.useQuery({ 
-    vendorId: buyBackOrder?.vendorId ?? "",
-    cursor: null, 
-    limit: 100 
-  });
+  const purchaseOrderQuery =
+    api.purchaseOrders.getByVendorWithOverallMetrics.useQuery({
+      vendorId: buyBackOrder?.vendorId ?? "",
+      cursor: null,
+      limit: 100,
+    });
   const purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
   // From all purchase orders, get all of the books
-  const allBooks = purchaseOrders.flatMap((purchaseOrder) => purchaseOrder.purchaseOrder.purchaseLines.map((purchaseLine) => purchaseLine.book));
+  const allBooks = purchaseOrders.flatMap((purchaseOrder) =>
+    purchaseOrder.purchaseOrder.purchaseLines.map(
+      (purchaseLine) => purchaseLine.book
+    )
+  );
   // Filter out duplicate books
-  const books = allBooks.filter((book, index, self) => self.findIndex((b) => b.id === book.id) === index);
+  const books = allBooks.filter(
+    (book, index, self) => self.findIndex((b) => b.id === book.id) === index
+  );
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
@@ -108,11 +115,8 @@ export default function AddBuyBackLine(
               <div className="space-y-20">
                 <div className="flex justify-center space-x-10">
                   <FormControl>
-                    <FormLabel>Book</FormLabel>
-                    <FormHelperText>Select a book by title</FormHelperText>
                     <Autocomplete
                       options={bookOptions}
-                      placeholder={"Search books by title"}
                       value={bookValue}
                       onChange={(
                         event,
@@ -130,6 +134,7 @@ export default function AddBuyBackLine(
                           inputProps={{
                             ...params.inputProps,
                           }}
+                          label="Select a Book by Title"
                         />
                       )}
                     />

@@ -10,7 +10,12 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-import { Autocomplete, FormControl, FormHelperText, FormLabel } from "@mui/material";
+import {
+  Autocomplete,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+} from "@mui/material";
 import Head from "next/head";
 import type {
   GetStaticPaths,
@@ -88,7 +93,7 @@ export default function AddPurchaseOrder(
         <title>Edit Purchase Order</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Edit Purchase Order
@@ -97,7 +102,7 @@ export default function AddPurchaseOrder(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-5">
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DesktopDatePicker
                         label="Purchase Date"
@@ -110,16 +115,14 @@ export default function AddPurchaseOrder(
                       />
                     </LocalizationProvider>
                   </div>
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
-                      <FormHelperText>Select a vendor by name</FormHelperText>
                       <Autocomplete
                         options={vendorOptions}
-                        placeholder={"Select a vendor by name"}
                         value={vendorValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setVendorValue(newValue);
                         }}
@@ -131,8 +134,9 @@ export default function AddPurchaseOrder(
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
+                            label="Select a Vendor by Name"
                           />
                         )}
                       />

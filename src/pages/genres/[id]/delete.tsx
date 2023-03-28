@@ -36,29 +36,27 @@ export default function DeleteGenre(
   }
   const { data } = genreDetailsQuery;
   const genresWithOverallMetrics = genreCountsQuery?.data?.items ?? [];
-  const currGenreCount = genresWithOverallMetrics.find(item => item.genre.name === data.name)?.bookCount;
-
+  const currGenreCount = genresWithOverallMetrics.find(
+    (item) => item.genre.name === data.name
+  )?.bookCount;
 
   const handleDelete = () => {
-
-    if(currGenreCount && currGenreCount > 0){
-      toast.error("This genre has more than 0 books and can not be deleted.")
-      return; 
-      
+    if (currGenreCount && currGenreCount > 0) {
+      toast.error("This genre has more than 0 books and can not be deleted.");
+      return;
+    } else {
+      setIsDeleting(true);
+      console.log("delete proceeded");
+      try {
+        const deleteResult = deleteMutation.mutate({ id: id });
+        setTimeout(() => {
+          void router.push("/genres");
+        }, 500);
+      } catch (error) {
+        console.log(error);
+        setIsDeleting(false);
+      }
     }
-    else{
-    setIsDeleting(true);
-    console.log("delete proceeded")
-    try {
-      const deleteResult = deleteMutation.mutate({ id: id });
-      setTimeout(() => {
-        void router.push("/genres");
-      }, 500);
-    } catch (error) {
-      console.log(error);
-      setIsDeleting(false);
-    }
-  }
   };
 
   return (

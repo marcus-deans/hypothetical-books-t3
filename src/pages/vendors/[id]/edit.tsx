@@ -13,6 +13,8 @@ import { useRouter } from "next/router";
 import { prisma } from "../../../server/db";
 import { InputAdornment, TextField } from "@mui/material";
 import Head from "next/head";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EditVendor(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -40,7 +42,7 @@ export default function EditVendor(
     setIsSubmitting(true);
     try {
       if (!vendorName || !buybackRate) {
-        alert("Vendor name and buyback rate are required");
+        toast.error("Vendor name and buyback rate are required");
         return;
       }
       const finalBuybackRate = Number(buybackRate);
@@ -49,7 +51,7 @@ export default function EditVendor(
         finalBuybackRate < 0 ||
         finalBuybackRate > 100
       ) {
-        alert("Buyback rate must be a number between 0 and 100");
+        toast.error("Buyback rate must be a number between 0 and 100");
         setIsSubmitting(false);
         return;
       }
@@ -73,7 +75,7 @@ export default function EditVendor(
         <title>Edit Vendor</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Edit Vendor
@@ -82,25 +84,27 @@ export default function EditVendor(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-20">
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <TextField
                       id="vendorName"
                       label="Vendor Name"
                       value={vendorName}
-                      onChange={(event: React.ChangeEvent<HTMLInputElement>): void =>
-                        setVendorName(event.target.value)
-                      }
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void => setVendorName(event.target.value)}
                       required
                     />
                     <TextField
                       id="buybackRate"
                       label="Buyback Rate"
                       value={buybackRate}
-                      onChange={(event: React.ChangeEvent<HTMLInputElement>): void =>
-                        setBuybackRate(event.target.value)
-                      }
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void => setBuybackRate(event.target.value)}
                       InputProps={{
-                        endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                        endAdornment: (
+                          <InputAdornment position="end">%</InputAdornment>
+                        ),
                       }}
                       required
                     />
@@ -121,6 +125,7 @@ export default function EditVendor(
           </div>
         </form>
       </div>
+      <ToastContainer></ToastContainer>
     </>
   );
 }

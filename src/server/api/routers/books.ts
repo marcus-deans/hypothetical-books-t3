@@ -3,9 +3,55 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
-import type { bookDetail} from "../../../schema/books.schema";
+import type { bookDetail } from "../../../schema/books.schema";
 import { bookDetailSchema } from "../../../schema/books.schema";
 import { env } from "../../../env/server.mjs";
+import type { S3 } from "aws-sdk/clients/browser_default";
+import * as AWS from "aws-sdk";
+
+import { v2 as cloudinary } from "cloudinary";
+// Configuration
+cloudinary.config({
+  cloud_name: env.CLOUDINARY_CLOUD_NAME,
+  api_key: env.CLOUDINARY_API_KEY,
+  api_secret: env.CLOUDINARY_API_SECRET,
+});
+
+const s3 = new AWS.S3();
+AWS.config.update({
+  accessKeyId: env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+});
+
+const BUCKET_NAME = env.AWS_S3_BUCKET;
+const UPLOADING_TIME_LIMIT = 30;
+const UPLOAD_MAX_FILE_SIZE = 1000000;
+
+const getUrlExtension = (url: string) => {
+  return url?.split(/[#?]/)[0]?.split(".")?.pop()?.trim();
+};
+
+const createPresignedUrl = async (bookId: string) => {
+  return new Promise((resolve, reject) => {
+    s3.createPresignedPost(
+      {
+        Fields: {
+          key: `images/${bookId}`,
+        },
+        Conditions: [
+          ["starts-with", "$Content-Type", "image/"],
+          ["content-length-range", 0, UPLOAD_MAX_FILE_SIZE],
+        ],
+        Expires: UPLOADING_TIME_LIMIT,
+        Bucket: BUCKET_NAME,
+      },
+      (err, signed) => {
+        if (err) return reject(err);
+        resolve(signed);
+      }
+    );
+  });
+};
 
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -179,29 +225,26 @@ export const booksRouter = createTRPCRouter({
         books: z.array(z.string()).optional(),
       })
     )
-    .output(
-      z.array(bookDetailSchema),
-    )
+    .output(z.array(bookDetailSchema))
     .query(async ({ input }) => {
-      
-      if(input.books === undefined){
+      if (input.books === undefined) {
         return [];
       }
       const bookList: bookDetail[] = [];
-      for (const entry of input.books){
+      for (const entry of input.books) {
         const isbn_13 = entry;
         const book = await prisma.book.findFirst({
-          where: { isbn_13 } ,
+          where: { isbn_13 },
           include: {
             authors: true,
             genre: true,
           },
-        })
+        });
         const authorObject = book?.authors;
-        const authorList : string[] = [];
-        authorObject?.forEach(function (author){
+        const authorList: string[] = [];
+        authorObject?.forEach(function (author) {
           authorList.push(author.name);
-        })
+        });
         const bookTyped: bookDetail = {
           title: book?.title,
           authors: authorList,
@@ -216,11 +259,10 @@ export const booksRouter = createTRPCRouter({
           retail_price: book?.retailPrice,
           genre: book?.genre.name,
           inventory_count: book?.inventoryCount,
-        }
+        };
         bookList.push(bookTyped);
       }
       return bookList;
-
     }),
 
   getById: publicProcedure
@@ -285,6 +327,7 @@ export const booksRouter = createTRPCRouter({
                       name: true,
                     },
                   },
+                  user: true,
                 },
               },
             },
@@ -303,6 +346,7 @@ export const booksRouter = createTRPCRouter({
                       name: true,
                     },
                   },
+                  user: true,
                 },
               },
             },
@@ -315,6 +359,17 @@ export const booksRouter = createTRPCRouter({
                   unitWholesalePrice: true,
                 },
               },
+            },
+          },
+          correction: {
+            include: {
+              user: true,
+            },
+          },
+          relatedBooks: {
+            include: {
+              authors: true,
+              genre: true,
             },
           },
         },
@@ -356,14 +411,36 @@ export const booksRouter = createTRPCRouter({
         retailPrice: z.number().gte(0),
         genreId: z.string(),
         pageCount: z.number().gt(0),
-        width: z.number().gt(0),
-        height: z.number().gt(0),
-        thickness: z.number().gt(0),
+        width: z.number().gte(0),
+        height: z.number().gte(0),
+        thickness: z.number().gte(0),
+        imgUrl: z.string(),
       })
     )
 
     .mutation(async ({ input }) => {
-      const book = await prisma.book.update({
+      const currentImgUrl = await prisma.book.findUnique({
+        where: { id: input.id },
+        select: { imgUrl: true },
+      });
+      if (!currentImgUrl || !currentImgUrl.imgUrl) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No book with id '${input.id}'`,
+        });
+      }
+      try {
+        await cloudinary.uploader.destroy(
+          currentImgUrl.imgUrl,
+          function (error, result) {
+            console.log(result, error);
+          }
+        );
+      } catch (error) {
+        console.error("Could not delete existing image from cloudinary", error);
+      }
+
+      return await prisma.book.update({
         where: { id: input.id },
         data: {
           retailPrice: input.retailPrice,
@@ -372,11 +449,9 @@ export const booksRouter = createTRPCRouter({
           width: input.width,
           height: input.height,
           thickness: input.thickness,
-          imgUrl: `https://${env.AWS_S3_BUCKET}.s3.amazonaws.com/images/${input.id}`,
+          imgUrl: input.imgUrl,
         },
       });
-
-      return book;
     }),
 
   add: publicProcedure
@@ -398,6 +473,7 @@ export const booksRouter = createTRPCRouter({
         purchaseLines: z.string().array(),
         salesLines: z.string().array(),
         inventoryCount: z.number().int(),
+        relatedBooks: z.string().array(),
       })
     )
 
@@ -483,6 +559,92 @@ export const booksRouter = createTRPCRouter({
           },
         });
       }
+
+      const relatedBooksAddedIds = new Set<string>();
+
+      for (const relatedBookId of input.relatedBooks) {
+        const relatedBook = await prisma.book.findUnique({
+          where: { id: relatedBookId },
+          include: {
+            relatedBooks: {
+              select: { id: true },
+            },
+          },
+        });
+
+        if (!relatedBook) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `No book with id '${relatedBookId}'`,
+          });
+        }
+
+        await prisma.book.update({
+          where: { id: book.id },
+          data: {
+            relatedBooks: {
+              connect: [{ id: relatedBookId }],
+            },
+          },
+        });
+        await prisma.book.update({
+          where: { id: relatedBookId },
+          data: {
+            relatedBooks: {
+              connect: [{ id: book.id }],
+            },
+          },
+        });
+
+        relatedBooksAddedIds.add(relatedBookId);
+
+        for (const checkBook of relatedBook.relatedBooks) {
+          if (!relatedBooksAddedIds.has(checkBook.id)) {
+            await prisma.book.update({
+              where: { id: book.id },
+              data: {
+                relatedBooks: {
+                  connect: [{ id: checkBook.id }],
+                },
+              },
+            });
+
+            await prisma.book.update({
+              where: { id: checkBook.id },
+              data: {
+                relatedBooks: {
+                  connect: [{ id: book.id }],
+                },
+              },
+            });
+
+            relatedBooksAddedIds.add(checkBook.id);
+          }
+        }
+      }
+
+      const cloudinaryUpload = await cloudinary.uploader
+        .upload(input.imgUrl, { public_id: book.id })
+        .then((data) => {
+          console.log(data);
+          console.log(data.secure_url);
+        })
+        .catch((err) => {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Error uploading image to cloudinary`,
+          });
+        });
+      const cloudinaryUrl = cloudinary.url(book.id);
+
+      await prisma.book.update({
+        where: { id: book.id },
+        data: {
+          imgUrl: cloudinaryUrl,
+        },
+      });
+
+      console.log("Successfully uploaded image to Cloudinary");
 
       return book;
     }),

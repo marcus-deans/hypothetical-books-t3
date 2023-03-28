@@ -7,7 +7,7 @@ import Head from "next/head";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import superjson from "superjson";
 import { useRouter } from "next/router";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import type {
   GetStaticPaths,
@@ -18,7 +18,7 @@ import { prisma } from "../../../../server/db";
 import { api } from "../../../../utils/api";
 import { appRouter } from "../../../../server/api/root";
 import { createInnerTRPCContext } from "../../../../server/api/trpc";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function EditBuybackLine(
@@ -116,7 +116,7 @@ export default function EditBuybackLine(
         <title>Edit Buyback Line</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Edit Buyback Line
@@ -125,45 +125,42 @@ export default function EditBuybackLine(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-20">
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
-                      <FormLabel>Buyback Order</FormLabel>
-                      <FormHelperText>
-                        Select a buyback order by date
-                      </FormHelperText>
                       <Autocomplete
                         options={buybackOrderOptions}
-                        placeholder={"Search buyback orders by date"}
                         value={buybackValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setBuybackValue(newValue);
                         }}
-                        onInputChange={(event, newBuybackInputValue: string) => {
+                        onInputChange={(
+                          event,
+                          newBuybackInputValue: string
+                        ) => {
                           setBuybackInputValue(newBuybackInputValue);
                         }}
-                        sx={{ width: 425 }} renderInput={(params) => (
+                        sx={{ width: 425 }}
+                        renderInput={(params) => (
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
+                            label="Select a Buyback Order by Date"
                           />
                         )}
                       />
                     </FormControl>
                     <FormControl>
-                      <FormLabel>Book</FormLabel>
-                      <FormHelperText>Select a book by title</FormHelperText>
                       <Autocomplete
                         options={bookOptions}
-                        placeholder={"Search books by title"}
                         value={bookValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setBookValue(newValue);
                         }}
@@ -175,23 +172,22 @@ export default function EditBuybackLine(
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
+                            label="Select a Book by Title"
                           />
                         )}
                       />
                     </FormControl>
                   </div>
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
-                      <FormLabel>Quantity</FormLabel>
-                      <input
-                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      <TextField
                         id="quantity"
                         name="quantity"
-                        type="text"
-                        min="1"
-                        size={45}
+                        label="Quantity"
+                        type="number"
+                        sx={{ width: 425 }}
                         value={quantity}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
@@ -200,21 +196,23 @@ export default function EditBuybackLine(
                       />
                     </FormControl>
                     <FormControl>
-                      <FormLabel>Unit Buyback Price</FormLabel>
-                      <input
-                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      <TextField
                         id="UnitBuybackPrice"
                         name="UnitBuybackPrice"
+                        label="Unit Buyback Price"
                         type="text"
+                        sx={{ width: 425 }}
                         value={unitBuybackPrice}
-                        min="0"
-                        size={45}
-                        // value={unitWholesalePrice}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
                         ): void =>
                           setUnitBuybackPrice(Number(event.target.value))
                         }
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">$</InputAdornment>
+                          ),
+                        }}
                         required
                       />
                     </FormControl>

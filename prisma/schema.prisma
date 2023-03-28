@@ -19,28 +19,30 @@ generator zod {
 }
 
 model Book {
-  id                   String                 @id @default(cuid())
-  title                String
-  authors              Author[]
-  isbn_13              String
-  isbn_10              String?
-  publisher            String
-  publicationYear      Int
-  pageCount            Int
-  width                Float
-  height               Float
-  thickness            Float
-  retailPrice          Float
-  genre                Genre                  @relation(fields: [genreId], references: [id])
-  genreId              String // relation String field
-  purchaseLines        PurchaseLine[]
-  salesLines           SalesLine[]
-  buybackLines         BuybackLine[]
-  // to Be determined
-  inventoryCount       Int
-  display              Boolean                @default(true)
-  imgUrl               String?
-  costMostRecentVendor CostMostRecentVendor[]
+  id                    String                 @id @default(cuid())
+  title                 String
+  authors               Author[]
+  isbn_13               String
+  isbn_10               String?
+  publisher             String
+  publicationYear       Int
+  pageCount             Int
+  width                 Float
+  height                Float
+  thickness             Float
+  retailPrice           Float
+  genre                 Genre                  @relation(fields: [genreId], references: [id])
+  genreId               String // relation String field
+  purchaseLines         PurchaseLine[]
+  salesLines            SalesLine[]
+  buybackLines          BuybackLine[]
+  inventoryCount        Int
+  display               Boolean                @default(true)
+  imgUrl                String?
+  costMostRecentVendor  CostMostRecentVendor[]
+  correction            Correction[]
+  relatedBooks          Book[]                 @relation("RelatedBooks")
+  symmetricRelatedBooks Book[]                 @relation("RelatedBooks")
 }
 
 model Genre {
@@ -70,6 +72,8 @@ model Vendor {
 model PurchaseOrder {
   id                   String                 @id @default(cuid())
   date                 DateTime
+  user                 User?                  @relation(fields: [userId], references: [id])
+  userId               String?
   vendor               Vendor                 @relation(fields: [vendorId], references: [id])
   vendorId             String
   purchaseLines        PurchaseLine[]
@@ -110,6 +114,8 @@ model SalesLine {
 model BuybackOrder {
   id           String        @id @default(cuid())
   date         DateTime
+  user         User?         @relation(fields: [userId], references: [id])
+  userId       String?
   vendor       Vendor        @relation(fields: [vendorId], references: [id])
   vendorId     String
   buybackLines BuybackLine[]
@@ -125,6 +131,16 @@ model BuybackLine {
   buybackOrder     BuybackOrder @relation(fields: [buybackOrderId], references: [id])
   buybackOrderId   String
   display          Boolean      @default(true)
+}
+
+model Correction {
+  id       String   @id @default(cuid())
+  user     User?    @relation(fields: [userId], references: [id])
+  userId   String?
+  date     DateTime
+  book     Book     @relation(fields: [bookId], references: [id])
+  bookId   String
+  quantity Int
 }
 
 model CostMostRecentVendor {
@@ -175,10 +191,16 @@ model Session {
 }
 
 model User {
-  id       String    @id @default(cuid())
-  password String
-  accounts Account[]
-  sessions Session[]
+  id            String          @id @default(cuid())
+  name          String          @default("default")
+  password      String
+  role          String          @default("user")
+  display       Boolean         @default(true)
+  accounts      Account[]
+  sessions      Session[]
+  Correction    Correction[]
+  PurchaseOrder PurchaseOrder[]
+  BuybackOrder  BuybackOrder[]
 }
 
 model VerificationToken {

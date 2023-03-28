@@ -6,7 +6,7 @@ import type {
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import superjson from "superjson";
 import { useRouter } from "next/router";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import type {
   GetStaticPaths,
@@ -112,7 +112,7 @@ export default function EditPurchaseLine(
         <title>Edit Purchase Line</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Edit Purchase Line
@@ -121,45 +121,42 @@ export default function EditPurchaseLine(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-20">
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
-                      <FormLabel>Purchase Order</FormLabel>
-                      <FormHelperText>
-                        Select a purchase order by date
-                      </FormHelperText>
                       <Autocomplete
                         options={purchaseOrderOptions}
-                        placeholder={"Search sales reconciliations by date"}
                         value={purchaseValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setPurchaseValue(newValue);
                         }}
-                        onInputChange={(event, newPurchaseInputValue: string) => {
+                        onInputChange={(
+                          event,
+                          newPurchaseInputValue: string
+                        ) => {
                           setPurchaseInputValue(newPurchaseInputValue);
                         }}
-                        sx={{ width: 425 }} renderInput={(params) => (
+                        sx={{ width: 425 }}
+                        renderInput={(params) => (
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
+                            label="Select a Purchase Order by Date"
                           />
                         )}
                       />
                     </FormControl>
                     <FormControl>
-                      <FormLabel>Book</FormLabel>
-                      <FormHelperText>Select a book by title</FormHelperText>
                       <Autocomplete
                         options={bookOptions}
-                        placeholder={"Search books by title"}
                         value={bookValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setBookValue(newValue);
                         }}
@@ -171,24 +168,23 @@ export default function EditPurchaseLine(
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
+                            label="Select a Book by Title"
                           />
                         )}
                       />
                     </FormControl>
                   </div>
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
-                      <FormLabel>Quantity</FormLabel>
-                      <input
-                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      <TextField
                         id="quantity"
                         name="quantity"
+                        label="Quantity"
                         type="text"
-                        min="1"
-                        size={45}
                         value={quantity}
+                        sx={{ width: 425 }}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
                         ): void => setQuantity(Number(event.target.value))}
@@ -196,21 +192,23 @@ export default function EditPurchaseLine(
                       />
                     </FormControl>
                     <FormControl>
-                      <FormLabel>Unit Wholesale Price</FormLabel>
-                      <input
-                        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+                      <TextField
                         id="UnitWholesalePrice"
                         name="UnitWholesalePrice"
+                        label="Unit Wholesale Price"
                         type="text"
                         value={unitWholesalePrice}
-                        min="0"
-                        size={45}
-                        // value={unitWholesalePrice}
+                        sx={{ width: 425 }}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
                         ): void =>
                           setUnitWholesalePrice(Number(event.target.value))
                         }
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">$</InputAdornment>
+                          ),
+                        }}
                         required
                       />
                     </FormControl>

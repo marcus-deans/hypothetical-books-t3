@@ -9,8 +9,93 @@ import { passwordSchema } from "../../../schema/user.schema";
 import { contextProps } from "@trpc/react-query/shared";
 
 export const usersRouter = createTRPCRouter({
+  getAll: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      /**
+       * For pagination docs you can have a look here
+       * @see https://trpc.io/docs/useInfiniteQuery
+       * @see https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+       */
+      const limit = input.limit ?? 50;
+      const { cursor } = input;
+
+      const items = await prisma.user.findMany({
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: { display: true },
+        cursor: cursor
+          ? {
+            id: cursor,
+          }
+          : undefined,
+        orderBy: {
+          name: "desc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        // Remove the last item and use it as next cursor
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const nextItem = items.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      return {
+        items: items.reverse(),
+        nextCursor,
+      };
+    }),
+  setPrivilege: publicProcedure
+    .input(z.object({ id: z.string(), admin: z.boolean() }))
+    .mutation(async ({ input }) => {
+      const { id, admin } = input;
+      const currentUser = await prisma.user.findUnique({
+        where: { id },
+      });
+      if (currentUser?.name == "admin") {
+        return {
+          success: false,
+          message: "Cannot change privilege of admin account",
+        }
+      }
+      const user = await prisma.user.update({
+        where: { id },
+        data: { role: (admin ? "admin" : "user") },
+      });
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No user to change privilege with id '${id}'`,
+        });
+      }
+      return user;
+    }),
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const user = await prisma.user.findUnique({
+        where: { id },
+      });
+      if (!user || !user.display) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No user with id '${id}'`,
+        });
+      }
+      return user;
+    }),
   setPassword: publicProcedure
-    .input(passwordSchema)
+    .input(z.object({
+      name: z.string(),
+      password: z.string(),
+    }))
     .mutation(async ({ input }) => {
       input.password = await hash(input.password, 10);
       await prisma.user.create({ data: input });
@@ -19,101 +104,147 @@ export const usersRouter = createTRPCRouter({
         message: "Account Created Successfully",
       };
     }),
-  changePassword: publicProcedure
+  changeUserPassword: publicProcedure
     .input(passwordSchema)
+    .output(z.object({
+      success: z.boolean(),
+      message: z.string(),
+    }))
     .mutation(async ({ input }) => {
-      input.password = await hash(input.password, 10);
-      const user = await prisma.user.findFirst();
-      if (user?.id === undefined) {
+      if (!input.user) {
         return {
-          status: 404,
+          success: false,
+          message: "No User Logged In"
+        }
+      }
+      input.password = await hash(input.password, 10);
+      if (input.user.id === undefined) {
+        return {
+          success: false,
           message: "Account not Found",
         };
       }
       await prisma.user.update({
         where: {
-          id: user.id,
+          id: input.user.id,
         },
         data: {
           password: input.password,
         },
       });
       return {
-        status: 201,
-        message: "Password Edited Successfully",
+        success: true,
+        message: "Password Changed Successfully",
       };
     }),
-  getUser: publicProcedure.query(async () => {
-    return await prisma.user.findFirst();
+  getAdmin: publicProcedure.query(async () => {
+    return await prisma.user.findFirst({
+      where: {
+        name: "admin",
+      },
+    });
   }),
-  doesUserExist: publicProcedure
-    .output(
-      z.object({
-        status: z.number(),
-        message: z.string(),
+  createAdmin: publicProcedure
+    .input(z.object({
+      password: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      input.password = await hash(input.password, 10);
+      await prisma.user.create({
+        data: {
+          name: "admin",
+          password: input.password,
+          role: "admin",
+        }
+      });
+      return {
+        status: 201,
+        message: "Account Created Successfully",
+      };
+    }),
+  createUser: publicProcedure
+    .input(z.object({
+      name: z.string(),
+      password: z.string(),
+      admin: z.boolean()
+    }))
+    .output(z.object({
+      success: z.boolean(),
+      message: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      if (input.name == "") {
+        return {
+          success: false,
+          message: "Name cannot be blank",
+        }
+      }
+      if (input.name == "admin") {
+        return {
+          success: false,
+          message: "User cannot have the name admin",
+        }
+      }
+      const redundantUserName = await prisma.user.findFirst({
+        where: {
+          name: input.name,
+          display: true,
+        }
       })
+      if (redundantUserName) {
+        return {
+          success: false,
+          message: "Name Belongs to Active User",
+        }
+      }
+      input.password = await hash(input.password, 10);
+      await prisma.user.create({
+        data: {
+          name: input.name,
+          password: input.password,
+          role: input.admin ? "admin" : "user",
+        }
+      });
+      return {
+        success: true,
+        message: "User Created Successfully",
+      };
+    }),
+  doesAdminExist: publicProcedure
+    .output(
+      z.boolean()
     )
     .query(async () => {
-      const egg = await prisma.user.findFirst();
-      if (egg == undefined) {
-        return {
-          status: 404,
-          message: "No user found",
-        };
-      } else {
-        return {
-          status: 200,
-          message: "User Found",
-        };
-      }
-    }),
-  /*
-	login: publicProcedure
-		.input(passwordSchema)
-		.query(async ({ input }) => {
-			const { password } = input;
-      const allUser = await prisma.user.findFirst();
-			if (!allUser) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: `User was never registered`,
-				});
-			}
-
-
-      const correctPassword = verify(allUser.password, password)
-      if (!correctPassword) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: `Incorrect Password`,
-				});
-			}
-
-        return allUser;
-	    }),
-
-  byId: publicProcedure
-    .input(z.object({ id: z.string }))
-  input: UserSchema,
-  resolve: async ({ input, ctx }) => {
-    const { password : string} = input;
-    const exists = await ctx.prisma.user.findFirst({
-      where: { email },
-    });
-    if (exists) {
-      throw new trpc.TRPCError({
-        code: "CONFLICT",
-        message: "User already exists.",
+      const user = await prisma.user.findFirst({
+        where: {
+          name: "admin",
+        },
       });
-    }
-    const hashedPassword = await hash(password);
-    const result = await ctx.prisma.user.create({
-      data: { username, email, password: hashedPassword },
-    });
-    return {
-      status: 201,
-      message: "Account created successfully",
-      result: result.email,
-    };
-		*/
+      return (!(user == undefined));
+    }),
+  delete: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { id } = input;
+      const currentUser = await prisma.user.findUnique({
+        where: { id },
+      });
+      if (currentUser?.name == "admin") {
+        return {
+          success: false,
+          message: "Cannot delete super admin account",
+        }
+      }
+      const user = await prisma.user.update({
+        where: { id },
+        data: { display: false },
+      });
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No user to delete with id '${id}'`,
+        });
+      }
+      return user;
+    }),
 });
