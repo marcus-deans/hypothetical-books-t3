@@ -11,7 +11,6 @@ import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import DeleteLink from "../../../components/table-components/DeleteLink";
-import EditLink from "../../../components/table-components/EditLink";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../../components/table-components/StripedDataGrid";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
@@ -107,10 +106,10 @@ export default function CaseDetail(
     },
   ];
   const rows = data.shelves.map((shelf) => {
-    const bookDetails = shelf.books.map((book) => {
+    const bookDetails = shelf.booksOnShelf.map((bookOnShelf) => {
       return {
-        id: book.id,
-        title: book.title,
+        id: bookOnShelf.book.id,
+        title: bookOnShelf.book.title,
       };
     });
 
@@ -119,7 +118,7 @@ export default function CaseDetail(
       caseId: shelf.caseId,
       spaceUsed: shelf.spaceUsed,
       books: bookDetails,
-      numberBooks: shelf.books.length,
+      numberBooks: bookDetails.length,
     };
   });
 

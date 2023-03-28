@@ -82,10 +82,12 @@ export const shelvesRouter = createTRPCRouter({
       z.object({
         caseId: z.string(),
         spaceUsed: z.number(),
-        bookDetails: z.object({
-          bookId: z.string(),
-          orientation: z.string(),
-        }),
+        bookDetails: z
+          .object({
+            bookId: z.string(),
+            orientation: z.string(),
+          })
+          .array(),
       })
     )
     .mutation(async ({ input }) => {
@@ -128,10 +130,12 @@ export const shelvesRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         spaceUsed: z.number(),
-        bookDetails: z.object({
-          bookId: z.string(),
-          orientation: z.string(),
-        }),
+        bookDetails: z
+          .object({
+            bookId: z.string(),
+            orientation: z.string(),
+          })
+          .array(),
       })
     )
     .mutation(async ({ input }) => {
