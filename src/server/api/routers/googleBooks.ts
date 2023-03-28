@@ -51,11 +51,12 @@ const getGoogleBooksDetails = async (
   isbn: string
 ): Promise<GoogleBooksDetails | null> => {
   const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
+  console.log("Starting the Google Books call");
   return await fetch(queryURL)
     .then((response) => response.json())
     .then((response) => {
-      console.info("Obtained below response from Google Books API");
-      console.info(response);
+      console.log("Obtained below response from Google Books API");
+      console.log(response);
       const googleBookResponse = GoogleBooksResponseSchema.safeParse(response);
       if (!googleBookResponse.success) {
         console.error(response);
@@ -129,6 +130,7 @@ const getBooksRunPrices = async (isbn: string): Promise<number> => {
 type bookWithAuthorsType = Book & { authors: { name: string }[] };
 
 const getRelatedBooks = async (book: GoogleBooksDetails) => {
+  console.log("Beginning related books search");
   const allBooks = await prisma.book.findMany({
     where: { display: true },
     include: {
@@ -207,6 +209,7 @@ export const googleBooksRouter = createTRPCRouter({
         let relatedBooks: bookWithAuthorsType[] = [];
         const bookDetails = await getGoogleBooksDetails(isbn);
         if (!bookDetails) {
+          console.log("Could not get book details, skipping this book");
           continue;
         }
         relatedBooks = await getRelatedBooks(bookDetails);
