@@ -16,7 +16,8 @@ import { buybackLinesRouter } from "./routers/buybackLines";
 import { csvPortsRouter } from "./routers/csvPorts";
 import { bookHookRouter } from "./routers/bookHook";
 import { correctionsRouter } from "./routers/corrections";
-import { designerRouter } from "./routers/designer";
+import { casesRouter } from "./routers/cases";
+import { shelvesRouter } from "./routers/shelves";
 /**
  * This is the primary router for your server.
  *
@@ -29,13 +30,14 @@ export const appRouter = createTRPCRouter({
   books: booksRouter,
   buybackOrders: buybackOrdersRouter,
   buybackLines: buybackLinesRouter,
-  designer: designerRouter,
+  cases: casesRouter,
   corrections: correctionsRouter,
   genres: genresRouter,
   purchaseLines: purchaseLinesRouter,
   purchaseOrders: purchaseOrdersRouter,
   salesLines: salesLinesRouter,
   salesReconciliations: salesReconciliationsRouter,
+  shelves: shelvesRouter,
   vendors: vendorsRouter,
   googleBooks: googleBooksRouter,
   users: usersRouter,

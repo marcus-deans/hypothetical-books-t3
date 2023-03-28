@@ -4,8 +4,8 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import { prisma } from "../../db";
 import { TRPCError } from "@trpc/server";
 
-export const designerRouter = createTRPCRouter({
-  getAllCases: publicProcedure
+export const shelvesRouter = createTRPCRouter({
+  getAll: publicProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
@@ -21,13 +21,8 @@ export const designerRouter = createTRPCRouter({
       const limit = input.limit ?? 50;
       const { cursor } = input;
 
-      const items = await prisma.case.findMany({
+      const items = await prisma.shelf.findMany({
         // get an extra item at the end which we'll use as next cursor
-        include: {
-          shelves: true,
-          creator: true,
-          editor: true,
-        },
         take: limit + 1,
         cursor: cursor
           ? {
@@ -73,8 +68,8 @@ export const designerRouter = createTRPCRouter({
       z.object({
         name: z.string(),
         creatorId: z.string(),
-        width: z.number.gt(0),
-        shelfCount: z.number.gt(0),
+        width: z.number,
+        shelfCount: z.number,
         shelvesIds: z.string().array(),
       })
     )
