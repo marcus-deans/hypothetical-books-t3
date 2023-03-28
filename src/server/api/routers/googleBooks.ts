@@ -3,6 +3,9 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../../env/server.mjs";
+import { prisma } from "../../db";
+import Fuse from "fuse.js";
+import type { Book } from "@prisma/client";
 
 const GoogleBooksDetailsSchema = z.object({
   title: z.string(),
@@ -44,43 +47,177 @@ const GoogleBooksResponseSchema = z.object({
 type GoogleBooksDetails = z.infer<typeof GoogleBooksDetailsSchema>;
 type GoogleBooksItems = z.infer<typeof GoogleBooksItemsSchema>;
 type GoogleBooksResponse = z.infer<typeof GoogleBooksResponseSchema>;
+const getGoogleBooksDetails = async (
+  isbn: string
+): Promise<GoogleBooksDetails | null> => {
+  const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
+  return await fetch(queryURL)
+    .then((response) => response.json())
+    .then((response) => {
+      const googleBookResponse = GoogleBooksResponseSchema.safeParse(response);
+      if (!googleBookResponse.success) {
+        console.log(`Could not obtain book details for ISBN ${isbn}`);
+        return null;
+      } else {
+        const volumeInfo = googleBookResponse.data.items.map((item) => {
+          return item.volumeInfo;
+        });
+        const bookDetails = volumeInfo[0];
+        if (bookDetails) {
+          console.log("Book Details: ");
+          console.log(bookDetails);
+          return bookDetails;
+        }
+      }
+      return null;
+    });
+};
+
+const BooksRunOfferSchema = z.object({
+  price: z.number(),
+  cart_url: z.string(),
+});
+const BooksRunOffersSchema = z.object({
+  booksrun: z.object({
+    new: BooksRunOfferSchema.optional(),
+    used: BooksRunOfferSchema.optional(),
+  }),
+});
+const BooksRunResponseSchema = z.object({
+  result: z.object({
+    status: z.string(),
+    message: z.string(),
+    offers: BooksRunOffersSchema,
+  }),
+});
+const getBooksRunPrices = async (isbn: string): Promise<number> => {
+  console.log(`Fetching price details for ${isbn}`);
+  const queryURL = `https://booksrun.com/api/v3/price/buy/${isbn}?key=${env.BOOKS_RUN_API_KEY}`;
+  try {
+    return await fetch(queryURL)
+      .then((response) => response.json())
+      .then((response) => {
+        const bookPriceResponse = BooksRunResponseSchema.safeParse(response);
+        if (!bookPriceResponse.success) {
+          console.log("Could not parse response successfully");
+          return 0;
+        } else {
+          console.log("Successfully retrieved book price from BooksRun");
+          try {
+            const newPrice = BooksRunOfferSchema.parse(
+              bookPriceResponse.data.result.offers.booksrun.new
+            ).price;
+            console.log(`New price ${newPrice}`);
+            return newPrice;
+          } catch (error) {
+            console.log("Could not get new price");
+            return 0;
+          }
+        }
+      });
+  } catch (error) {
+    console.log("Error retrieving book price from BooksRun");
+    console.log(error);
+    return 0;
+  }
+};
+
+type bookWithAuthorsType = Book & { authors: { name: string }[] };
+
+const getRelatedBooks = async (book: GoogleBooksDetails) => {
+  const allBooks = await prisma.book.findMany({
+    where: { display: true },
+    include: {
+      authors: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+  if (!allBooks) {
+    return [];
+  }
+  type allBooksType = (typeof allBooks)[number];
+  type returnBookType = {
+    item: allBooksType;
+    score: number;
+    refIndex: number;
+  };
+
+  const options = {
+    includeScore: true,
+    ignoreLocation: true,
+    keys: [
+      {
+        name: "title",
+        weight: 0.7,
+        getFn: (book: allBooksType) => book.title,
+      },
+      {
+        name: "authors",
+        weight: 0.3,
+        getFn: (book: allBooksType) =>
+          book.authors.map((author) => author.name).join(","),
+      },
+    ],
+  };
+
+  const fuse = new Fuse(allBooks, options);
+  const searchResults = fuse.search({
+    title: book.title,
+    authors: book.authors.join(", "),
+  });
+  const returnableSearchResult = searchResults as returnBookType[];
+  // console.log(
+  //   returnableSearchResult.map((result) =>
+  //     result.item.authors.map((author) => author.name).join(", ")
+  //   )
+  // );
+  console.log("Related book search results: ");
+  console.log(returnableSearchResult);
+  return returnableSearchResult.map((result) => result.item);
+};
+
+interface AllBookDetails {
+  googleBooKDetails: GoogleBooksDetails;
+  booksRunPrice: number;
+  relatedBooks: bookWithAuthorsType[];
+}
 
 export const googleBooksRouter = createTRPCRouter({
   /**
    * Fetch book details from Google Books API
    */
-  retrieveByISBNs: publicProcedure
+  retrieveDetailsByISBNs: publicProcedure
     .input(z.object({ isbns: z.string().min(10).array() }))
     .query(async ({ input }) => {
       // logger.info("Fetching book from Google Books API");
-      console.log("Fetching books from Google Books API");
+      console.log("Fetching all details for books");
       console.log(input.isbns);
-      const isbnDetails: GoogleBooksDetails[] = [];
+
+      const allBookDetails: AllBookDetails[] = [];
       for (const isbn of input.isbns) {
         console.log(`ISBN: ${isbn}`);
-        const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
-        await fetch(queryURL)
-          .then((response) => response.json())
-          .then((response) => {
-            const googleBookResponse =
-              GoogleBooksResponseSchema.safeParse(response);
-            if (!googleBookResponse.success) {
-              console.log(`Could not obtain book details for ISBN ${isbn}`);
-              return;
-            } else {
-              const volumeInfo = googleBookResponse.data.items.map((item) => {
-                return item.volumeInfo;
-              });
-              const bookDetails = volumeInfo[0];
-              if (bookDetails) {
-                console.log("Book Details: ");
-                console.log(bookDetails);
-                isbnDetails.push(bookDetails);
-              }
-            }
-          });
+        const bookPrice = await getBooksRunPrices(isbn);
+        let relatedBooks: bookWithAuthorsType[] = [];
+        const bookDetails = await getGoogleBooksDetails(isbn);
+        if (!bookDetails) {
+          continue;
+        }
+        relatedBooks = await getRelatedBooks(bookDetails);
+        const retrievedBookDetails = {
+          googleBooKDetails: bookDetails,
+          booksRunPrice: bookPrice,
+          relatedBooks: relatedBooks,
+        } as AllBookDetails;
+        console.log("Retrieved book details: ");
+        console.log(retrievedBookDetails);
+        allBookDetails.push(retrievedBookDetails);
       }
-      return isbnDetails;
+      // console.log("All book details: ");
+      // console.log(allBookDetails);
+      return allBookDetails;
     }),
 
   /**
@@ -227,6 +364,65 @@ export const googleBooksRouter = createTRPCRouter({
       }
       console.log(bookPrices);
       return bookPrices;
+    }),
+
+  findRelatedBooks: publicProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        author: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const allBooks = await prisma.book.findMany({
+        where: { display: true },
+        include: {
+          authors: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+      type allBooksType = (typeof allBooks)[number];
+      type returnBookType = {
+        item: allBooksType;
+        score: number;
+        refIndex: number;
+      };
+
+      const options = {
+        includeScore: true,
+        ignoreLocation: true,
+        keys: [
+          {
+            name: "title",
+            weight: 0.7,
+            getFn: (book: allBooksType) => book.title,
+          },
+          {
+            name: "authors",
+            weight: 0.3,
+            getFn: (book: allBooksType) =>
+              book.authors.map((author) => author.name).join(","),
+          },
+        ],
+      };
+
+      const fuse = new Fuse(allBooks, options);
+      const searchResults = fuse.search({
+        title: input.title,
+        authors: input.author,
+      });
+      const returnableSearchResult = searchResults as returnBookType[];
+      // console.log(
+      //   returnableSearchResult.map((result) =>
+      //     result.item.authors.map((author) => author.name).join(", ")
+      //   )
+      // );
+      console.log("Related book search results: ");
+      console.log(returnableSearchResult);
+      return returnableSearchResult;
     }),
 
   getSecretMessage: protectedProcedure.query(() => {

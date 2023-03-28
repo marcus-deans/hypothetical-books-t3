@@ -76,47 +76,48 @@ export default function DetailGenre(
 
   return (
     <>
-    <Head>
-      <title>Genre Details</title>
-    </Head>
-    <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
+      <Head>
+        <title>Genre Details</title>
+      </Head>
+      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Book List of ${data.name}`}{" Genre"}
+          {`Book List of ${data.name}`}
+          {" Genre"}
         </h1>
       </div>
-    <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
-      <Box
-        sx={{
-          height: "auto",
-          "& .header-theme": {
-            backgroundColor: "rgba(56, 116, 203, 0.35)",
-          },
-          "& .MuiDataGrid-cell--textLeft": {
-            textAlign: "left",
-          },
-        }}
-      >
-        <StripedDataGrid
-          rows={rows}
-          columns={columns}
-          components={{
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            Toolbar: GridToolbar,
+      <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+        <Box
+          sx={{
+            height: "auto",
+            "& .header-theme": {
+              backgroundColor: "rgba(56, 116, 203, 0.35)",
+            },
+            "& .MuiDataGrid-cell--textLeft": {
+              textAlign: "left",
+            },
           }}
-          pageSize={10}
-          rowsPerPageOptions={[10]}
-          autoHeight={true}
-          rowHeight={40}
-          disableSelectionOnClick
-          experimentalFeatures={{ newEditingApi: true }}
-          getRowClassName={(params) =>
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-          }
-        />
-      </Box>
-    </div>
+        >
+          <StripedDataGrid
+            rows={rows}
+            columns={columns}
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              Toolbar: GridToolbar,
+            }}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
+            autoHeight={true}
+            rowHeight={40}
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            getRowClassName={(params) =>
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+              params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+            }
+          />
+        </Box>
+      </div>
     </>
   );
 }

@@ -105,14 +105,7 @@ export default function sales(
         <title>Sales</title>
       </Head>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Sales Record </h1>
-        <Link
-          className="ml-2 inline-block text-2xl text-blue-600"
-          href="/sales/add/reconciliation"
-        >
-          {" "}
-          +{" "}
-        </Link>
+        <h1 className="inline-block text-2xl"> Sales Records </h1>
       </div>
 
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">

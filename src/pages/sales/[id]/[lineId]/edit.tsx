@@ -110,7 +110,7 @@ export default function EditSalesLine(
         <title>Edit Sales Line</title>
       </Head>
       <div className="pt-6">
-        <form className="rounded bg-white px-6 py-6 inline-block">
+        <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
               Edit Sales Line
@@ -119,14 +119,14 @@ export default function EditSalesLine(
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
                 <div className="space-y-20">
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
                       <Autocomplete
                         options={salesReconciliationOptions}
                         value={salesValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setSalesValue(newValue);
                         }}
@@ -138,7 +138,7 @@ export default function EditSalesLine(
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
                             label="Select a Sales Record by Date"
                           />
@@ -151,7 +151,7 @@ export default function EditSalesLine(
                         value={bookValue}
                         onChange={(
                           event,
-                          newValue: { label: string; id: string; } | null
+                          newValue: { label: string; id: string } | null
                         ) => {
                           setBookValue(newValue);
                         }}
@@ -163,7 +163,7 @@ export default function EditSalesLine(
                           <TextField
                             {...params}
                             inputProps={{
-                              ...params.inputProps
+                              ...params.inputProps,
                             }}
                             label="Select a Book by Title"
                           />
@@ -171,7 +171,7 @@ export default function EditSalesLine(
                       />
                     </FormControl>
                   </div>
-                  <div className="flex space-x-10 justify-center">
+                  <div className="flex justify-center space-x-10">
                     <FormControl>
                       <TextField
                         id="quantity"

@@ -159,7 +159,7 @@ export default function PurchaseOrderDetail(
           {`Purchase Order on ${data.purchaseOrderWithOverallMetrics.date.toLocaleDateString()}`}{" "}
         </h1>
       </div>
-      <div className="pt-3 space flex">
+      <div className="space flex pt-3">
         <Link className="items-end pr-3" href={`/purchases/${id}/add`} passHref>
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
@@ -168,7 +168,11 @@ export default function PurchaseOrderDetail(
             Add Purchase Line
           </Button>
         </Link>
-        <Link className="items-end px-3" href={`/purchases/${id}/edit`} passHref>
+        <Link
+          className="items-end px-3"
+          href={`/purchases/${id}/edit`}
+          passHref
+        >
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
@@ -188,7 +192,11 @@ export default function PurchaseOrderDetail(
             Delete Purchase Order
           </Button>
         </Link>
-        <Link className="items-end px-3" href={`/purchases/${id}/import`} passHref>
+        <Link
+          className="items-end px-3"
+          href={`/purchases/${id}/import`}
+          passHref
+        >
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"

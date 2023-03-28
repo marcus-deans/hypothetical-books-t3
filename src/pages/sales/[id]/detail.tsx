@@ -105,32 +105,6 @@ export default function SalesOrderDetail(
       },
       minWidth: 80,
     },
-    {
-      field: "edit",
-      headerName: "Edit",
-      headerClassName: "header-theme",
-      maxWidth: 60,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <EditLink url={`/sales/${id}/${params.id}/edit`} />
-      ),
-    },
-    {
-      field: "delete",
-      headerName: "Delete",
-      headerClassName: "header-theme",
-      maxWidth: 70,
-      align: "center",
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <DeleteLink url={`/sales/${id}/${params.id}/delete`} />
-      ),
-    },
   ];
 
   const rows = data.salesReconciliationWithOverallMetrics.salesLines.map(
@@ -160,23 +134,7 @@ export default function SalesOrderDetail(
           {`Sales Record on ${data.salesReconciliationWithOverallMetrics.date.toLocaleDateString()}`}{" "}
         </h1>
       </div>
-      <div className="pt-3 space flex">
-        <Link className="items-end pr-3" href={"/sales/add/line"} passHref>
-          <Button
-            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-            variant="contained"
-          >
-            Add Sales Line
-          </Button>
-        </Link>
-        <Link className="items-end px-3" href={`/sales/${id}/edit`} passHref>
-          <Button
-            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-            variant="contained"
-          >
-            Edit Sales Record
-          </Button>
-        </Link>
+      <div className="space flex pt-3">
         <Link className="items-end px-3" href={`/sales/${id}/delete`} passHref>
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
@@ -186,13 +144,13 @@ export default function SalesOrderDetail(
           </Button>
         </Link>
         <Link className="items-end px-3" href={`/sales/${id}/import`} passHref>
-        <Button
-          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-          variant="contained"
-        >
-          Import CSV
-        </Button>
-      </Link>
+          <Button
+            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            variant="contained"
+          >
+            Import CSV
+          </Button>
+        </Link>
       </div>
       <div className="mt-5 h-3/4 space-y-4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
         <Box
