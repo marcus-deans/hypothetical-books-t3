@@ -58,6 +58,11 @@ export const casesRouter = createTRPCRouter({
       const { id } = input;
       const caseDesign = await prisma.case.findUnique({
         where: { id },
+        include: {
+          shelves: true,
+          creator: true,
+          editor: true,
+        },
       });
       if (!caseDesign) {
         throw new TRPCError({
