@@ -7,24 +7,41 @@ import type { CustomUser } from "./schema/user.schema";
 export default withAuth(
   // `withAuth` augments your `Request` with the user's token.
   async function middleware(req: NextRequest) {
-    console.log("Running Middleware")
     const { pathname } = req.nextUrl;
+    console.log("Running Middleware")
+    const token = await getToken({ req });
+    const protectedUserPaths = [
+      "/books",
+      "/sales",
+      "/purchases",
+      "/buybacks",
+      "/vendors",
+      "/authors",
+      "/genres",
+      "/report",
+      "/users",
+      "/shelfcalculator",
+    ]
+    const matchesProtectedUserPath = protectedUserPaths.some((path) =>
+      pathname.startsWith(path)
+    );
+    if(!token){
+      console.log("No Token Present")
+      const url = new URL(`/auth/signin`, req.url);
+      url.searchParams.set("callbackUrl", encodeURI(req.url));
+      return NextResponse.redirect(url);
+    }
     console.log(pathname)
-    const protectedPaths = ["/users"];
-    const matchesProtectedPath = protectedPaths.some((path) =>
+    const protectedAdminPaths = ["/users"];
+
+    const matchesProtectedPath = protectedAdminPaths.some((path) =>
       pathname.startsWith(path)
     );
     if (matchesProtectedPath) {
       console.log("Accesing Privileged Path")
-      const token = await getToken({ req });
-      if (!token) {
-        const url = new URL(`/signin`, req.url);
-        url.searchParams.set("callbackUrl", encodeURI(req.url));
-        return NextResponse.redirect(url);
-      }
       const user = token.user as CustomUser;
       if (!user || user.role !== "admin") {
-        const url = new URL(`/`, req.url);
+        const url = new URL(`/403`, req.url);
         return NextResponse.rewrite(url);
       }
     }
@@ -34,36 +51,17 @@ export default withAuth(
     );
     if (matchesProtectedPathEnd) {
       console.log("Accesing Privileged Path End")
-      const token = await getToken({ req });
-      if (!token) {
-        const url = new URL(`/signin`, req.url);
-        url.searchParams.set("callbackUrl", encodeURI(req.url));
-        return NextResponse.redirect(url);
-      }
       const user = token.user as CustomUser;
       if (!user || user.role !== "admin") {
-        const paths = pathname.split("/")
-        paths.pop()
-        paths.push("detail")
-        const newpath = paths.join("/");
-        const url = new URL(newpath, req.url);
+        const url = new URL(`/403`, req.url);
         return NextResponse.rewrite(url);
       }
     }
     if(pathname.endsWith("add")){
       console.log("Accesing Privileged Add Path")
-      const token = await getToken({ req });
-      if (!token) {
-        const url = new URL(`/signin`, req.url);
-        url.searchParams.set("callbackUrl", encodeURI(req.url));
-        return NextResponse.redirect(url);
-      }
       const user = token.user as CustomUser;
       if (!user || user.role !== "admin") {
-        const paths = pathname.split("/")
-        paths.pop()
-        const newpath = paths.join("/");
-        const url = new URL(newpath, req.url);
+        const url = new URL(`/403`, req.url);
         return NextResponse.rewrite(url);
       }
     }
