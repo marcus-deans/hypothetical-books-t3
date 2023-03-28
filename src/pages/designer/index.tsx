@@ -16,7 +16,7 @@ import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import React from "react";
 
 export default function index() {
-  const casesQuery = api.designer.getAllCases.useQuery({
+  const casesQuery = api.cases.getAll.useQuery({
     cursor: null,
     limit: 50,
   });
@@ -241,7 +241,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.designer.getAllCases.prefetch({
+  await ssg.cases.getAll.prefetch({
     cursor: null,
     limit: 50,
   });

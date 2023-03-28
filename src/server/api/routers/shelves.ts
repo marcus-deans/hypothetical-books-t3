@@ -30,7 +30,7 @@ export const shelvesRouter = createTRPCRouter({
             }
           : undefined,
         orderBy: {
-          editedAt: "asc",
+          id: "asc",
         },
       });
       let nextCursor: typeof cursor | undefined = undefined;
@@ -51,65 +51,84 @@ export const shelvesRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
-      const caseDesign = await prisma.case.findUnique({
+      const shelf = await prisma.shelf.findUnique({
         where: { id },
       });
-      if (!caseDesign) {
+      if (!shelf) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No genre with id '${id}'`,
+          message: `No shelf with id '${id}'`,
         });
       }
-      return caseDesign;
+      return shelf;
     }),
 
   add: publicProcedure
     .input(
       z.object({
-        name: z.string(),
-        creatorId: z.string(),
-        width: z.number,
-        shelfCount: z.number,
-        shelvesIds: z.string().array(),
+        caseId: z.string(),
+        spaceUsed: z.number(),
       })
     )
     .mutation(async ({ input }) => {
-      const newCase = await prisma.case.create({
+      const newShelf = await prisma.shelf.create({
         data: {
-          name: input.name,
-          creator: {
+          case: {
             connect: {
-              id: input.creatorId,
+              id: input.caseId,
             },
           },
-          editor: {
-            connect: {
-              id: input.creatorId,
-            },
-          },
-          width: input.width,
-          shelfCount: input.shelfCount,
-          shelves: {
-            connect: input.shelvesIds.map((id) => ({ id })),
-          },
+          spaceUsed: input.spaceUsed,
         },
       });
-      return newCase;
+
+      return newShelf;
+    }),
+
+  edit: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        spaceUsed: z.number(),
+        booksIds: z.array(z.string()),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const newShelf = await prisma.shelf.update({
+        where: { id: input.id },
+        data: {
+          spaceUsed: input.spaceUsed,
+        },
+      });
+
+      for (const bookId of input.booksIds) {
+        await prisma.shelf.update({
+          where: { id: input.id },
+          data: {
+            booksIds: {
+              connect: {
+                id: bookId,
+              },
+            },
+          },
+        });
+      }
+      return newShelf;
     }),
 
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { id } = input;
-      const deletedCase = await prisma.case.delete({
+      const deletedShelf = await prisma.shelf.delete({
         where: { id },
       });
-      if (!deletedCase) {
+      if (!deletedShelf) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `No case to delete with id '${id}'`,
+          message: `No shelf to delete with id '${id}'`,
         });
       }
-      return deletedCase;
+      return deletedShelf;
     }),
 });

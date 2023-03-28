@@ -16,15 +16,15 @@ import { prisma } from "../../../server/db";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function DeleteGenre(
+export default function DeleteCase(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const caseDetailsQuery = api.designer.getById.useQuery({
+  const caseDetailsQuery = api.cases.getById.useQuery({
     id,
   });
 
-  const deleteMutation = api.designer.delete.useMutation();
+  const deleteMutation = api.cases.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   // if (router.isFallback) {
@@ -89,7 +89,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.designer.getById.prefetch({ id });
+  await ssg.cases.getById.prefetch({ id });
 
   return {
     props: {
