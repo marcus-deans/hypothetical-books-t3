@@ -29,12 +29,6 @@ export default async function addToBookhookHandler(
     });
     return;
   }
-  // const InputSchema = z
-  //   .object({
-  //     name: z.string().optional(),
-  //   })
-  //   .catchall(z.any());
-  // const input = InputSchema.parse(req.body);
 
   const options = {
     ignoreAttributes: false,
@@ -89,6 +83,7 @@ export default async function addToBookhookHandler(
   } else {
     console.log("Data is valid");
     salesDate = inputData.data.sale["@_date"];
+    salesDate.setUTCHours(4, 0, 0, 0);
     inputData.data.sale.item.forEach((item) => {
       const itemData = BookHookItemSchema.safeParse(item);
       if (!itemData.success) {
@@ -116,7 +111,7 @@ export default async function addToBookhookHandler(
   if (processedData.length == 0) {
     res.status(400).json({
       type: "PARSE_ERROR",
-      message: "No ISBNs could be found",
+      message: "No valid line items could be found",
     });
     return;
   }
