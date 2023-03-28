@@ -156,9 +156,12 @@ export default function AddShelf(
   } | null>(null);
   const [bookInputValue, setBookInputValue] = useState("");
   const [totalSpaceSum, setTotalSpaceSum] = useState(0);
-
+  const [fetchShelfDetails, setFetchShelfDetails] = useState(true);
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
-  const shelfQuery = api.shelves.getById.useQuery({ id: shelfId });
+  const shelfQuery = api.shelves.getById.useQuery(
+    { id: shelfId },
+    { enabled: fetchShelfDetails, staleTime: 1200000 }
+  );
 
   const books = booksQuery?.data?.items ?? [];
   const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
@@ -167,51 +170,57 @@ export default function AddShelf(
     return <div>Loading...</div>;
   }
 
-  console.log("Query successful, trying now");
-  let computedTotalSpace = 0;
-  let computedDisplayedBooks: BookCalcDetails[] = [];
-  if (shelfQuery.isSuccess) {
-    const shelfDetails = shelfQuery?.data ?? [];
-    computedTotalSpace = 0;
-    computedDisplayedBooks = shelfDetails.booksOnShelf.map((bookOnShelf) => {
-      console.log("Book on shelf:");
-      console.log(bookOnShelf);
-      const book = bookOnShelf.book;
-      const displayBook: BookCalcDetails = {
-        id: uuidv4(),
-        internalId: book.id,
-        title: book.title,
-        inventoryCount: book.inventoryCount,
-        displayCount: book.inventoryCount,
-        width: book.width,
-        height: book.height,
-        thickness: book.thickness,
-        displayStyle: bookOnShelf.orientation,
-        shelfSpace: "",
-        usedDefault: false,
-      };
-      displayBook.shelfSpace = calcShelfSpace(
-        displayBook.width,
-        displayBook.height,
-        displayBook.thickness,
-        displayBook.displayStyle,
-        displayBook.displayCount
-      ).toString();
-      if (book.width == 0 || book.height == 0 || book.thickness == 0) {
-        displayBook.usedDefault = true;
-      }
-      console.log("Attempting to update display book with");
-      console.log(displayBook);
-      computedTotalSpace += parseFloat(displayBook.shelfSpace);
-      const spaceVal = Number.parseFloat(displayBook.shelfSpace)
-        .toFixed(2)
-        .toString();
-      displayBook.shelfSpace = displayBook.usedDefault
-        ? spaceVal + "*"
-        : spaceVal;
-      return displayBook;
-    });
-  }
+  // let computedTotalSpace = 0;
+  // let computedDisplayedBooks: BookCalcDetails[] = [];
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (shelfQuery.isSuccess) {
+      setFetchShelfDetails(false);
+      const shelfDetails = shelfQuery?.data ?? [];
+      let computedTotalSpace = 0;
+      const computedDisplayedBooks = shelfDetails.booksOnShelf.map(
+        (bookOnShelf) => {
+          const book = bookOnShelf.book;
+          const displayBook: BookCalcDetails = {
+            id: uuidv4(),
+            internalId: book.id,
+            title: book.title,
+            inventoryCount: book.inventoryCount,
+            displayCount: book.inventoryCount,
+            width: book.width,
+            height: book.height,
+            thickness: book.thickness,
+            displayStyle: bookOnShelf.orientation,
+            shelfSpace: "",
+            usedDefault: false,
+          };
+          displayBook.shelfSpace = calcShelfSpace(
+            displayBook.width,
+            displayBook.height,
+            displayBook.thickness,
+            displayBook.displayStyle,
+            displayBook.displayCount
+          ).toString();
+          if (book.width == 0 || book.height == 0 || book.thickness == 0) {
+            displayBook.usedDefault = true;
+          }
+          computedTotalSpace += parseFloat(displayBook.shelfSpace);
+          const spaceVal = Number.parseFloat(displayBook.shelfSpace)
+            .toFixed(2)
+            .toString();
+          displayBook.shelfSpace = displayBook.usedDefault
+            ? spaceVal + "*"
+            : spaceVal;
+          return displayBook;
+        }
+      );
+      console.log(computedDisplayedBooks);
+      setDisplayedBooks(computedDisplayedBooks);
+      setTotalSpaceSum(computedTotalSpace);
+    }
+  }),
+    [shelfQuery.isSuccess, shelfQuery.data];
 
   const addMutation = api.shelves.add.useMutation();
   const bookOptions = books.map((book) => ({
@@ -219,8 +228,7 @@ export default function AddShelf(
     id: book.id,
   }));
 
-  setDisplayedBooks(computedDisplayedBooks);
-  setTotalSpaceSum(computedTotalSpace);
+  // setTotalSpaceSum(computedTotalSpace);
 
   const rows = displayedBooks;
 
@@ -229,6 +237,7 @@ export default function AddShelf(
       newRow.displayStyle == "Cover Out" &&
       8 > newRow.thickness * newRow.displayCount
     ) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       newRow.displayCount = oldRow.displayCount;
     }
     const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
