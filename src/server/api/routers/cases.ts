@@ -68,13 +68,45 @@ export const casesRouter = createTRPCRouter({
       return caseDesign;
     }),
 
+  edit: publicProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        caseId: z.string(),
+        editorId: z.string(),
+        width: z.number(),
+        shelfCount: z.number(),
+        shelvesIds: z.string().array(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const updatedCase = await prisma.case.update({
+        where: {
+          id: input.caseId,
+        },
+        data: {
+          editor: {
+            connect: {
+              id: input.editorId,
+            },
+          },
+          width: input.width,
+          shelfCount: input.shelfCount,
+          shelves: {
+            connect: input.shelvesIds.map((id) => ({ id })),
+          },
+        },
+      });
+      return updatedCase;
+    }),
+
   add: publicProcedure
     .input(
       z.object({
         name: z.string(),
         creatorId: z.string(),
-        width: z.number,
-        shelfCount: z.number,
+        width: z.number(),
+        shelfCount: z.number(),
         shelvesIds: z.string().array(),
       })
     )
