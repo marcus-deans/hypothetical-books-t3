@@ -12,9 +12,9 @@ import * as AWS from "aws-sdk";
 import { v2 as cloudinary } from "cloudinary";
 // Configuration
 cloudinary.config({
-  cloud_name: "dtyhei91n",
-  api_key: "259515673926289",
-  api_secret: "pHSeZffT1BcDQ7u_-fVZyuy5eBA",
+  cloud_name: env.CLOUDINARY_CLOUD_NAME,
+  api_key: env.CLOUDINARY_API_KEY,
+  api_secret: env.CLOUDINARY_API_SECRET,
 });
 
 const s3 = new AWS.S3();
@@ -414,6 +414,7 @@ export const booksRouter = createTRPCRouter({
         width: z.number().gte(0),
         height: z.number().gte(0),
         thickness: z.number().gte(0),
+        imgUrl: z.string(),
       })
     )
 
@@ -427,7 +428,7 @@ export const booksRouter = createTRPCRouter({
           width: input.width,
           height: input.height,
           thickness: input.thickness,
-          // imgUrl: `https://${env.AWS_S3_BUCKET}.s3.amazonaws.com/images/${input.id}`,
+          imgUrl: input.imgUrl,
         },
       });
     }),
