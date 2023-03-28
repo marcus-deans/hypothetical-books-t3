@@ -126,18 +126,14 @@ export default function CaseDetail(
       ),
     },
   ];
-  const rows = data..buybackLines.map(
-    (buybackLine) => {
+  const rows = data.shelves.map(
+    (shelf) => {
       return {
-        id: buybackLine.id,
-        bookId: buybackLine.book.id,
-        title: buybackLine.book.title,
-        isbn_13: buybackLine.book.isbn_13,
-        unitBuybackPrice: `${buybackLine.unitBuybackPrice.toFixed(2)}`,
-        quantity: buybackLine.quantity,
-        subtotal: `${(
-          buybackLine.unitBuybackPrice * buybackLine.quantity
-        ).toFixed(2)}`,
+        id: shelf.id,
+        case: shelf.case,
+        caseId: shelf.caseId,
+        spaceUsed: shelf.spaceUsed,
+        books: shelf.books
       };
     }
   );
@@ -145,12 +141,12 @@ export default function CaseDetail(
   return (
     <>
       <Head>
-        <title>Buyback Details</title>
+        <title>Case Details</title>
       </Head>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Buy Back Order on ${data.buybackOrderWithOverallMetrics.date.toLocaleDateString()}`}{" "}
+          {`Cases Edited At ${data.editedAt.toLocaleDateString()}`}{" "}
         </h1>
       </div>
       <div className="space flex pt-3">
@@ -159,39 +155,27 @@ export default function CaseDetail(
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
           >
-            Add Buyback Line
+            Add Shelf
           </Button>
         </Link>
-        <Link className="items-end px-3" href={`/buybacks/${id}/edit`} passHref>
+        <Link className="items-end px-3" href={`/designer/${id}/edit`} passHref>
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
           >
-            Edit Buyback Order
+            Edit Case
           </Button>
         </Link>
         <Link
           className="items-end px-3"
-          href={`/buybacks/${id}/delete`}
+          href={`/designer/${id}/delete`}
           passHref
         >
           <Button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
           >
-            Delete Buyback Order
-          </Button>
-        </Link>
-        <Link
-          className="items-end px-3"
-          href={`/buybacks/${id}/import`}
-          passHref
-        >
-          <Button
-            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-            variant="contained"
-          >
-            Import CSV
+            Delete Case
           </Button>
         </Link>
       </div>
@@ -226,12 +210,6 @@ export default function CaseDetail(
             }
           />
         </Box>
-      </div>
-      <div className="flex space-x-5 rounded-b-lg bg-white px-3 py-3">
-        <div className="text-large px-15 ">
-          {`Grand Total: $${data.totalPrice.toFixed(2)}`}
-        </div>
-        <div className="text-large px-15 ">{`Vendor Name: ${data.buybackOrderWithOverallMetrics.vendor.name}`}</div>
       </div>
     </>
   );
