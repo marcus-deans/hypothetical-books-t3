@@ -50,6 +50,7 @@ export const config = {
     "/authors/:path*",
     "/genres/:path*",
     "/report/:path*",
-    "/users/:path*"
+    "/users/:path*",
+    "/shelfcalculator/:path*",
   ],
 };
