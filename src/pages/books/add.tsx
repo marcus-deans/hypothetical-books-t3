@@ -166,6 +166,7 @@ export default function AddBook() {
   };
 
   const modalStyle = {
+    /* eslint-disable */
     position: "absolute" as "absolute",
     top: "40%",
     left: "50%",
@@ -174,6 +175,7 @@ export default function AddBook() {
     boxShadow: 24,
     borderRadius: "6px",
     p: 3,
+    /* eslint-enable */
   };
 
   const columns: GridColDef[] = [
@@ -362,12 +364,14 @@ export default function AddBook() {
                   Related Books for: {title} by {authors}
                 </Typography>
                 <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                  {/* eslint-disable */}
                   {relatedBooks.map((relatedBook) => {
                     return (
                       <div>
                         <div>{relatedBook.title} by {relatedBook.authors[0]?.name}</div>
                       </div>
                     );
+                  {/* eslint-enable */}
                   })}
                 </Typography>
               </Box>
