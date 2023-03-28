@@ -43,7 +43,7 @@ model Book {
   correction            Correction[]
   relatedBooks          Book[]                 @relation("RelatedBooks")
   symmetricRelatedBooks Book[]                 @relation("RelatedBooks")
-  shelves               Shelf[]
+  booksOnShelves        BookOnShelf[]
 }
 
 model Genre {
@@ -172,11 +172,20 @@ model Case {
 }
 
 model Shelf {
-  id        String @id @default(cuid())
-  case      Case   @relation(fields: [caseId], references: [id])
-  caseId    String
-  spaceUsed Float
-  books     Book[]
+  id           String        @id @default(cuid())
+  case         Case          @relation(fields: [caseId], references: [id])
+  caseId       String
+  spaceUsed    Float
+  booksOnShelf BookOnShelf[]
+}
+
+model BookOnShelf {
+  id          String @id @default(cuid())
+  book        Book   @relation(fields: [bookId], references: [id])
+  bookId      String
+  shelf       Shelf  @relation(fields: [shelfId], references: [id])
+  shelfId     String
+  orientation String
 }
 
 model Example {

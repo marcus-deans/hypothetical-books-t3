@@ -23,6 +23,13 @@ export const shelvesRouter = createTRPCRouter({
 
       const items = await prisma.shelf.findMany({
         // get an extra item at the end which we'll use as next cursor
+        include: {
+          booksOnShelf: {
+            include: {
+              book: true,
+            },
+          },
+        },
         take: limit + 1,
         cursor: cursor
           ? {
@@ -53,6 +60,13 @@ export const shelvesRouter = createTRPCRouter({
       const { id } = input;
       const shelf = await prisma.shelf.findUnique({
         where: { id },
+        include: {
+          booksOnShelf: {
+            include: {
+              book: true,
+            },
+          },
+        },
       });
       if (!shelf) {
         throw new TRPCError({
@@ -68,6 +82,10 @@ export const shelvesRouter = createTRPCRouter({
       z.object({
         caseId: z.string(),
         spaceUsed: z.number(),
+        bookDetails: z.object({
+          bookId: z.string(),
+          orientation: z.string(),
+        }),
       })
     )
     .mutation(async ({ input }) => {
@@ -82,6 +100,26 @@ export const shelvesRouter = createTRPCRouter({
         },
       });
 
+      for (const bookDetails of input.bookDetails) {
+        const bookId = bookDetails.bookId;
+        const bookOrientation = bookDetails.orientation;
+        const newBookOnShelf = await prisma.bookOnShelf.create({
+          data: {
+            book: {
+              connect: {
+                id: bookId,
+              },
+            },
+            shelf: {
+              connect: {
+                id: newShelf.id,
+              },
+            },
+            orientation: bookOrientation,
+          },
+        });
+      }
+
       return newShelf;
     }),
 
@@ -90,7 +128,10 @@ export const shelvesRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         spaceUsed: z.number(),
-        booksIds: z.array(z.string()),
+        bookDetails: z.object({
+          bookId: z.string(),
+          orientation: z.string(),
+        }),
       })
     )
     .mutation(async ({ input }) => {
@@ -101,16 +142,26 @@ export const shelvesRouter = createTRPCRouter({
         },
       });
 
-      for (const bookId of input.booksIds) {
-        await prisma.shelf.update({
-          where: { id: input.id },
+      for (const bookDetails of input.bookDetails) {
+        const bookId = bookDetails.bookId;
+        const bookOrientation = bookDetails.orientation;
+        const newBookOnShelf = await prisma.bookOnShelf.create({
           data: {
-            books: {
-              connect: [{ id: bookId }],
+            book: {
+              connect: {
+                id: bookId,
+              },
             },
+            shelf: {
+              connect: {
+                id: newShelf.id,
+              },
+            },
+            orientation: bookOrientation,
           },
         });
       }
+
       return newShelf;
     }),
 

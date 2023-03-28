@@ -24,7 +24,15 @@ export const casesRouter = createTRPCRouter({
       const items = await prisma.case.findMany({
         // get an extra item at the end which we'll use as next cursor
         include: {
-          shelves: true,
+          shelves: {
+            include: {
+              booksOnShelf: {
+                include: {
+                  book: true,
+                },
+              },
+            },
+          },
           creator: true,
           editor: true,
         },
@@ -61,7 +69,11 @@ export const casesRouter = createTRPCRouter({
         include: {
           shelves: {
             include: {
-              books: true,
+              booksOnShelf: {
+                include: {
+                  book: true,
+                },
+              },
             },
           },
           creator: true,
@@ -105,9 +117,9 @@ export const casesRouter = createTRPCRouter({
           },
           width: input.width,
           shelfCount: input.shelfCount,
-          shelves: {
-            connect: input.shelvesIds.map((id) => ({ id })),
-          },
+          // shelves: {
+          //   connect: input.shelvesIds.map((id) => ({ id })),
+          // },
         },
       });
       return updatedCase;
@@ -143,9 +155,9 @@ export const casesRouter = createTRPCRouter({
           },
           width: input.width,
           shelfCount: input.shelfCount,
-          shelves: {
-            connect: input.shelvesIds.map((id) => ({ id })),
-          },
+          // shelves: {
+          //   connect: input.shelvesIds.map((id) => ({ id })),
+          // },
         },
       });
       return newCase;
