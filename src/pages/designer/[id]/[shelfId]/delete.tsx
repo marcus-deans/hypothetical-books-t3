@@ -16,7 +16,7 @@ import { createInnerTRPCContext } from "../../../../server/api/trpc";
 import DeletePane from "../../../../components/DeletePane";
 import { prisma } from "../../../../server/db";
 
-export default function DeleteCase(
+export default function DeleteShelf(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const id = props.id;

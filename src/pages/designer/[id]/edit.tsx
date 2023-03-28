@@ -30,7 +30,7 @@ import { toast } from "react-toastify";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
 
-export default function EditBuyBack(
+export default function EditCase(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { data: session, status } = useSession();

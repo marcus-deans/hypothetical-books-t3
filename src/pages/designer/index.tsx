@@ -2,7 +2,7 @@ import { Typography } from "@mui/material";
 import Head from "next/head";
 import Link from "next/link";
 import type { GetServerSidePropsContext } from "next";
-import { createProxySSGHelpers } from "@trpc/react-query/dist/ssg";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";

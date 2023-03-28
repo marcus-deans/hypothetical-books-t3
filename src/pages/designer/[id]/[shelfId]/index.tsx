@@ -34,7 +34,7 @@ import StripedDataGrid from "../../../../components/table-components/StripedData
 //   ? `${shelfSpace.toString()}* in.`
 //   : `${shelfSpace.toString()} in.`;
 
-export default function Calculator(
+export default function Shelf(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const id = props.id;
