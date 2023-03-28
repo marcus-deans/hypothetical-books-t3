@@ -211,6 +211,7 @@ export default function AddShelf(
             orientation: book.displayStyle,
           };
         }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!,
       });
       setTimeout(() => {

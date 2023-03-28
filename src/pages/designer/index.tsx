@@ -55,7 +55,7 @@ export default function index() {
       align: "left",
       headerAlign: "left",
       type: "number",
-      minWidth: 100,
+      minWidth: 150,
     },
     {
       field: "width",
@@ -64,7 +64,7 @@ export default function index() {
       align: "left",
       headerAlign: "left",
       type: "number",
-      minWidth: 100,
+      minWidth: 150,
     },
     {
       field: "creator",
@@ -72,7 +72,7 @@ export default function index() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 100,
+      minWidth: 150,
     },
     {
       field: "editor",
@@ -80,7 +80,7 @@ export default function index() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 100,
+      minWidth: 200,
     },
     {
       field: "editedAt",
@@ -88,7 +88,7 @@ export default function index() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 100,
+      minWidth: 300,
     },
     {
       field: "edit",
