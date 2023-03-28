@@ -46,11 +46,6 @@ const Home: NextPage = (): JSX.Element => {
               <Link href="/auth/createAdmin">{!auth && !exist && "Create Admin Account"}</Link>
             </button> : null}
           </div>
-          <div className="space-x-2 mb-2">
-            {user && user.role == "admin" ? <button className="rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700">
-              <Link href="/users">{"Go To User List"}</Link>
-            </button> : null}
-          </div>
         </div>
       </div>
     </>
