@@ -174,6 +174,8 @@ const getRelatedBooks = async (book: GoogleBooksDetails) => {
     title: book.title,
     authors: book.authors.join(", "),
   });
+  console.log("Related book search results");
+  console.log(searchResults);
   const returnableSearchResult = searchResults as returnBookType[];
   // console.log(
   //   returnableSearchResult.map((result) =>
