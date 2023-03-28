@@ -268,7 +268,7 @@ export async function getStaticProps(
 ) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: await createInnerTRPCContext({ session: null }),
+    ctx: createInnerTRPCContext({ session: null }),
     transformer: superjson,
   });
   const id = context.params?.id as string;
