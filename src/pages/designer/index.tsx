@@ -126,7 +126,7 @@ export default function index() {
       width: caseWithShelves.width,
       creator: caseWithShelves.creator.name,
       editor: caseWithShelves.editor.name,
-      editedAt: caseWithShelves.editedAt,
+      editedAt: caseWithShelves.editedAt.toLocaleString(),
     };
   });
 

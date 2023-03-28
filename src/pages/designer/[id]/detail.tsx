@@ -42,9 +42,9 @@ export default function CaseDetail(
         return (
           <div className="text-blue-600">
             {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions */}
-            <a href={`/designer/${id}/${params.row.shelfId}`}>
+            <a href={`/designer/${id}/${params.row.id}`}>
               {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
-              {params.row.shelfId}{" "}
+              {params.row.id}{" "}
             </a>
           </div>
         );
@@ -57,7 +57,7 @@ export default function CaseDetail(
       align: "left",
       headerAlign: "left",
       type: "number",
-      minWidth: 170,
+      minWidth: 200,
     },
     {
       field: "numberBooks",
@@ -66,7 +66,7 @@ export default function CaseDetail(
       align: "left",
       headerAlign: "left",
       type: "number",
-      minWidth: 80,
+      minWidth: 150,
     },
     {
       field: "books",
@@ -81,9 +81,10 @@ export default function CaseDetail(
           <div>
             {/* eslint-disable */}
             {params.row.books.map((book: BookDetail) => (
-              <div key={book.id} className="text-blue-600">
-                <a href={`/books/${book.id}/detail`}>{book.title} </a>
-              </div>
+              <a className="text-blue-600" href={`/books/${book.id}/detail`}>
+                {book.title}
+                {", "}
+              </a>
             ))}
             {/* eslint-enable */}
           </div>
