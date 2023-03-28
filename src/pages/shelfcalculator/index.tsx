@@ -133,6 +133,13 @@ export default function Calculator(
   const rows = displayedBooks;
 
   const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
+    if (
+      newRow.displayStyle == "Cover Out" &&
+      8 > newRow.thickness * newRow.displayCount
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      newRow.displayCount = oldRow.displayCount;
+    }
     const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
       const oldId = (oldRow as BookCalcDetails).id;
       if (displayedBook.id === oldId) {

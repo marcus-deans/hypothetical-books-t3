@@ -24,21 +24,33 @@ import { createInnerTRPCContext } from "../../../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../../../utils/api";
 import StripedDataGrid from "../../../../components/table-components/StripedDataGrid";
-// const shelfSpace =
-//     data.thickness === 0
-//       ? (0.8 * data.inventoryCount).toFixed(2)
-//       : (data.thickness * data.inventoryCount).toFixed(2);
+import { useSession } from "next-auth/react";
+import type { CustomUser } from "../../../../schema/user.schema";
+import { useRouter } from "next/router";
 
-// const shelfSpaceString =
-// data.thickness === 0
-//   ? `${shelfSpace.toString()}* in.`
-//   : `${shelfSpace.toString()} in.`;
+interface BookCalcDetails {
+  id: string;
+  internalId: string;
+  title: string;
+  inventoryCount: number;
+  displayCount: number;
+  width: number;
+  height: number;
+  thickness: number;
+  displayStyle: string;
+  shelfSpace: string;
+  usedDefault: boolean;
+}
 
-export default function Shelf(
+export default function AddShelf(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
+  const { data: session, status } = useSession();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const user = session?.user as CustomUser;
   const id = props.id;
   const shelfId = props.shelfId;
+  const router = useRouter();
 
   const columns: GridColDef[] = [
     {
@@ -112,30 +124,56 @@ export default function Shelf(
     },
   ];
 
-  interface BookCalcDetails {
-    id: string;
-    internalId: string;
-    title: string;
-    inventoryCount: number;
-    displayCount: number;
-    width: number;
-    height: number;
-    thickness: number;
-    displayStyle: string;
-    shelfSpace: string;
-    usedDefault: boolean;
-  }
-
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
   } | null>(null);
   const [bookInputValue, setBookInputValue] = useState("");
-  const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
   const [totalSpaceSum, setTotalSpaceSum] = useState(0);
 
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
+  const shelfQuery = api.shelves.getById.useQuery({ id: shelfId });
+
   const books = booksQuery?.data?.items ?? [];
+  const shelfDetails = shelfQuery?.data ?? [];
+  const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
+
+  shelfDetails.booksOnShelf.map((bookOnShelf) => {
+    const book = bookOnShelf.book;
+    const displayBook: BookCalcDetails = {
+      id: uuidv4(),
+      internalId: book.id,
+      title: book.title,
+      inventoryCount: book.inventoryCount,
+      displayCount: book.inventoryCount,
+      width: book.width,
+      height: book.height,
+      thickness: book.thickness,
+      displayStyle: bookOnShelf.orientation,
+      shelfSpace: "",
+      usedDefault: false,
+    };
+    displayBook.shelfSpace = calcShelfSpace(
+      displayBook.width,
+      displayBook.height,
+      displayBook.thickness,
+      displayBook.displayStyle,
+      displayBook.displayCount
+    ).toString();
+    if (book.width == 0 || book.height == 0 || book.thickness == 0) {
+      displayBook.usedDefault = true;
+    }
+    setDisplayedBooks((prev) => [...prev, displayBook]);
+    setTotalSpaceSum(totalSpaceSum + parseFloat(displayBook.shelfSpace));
+    const spaceVal = Number.parseFloat(displayBook.shelfSpace)
+      .toFixed(2)
+      .toString();
+    displayBook.shelfSpace = displayBook.usedDefault
+      ? spaceVal + "*"
+      : spaceVal;
+  });
+
+  const addMutation = api.shelves.add.useMutation();
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
@@ -144,6 +182,12 @@ export default function Shelf(
   const rows = displayedBooks;
 
   const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
+    if (
+      newRow.displayStyle == "Cover Out" &&
+      8 > newRow.thickness * newRow.displayCount
+    ) {
+      newRow.displayCount = oldRow.displayCount;
+    }
     const newDisplayedBooks = displayedBooks.map((displayedBook, index) => {
       const oldId = (oldRow as BookCalcDetails).id;
       if (displayedBook.id === oldId) {
@@ -177,6 +221,28 @@ export default function Shelf(
   };
   const handleProcessRowUpdateError = (error: Error) => {
     toast.error(error.message);
+  };
+
+  const handleSave = () => {
+    try {
+      addMutation.mutate({
+        caseId: id,
+        spaceUsed: totalSpaceSum,
+        bookDetails: displayedBooks.map((book) => {
+          return {
+            bookId: book.internalId,
+            orientation: book.displayStyle,
+          };
+        }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        user: user!,
+      });
+      setTimeout(() => {
+        void router.push(`/designer/${id}/detail`);
+      }, 500);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleSubmit = () => {
@@ -334,6 +400,14 @@ export default function Shelf(
             }
           </div>
         </div>
+        <button
+          className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+          type="button"
+          id="button-addon2"
+          onClick={handleSave}
+        >
+          Save Shelf
+        </button>
       </div>
 
       <ToastContainer></ToastContainer>
