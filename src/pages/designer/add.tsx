@@ -1,14 +1,7 @@
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import type { Dayjs } from "dayjs";
 import TextField from "@mui/material/TextField";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
-import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { appRouter } from "../../../server/api/root";
-import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import {
   Autocomplete,
@@ -17,36 +10,34 @@ import {
   FormLabel,
   InputAdornment,
 } from "@mui/material";
-import type {
-  GetStaticPaths,
-  GetStaticPropsContext,
-  InferGetStaticPropsType,
-} from "next";
-import type { CustomUser } from "../../../schema/user.schema";
-import { prisma } from "../../../server/db";
+
 import dayjs from "dayjs";
 import Head from "next/head";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
+import { createInnerTRPCContext } from "../../server/api/trpc";
+import type { CustomUser } from "../../schema/user.schema";
+import { appRouter } from "../../server/api/root";
+import { api } from "../../utils/api";
 
 export default function EditBuyBack(
-  props: InferGetStaticPropsType<typeof getStaticProps>
+  props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
   const { data: session, status } = useSession();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const user = session?.user as CustomUser;
-  const { id } = props;
   const router = useRouter();
-  const caseDetailsQuery = api.cases.getById.useQuery({ id: id });
 
-  const editMutation = api.cases.edit.useMutation();
-  const currentName = caseDetailsQuery?.data?.name ?? "";
-  const currentWidth = caseDetailsQuery?.data?.width ?? 0;
-  const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
-  const [nameValue, setNameValue] = useState(currentName);
-  const [widthValue, setWidthValue] = useState(currentWidth);
-  const [shelfCountValue, setShelfCountValue] = useState(currentShelfCount);
+  const addMutation = api.cases.add.useMutation();
+
+  const [nameValue, setNameValue] = useState("");
+  const [widthValue, setWidthValue] = useState(0);
+  const [shelfCountValue, setShelfCountValue] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = () => {
@@ -57,8 +48,7 @@ export default function EditBuyBack(
         setIsSubmitting(false);
         return;
       }
-      const editResult = editMutation.mutate({
-        caseId: id,
+      const addResult = addMutation.mutate({
         name: nameValue,
         width: widthValue,
         shelfCount: shelfCountValue,
@@ -67,7 +57,7 @@ export default function EditBuyBack(
         user: user!,
       });
       setTimeout(() => {
-        void router.push(`/designer/${encodeURIComponent(id)}/detail`);
+        void router.push("/designer");
       }, 500);
     } catch (error) {
       console.log(error);
@@ -152,37 +142,27 @@ export default function EditBuyBack(
   );
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const cases = await prisma.case.findMany({
-    select: {
-      id: true,
-    },
-  });
-
-  const paths = cases.map((caseA) => ({
-    params: { id: caseA.id },
-  }));
-
-  return { paths, fallback: true };
-};
-
-export async function getStaticProps(
-  context: GetStaticPropsContext<{ id: string }>
-) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: createInnerTRPCContext({ session: null }),
+    //eslint-disable-next-line
     transformer: superjson,
   });
-  const id = context.params?.id as string;
-
-  await ssg.cases.getById.prefetch({ id });
-
+  // const id = context.params?.id as string;
+  /*
+   * Prefetching the `post.byId` query here.
+   * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
+   */
+  await ssg.cases.getAll.prefetch({
+    cursor: null,
+    limit: 100,
+  });
+  // Make sure to return { props: { trpcState: ssg.dehydrate() } }
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      id,
+      // id,
     },
-    revalidate: 1,
   };
 }

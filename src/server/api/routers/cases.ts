@@ -78,10 +78,14 @@ export const casesRouter = createTRPCRouter({
       z.object({
         name: z.string(),
         caseId: z.string(),
-        editorId: z.string(),
         width: z.number(),
         shelfCount: z.number(),
         shelvesIds: z.string().array(),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          role: z.string(),
+        }),
       })
     )
     .mutation(async ({ input }) => {
@@ -92,7 +96,7 @@ export const casesRouter = createTRPCRouter({
         data: {
           editor: {
             connect: {
-              id: input.editorId,
+              id: input.user.id,
             },
           },
           width: input.width,
@@ -109,10 +113,14 @@ export const casesRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
-        creatorId: z.string(),
         width: z.number(),
         shelfCount: z.number(),
         shelvesIds: z.string().array(),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          role: z.string(),
+        }),
       })
     )
     .mutation(async ({ input }) => {
@@ -121,12 +129,12 @@ export const casesRouter = createTRPCRouter({
           name: input.name,
           creator: {
             connect: {
-              id: input.creatorId,
+              id: input.user.id,
             },
           },
           editor: {
             connect: {
-              id: input.creatorId,
+              id: input.user.id,
             },
           },
           width: input.width,
