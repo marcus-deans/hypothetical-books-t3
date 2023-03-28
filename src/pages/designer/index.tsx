@@ -100,7 +100,7 @@ export default function index() {
       filterable: false,
       renderCell: (params: GridRenderCellParams) => (
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        <EditLink url={`/genres/${params.id}/edit`} />
+        <EditLink url={`/designer/${params.id}/edit`} />
       ),
     },
     {
@@ -139,7 +139,7 @@ export default function index() {
         <h1 className="inline-block text-2xl"> Case Designer </h1>
         <Link
           className="ml-2 inline-block text-2xl text-blue-600"
-          href="/designer/design"
+          href="/designer/add"
         >
           {" "}
           +{" "}
