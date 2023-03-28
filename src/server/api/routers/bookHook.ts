@@ -36,24 +36,24 @@ export const bookHookRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      try {
-        if (!ctx.req) {
-          throw new Error("You are missing `req` or `res` in your call.");
-        }
-        const req = ctx.req as NextApiRequest;
-        if (req.headers["x-real-ip"] != "152.3.54.108") {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message:
-              "You are attempting to access BookHook upload from an unauthorized IP address",
-          });
-        }
-      } catch (error) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "There was an error in your authorization",
-        });
-      }
+      // try {
+      //   if (!ctx.req) {
+      //     throw new Error("You are missing `req` or `res` in your call.");
+      //   }
+      //   const req = ctx.req as NextApiRequest;
+      //   if (req.headers["x-real-ip"] != "152.3.54.108") {
+      //     throw new TRPCError({
+      //       code: "UNAUTHORIZED",
+      //       message:
+      //         "You are attempting to access BookHook upload from an unauthorized IP address",
+      //     });
+      //   }
+      // } catch (error) {
+      //   throw new TRPCError({
+      //     code: "UNAUTHORIZED",
+      //     message: "There was an error in your authorization",
+      //   });
+      // }
       const options = {
         ignoreAttributes: false,
       };
