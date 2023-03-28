@@ -170,7 +170,7 @@ export default function Vendors(
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: await createInnerTRPCContext({ session: null }),
+    ctx: createInnerTRPCContext({ session: null }),
     //eslint-disable-next-line
     transformer: superjson,
   });
