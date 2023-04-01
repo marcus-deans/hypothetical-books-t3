@@ -39,36 +39,31 @@ export default function SaveAs(
   const { id } = props;
   const router = useRouter();
   const caseDetailsQuery = api.cases.getById.useQuery({ id: id });
+  const addMutation = api.cases.add.useMutation();
   console.log(caseDetailsQuery.data);
 
   const editMutation = api.cases.edit.useMutation();
   const currentName = caseDetailsQuery?.data?.name ?? "";
   const currentWidth = caseDetailsQuery?.data?.width ?? 0;
   const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
+  
+  
   const [nameValue, setNameValue] = useState(currentName);
-  const [widthValue, setWidthValue] = useState(currentWidth);
-  const [shelfCountValue, setShelfCountValue] = useState(currentShelfCount);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      if (isNaN(widthValue) || isNaN(shelfCountValue)) {
-        toast.error("Width and Shelf Count must be numbers");
-        setIsSubmitting(false);
-        return;
-      }
-      const editResult = editMutation.mutate({
-        caseId: id,
+      const addResult = addMutation.mutate({
         name: nameValue,
-        width: widthValue,
-        shelfCount: shelfCountValue,
+        width: currentWidth,
+        shelfCount: currentShelfCount,
         shelvesIds: [],
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!,
       });
       setTimeout(() => {
-        void router.push(`/designer/`);
+        void router.push("/designer");
       }, 500);
     } catch (error) {
       console.log(error);

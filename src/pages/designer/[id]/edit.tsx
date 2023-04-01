@@ -58,6 +58,7 @@ export default function EditCase(
         setIsSubmitting(false);
         return;
       }
+
       const editResult = editMutation.mutate({
         caseId: id,
         name: nameValue,
