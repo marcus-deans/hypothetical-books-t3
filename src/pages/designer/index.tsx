@@ -124,8 +124,8 @@ export default function index() {
       name: caseWithShelves.name,
       shelfCount: caseWithShelves.shelfCount,
       width: caseWithShelves.width,
-      creator: caseWithShelves.creator.name,
-      editor: caseWithShelves.editor.name,
+      creator: "bob",
+      editor:"bill",
       editedAt: caseWithShelves.editedAt.toLocaleString(),
     };
   });
