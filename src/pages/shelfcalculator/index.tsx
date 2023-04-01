@@ -142,9 +142,8 @@ export default function Calculator(
           thickness = 0.8;
         }
         //Case of old count now violating new cover out config
-        if(newRow.displayStyle == "Cover Out" && thickness * newRow.displayCount > 9 ){
-          newRow.displayCount = Math.floor(9/thickness)
-          console.log("set")
+        if(newRow.displayStyle == "Cover Out" && thickness * newRow.displayCount > 8 ){
+          newRow.displayCount = Math.floor(8/thickness)
 
         }
         return newRow as BookCalcDetails;
