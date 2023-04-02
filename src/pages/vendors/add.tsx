@@ -3,6 +3,8 @@ import { api } from "../../utils/api";
 import { useRouter } from "next/router";
 import { InputAdornment, TextField } from "@mui/material";
 import Head from "next/head";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddVendor() {
   const [vendorName, setVendorName] = useState("");
@@ -14,7 +16,8 @@ export default function AddVendor() {
     try {
       setIsSubmitting(true);
       if (!vendorName || !buybackRate) {
-        alert("Vendor name and buyback rate are required. To not allow buybacks for this vendor, enter value of 0");
+        toast.error("Vendor name and buyback rate are required. To not allow buybacks for this vendor, enter value of 0");
+        setIsSubmitting(false);
         return;
       }
       const finalBuybackRate = Number(buybackRate);
@@ -23,11 +26,11 @@ export default function AddVendor() {
         finalBuybackRate < 0 ||
         finalBuybackRate > 100
       ) {
-        alert("Buyback rate must be a number between 0 and 100, or 0 to represent no buybacks for this vendor");
+        toast.error("Buyback rate must be a number between 0 and 100, or 0 to represent no buybacks for this vendor");
+        setIsSubmitting(false);
         return;
       }
       addMutation.mutate({ name: vendorName, buybackRate: finalBuybackRate });
-      setVendorName("");
       setTimeout(() => {
         void router.push(`/vendors/`);
       }, 500);
@@ -95,6 +98,7 @@ export default function AddVendor() {
           </div>
         </form>
       </div>
+      <ToastContainer></ToastContainer>
     </>
   );
 }
