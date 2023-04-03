@@ -1,5 +1,5 @@
-import { User } from "next-auth";
-import { useSession } from "next-auth/react";
+/* eslint-disable @typescript-eslint/no-empty-interface */
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import type { CustomUser } from "../schema/user.schema";
@@ -29,7 +29,7 @@ function Nav() {
   return (
     <nav className="border-gray-200 bg-white px-2 dark:border-gray-700 dark:bg-gray-900">
       <div className="flex justify-between">
-        <div className="container ml-4 my-3 flex flex-row flex-wrap items-center">
+        <div className="container ml-0 my-3 flex flex-row flex-wrap items-center">
           <Link href="/" className="flex items-center">
             <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
               Hypothetical Books
@@ -45,12 +45,18 @@ function Nav() {
               <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:text-sm md:font-medium md:dark:bg-gray-900">
                 <li>
                   <Button
+                    variant="text"
                     id="book-button"
                     aria-controls={openMenu ? "book-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
-                    className="block py-2 pl-3 pr-4 text-blue bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-white dark:bg-blue-600 md:dark:bg-transparent hover:blue"
+                    sx={{
+                      p: 1,
+                      maxHeight: 30,
+                      minWidth: 140,
+                      color: "white",
+                    }}
                   >
                     Book Details
                   </Button>
@@ -61,6 +67,7 @@ function Nav() {
                     onClose={handleClose}
                     MenuListProps={{
                       'aria-labelledby': 'book-button',
+                      'className': "border-gray-700 bg-gray-700 px-8 dark:border-gray-700 dark:bg-gray-700",
                     }}
                   >
                     <MenuItem onClick={handleClose}><Link
@@ -92,12 +99,18 @@ function Nav() {
                 </li>
                 <li>
                   <Button
+                    variant="text"
                     id="operations-button"
                     aria-controls={openMenu ? 'operations-menu' : undefined}
                     aria-haspopup="true"
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
-                    className="mt-2 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:text-sm md:font-medium md:dark:bg-gray-900"
+                    sx={{
+                      p: 1,
+                      maxHeight: 30,
+                      minWidth: 120,
+                      color: "white",
+                    }}
                   >
                     Operations
                   </Button>
@@ -108,6 +121,7 @@ function Nav() {
                     onClose={handleClose}
                     MenuListProps={{
                       'aria-labelledby': 'operations-button',
+                      'className': "border-gray-700 bg-gray-700 px-8 dark:border-gray-700 dark:bg-gray-700",
                     }}
                   >
                     <MenuItem onClick={handleClose}><Link
@@ -150,12 +164,18 @@ function Nav() {
                 </li>
                 <li>
                   <Button
+                    variant="text"
                     id="tools-button"
                     aria-controls={openMenu ? "tools-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
-                    className="mt-2 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:text-sm md:font-medium md:dark:bg-gray-900"
+                    sx={{
+                      p: 1,
+                      maxHeight: 30,
+                      minWidth: 80,
+                      color: "white",
+                    }}
                   >
                     Tools
                   </Button>
@@ -166,6 +186,7 @@ function Nav() {
                     onClose={handleClose}
                     MenuListProps={{
                       'aria-labelledby': 'tools-button',
+                      'className': "border-gray-700 bg-gray-700 px-8 dark:border-gray-700 dark:bg-gray-700",
                     }}
                   >
                     <MenuItem onClick={handleClose}><Link
@@ -201,19 +222,66 @@ function Nav() {
                     </MenuItem>
                   </Menu>
                 </li>
-                {user && user.role == "admin" ?
-                  <li>
-                    <Link
+                {user ? <li>
+                  <Button
+                    variant="text"
+                    id="user-button"
+                    aria-controls={openMenu ? "user-menu" : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={openMenu ? 'true' : undefined}
+                    onClick={handleClick}
+                    sx={{
+                      p: 1,
+                      maxHeight: 30,
+                      minWidth: 80,
+                      color: "white",
+                    }}
+                  >
+                    {user.name}
+                  </Button>
+                  <Menu
+                    id="tools-menu"
+                    anchorEl={openMenu ? anchorEl : null}
+                    open={openMenu == "user-button"}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      'aria-labelledby': 'user-button',
+                      'className': "border-gray-700 bg-gray-700 px-8 dark:border-gray-700 dark:bg-gray-700",
+                    }}
+                  >
+                    {user.role == "admin" ? <MenuItem onClick={handleClose}><Link
                       href="/users"
                       className={
-                        /user\/*/.test(currentRoute) ? active : nonActive
+                        /users\/*/.test(currentRoute) ? active : nonActive
                       }
                       aria-current="page"
                     >
-                      Users
-                    </Link>
-                  </li>
-                  : null}
+                      User List
+                    </Link></MenuItem>: null}
+                    <MenuItem onClick={handleClose}><Link
+                      href="/auth/changeMyPassword"
+                      className={
+                        /auth\/changeMyPassword\/*/.test(currentRoute) ? active : nonActive
+                      }
+                      aria-current="page"
+                    >
+                      Change Password
+                    </Link></MenuItem>
+                    <MenuItem onClick={handleClose}>
+                      <Link
+                        onClick={() => {
+                          void signOut();
+                        }}
+
+                        href="/"
+                        aria-current="page"
+                        className={nonActive}
+                      >
+                        Logout
+                      </Link>
+                    </MenuItem>
+                  </Menu>
+                </li>: null}
               </ul>
             </div>
           </div>
