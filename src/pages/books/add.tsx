@@ -121,7 +121,6 @@ export default function AddBook() {
     void retrieveDetailsQuery.refetch();
     performQuery();
     setDisplayedBooks((prev) => [...prev]);
-    // setSearchQuery("");
   };
 
   const handleConfirm = () => {
@@ -320,6 +319,7 @@ export default function AddBook() {
       headerName: "Thickness (in.)",
       type: "number",
       headerClassName: "header-theme",
+      type: "number",
       align: "left",
       headerAlign: "left",
       width: 120,
@@ -407,12 +407,8 @@ export default function AddBook() {
     toast.error(error.message);
   };
 
-  // const rows = displayedBooks;
-
   // 9780812979688, 9781250158079
   if (retrieveDetailsQuery.isSuccess && isLoaded) {
-    // console.log("all rows");
-    // console.log(rows);
     return (
       <>
         <Head>
