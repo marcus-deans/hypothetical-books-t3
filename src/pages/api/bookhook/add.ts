@@ -30,6 +30,26 @@ export default async function addToBookhookHandler(
     return;
   }
 
+  try {
+    if (req.method !== "GET") {
+      res
+        .status(405)
+        .json({
+          type: "METHOD NOT ALLOWED",
+          message: "Only GET requests allowed",
+        });
+      return;
+    }
+  } catch (error) {
+    res
+      .status(405)
+      .json({
+        type: "METHOD NOT ALLOWED",
+        message: "Only GET requests allowed",
+      });
+    return;
+  }
+
   const options = {
     ignoreAttributes: false,
   };
@@ -206,7 +226,7 @@ export default async function addToBookhookHandler(
     res.status(404).json({
       type: "NOT_FOUND",
       message:
-        "No sales were added to the system, as no line items had correct format",
+        "No line items could be added, as the ISBNs do not exist in the system",
     });
     return;
   }
