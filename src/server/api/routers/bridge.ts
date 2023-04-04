@@ -64,6 +64,7 @@ export const bridgeRouter = createTRPCRouter({
             },
           });
         } else {
+          console.log("Book not found: " + isbn);
           retrievedBooks.push({ [isbn]: null });
         }
       }
