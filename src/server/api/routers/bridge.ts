@@ -22,7 +22,9 @@ export const BridgeBookSchema = z
   })
   .nullable();
 export type BridgeBook = z.infer<typeof BridgeBookSchema>;
-export const BridgeResponseSchema = z.record(z.string(), BridgeBookSchema);
+export const BridgeResponseSchema = z
+  .record(z.string(), BridgeBookSchema)
+  .array();
 
 export const bridgeRouter = createTRPCRouter({
   retrieve: publicProcedure
@@ -37,7 +39,7 @@ export const bridgeRouter = createTRPCRouter({
       },
     })
     .input(z.object({ isbns: z.string().length(13).array() }))
-    .output(BridgeResponseSchema.array())
+    .output(BridgeResponseSchema)
     .mutation(async ({ input }) => {
       const retrievedBooks = [];
       for (const isbn of input.isbns) {

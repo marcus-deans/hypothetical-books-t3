@@ -10,6 +10,7 @@ import type { S3 } from "aws-sdk/clients/browser_default";
 import * as AWS from "aws-sdk";
 
 import { v2 as cloudinary } from "cloudinary";
+import { BridgeResponseSchema } from "./bridge";
 // Configuration
 cloudinary.config({
   cloud_name: env.CLOUDINARY_CLOUD_NAME,
@@ -384,7 +385,7 @@ export const booksRouter = createTRPCRouter({
       return book;
     }),
 
-  getByIdWithAllDetailsAndRemote: publicProcedure
+  getByIdWithAllDetailsAndSubsidiary: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
@@ -456,8 +457,40 @@ export const booksRouter = createTRPCRouter({
         });
       }
 
-      const remoteBook = await fetch
-      return internalBook;
+      const internalIsbn13 = internalBook.isbn_13;
+      const remoteBook = await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+        method: "POST",
+        body: JSON.stringify([internalIsbn13]),
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          console.log("Obtained response from subsidiary");
+          const remoteBookResponse = BridgeResponseSchema.safeParse(response);
+          if (!remoteBookResponse.success) {
+            console.error(response);
+            console.error(
+              `Could not obtain remote book details for ISBN ${internalIsbn13}`
+            );
+            return null;
+          } else {
+            const remoteBook = remoteBookResponse.data[0];
+            if (remoteBook) {
+              console.log("Remote Book Details: ");
+              console.log(remoteBook);
+              try {
+                return remoteBook[internalIsbn13];
+              } catch (err) {
+                console.error(err);
+                return null;
+              }
+            }
+          }
+        });
+
+      return {
+        internalBook: internalBook,
+        remoteBook: remoteBook,
+      };
     }),
 
   /**
