@@ -319,7 +319,6 @@ export default function AddBook() {
       headerName: "Thickness (in.)",
       type: "number",
       headerClassName: "header-theme",
-      type: "number",
       align: "left",
       headerAlign: "left",
       width: 120,
