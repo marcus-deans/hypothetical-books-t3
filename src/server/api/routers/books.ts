@@ -10,7 +10,11 @@ import type { S3 } from "aws-sdk/clients/browser_default";
 import * as AWS from "aws-sdk";
 
 import { v2 as cloudinary } from "cloudinary";
-import { BridgeResponseSchema } from "./bridge";
+import {
+  BridgeBookSchema,
+  BridgeResponseSchema,
+  convertBridgeBookToBook,
+} from "./bridge";
 // Configuration
 cloudinary.config({
   cloud_name: env.CLOUDINARY_CLOUD_NAME,
@@ -478,7 +482,17 @@ export const booksRouter = createTRPCRouter({
               console.log("Remote Book Details: ");
               console.log(remoteBook);
               try {
-                return remoteBook[internalIsbn13];
+                const remoteBookDetails = BridgeBookSchema.safeParse(
+                  remoteBook[internalIsbn13]
+                );
+                if (!remoteBookDetails.success) {
+                  console.error(remoteBook[internalIsbn13]);
+                  console.error(
+                    `Could not parse remote book details for ISBN ${internalIsbn13}`
+                  );
+                  return null;
+                }
+                return convertBridgeBookToBook(remoteBookDetails.data);
               } catch (err) {
                 console.error(err);
                 return null;

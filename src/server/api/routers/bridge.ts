@@ -4,27 +4,43 @@ import { TRPCError } from "@trpc/server";
 import { XMLParser } from "fast-xml-parser";
 import { prisma } from "../../db";
 import type { NextApiRequest } from "next";
+import type { Book } from "@prisma/client";
 
-export const BridgeBookSchema = z
-  .object({
-    title: z.string(),
-    authors: z.string().array(),
-    isbn13: z.string().length(13),
-    isbn10: z.string().length(10).nullable(),
-    publisher: z.string(),
-    publicationYear: z.number(),
-    pageCount: z.number().optional(),
-    height: z.number().gte(0).nullable(),
-    width: z.number().gte(0).nullable(),
-    thickness: z.number().gte(0).nullable(),
-    retailPrice: z.number().gte(0),
-    inventoryCount: z.number().gte(0),
-  })
-  .nullable();
+export const BridgeBookSchema = z.object({
+  title: z.string(),
+  authors: z.string().array(),
+  isbn13: z.string().length(13),
+  isbn10: z.string().length(10).nullable(),
+  publisher: z.string(),
+  publicationYear: z.number(),
+  pageCount: z.number().nullable(),
+  height: z.number().gte(0).nullable(),
+  width: z.number().gte(0).nullable(),
+  thickness: z.number().gte(0).nullable(),
+  retailPrice: z.number().gte(0),
+  inventoryCount: z.number().gte(0),
+});
+
 export type BridgeBook = z.infer<typeof BridgeBookSchema>;
 export const BridgeResponseSchema = z
-  .record(z.string(), BridgeBookSchema)
+  .record(z.string(), BridgeBookSchema.nullable())
   .array();
+
+export const convertBridgeBookToBook = (bridgeBook: BridgeBook) => {
+  return {
+    title: bridgeBook.title,
+    isbn_13: bridgeBook.isbn13,
+    isbn_10: bridgeBook.isbn10,
+    publisher: bridgeBook.publisher,
+    publicationYear: bridgeBook.publicationYear,
+    pageCount: bridgeBook?.pageCount ?? 0,
+    height: bridgeBook?.height ?? 0,
+    width: bridgeBook?.width ?? 0,
+    thickness: bridgeBook?.thickness ?? 0,
+    retailPrice: bridgeBook.retailPrice,
+    inventoryCount: bridgeBook.inventoryCount,
+  } as Book;
+};
 
 export const bridgeRouter = createTRPCRouter({
   retrieve: publicProcedure
