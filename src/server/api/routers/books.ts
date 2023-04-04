@@ -384,6 +384,82 @@ export const booksRouter = createTRPCRouter({
       return book;
     }),
 
+  getByIdWithAllDetailsAndRemote: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const { id } = input;
+      const internalBook = await prisma.book.findUnique({
+        where: { id },
+        include: {
+          authors: true,
+          genre: true,
+          purchaseLines: {
+            include: {
+              purchaseOrder: {
+                include: {
+                  vendor: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                  user: true,
+                },
+              },
+            },
+          },
+          salesLines: {
+            include: {
+              salesReconciliation: true,
+            },
+          },
+          buybackLines: {
+            include: {
+              buybackOrder: {
+                include: {
+                  vendor: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                  user: true,
+                },
+              },
+            },
+          },
+          costMostRecentVendor: {
+            include: {
+              vendor: true,
+              purchaseLine: {
+                select: {
+                  unitWholesalePrice: true,
+                },
+              },
+            },
+          },
+          correction: {
+            include: {
+              user: true,
+            },
+          },
+          relatedBooks: {
+            include: {
+              authors: true,
+              genre: true,
+            },
+          },
+        },
+      });
+      if (!internalBook || !internalBook.display) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No book with id '${id}'`,
+        });
+      }
+
+      const remoteBook = await fetch
+      return internalBook;
+    }),
+
   /**
    *  id                String @id @default(cuid())
    *  title            String

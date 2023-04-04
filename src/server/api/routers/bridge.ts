@@ -5,7 +5,7 @@ import { XMLParser } from "fast-xml-parser";
 import { prisma } from "../../db";
 import type { NextApiRequest } from "next";
 
-const ReturnBookSchema = z
+export const BridgeBookSchema = z
   .object({
     title: z.string(),
     authors: z.string().array(),
@@ -21,7 +21,8 @@ const ReturnBookSchema = z
     inventoryCount: z.number().gte(0),
   })
   .nullable();
-type ReturnBook = z.infer<typeof ReturnBookSchema>;
+export type BridgeBook = z.infer<typeof BridgeBookSchema>;
+export const BridgeResponseSchema = z.record(z.string(), BridgeBookSchema);
 
 export const bridgeRouter = createTRPCRouter({
   retrieve: publicProcedure
@@ -36,7 +37,7 @@ export const bridgeRouter = createTRPCRouter({
       },
     })
     .input(z.object({ isbns: z.string().length(13).array() }))
-    .output(z.array(z.record(z.string(), ReturnBookSchema)))
+    .output(BridgeResponseSchema.array())
     .mutation(async ({ input }) => {
       const retrievedBooks = [];
       for (const isbn of input.isbns) {
