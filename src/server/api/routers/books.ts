@@ -58,6 +58,77 @@ const createPresignedUrl = async (bookId: string) => {
   });
 };
 
+async function getAllDetailsById(id: string) {
+  const internalBook = await prisma.book.findUnique({
+    where: { id },
+    include: {
+      authors: true,
+      genre: true,
+      purchaseLines: {
+        include: {
+          purchaseOrder: {
+            include: {
+              vendor: {
+                select: {
+                  name: true,
+                },
+              },
+              user: true,
+            },
+          },
+        },
+      },
+      salesLines: {
+        include: {
+          salesReconciliation: true,
+        },
+      },
+      buybackLines: {
+        include: {
+          buybackOrder: {
+            include: {
+              vendor: {
+                select: {
+                  name: true,
+                },
+              },
+              user: true,
+            },
+          },
+        },
+      },
+      costMostRecentVendor: {
+        include: {
+          vendor: true,
+          purchaseLine: {
+            select: {
+              unitWholesalePrice: true,
+            },
+          },
+        },
+      },
+      correction: {
+        include: {
+          user: true,
+        },
+      },
+      relatedBooks: {
+        include: {
+          authors: true,
+          genre: true,
+        },
+      },
+    },
+  });
+  if (!internalBook || !internalBook.display) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: `No book with id '${id}'`,
+    });
+  }
+  return internalBook;
+}
+
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
@@ -225,6 +296,121 @@ export const booksRouter = createTRPCRouter({
         nextCursor,
       };
     }),
+
+  getAllWithDetailsAndSubsidiary: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      /**
+       * For pagination docs you can have a look here
+       * @see https://trpc.io/docs/useInfiniteQuery
+       * @see https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+       */
+      const limit = input.limit ?? 50;
+      const { cursor } = input;
+
+      const internalBooks = await prisma.book.findMany({
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: { display: true },
+        include: {
+          authors: true,
+          genre: true,
+          purchaseLines: true,
+          salesLines: {
+            include: {
+              salesReconciliation: {
+                select: {
+                  date: true,
+                },
+              },
+            },
+          },
+          buybackLines: true,
+          costMostRecentVendor: {
+            include: {
+              vendor: true,
+              purchaseLine: {
+                select: {
+                  unitWholesalePrice: true,
+                },
+              },
+            },
+          },
+          relatedBooks: true,
+        },
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        orderBy: {
+          title: "desc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (internalBooks.length > limit) {
+        // Remove the last item and use it as next cursor
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const nextItem = internalBooks.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      const internalIsbn13s = internalBooks.map((book) => book.isbn_13);
+      const remoteBooks = await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+        method: "POST",
+        body: JSON.stringify([internalIsbn13s]),
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          console.log("Obtained response from subsidiary");
+          const remoteBookResponse = BridgeResponseSchema.safeParse(response);
+          if (!remoteBookResponse.success) {
+            console.error(response);
+            console.error(`Could not obtain remote books`);
+            return;
+          } else {
+            const remoteBooks = Object.values(remoteBookResponse.data).map(
+              (book) => {
+                try {
+                  const remoteBookDetails = BridgeBookSchema.safeParse(book);
+                  if (!remoteBookDetails.success) {
+                    console.error(`Could not parse remote book details`);
+                    return;
+                  }
+                  return convertBridgeBookToBook(remoteBookDetails.data);
+                } catch (err) {
+                  return;
+                }
+              }
+            );
+            return remoteBooks;
+          }
+        });
+
+      const allBooks = internalBooks.reverse().map((book) => {
+        const remoteBook = remoteBooks?.find(
+          (remoteBook) => remoteBook?.isbn_13 === book.isbn_13
+        );
+        if (remoteBook) {
+          return {
+            ...book,
+            ...remoteBook,
+          };
+        }
+        return book;
+      });
+
+      return {
+        items: allBooks,
+        nextCursor,
+      };
+    }),
+
   getManyFromIsbn13WithDetails: publicProcedure
     .input(
       z.object({
@@ -319,67 +505,7 @@ export const booksRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
-      const book = await prisma.book.findUnique({
-        where: { id },
-        include: {
-          authors: true,
-          genre: true,
-          purchaseLines: {
-            include: {
-              purchaseOrder: {
-                include: {
-                  vendor: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                  user: true,
-                },
-              },
-            },
-          },
-          salesLines: {
-            include: {
-              salesReconciliation: true,
-            },
-          },
-          buybackLines: {
-            include: {
-              buybackOrder: {
-                include: {
-                  vendor: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                  user: true,
-                },
-              },
-            },
-          },
-          costMostRecentVendor: {
-            include: {
-              vendor: true,
-              purchaseLine: {
-                select: {
-                  unitWholesalePrice: true,
-                },
-              },
-            },
-          },
-          correction: {
-            include: {
-              user: true,
-            },
-          },
-          relatedBooks: {
-            include: {
-              authors: true,
-              genre: true,
-            },
-          },
-        },
-      });
+      const book = await getAllDetailsById(id);
       if (!book || !book.display) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -393,73 +519,7 @@ export const booksRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const { id } = input;
-      const internalBook = await prisma.book.findUnique({
-        where: { id },
-        include: {
-          authors: true,
-          genre: true,
-          purchaseLines: {
-            include: {
-              purchaseOrder: {
-                include: {
-                  vendor: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                  user: true,
-                },
-              },
-            },
-          },
-          salesLines: {
-            include: {
-              salesReconciliation: true,
-            },
-          },
-          buybackLines: {
-            include: {
-              buybackOrder: {
-                include: {
-                  vendor: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                  user: true,
-                },
-              },
-            },
-          },
-          costMostRecentVendor: {
-            include: {
-              vendor: true,
-              purchaseLine: {
-                select: {
-                  unitWholesalePrice: true,
-                },
-              },
-            },
-          },
-          correction: {
-            include: {
-              user: true,
-            },
-          },
-          relatedBooks: {
-            include: {
-              authors: true,
-              genre: true,
-            },
-          },
-        },
-      });
-      if (!internalBook || !internalBook.display) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `No book with id '${id}'`,
-        });
-      }
+      const internalBook = await getAllDetailsById(id);
 
       const internalIsbn13 = internalBook.isbn_13;
       const remoteBook = await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
@@ -506,27 +566,6 @@ export const booksRouter = createTRPCRouter({
         remoteBook: remoteBook,
       };
     }),
-
-  /**
-   *  id                String @id @default(cuid())
-   *  title            String
-   *  authors          Author[]
-   *  isbn_13          String
-   *  isbn_10          String?
-   *  publisher        String
-   *  publicationYear  Int
-   *  pageCount          Int
-   *  width            Float
-   *  height            Float
-   *  thickness        Float
-   *  retailPrice      Float
-   *  genre            Genre @relation(fields: [genreId], references: [lineId])
-   *  genreId          String // relation String field
-   *  purchaseLines      PurchaseLine[]
-   *  saleReconciliationLines SaleLine[]
-   *  //to Be determined
-   *  inventoryCount    Int
-   */
 
   edit: publicProcedure
     .input(
