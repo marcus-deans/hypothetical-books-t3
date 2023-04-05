@@ -687,18 +687,18 @@ export default function BookDetail(
               <div className="text-lg font-light">{`By: ${bookDetailRows.at(0)?.author}`}</div>
               </div>
               <div className="flex justify-between">
-                <div className="text-left space-y-1">
+                <div className="pr-6 text-left space-y-1">
                   <div className="text-lg font-light">{`Released ${bookDetailRows.at(0)?.publicationYear}`}</div>
                   <div className="text-lg font-light">{`Publisher: ${bookDetailRows.at(0)?.publisher}`}</div>
                   <div className="text-lg font-light">{`ISBN-13: ${bookDetailRows.at(0)?.isbn_13}`}</div>
                   <div className="text-lg font-light">{`ISBN-10: ${bookDetailRows.at(0)?.isbn_10}`}</div>
                   <div className="text-lg font-light">{`Genre: ${bookDetailRows.at(0)?.genre}`}</div>
                   <div className="text-lg font-light">{`Page Count: ${bookDetailRows.at(0)?.pageCount}`}</div>
-                  <div className="text-lg font-light">{`Inventory: ${bookDetailRows.at(0)?.inventoryCount}`}</div>
+                  <div className="text-lg font-light">{`Inventory Count: ${bookDetailRows.at(0)?.inventoryCount}`}</div>
                   <div className="text-lg font-light">{`Retail Price: ${bookDetailRows.at(0)?.retailPrice}`}</div>
                 </div>
                 <Divider orientation="vertical" flexItem />
-                <div className="px-6 text-left space-y-1">
+                <div className="pl-6 text-left space-y-1">
                   <div className="text-lg font-light">{`Width: ${bookDetailRows.at(0)?.width}`}</div>
                   <div className="text-lg font-light">{`Height: ${bookDetailRows.at(0)?.height}`}</div>
                   <div className="text-lg font-light">{`Thickness: ${bookDetailRows.at(0)?.thickness}`}</div>
