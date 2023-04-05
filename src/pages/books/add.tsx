@@ -11,7 +11,8 @@ import { GridToolbar } from "@mui/x-data-grid";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
 import Image from "next/image";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import type { Book } from "@prisma/client";
@@ -48,6 +49,12 @@ export default function AddBook() {
   );
 
   const addMutation = api.books.add.useMutation();
+
+  const allBooksQuery = api.books.getAll.useQuery({
+    cursor: null,
+    limit: 100,
+  });
+  const allBooksISBNS = allBooksQuery?.data?.items.map((book) => book.isbn_13) ?? [];
   const router = useRouter();
   const handleType = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -110,6 +117,7 @@ export default function AddBook() {
 
   const handleSearch = () => {
     if (searchQuery === "") {
+      toast.error("Please enter an ISBN.");
       return;
     }
     setDisplayedBooks([]);
@@ -117,7 +125,17 @@ export default function AddBook() {
     // 9781250158079, 9781101904954, 9780393072235
     // Antifragile: 9780812979688
     const isbnSearchList = searchQuery.replace(/-/g, "").split(/[\s,;\t\n]+/g);
-    setParsedIsbns(isbnSearchList);
+    const uniqueISBNs = [...new Set(isbnSearchList)];
+    setParsedIsbns(uniqueISBNs);
+    uniqueISBNs.forEach((isbn) => {
+      if (allBooksISBNS.includes(isbn)) {
+        toast.error(`ISBN ${isbn} already exists in the database and was removed from search.`);
+        setParsedIsbns((prev) => prev.filter((item) => item !== isbn));
+        if (parsedIsbns.length === 0) {
+          return;
+        }
+      }
+    });
     void retrieveDetailsQuery.refetch();
     performQuery();
     setDisplayedBooks((prev) => [...prev]);
@@ -407,7 +425,8 @@ export default function AddBook() {
   };
 
   // 9780812979688, 9781250158079
-  if (retrieveDetailsQuery.isSuccess && isLoaded) {
+
+  const bookAdd1 = () => {
     return (
       <>
         <Head>
@@ -503,7 +522,9 @@ export default function AddBook() {
         </div>
       </>
     );
-  } else if (retrieveDetailsQuery.isFetching) {
+  };
+
+  const bookAdd2 = () => {
     return (
       <>
         <Head>
@@ -524,7 +545,7 @@ export default function AddBook() {
                   aria-label="Search"
                   aria-describedby="button-addon2"
                   value={searchQuery}
-                  onChange={(event) => console.log(event.target.value)}
+                  onChange={handleType}
                 />
                 <button
                   className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
@@ -557,7 +578,9 @@ export default function AddBook() {
         </div>
       </>
     );
-  } else {
+  };
+
+  const bookAdd3 = () => {
     return (
       <>
         <Head>
@@ -568,7 +591,7 @@ export default function AddBook() {
           <div className="mb-2 block text-lg font-bold text-gray-700">
             Add Book
           </div>
-          <div className="flex grid grid-cols-2 items-center">
+          <div className="">
             <div className="col-span-2 mb-3 flex items-end xl:w-96">
               <div className="input-group relative mb-4 flex w-full flex-wrap items-stretch space-y-5">
                 <input
@@ -612,5 +635,12 @@ export default function AddBook() {
         </div>
       </>
     );
-  }
+  };
+
+  return (
+    <>
+      {retrieveDetailsQuery.isSuccess && isLoaded ? bookAdd1() : retrieveDetailsQuery.isFetching ? bookAdd2() : bookAdd3()}
+      <ToastContainer></ToastContainer>
+    </>
+  )
 }
