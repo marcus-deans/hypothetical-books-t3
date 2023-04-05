@@ -20,6 +20,8 @@ import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import DetailLink from "../../components/table-components/DetailLink";
 import { getSession, useSession } from "next-auth/react";
 import type { CustomUser } from "../../schema/user.schema";
+import Fab from '@mui/material/Fab';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function UserList(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -82,18 +84,33 @@ export default function UserList(
       <Head>
         <title>Users</title>
       </Head>
-      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Users </h1>
-        <Link
-          className="ml-2 inline-block text-2xl text-blue-600"
-          href="/users/add"
+      <div className="space flex h-3/4 overflow-hidden text-neutral-50">
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            my: 1.5,
+          }}
         >
-          {" "}
-          +{" "}
-        </Link>
+          <h1 className="inline-block text-2xl"> Users </h1>
+          <Fab size="small" aria-label="add" href="/users/add"
+            sx={{
+              ml: 1,
+              backgroundColor: "rgb(59 130 246)",
+              "&:hover": {
+                backgroundColor: "rgb(29 78 216)",
+              },
+            }}
+          >
+            <AddIcon
+              sx={{
+                color: "white",
+              }}
+            />
+          </Fab>
+        </Box>
       </div>
-
-      <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+      <div className="h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
             height: "auto",
