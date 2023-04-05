@@ -9,5 +9,5 @@ export const openApiDocument = generateOpenApiDocument(appRouter, {
   version: "1.0.0",
   baseUrl: "http://localhost:3000/api",
   docsUrl: "https://github.com/marcus-deans/hypothetical-books-t3",
-  tags: ["bookhook"],
+  tags: ["bookhook", "bridge"],
 });

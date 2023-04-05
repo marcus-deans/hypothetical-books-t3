@@ -62,6 +62,8 @@ export default function BuybackOrderDetail(
       field: "unitBuybackPrice",
       headerName: "Unit Buyback Price",
       headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
       type: "number",
       renderCell: (params) => {
         return (
