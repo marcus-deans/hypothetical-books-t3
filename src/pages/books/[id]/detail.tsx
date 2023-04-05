@@ -651,6 +651,7 @@ export default function BookDetail(
             <div className="px-24 pt-2">
               <Image
                 alt={"Book cover"}
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
                 src={bookDetailRows[0]?.imgUrl!}
                 onClick={handleOpen}
                 width={210}
@@ -662,6 +663,7 @@ export default function BookDetail(
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
               >
+                {/* eslint-disable */}
                 <Box className="align-items-center" sx={modalStyle}>
                   <div className="pb-5">
                     <div className="font-bold">{`Cover of: ${bookDetailRows[0]?.title}`}</div>
@@ -710,6 +712,7 @@ export default function BookDetail(
             </div>
           </div>
         </Box>
+        {/* eslint-enable */}
         <div className="pt-10 text-sm">*: Estimated dimension</div>
         <div className="pt-8 text-lg">Record History</div>
         <Box
