@@ -52,10 +52,12 @@ function Nav() {
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
                     sx={{
-                      p: 1,
+                      p: 0,
                       maxHeight: 30,
                       minWidth: 140,
                       color: "white",
+                      fontFamily: "unset",
+                      fontWeight: "bold",
                     }}
                   >
                     Book Details
@@ -106,10 +108,12 @@ function Nav() {
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
                     sx={{
-                      p: 1,
+                      p: 0,
                       maxHeight: 30,
                       minWidth: 120,
                       color: "white",
+                      fontFamily: "unset",
+                      fontWeight: "bold",
                     }}
                   >
                     Operations
@@ -171,10 +175,12 @@ function Nav() {
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
                     sx={{
-                      p: 1,
+                      p: 0,
                       maxHeight: 30,
                       minWidth: 80,
                       color: "white",
+                      fontFamily: "unset",
+                      fontWeight: "bold",
                     }}
                   >
                     Tools
@@ -231,10 +237,12 @@ function Nav() {
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
                     sx={{
-                      p: 1,
+                      p: 0,
                       maxHeight: 30,
                       minWidth: 80,
                       color: "white",
+                      fontFamily: "unset",
+                      fontWeight: "bold",
                     }}
                   >
                     {user.name}
