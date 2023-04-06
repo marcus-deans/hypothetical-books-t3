@@ -23,17 +23,10 @@ export default function AddPurchaseLine(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const purchaseOrdersQuery = api.purchaseOrders.getById.useQuery({
-    id,
-  });
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
 
   const router = useRouter();
   const books = booksQuery?.data?.items ?? [];
-  const [purchaseValue, setPurchaseValue] = useState<{
-    label: string;
-    id: string;
-  } | null>(null);
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
@@ -53,18 +46,21 @@ export default function AddPurchaseLine(
         toast.error("Book is required");
         throw new Error("Book is required");
       }
-      if (
-        isNaN(unitWholesalePrice) ||
-        isNaN(quantity) ||
-        unitWholesalePrice <= 0 ||
-        quantity <= 0
-      ) {
-        toast.error(
-          "Unit Wholesale Price and Quantity must be positive numbers"
-        );
-        throw new Error(
-          "Unit Wholesale Price and Quantity must be positive numbers"
-        );
+      if (isNaN(unitWholesalePrice)) {
+        toast.error("Unit Wholesale Price must be a number");
+        throw new Error("Unit Wholesale Price must be a number");
+      }
+      if (isNaN(quantity)) {
+        toast.error("Quantity must be a number");
+        throw new Error("Quantity must be a number");
+      }
+      if (unitWholesalePrice <= 0) {
+        toast.error("Unit Wholesale Price must be a positive number");
+        throw new Error("Unit Wholesale Price must be a positive number");
+      }
+      if (quantity <= 0) {
+        toast.error("Quantity must be a positive number");
+        throw new Error("Quantity must be a positive number");
       }
       const addResult = addMutation.mutate({
         bookId: bookValue.id,
@@ -88,6 +84,9 @@ export default function AddPurchaseLine(
 
   return (
     <>
+      <Head>
+        <title>Create Purchase Line</title>
+      </Head>
       <div className="pt-6">
         <form className="inline-block rounded bg-white px-6 py-6">
           <div className="mb-2 block text-lg font-bold text-gray-700">

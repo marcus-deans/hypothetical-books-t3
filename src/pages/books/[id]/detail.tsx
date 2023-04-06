@@ -326,7 +326,7 @@ export default function BookDetail(
       ? `${shelfSpace.toString()}* in.`
       : `${shelfSpace.toString()} in.`;
   const bestBuybackString =
-    bestBuybackPrice === 0 ? "-" : `$${bestBuybackPrice.toFixed(2)}`;
+    bestBuybackPrice === 0 ? "-" : `$${(bestBuybackPrice/100).toFixed(2)}`;
 
   const bookDetailRows = [
     {
@@ -358,8 +358,8 @@ export default function BookDetail(
     return {
       id: salesReconciliation.id,
       date: salesReconciliation.date.getTime(),
-      user: "N/A",
-      recordType: "Sale",
+      user: salesReconciliation.user?.name ?? "N/A",
+      recordType: salesReconciliation.user === null ? "Sales Record" : "Sales Reconciliation",
       quantity: salesLine.quantity,
       price: `${salesLine.unitWholesalePrice.toFixed(2)}`,
       vendor: "N/A",
@@ -450,7 +450,7 @@ export default function BookDetail(
         /* eslint-disable */
         // @ts-ignore
         const urlTag =
-          params.row.recordType === "Sale"
+          params.row.recordType === "Sales Reconciliation" || params.row.recordType === "Sales Record"
             ? "sales"
             : params.row.recordType === "Purchase"
               ? "purchases"
