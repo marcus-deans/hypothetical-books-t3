@@ -18,7 +18,7 @@ export default function AddSalesReconciliation() {
   const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const addMutation = api.salesReconciliations.add.useMutation();
+  const addMutation = api.salesReconciliations.addWithUser.useMutation();
   const handleDatePickChange = (newValue: Dayjs | null) => {
     setDateValue(newValue);
   };

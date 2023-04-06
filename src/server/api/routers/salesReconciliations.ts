@@ -27,8 +27,8 @@ export const salesReconciliationsRouter = createTRPCRouter({
         where: { display: true },
         cursor: cursor
           ? {
-              id: cursor,
-            }
+            id: cursor,
+          }
           : undefined,
         orderBy: {
           date: "desc",
@@ -86,8 +86,8 @@ export const salesReconciliationsRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-              id: cursor,
-            }
+            id: cursor,
+          }
           : undefined,
         orderBy: {
           date: "desc",
@@ -171,8 +171,8 @@ export const salesReconciliationsRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-              id: cursor,
-            }
+            id: cursor,
+          }
           : undefined,
         orderBy: {
           date: "desc",
@@ -374,7 +374,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
         });
     }),
 
-  add: publicProcedure
+  addWithUser: publicProcedure
     .input(
       z.object({
         date: z.date(),
@@ -398,6 +398,40 @@ export const salesReconciliationsRouter = createTRPCRouter({
             connect: {
               id: input.user.id,
             },
+          },
+        },
+      });
+
+      for (const salesLineId of input.salesLines) {
+        await prisma.salesLine.update({
+          where: { id: salesLineId },
+          data: {
+            salesReconciliation: {
+              connect: {
+                id: salesReconciliation.id,
+              },
+            },
+          },
+        });
+      }
+
+      return salesReconciliation;
+    }),
+
+  add: publicProcedure
+    .input(
+      z.object({
+        date: z.date(),
+        salesLines: z.array(z.string()),
+      })
+    )
+
+    .mutation(async ({ input }) => {
+      const salesReconciliation = await prisma.salesReconciliation.create({
+        data: {
+          date: input.date,
+          salesLines: {
+            create: [],
           },
         },
       });
