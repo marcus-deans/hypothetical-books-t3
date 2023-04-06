@@ -17,9 +17,9 @@ import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import { useSession } from "next-auth/react";
-import { CustomUser } from "../../schema/user.schema";
+import type { CustomUser } from "../../schema/user.schema";
 
-export default function sales(
+export default function Buybacks(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
   const buybackOrdersQuery = api.buybackOrders.getAllWithOverallMetrics.useQuery({
