@@ -29,7 +29,7 @@ function Nav() {
   return (
     <nav className="border-gray-200 bg-white px-2 dark:border-gray-700 dark:bg-gray-900">
       <div className="flex justify-between">
-        <div className="container ml-0 my-3 flex flex-row flex-wrap items-center">
+        <div className="container ml-4 my-3 flex flex-row flex-wrap items-center">
           <Link href="/" className="flex items-center">
             <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
               Hypothetical Books

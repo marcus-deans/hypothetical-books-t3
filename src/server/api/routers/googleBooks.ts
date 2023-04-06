@@ -51,12 +51,16 @@ const getGoogleBooksDetails = async (
   isbn: string
 ): Promise<GoogleBooksDetails | null> => {
   const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
+  console.log("Starting the Google Books call");
   return await fetch(queryURL)
     .then((response) => response.json())
     .then((response) => {
+      console.log("Obtained below response from Google Books API");
+      console.log(response);
       const googleBookResponse = GoogleBooksResponseSchema.safeParse(response);
       if (!googleBookResponse.success) {
-        console.log(`Could not obtain book details for ISBN ${isbn}`);
+        console.error(response);
+        console.error(`Could not obtain book details for ISBN ${isbn}`);
         return null;
       } else {
         const volumeInfo = googleBookResponse.data.items.map((item) => {
@@ -99,6 +103,7 @@ const getBooksRunPrices = async (isbn: string): Promise<number> => {
       .then((response) => {
         const bookPriceResponse = BooksRunResponseSchema.safeParse(response);
         if (!bookPriceResponse.success) {
+          console.log(response);
           console.log("Could not parse response successfully");
           return 0;
         } else {
@@ -206,6 +211,7 @@ export const googleBooksRouter = createTRPCRouter({
         let relatedBooks: bookWithAuthorsType[] = [];
         const bookDetails = await getGoogleBooksDetails(isbn);
         if (!bookDetails) {
+          console.log("Could not get book details, skipping this book");
           continue;
         }
         relatedBooks = await getRelatedBooks(bookDetails);

@@ -18,6 +18,7 @@ import { bookHookRouter } from "./routers/bookHook";
 import { correctionsRouter } from "./routers/corrections";
 import { casesRouter } from "./routers/cases";
 import { shelvesRouter } from "./routers/shelves";
+import { bridgeRouter } from "./routers/bridge";
 /**
  * This is the primary router for your server.
  *
@@ -28,6 +29,7 @@ export const appRouter = createTRPCRouter({
   authors: authorsRouter,
   bookHook: bookHookRouter,
   books: booksRouter,
+  bridge: bridgeRouter,
   buybackOrders: buybackOrdersRouter,
   buybackLines: buybackLinesRouter,
   cases: casesRouter,
