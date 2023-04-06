@@ -1,5 +1,5 @@
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { z } from "zod";
+import { record, z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { XMLParser } from "fast-xml-parser";
 import { prisma } from "../../db";
@@ -19,12 +19,14 @@ export const BridgeBookSchema = z.object({
   thickness: z.number().gte(0).nullable(),
   retailPrice: z.number().gte(0),
   inventoryCount: z.number().gte(0),
+  imageUrl: z.string().nullable(),
 });
 
 export type BridgeBook = z.infer<typeof BridgeBookSchema>;
-export const BridgeResponseSchema = z
-  .record(z.string(), BridgeBookSchema.nullable())
-  .array();
+export const BridgeResponseSchema = z.record(
+  z.string(),
+  BridgeBookSchema.nullable()
+);
 
 export const convertBridgeBookToBook = (bridgeBook: BridgeBook) => {
   return {
@@ -39,6 +41,7 @@ export const convertBridgeBookToBook = (bridgeBook: BridgeBook) => {
     thickness: bridgeBook?.thickness ?? 0,
     retailPrice: bridgeBook.retailPrice,
     inventoryCount: bridgeBook.inventoryCount,
+    imgUrl: bridgeBook.imageUrl,
   } as Book;
 };
 
@@ -57,7 +60,8 @@ export const bridgeRouter = createTRPCRouter({
     .input(z.object({ isbns: z.string().length(13).array() }))
     .output(BridgeResponseSchema)
     .mutation(async ({ input }) => {
-      const retrievedBooks = [];
+      // const retrievedBooks = [];
+      const retrievedBooks: { [isbn: string]: BridgeBook | null } = {};
       for (const isbn of input.isbns) {
         const book = await prisma.book.findFirst({
           where: { isbn_13: isbn },
@@ -66,28 +70,27 @@ export const bridgeRouter = createTRPCRouter({
           },
         });
         if (book) {
-          retrievedBooks.push({
-            [isbn]: {
-              title: book.title,
-              authors: book.authors.map((author) => author.name),
-              isbn13: book.isbn_13,
-              isbn10: book.isbn_10,
-              publisher: book.publisher,
-              publicationYear: book.publicationYear,
-              pageCount: book.pageCount,
-              height: book.height,
-              width: book.width,
-              thickness: book.thickness,
-              retailPrice: book.retailPrice,
-              inventoryCount: book.inventoryCount,
-            },
-          });
+          retrievedBooks[isbn] = {
+            title: book.title,
+            authors: book.authors.map((author) => author.name),
+            isbn13: book.isbn_13,
+            isbn10: book.isbn_10,
+            publisher: book.publisher,
+            publicationYear: book.publicationYear,
+            pageCount: book.pageCount,
+            height: book.height,
+            width: book.width,
+            thickness: book.thickness,
+            retailPrice: book.retailPrice,
+            inventoryCount: book.inventoryCount,
+            imageUrl: book.imgUrl,
+          } as BridgeBook;
         } else {
           console.log("Book not found: " + isbn);
-          retrievedBooks.push({ [isbn]: null });
+          retrievedBooks[isbn] = null;
         }
       }
-      if (retrievedBooks.length === 0) {
+      if (Object.keys(retrievedBooks).length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "No books found",
