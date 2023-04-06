@@ -31,22 +31,18 @@ export default async function addToBookhookHandler(
   }
 
   try {
-    if (req.method !== "GET") {
-      res
-        .status(405)
-        .json({
-          type: "METHOD NOT ALLOWED",
-          message: "Only GET requests allowed",
-        });
+    if (req.method !== "POST") {
+      res.status(405).json({
+        type: "METHOD NOT ALLOWED",
+        message: "Only POST requests allowed",
+      });
       return;
     }
   } catch (error) {
-    res
-      .status(405)
-      .json({
-        type: "METHOD NOT ALLOWED",
-        message: "Only GET requests allowed",
-      });
+    res.status(405).json({
+      type: "METHOD NOT ALLOWED",
+      message: "Only POST requests allowed",
+    });
     return;
   }
 
