@@ -46,18 +46,21 @@ export default function AddPurchaseLine(
         toast.error("Book is required");
         throw new Error("Book is required");
       }
-      if (
-        isNaN(unitWholesalePrice) ||
-        isNaN(quantity) ||
-        unitWholesalePrice <= 0 ||
-        quantity <= 0
-      ) {
-        toast.error(
-          "Unit Wholesale Price and Quantity must be positive numbers"
-        );
-        throw new Error(
-          "Unit Wholesale Price and Quantity must be positive numbers"
-        );
+      if (isNaN(unitWholesalePrice)) {
+        toast.error("Unit Wholesale Price must be a number");
+        throw new Error("Unit Wholesale Price must be a number");
+      }
+      if (isNaN(quantity)) {
+        toast.error("Quantity must be a number");
+        throw new Error("Quantity must be a number");
+      }
+      if (unitWholesalePrice <= 0) {
+        toast.error("Unit Wholesale Price must be a positive number");
+        throw new Error("Unit Wholesale Price must be a positive number");
+      }
+      if (quantity <= 0) {
+        toast.error("Quantity must be a positive number");
+        throw new Error("Quantity must be a positive number");
       }
       const addResult = addMutation.mutate({
         bookId: bookValue.id,

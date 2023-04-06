@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import Head from "next/head";
-import { CustomUser } from "../../schema/user.schema";
+import type { CustomUser } from "../../schema/user.schema";
 import { useSession } from "next-auth/react";
 
 export default function AddSalesReconciliation() {
@@ -33,6 +33,7 @@ export default function AddSalesReconciliation() {
       const addResult = addMutation.mutate({
         date: dateValue.toDate(),
         salesLines: [],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!
       });
       setTimeout(() => {
