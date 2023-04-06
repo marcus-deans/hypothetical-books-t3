@@ -335,7 +335,11 @@ export const booksRouter = createTRPCRouter({
           },
           salesLines: {
             include: {
-              salesReconciliation: true,
+              salesReconciliation: {
+                include: {
+                  user: true,
+                },
+              },
             },
           },
           buybackLines: {

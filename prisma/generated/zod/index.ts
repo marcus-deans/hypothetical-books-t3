@@ -140,6 +140,7 @@ export const PurchaseLineSchema = z.object({
 
 export const SalesReconciliationSchema = z.object({
   id: z.string().cuid(),
+  userId: z.string().nullish(),
   date: z.date(),
   display: z.boolean(),
 });
@@ -536,6 +537,7 @@ export const SalesReconciliationArgsSchema: z.ZodType<PrismaClient.Prisma.SalesR
 }).strict();
 
 export const SalesReconciliationIncludeSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationInclude> = z.object({
+  user: z.union([z.boolean(), z.lazy(() => UserArgsSchema)]).optional(),
   salesLines: z.union([z.boolean(), z.lazy(() => SalesLineFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => SalesReconciliationCountOutputTypeArgsSchema)]).optional(),
 }).strict();
@@ -550,8 +552,10 @@ export const SalesReconciliationCountOutputTypeSelectSchema: z.ZodType<PrismaCli
 
 export const SalesReconciliationSelectSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationSelect> = z.object({
   id: z.boolean().optional(),
+  userId: z.boolean().optional(),
   date: z.boolean().optional(),
   display: z.boolean().optional(),
+  user: z.union([z.boolean(), z.lazy(() => UserArgsSchema)]).optional(),
   salesLines: z.union([z.boolean(), z.lazy(() => SalesLineFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => SalesReconciliationCountOutputTypeArgsSchema)]).optional(),
 }).strict();
@@ -848,6 +852,7 @@ export const UserIncludeSchema: z.ZodType<PrismaClient.Prisma.UserInclude> = z.o
   accounts: z.union([z.boolean(), z.lazy(() => AccountFindManyArgsSchema)]).optional(),
   sessions: z.union([z.boolean(), z.lazy(() => SessionFindManyArgsSchema)]).optional(),
   Correction: z.union([z.boolean(), z.lazy(() => CorrectionFindManyArgsSchema)]).optional(),
+  SalesReconciliation: z.union([z.boolean(), z.lazy(() => SalesReconciliationFindManyArgsSchema)]).optional(),
   PurchaseOrder: z.union([z.boolean(), z.lazy(() => PurchaseOrderFindManyArgsSchema)]).optional(),
   BuybackOrder: z.union([z.boolean(), z.lazy(() => BuybackOrderFindManyArgsSchema)]).optional(),
   casesCreated: z.union([z.boolean(), z.lazy(() => CaseFindManyArgsSchema)]).optional(),
@@ -863,6 +868,7 @@ export const UserCountOutputTypeSelectSchema: z.ZodType<PrismaClient.Prisma.User
   accounts: z.boolean().optional(),
   sessions: z.boolean().optional(),
   Correction: z.boolean().optional(),
+  SalesReconciliation: z.boolean().optional(),
   PurchaseOrder: z.boolean().optional(),
   BuybackOrder: z.boolean().optional(),
   casesCreated: z.boolean().optional(),
@@ -878,6 +884,7 @@ export const UserSelectSchema: z.ZodType<PrismaClient.Prisma.UserSelect> = z.obj
   accounts: z.union([z.boolean(), z.lazy(() => AccountFindManyArgsSchema)]).optional(),
   sessions: z.union([z.boolean(), z.lazy(() => SessionFindManyArgsSchema)]).optional(),
   Correction: z.union([z.boolean(), z.lazy(() => CorrectionFindManyArgsSchema)]).optional(),
+  SalesReconciliation: z.union([z.boolean(), z.lazy(() => SalesReconciliationFindManyArgsSchema)]).optional(),
   PurchaseOrder: z.union([z.boolean(), z.lazy(() => PurchaseOrderFindManyArgsSchema)]).optional(),
   BuybackOrder: z.union([z.boolean(), z.lazy(() => BuybackOrderFindManyArgsSchema)]).optional(),
   casesCreated: z.union([z.boolean(), z.lazy(() => CaseFindManyArgsSchema)]).optional(),
@@ -1255,15 +1262,19 @@ export const SalesReconciliationWhereInputSchema: z.ZodType<PrismaClient.Prisma.
   OR: z.lazy(() => SalesReconciliationWhereInputSchema).array().optional(),
   NOT: z.union([z.lazy(() => SalesReconciliationWhereInputSchema), z.lazy(() => SalesReconciliationWhereInputSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  userId: z.union([z.lazy(() => StringNullableFilterSchema), z.string()]).optional().nullable(),
   date: z.union([z.lazy(() => DateTimeFilterSchema), z.date()]).optional(),
   display: z.union([z.lazy(() => BoolFilterSchema), z.boolean()]).optional(),
+  user: z.union([z.lazy(() => UserRelationFilterSchema), z.lazy(() => UserWhereInputSchema)]).optional().nullable(),
   salesLines: z.lazy(() => SalesLineListRelationFilterSchema).optional(),
 }).strict();
 
 export const SalesReconciliationOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationOrderByWithRelationInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
   display: z.lazy(() => SortOrderSchema).optional(),
+  user: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
   salesLines: z.lazy(() => SalesLineOrderByRelationAggregateInputSchema).optional(),
 }).strict();
 
@@ -1273,6 +1284,7 @@ export const SalesReconciliationWhereUniqueInputSchema: z.ZodType<PrismaClient.P
 
 export const SalesReconciliationOrderByWithAggregationInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationOrderByWithAggregationInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
   display: z.lazy(() => SortOrderSchema).optional(),
   _count: z.lazy(() => SalesReconciliationCountOrderByAggregateInputSchema).optional(),
@@ -1285,6 +1297,7 @@ export const SalesReconciliationScalarWhereWithAggregatesInputSchema: z.ZodType<
   OR: z.lazy(() => SalesReconciliationScalarWhereWithAggregatesInputSchema).array().optional(),
   NOT: z.union([z.lazy(() => SalesReconciliationScalarWhereWithAggregatesInputSchema), z.lazy(() => SalesReconciliationScalarWhereWithAggregatesInputSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
+  userId: z.union([z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string()]).optional().nullable(),
   date: z.union([z.lazy(() => DateTimeWithAggregatesFilterSchema), z.date()]).optional(),
   display: z.union([z.lazy(() => BoolWithAggregatesFilterSchema), z.boolean()]).optional(),
 }).strict();
@@ -1876,6 +1889,7 @@ export const UserWhereInputSchema: z.ZodType<PrismaClient.Prisma.UserWhereInput>
   accounts: z.lazy(() => AccountListRelationFilterSchema).optional(),
   sessions: z.lazy(() => SessionListRelationFilterSchema).optional(),
   Correction: z.lazy(() => CorrectionListRelationFilterSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationListRelationFilterSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderListRelationFilterSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderListRelationFilterSchema).optional(),
   casesCreated: z.lazy(() => CaseListRelationFilterSchema).optional(),
@@ -1891,6 +1905,7 @@ export const UserOrderByWithRelationInputSchema: z.ZodType<PrismaClient.Prisma.U
   accounts: z.lazy(() => AccountOrderByRelationAggregateInputSchema).optional(),
   sessions: z.lazy(() => SessionOrderByRelationAggregateInputSchema).optional(),
   Correction: z.lazy(() => CorrectionOrderByRelationAggregateInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationOrderByRelationAggregateInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderOrderByRelationAggregateInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderOrderByRelationAggregateInputSchema).optional(),
   casesCreated: z.lazy(() => CaseOrderByRelationAggregateInputSchema).optional(),
@@ -2439,11 +2454,13 @@ export const SalesReconciliationCreateInputSchema: z.ZodType<PrismaClient.Prisma
   id: z.string().cuid().optional(),
   date: z.date(),
   display: z.boolean().optional(),
+  user: z.lazy(() => UserCreateNestedOneWithoutSalesReconciliationInputSchema).optional(),
   salesLines: z.lazy(() => SalesLineCreateNestedManyWithoutSalesReconciliationInputSchema).optional(),
 }).strict();
 
 export const SalesReconciliationUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUncheckedCreateInput> = z.object({
   id: z.string().cuid().optional(),
+  userId: z.string().optional().nullable(),
   date: z.date(),
   display: z.boolean().optional(),
   salesLines: z.lazy(() => SalesLineUncheckedCreateNestedManyWithoutSalesReconciliationInputSchema).optional(),
@@ -2453,11 +2470,13 @@ export const SalesReconciliationUpdateInputSchema: z.ZodType<PrismaClient.Prisma
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  user: z.lazy(() => UserUpdateOneWithoutSalesReconciliationNestedInputSchema).optional(),
   salesLines: z.lazy(() => SalesLineUpdateManyWithoutSalesReconciliationNestedInputSchema).optional(),
 }).strict();
 
 export const SalesReconciliationUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUncheckedUpdateInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  userId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputSchema)]).optional().nullable(),
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
   salesLines: z.lazy(() => SalesLineUncheckedUpdateManyWithoutSalesReconciliationNestedInputSchema).optional(),
@@ -2465,6 +2484,7 @@ export const SalesReconciliationUncheckedUpdateInputSchema: z.ZodType<PrismaClie
 
 export const SalesReconciliationCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationCreateManyInput> = z.object({
   id: z.string().cuid().optional(),
+  userId: z.string().optional().nullable(),
   date: z.date(),
   display: z.boolean().optional(),
 }).strict();
@@ -2477,6 +2497,7 @@ export const SalesReconciliationUpdateManyMutationInputSchema: z.ZodType<PrismaC
 
 export const SalesReconciliationUncheckedUpdateManyInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUncheckedUpdateManyInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  userId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputSchema)]).optional().nullable(),
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
@@ -3134,6 +3155,7 @@ export const UserCreateInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateInpu
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseCreateNestedManyWithoutCreatorInputSchema).optional(),
@@ -3149,6 +3171,7 @@ export const UserUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prisma.UserU
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedCreateNestedManyWithoutCreatorInputSchema).optional(),
@@ -3164,6 +3187,7 @@ export const UserUpdateInputSchema: z.ZodType<PrismaClient.Prisma.UserUpdateInpu
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUpdateManyWithoutCreatorNestedInputSchema).optional(),
@@ -3179,6 +3203,7 @@ export const UserUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prisma.UserU
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedUpdateManyWithoutCreatorNestedInputSchema).optional(),
@@ -3776,18 +3801,21 @@ export const PurchaseLineSumOrderByAggregateInputSchema: z.ZodType<PrismaClient.
 
 export const SalesReconciliationCountOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationCountOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
   display: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
 export const SalesReconciliationMaxOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationMaxOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
   display: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
 export const SalesReconciliationMinOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationMinOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
   display: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
@@ -4209,6 +4237,12 @@ export const SessionListRelationFilterSchema: z.ZodType<PrismaClient.Prisma.Sess
   none: z.lazy(() => SessionWhereInputSchema).optional(),
 }).strict();
 
+export const SalesReconciliationListRelationFilterSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationListRelationFilter> = z.object({
+  every: z.lazy(() => SalesReconciliationWhereInputSchema).optional(),
+  some: z.lazy(() => SalesReconciliationWhereInputSchema).optional(),
+  none: z.lazy(() => SalesReconciliationWhereInputSchema).optional(),
+}).strict();
+
 export const CaseListRelationFilterSchema: z.ZodType<PrismaClient.Prisma.CaseListRelationFilter> = z.object({
   every: z.lazy(() => CaseWhereInputSchema).optional(),
   some: z.lazy(() => CaseWhereInputSchema).optional(),
@@ -4220,6 +4254,10 @@ export const AccountOrderByRelationAggregateInputSchema: z.ZodType<PrismaClient.
 }).strict();
 
 export const SessionOrderByRelationAggregateInputSchema: z.ZodType<PrismaClient.Prisma.SessionOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional(),
+}).strict();
+
+export const SalesReconciliationOrderByRelationAggregateInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationOrderByRelationAggregateInput> = z.object({
   _count: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
@@ -5081,6 +5119,12 @@ export const CostMostRecentVendorUncheckedUpdateOneWithoutPurchaseLineNestedInpu
   update: z.union([z.lazy(() => CostMostRecentVendorUpdateWithoutPurchaseLineInputSchema), z.lazy(() => CostMostRecentVendorUncheckedUpdateWithoutPurchaseLineInputSchema)]).optional(),
 }).strict();
 
+export const UserCreateNestedOneWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateNestedOneWithoutSalesReconciliationInput> = z.object({
+  create: z.union([z.lazy(() => UserCreateWithoutSalesReconciliationInputSchema), z.lazy(() => UserUncheckedCreateWithoutSalesReconciliationInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutSalesReconciliationInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
+}).strict();
+
 export const SalesLineCreateNestedManyWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.SalesLineCreateNestedManyWithoutSalesReconciliationInput> = z.object({
   create: z.union([z.lazy(() => SalesLineCreateWithoutSalesReconciliationInputSchema), z.lazy(() => SalesLineCreateWithoutSalesReconciliationInputSchema).array(), z.lazy(() => SalesLineUncheckedCreateWithoutSalesReconciliationInputSchema), z.lazy(() => SalesLineUncheckedCreateWithoutSalesReconciliationInputSchema).array()]).optional(),
   connectOrCreate: z.union([z.lazy(() => SalesLineCreateOrConnectWithoutSalesReconciliationInputSchema), z.lazy(() => SalesLineCreateOrConnectWithoutSalesReconciliationInputSchema).array()]).optional(),
@@ -5093,6 +5137,16 @@ export const SalesLineUncheckedCreateNestedManyWithoutSalesReconciliationInputSc
   connectOrCreate: z.union([z.lazy(() => SalesLineCreateOrConnectWithoutSalesReconciliationInputSchema), z.lazy(() => SalesLineCreateOrConnectWithoutSalesReconciliationInputSchema).array()]).optional(),
   createMany: z.lazy(() => SalesLineCreateManySalesReconciliationInputEnvelopeSchema).optional(),
   connect: z.union([z.lazy(() => SalesLineWhereUniqueInputSchema), z.lazy(() => SalesLineWhereUniqueInputSchema).array()]).optional(),
+}).strict();
+
+export const UserUpdateOneWithoutSalesReconciliationNestedInputSchema: z.ZodType<PrismaClient.Prisma.UserUpdateOneWithoutSalesReconciliationNestedInput> = z.object({
+  create: z.union([z.lazy(() => UserCreateWithoutSalesReconciliationInputSchema), z.lazy(() => UserUncheckedCreateWithoutSalesReconciliationInputSchema)]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutSalesReconciliationInputSchema).optional(),
+  upsert: z.lazy(() => UserUpsertWithoutSalesReconciliationInputSchema).optional(),
+  disconnect: z.boolean().optional(),
+  delete: z.boolean().optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
+  update: z.union([z.lazy(() => UserUpdateWithoutSalesReconciliationInputSchema), z.lazy(() => UserUncheckedUpdateWithoutSalesReconciliationInputSchema)]).optional(),
 }).strict();
 
 export const SalesLineUpdateManyWithoutSalesReconciliationNestedInputSchema: z.ZodType<PrismaClient.Prisma.SalesLineUpdateManyWithoutSalesReconciliationNestedInput> = z.object({
@@ -5548,6 +5602,13 @@ export const CorrectionCreateNestedManyWithoutUserInputSchema: z.ZodType<PrismaC
   connect: z.union([z.lazy(() => CorrectionWhereUniqueInputSchema), z.lazy(() => CorrectionWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
+export const SalesReconciliationCreateNestedManyWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationCreateNestedManyWithoutUserInput> = z.object({
+  create: z.union([z.lazy(() => SalesReconciliationCreateWithoutUserInputSchema), z.lazy(() => SalesReconciliationCreateWithoutUserInputSchema).array(), z.lazy(() => SalesReconciliationUncheckedCreateWithoutUserInputSchema), z.lazy(() => SalesReconciliationUncheckedCreateWithoutUserInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => SalesReconciliationCreateOrConnectWithoutUserInputSchema), z.lazy(() => SalesReconciliationCreateOrConnectWithoutUserInputSchema).array()]).optional(),
+  createMany: z.lazy(() => SalesReconciliationCreateManyUserInputEnvelopeSchema).optional(),
+  connect: z.union([z.lazy(() => SalesReconciliationWhereUniqueInputSchema), z.lazy(() => SalesReconciliationWhereUniqueInputSchema).array()]).optional(),
+}).strict();
+
 export const PurchaseOrderCreateNestedManyWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCreateNestedManyWithoutUserInput> = z.object({
   create: z.union([z.lazy(() => PurchaseOrderCreateWithoutUserInputSchema), z.lazy(() => PurchaseOrderCreateWithoutUserInputSchema).array(), z.lazy(() => PurchaseOrderUncheckedCreateWithoutUserInputSchema), z.lazy(() => PurchaseOrderUncheckedCreateWithoutUserInputSchema).array()]).optional(),
   connectOrCreate: z.union([z.lazy(() => PurchaseOrderCreateOrConnectWithoutUserInputSchema), z.lazy(() => PurchaseOrderCreateOrConnectWithoutUserInputSchema).array()]).optional(),
@@ -5595,6 +5656,13 @@ export const CorrectionUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodTyp
   connectOrCreate: z.union([z.lazy(() => CorrectionCreateOrConnectWithoutUserInputSchema), z.lazy(() => CorrectionCreateOrConnectWithoutUserInputSchema).array()]).optional(),
   createMany: z.lazy(() => CorrectionCreateManyUserInputEnvelopeSchema).optional(),
   connect: z.union([z.lazy(() => CorrectionWhereUniqueInputSchema), z.lazy(() => CorrectionWhereUniqueInputSchema).array()]).optional(),
+}).strict();
+
+export const SalesReconciliationUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUncheckedCreateNestedManyWithoutUserInput> = z.object({
+  create: z.union([z.lazy(() => SalesReconciliationCreateWithoutUserInputSchema), z.lazy(() => SalesReconciliationCreateWithoutUserInputSchema).array(), z.lazy(() => SalesReconciliationUncheckedCreateWithoutUserInputSchema), z.lazy(() => SalesReconciliationUncheckedCreateWithoutUserInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => SalesReconciliationCreateOrConnectWithoutUserInputSchema), z.lazy(() => SalesReconciliationCreateOrConnectWithoutUserInputSchema).array()]).optional(),
+  createMany: z.lazy(() => SalesReconciliationCreateManyUserInputEnvelopeSchema).optional(),
+  connect: z.union([z.lazy(() => SalesReconciliationWhereUniqueInputSchema), z.lazy(() => SalesReconciliationWhereUniqueInputSchema).array()]).optional(),
 }).strict();
 
 export const PurchaseOrderUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutUserInput> = z.object({
@@ -5665,6 +5733,20 @@ export const CorrectionUpdateManyWithoutUserNestedInputSchema: z.ZodType<PrismaC
   update: z.union([z.lazy(() => CorrectionUpdateWithWhereUniqueWithoutUserInputSchema), z.lazy(() => CorrectionUpdateWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
   updateMany: z.union([z.lazy(() => CorrectionUpdateManyWithWhereWithoutUserInputSchema), z.lazy(() => CorrectionUpdateManyWithWhereWithoutUserInputSchema).array()]).optional(),
   deleteMany: z.union([z.lazy(() => CorrectionScalarWhereInputSchema), z.lazy(() => CorrectionScalarWhereInputSchema).array()]).optional(),
+}).strict();
+
+export const SalesReconciliationUpdateManyWithoutUserNestedInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUpdateManyWithoutUserNestedInput> = z.object({
+  create: z.union([z.lazy(() => SalesReconciliationCreateWithoutUserInputSchema), z.lazy(() => SalesReconciliationCreateWithoutUserInputSchema).array(), z.lazy(() => SalesReconciliationUncheckedCreateWithoutUserInputSchema), z.lazy(() => SalesReconciliationUncheckedCreateWithoutUserInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => SalesReconciliationCreateOrConnectWithoutUserInputSchema), z.lazy(() => SalesReconciliationCreateOrConnectWithoutUserInputSchema).array()]).optional(),
+  upsert: z.union([z.lazy(() => SalesReconciliationUpsertWithWhereUniqueWithoutUserInputSchema), z.lazy(() => SalesReconciliationUpsertWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
+  createMany: z.lazy(() => SalesReconciliationCreateManyUserInputEnvelopeSchema).optional(),
+  set: z.union([z.lazy(() => SalesReconciliationWhereUniqueInputSchema), z.lazy(() => SalesReconciliationWhereUniqueInputSchema).array()]).optional(),
+  disconnect: z.union([z.lazy(() => SalesReconciliationWhereUniqueInputSchema), z.lazy(() => SalesReconciliationWhereUniqueInputSchema).array()]).optional(),
+  delete: z.union([z.lazy(() => SalesReconciliationWhereUniqueInputSchema), z.lazy(() => SalesReconciliationWhereUniqueInputSchema).array()]).optional(),
+  connect: z.union([z.lazy(() => SalesReconciliationWhereUniqueInputSchema), z.lazy(() => SalesReconciliationWhereUniqueInputSchema).array()]).optional(),
+  update: z.union([z.lazy(() => SalesReconciliationUpdateWithWhereUniqueWithoutUserInputSchema), z.lazy(() => SalesReconciliationUpdateWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
+  updateMany: z.union([z.lazy(() => SalesReconciliationUpdateManyWithWhereWithoutUserInputSchema), z.lazy(() => SalesReconciliationUpdateManyWithWhereWithoutUserInputSchema).array()]).optional(),
+  deleteMany: z.union([z.lazy(() => SalesReconciliationScalarWhereInputSchema), z.lazy(() => SalesReconciliationScalarWhereInputSchema).array()]).optional(),
 }).strict();
 
 export const PurchaseOrderUpdateManyWithoutUserNestedInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUpdateManyWithoutUserNestedInput> = z.object({
@@ -5763,6 +5845,20 @@ export const CorrectionUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodTyp
   update: z.union([z.lazy(() => CorrectionUpdateWithWhereUniqueWithoutUserInputSchema), z.lazy(() => CorrectionUpdateWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
   updateMany: z.union([z.lazy(() => CorrectionUpdateManyWithWhereWithoutUserInputSchema), z.lazy(() => CorrectionUpdateManyWithWhereWithoutUserInputSchema).array()]).optional(),
   deleteMany: z.union([z.lazy(() => CorrectionScalarWhereInputSchema), z.lazy(() => CorrectionScalarWhereInputSchema).array()]).optional(),
+}).strict();
+
+export const SalesReconciliationUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUncheckedUpdateManyWithoutUserNestedInput> = z.object({
+  create: z.union([z.lazy(() => SalesReconciliationCreateWithoutUserInputSchema), z.lazy(() => SalesReconciliationCreateWithoutUserInputSchema).array(), z.lazy(() => SalesReconciliationUncheckedCreateWithoutUserInputSchema), z.lazy(() => SalesReconciliationUncheckedCreateWithoutUserInputSchema).array()]).optional(),
+  connectOrCreate: z.union([z.lazy(() => SalesReconciliationCreateOrConnectWithoutUserInputSchema), z.lazy(() => SalesReconciliationCreateOrConnectWithoutUserInputSchema).array()]).optional(),
+  upsert: z.union([z.lazy(() => SalesReconciliationUpsertWithWhereUniqueWithoutUserInputSchema), z.lazy(() => SalesReconciliationUpsertWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
+  createMany: z.lazy(() => SalesReconciliationCreateManyUserInputEnvelopeSchema).optional(),
+  set: z.union([z.lazy(() => SalesReconciliationWhereUniqueInputSchema), z.lazy(() => SalesReconciliationWhereUniqueInputSchema).array()]).optional(),
+  disconnect: z.union([z.lazy(() => SalesReconciliationWhereUniqueInputSchema), z.lazy(() => SalesReconciliationWhereUniqueInputSchema).array()]).optional(),
+  delete: z.union([z.lazy(() => SalesReconciliationWhereUniqueInputSchema), z.lazy(() => SalesReconciliationWhereUniqueInputSchema).array()]).optional(),
+  connect: z.union([z.lazy(() => SalesReconciliationWhereUniqueInputSchema), z.lazy(() => SalesReconciliationWhereUniqueInputSchema).array()]).optional(),
+  update: z.union([z.lazy(() => SalesReconciliationUpdateWithWhereUniqueWithoutUserInputSchema), z.lazy(() => SalesReconciliationUpdateWithWhereUniqueWithoutUserInputSchema).array()]).optional(),
+  updateMany: z.union([z.lazy(() => SalesReconciliationUpdateManyWithWhereWithoutUserInputSchema), z.lazy(() => SalesReconciliationUpdateManyWithWhereWithoutUserInputSchema).array()]).optional(),
+  deleteMany: z.union([z.lazy(() => SalesReconciliationScalarWhereInputSchema), z.lazy(() => SalesReconciliationScalarWhereInputSchema).array()]).optional(),
 }).strict();
 
 export const PurchaseOrderUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUncheckedUpdateManyWithoutUserNestedInput> = z.object({
@@ -6878,6 +6974,7 @@ export const UserCreateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.P
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseCreateNestedManyWithoutCreatorInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseCreateNestedManyWithoutEditorInputSchema).optional(),
@@ -6892,6 +6989,7 @@ export const UserUncheckedCreateWithoutPurchaseOrderInputSchema: z.ZodType<Prism
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedCreateNestedManyWithoutCreatorInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseUncheckedCreateNestedManyWithoutEditorInputSchema).optional(),
@@ -6991,6 +7089,7 @@ export const UserUpdateWithoutPurchaseOrderInputSchema: z.ZodType<PrismaClient.P
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUpdateManyWithoutCreatorNestedInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseUpdateManyWithoutEditorNestedInputSchema).optional(),
@@ -7005,6 +7104,7 @@ export const UserUncheckedUpdateWithoutPurchaseOrderInputSchema: z.ZodType<Prism
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedUpdateManyWithoutCreatorNestedInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseUncheckedUpdateManyWithoutEditorNestedInputSchema).optional(),
@@ -7263,6 +7363,41 @@ export const CostMostRecentVendorUncheckedUpdateWithoutPurchaseLineInputSchema: 
   purchaseOrderId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
+export const UserCreateWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateWithoutSalesReconciliationInput> = z.object({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  password: z.string(),
+  role: z.string().optional(),
+  display: z.boolean().optional(),
+  accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
+  Correction: z.lazy(() => CorrectionCreateNestedManyWithoutUserInputSchema).optional(),
+  PurchaseOrder: z.lazy(() => PurchaseOrderCreateNestedManyWithoutUserInputSchema).optional(),
+  BuybackOrder: z.lazy(() => BuybackOrderCreateNestedManyWithoutUserInputSchema).optional(),
+  casesCreated: z.lazy(() => CaseCreateNestedManyWithoutCreatorInputSchema).optional(),
+  casesLastEdited: z.lazy(() => CaseCreateNestedManyWithoutEditorInputSchema).optional(),
+}).strict();
+
+export const UserUncheckedCreateWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.UserUncheckedCreateWithoutSalesReconciliationInput> = z.object({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  password: z.string(),
+  role: z.string().optional(),
+  display: z.boolean().optional(),
+  accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  Correction: z.lazy(() => CorrectionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  BuybackOrder: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  casesCreated: z.lazy(() => CaseUncheckedCreateNestedManyWithoutCreatorInputSchema).optional(),
+  casesLastEdited: z.lazy(() => CaseUncheckedCreateNestedManyWithoutEditorInputSchema).optional(),
+}).strict();
+
+export const UserCreateOrConnectWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.UserCreateOrConnectWithoutSalesReconciliationInput> = z.object({
+  where: z.lazy(() => UserWhereUniqueInputSchema),
+  create: z.union([z.lazy(() => UserCreateWithoutSalesReconciliationInputSchema), z.lazy(() => UserUncheckedCreateWithoutSalesReconciliationInputSchema)]),
+}).strict();
+
 export const SalesLineCreateWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.SalesLineCreateWithoutSalesReconciliationInput> = z.object({
   id: z.string().optional(),
   quantity: z.number(),
@@ -7287,6 +7422,41 @@ export const SalesLineCreateOrConnectWithoutSalesReconciliationInputSchema: z.Zo
 export const SalesLineCreateManySalesReconciliationInputEnvelopeSchema: z.ZodType<PrismaClient.Prisma.SalesLineCreateManySalesReconciliationInputEnvelope> = z.object({
   data: z.union([z.lazy(() => SalesLineCreateManySalesReconciliationInputSchema), z.lazy(() => SalesLineCreateManySalesReconciliationInputSchema).array()]),
   skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const UserUpsertWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.UserUpsertWithoutSalesReconciliationInput> = z.object({
+  update: z.union([z.lazy(() => UserUpdateWithoutSalesReconciliationInputSchema), z.lazy(() => UserUncheckedUpdateWithoutSalesReconciliationInputSchema)]),
+  create: z.union([z.lazy(() => UserCreateWithoutSalesReconciliationInputSchema), z.lazy(() => UserUncheckedCreateWithoutSalesReconciliationInputSchema)]),
+}).strict();
+
+export const UserUpdateWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.UserUpdateWithoutSalesReconciliationInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  name: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  password: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  role: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
+  Correction: z.lazy(() => CorrectionUpdateManyWithoutUserNestedInputSchema).optional(),
+  PurchaseOrder: z.lazy(() => PurchaseOrderUpdateManyWithoutUserNestedInputSchema).optional(),
+  BuybackOrder: z.lazy(() => BuybackOrderUpdateManyWithoutUserNestedInputSchema).optional(),
+  casesCreated: z.lazy(() => CaseUpdateManyWithoutCreatorNestedInputSchema).optional(),
+  casesLastEdited: z.lazy(() => CaseUpdateManyWithoutEditorNestedInputSchema).optional(),
+}).strict();
+
+export const UserUncheckedUpdateWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.UserUncheckedUpdateWithoutSalesReconciliationInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  name: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  password: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  role: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  Correction: z.lazy(() => CorrectionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  BuybackOrder: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  casesCreated: z.lazy(() => CaseUncheckedUpdateManyWithoutCreatorNestedInputSchema).optional(),
+  casesLastEdited: z.lazy(() => CaseUncheckedUpdateManyWithoutEditorNestedInputSchema).optional(),
 }).strict();
 
 export const SalesLineUpsertWithWhereUniqueWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.SalesLineUpsertWithWhereUniqueWithoutSalesReconciliationInput> = z.object({
@@ -7366,10 +7536,12 @@ export const SalesReconciliationCreateWithoutSalesLinesInputSchema: z.ZodType<Pr
   id: z.string().optional(),
   date: z.date(),
   display: z.boolean().optional(),
+  user: z.lazy(() => UserCreateNestedOneWithoutSalesReconciliationInputSchema).optional(),
 }).strict();
 
 export const SalesReconciliationUncheckedCreateWithoutSalesLinesInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUncheckedCreateWithoutSalesLinesInput> = z.object({
   id: z.string().optional(),
+  userId: z.string().optional().nullable(),
   date: z.date(),
   display: z.boolean().optional(),
 }).strict();
@@ -7445,10 +7617,12 @@ export const SalesReconciliationUpdateWithoutSalesLinesInputSchema: z.ZodType<Pr
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  user: z.lazy(() => UserUpdateOneWithoutSalesReconciliationNestedInputSchema).optional(),
 }).strict();
 
 export const SalesReconciliationUncheckedUpdateWithoutSalesLinesInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUncheckedUpdateWithoutSalesLinesInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  userId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputSchema)]).optional().nullable(),
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
@@ -7462,6 +7636,7 @@ export const UserCreateWithoutBuybackOrderInputSchema: z.ZodType<PrismaClient.Pr
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseCreateNestedManyWithoutCreatorInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseCreateNestedManyWithoutEditorInputSchema).optional(),
@@ -7476,6 +7651,7 @@ export const UserUncheckedCreateWithoutBuybackOrderInputSchema: z.ZodType<Prisma
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedCreateNestedManyWithoutCreatorInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseUncheckedCreateNestedManyWithoutEditorInputSchema).optional(),
@@ -7549,6 +7725,7 @@ export const UserUpdateWithoutBuybackOrderInputSchema: z.ZodType<PrismaClient.Pr
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUpdateManyWithoutCreatorNestedInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseUpdateManyWithoutEditorNestedInputSchema).optional(),
@@ -7563,6 +7740,7 @@ export const UserUncheckedUpdateWithoutBuybackOrderInputSchema: z.ZodType<Prisma
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedUpdateManyWithoutCreatorNestedInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseUncheckedUpdateManyWithoutEditorNestedInputSchema).optional(),
@@ -7771,6 +7949,7 @@ export const UserCreateWithoutCorrectionInputSchema: z.ZodType<PrismaClient.Pris
   display: z.boolean().optional(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseCreateNestedManyWithoutCreatorInputSchema).optional(),
@@ -7785,6 +7964,7 @@ export const UserUncheckedCreateWithoutCorrectionInputSchema: z.ZodType<PrismaCl
   display: z.boolean().optional(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedCreateNestedManyWithoutCreatorInputSchema).optional(),
@@ -7866,6 +8046,7 @@ export const UserUpdateWithoutCorrectionInputSchema: z.ZodType<PrismaClient.Pris
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUpdateManyWithoutCreatorNestedInputSchema).optional(),
@@ -7880,6 +8061,7 @@ export const UserUncheckedUpdateWithoutCorrectionInputSchema: z.ZodType<PrismaCl
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedUpdateManyWithoutCreatorNestedInputSchema).optional(),
@@ -8204,6 +8386,7 @@ export const UserCreateWithoutCasesCreatedInputSchema: z.ZodType<PrismaClient.Pr
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderCreateNestedManyWithoutUserInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseCreateNestedManyWithoutEditorInputSchema).optional(),
@@ -8218,6 +8401,7 @@ export const UserUncheckedCreateWithoutCasesCreatedInputSchema: z.ZodType<Prisma
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseUncheckedCreateNestedManyWithoutEditorInputSchema).optional(),
@@ -8237,6 +8421,7 @@ export const UserCreateWithoutCasesLastEditedInputSchema: z.ZodType<PrismaClient
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseCreateNestedManyWithoutCreatorInputSchema).optional(),
@@ -8251,6 +8436,7 @@ export const UserUncheckedCreateWithoutCasesLastEditedInputSchema: z.ZodType<Pri
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedCreateNestedManyWithoutCreatorInputSchema).optional(),
@@ -8297,6 +8483,7 @@ export const UserUpdateWithoutCasesCreatedInputSchema: z.ZodType<PrismaClient.Pr
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseUpdateManyWithoutEditorNestedInputSchema).optional(),
@@ -8311,6 +8498,7 @@ export const UserUncheckedUpdateWithoutCasesCreatedInputSchema: z.ZodType<Prisma
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   casesLastEdited: z.lazy(() => CaseUncheckedUpdateManyWithoutEditorNestedInputSchema).optional(),
@@ -8330,6 +8518,7 @@ export const UserUpdateWithoutCasesLastEditedInputSchema: z.ZodType<PrismaClient
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUpdateManyWithoutCreatorNestedInputSchema).optional(),
@@ -8344,6 +8533,7 @@ export const UserUncheckedUpdateWithoutCasesLastEditedInputSchema: z.ZodType<Pri
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedUpdateManyWithoutCreatorNestedInputSchema).optional(),
@@ -8618,6 +8808,7 @@ export const UserCreateWithoutAccountsInputSchema: z.ZodType<PrismaClient.Prisma
   display: z.boolean().optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseCreateNestedManyWithoutCreatorInputSchema).optional(),
@@ -8632,6 +8823,7 @@ export const UserUncheckedCreateWithoutAccountsInputSchema: z.ZodType<PrismaClie
   display: z.boolean().optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedCreateNestedManyWithoutCreatorInputSchema).optional(),
@@ -8656,6 +8848,7 @@ export const UserUpdateWithoutAccountsInputSchema: z.ZodType<PrismaClient.Prisma
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUpdateManyWithoutCreatorNestedInputSchema).optional(),
@@ -8670,6 +8863,7 @@ export const UserUncheckedUpdateWithoutAccountsInputSchema: z.ZodType<PrismaClie
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedUpdateManyWithoutCreatorNestedInputSchema).optional(),
@@ -8684,6 +8878,7 @@ export const UserCreateWithoutSessionsInputSchema: z.ZodType<PrismaClient.Prisma
   display: z.boolean().optional(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseCreateNestedManyWithoutCreatorInputSchema).optional(),
@@ -8698,6 +8893,7 @@ export const UserUncheckedCreateWithoutSessionsInputSchema: z.ZodType<PrismaClie
   display: z.boolean().optional(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedCreateNestedManyWithoutCreatorInputSchema).optional(),
@@ -8722,6 +8918,7 @@ export const UserUpdateWithoutSessionsInputSchema: z.ZodType<PrismaClient.Prisma
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUpdateManyWithoutCreatorNestedInputSchema).optional(),
@@ -8736,6 +8933,7 @@ export const UserUncheckedUpdateWithoutSessionsInputSchema: z.ZodType<PrismaClie
   display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   Correction: z.lazy(() => CorrectionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  SalesReconciliation: z.lazy(() => SalesReconciliationUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   PurchaseOrder: z.lazy(() => PurchaseOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   BuybackOrder: z.lazy(() => BuybackOrderUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   casesCreated: z.lazy(() => CaseUncheckedUpdateManyWithoutCreatorNestedInputSchema).optional(),
@@ -8823,6 +9021,30 @@ export const CorrectionCreateOrConnectWithoutUserInputSchema: z.ZodType<PrismaCl
 
 export const CorrectionCreateManyUserInputEnvelopeSchema: z.ZodType<PrismaClient.Prisma.CorrectionCreateManyUserInputEnvelope> = z.object({
   data: z.union([z.lazy(() => CorrectionCreateManyUserInputSchema), z.lazy(() => CorrectionCreateManyUserInputSchema).array()]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const SalesReconciliationCreateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationCreateWithoutUserInput> = z.object({
+  id: z.string().optional(),
+  date: z.date(),
+  display: z.boolean().optional(),
+  salesLines: z.lazy(() => SalesLineCreateNestedManyWithoutSalesReconciliationInputSchema).optional(),
+}).strict();
+
+export const SalesReconciliationUncheckedCreateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUncheckedCreateWithoutUserInput> = z.object({
+  id: z.string().optional(),
+  date: z.date(),
+  display: z.boolean().optional(),
+  salesLines: z.lazy(() => SalesLineUncheckedCreateNestedManyWithoutSalesReconciliationInputSchema).optional(),
+}).strict();
+
+export const SalesReconciliationCreateOrConnectWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationCreateOrConnectWithoutUserInput> = z.object({
+  where: z.lazy(() => SalesReconciliationWhereUniqueInputSchema),
+  create: z.union([z.lazy(() => SalesReconciliationCreateWithoutUserInputSchema), z.lazy(() => SalesReconciliationUncheckedCreateWithoutUserInputSchema)]),
+}).strict();
+
+export const SalesReconciliationCreateManyUserInputEnvelopeSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationCreateManyUserInputEnvelope> = z.object({
+  data: z.union([z.lazy(() => SalesReconciliationCreateManyUserInputSchema), z.lazy(() => SalesReconciliationCreateManyUserInputSchema).array()]),
   skipDuplicates: z.boolean().optional(),
 }).strict();
 
@@ -9014,6 +9236,32 @@ export const CorrectionUpdateWithWhereUniqueWithoutUserInputSchema: z.ZodType<Pr
 export const CorrectionUpdateManyWithWhereWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.CorrectionUpdateManyWithWhereWithoutUserInput> = z.object({
   where: z.lazy(() => CorrectionScalarWhereInputSchema),
   data: z.union([z.lazy(() => CorrectionUpdateManyMutationInputSchema), z.lazy(() => CorrectionUncheckedUpdateManyWithoutCorrectionInputSchema)]),
+}).strict();
+
+export const SalesReconciliationUpsertWithWhereUniqueWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUpsertWithWhereUniqueWithoutUserInput> = z.object({
+  where: z.lazy(() => SalesReconciliationWhereUniqueInputSchema),
+  update: z.union([z.lazy(() => SalesReconciliationUpdateWithoutUserInputSchema), z.lazy(() => SalesReconciliationUncheckedUpdateWithoutUserInputSchema)]),
+  create: z.union([z.lazy(() => SalesReconciliationCreateWithoutUserInputSchema), z.lazy(() => SalesReconciliationUncheckedCreateWithoutUserInputSchema)]),
+}).strict();
+
+export const SalesReconciliationUpdateWithWhereUniqueWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUpdateWithWhereUniqueWithoutUserInput> = z.object({
+  where: z.lazy(() => SalesReconciliationWhereUniqueInputSchema),
+  data: z.union([z.lazy(() => SalesReconciliationUpdateWithoutUserInputSchema), z.lazy(() => SalesReconciliationUncheckedUpdateWithoutUserInputSchema)]),
+}).strict();
+
+export const SalesReconciliationUpdateManyWithWhereWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUpdateManyWithWhereWithoutUserInput> = z.object({
+  where: z.lazy(() => SalesReconciliationScalarWhereInputSchema),
+  data: z.union([z.lazy(() => SalesReconciliationUpdateManyMutationInputSchema), z.lazy(() => SalesReconciliationUncheckedUpdateManyWithoutSalesReconciliationInputSchema)]),
+}).strict();
+
+export const SalesReconciliationScalarWhereInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationScalarWhereInput> = z.object({
+  AND: z.union([z.lazy(() => SalesReconciliationScalarWhereInputSchema), z.lazy(() => SalesReconciliationScalarWhereInputSchema).array()]).optional(),
+  OR: z.lazy(() => SalesReconciliationScalarWhereInputSchema).array().optional(),
+  NOT: z.union([z.lazy(() => SalesReconciliationScalarWhereInputSchema), z.lazy(() => SalesReconciliationScalarWhereInputSchema).array()]).optional(),
+  id: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  userId: z.union([z.lazy(() => StringNullableFilterSchema), z.string()]).optional().nullable(),
+  date: z.union([z.lazy(() => DateTimeFilterSchema), z.date()]).optional(),
+  display: z.union([z.lazy(() => BoolFilterSchema), z.boolean()]).optional(),
 }).strict();
 
 export const PurchaseOrderUpsertWithWhereUniqueWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUpsertWithWhereUniqueWithoutUserInput> = z.object({
@@ -9818,6 +10066,12 @@ export const CorrectionCreateManyUserInputSchema: z.ZodType<PrismaClient.Prisma.
   quantity: z.number().int(),
 }).strict();
 
+export const SalesReconciliationCreateManyUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationCreateManyUserInput> = z.object({
+  id: z.string().cuid().optional(),
+  date: z.date(),
+  display: z.boolean().optional(),
+}).strict();
+
 export const PurchaseOrderCreateManyUserInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderCreateManyUserInput> = z.object({
   id: z.string().cuid().optional(),
   date: z.date(),
@@ -9922,6 +10176,26 @@ export const CorrectionUncheckedUpdateWithoutUserInputSchema: z.ZodType<PrismaCl
   date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
   bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   quantity: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+}).strict();
+
+export const SalesReconciliationUpdateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUpdateWithoutUserInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  salesLines: z.lazy(() => SalesLineUpdateManyWithoutSalesReconciliationNestedInputSchema).optional(),
+}).strict();
+
+export const SalesReconciliationUncheckedUpdateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUncheckedUpdateWithoutUserInput> = z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
+  salesLines: z.lazy(() => SalesLineUncheckedUpdateManyWithoutSalesReconciliationNestedInputSchema).optional(),
+}).strict();
+
+export const SalesReconciliationUncheckedUpdateManyWithoutSalesReconciliationInputSchema: z.ZodType<PrismaClient.Prisma.SalesReconciliationUncheckedUpdateManyWithoutSalesReconciliationInput> = z.object({
+  id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  date: z.union([z.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputSchema)]).optional(),
+  display: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const PurchaseOrderUpdateWithoutUserInputSchema: z.ZodType<PrismaClient.Prisma.PurchaseOrderUpdateWithoutUserInput> = z.object({

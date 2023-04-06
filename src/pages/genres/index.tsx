@@ -20,6 +20,8 @@ import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import DetailLink from "../../components/table-components/DetailLink";
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
+import { useSession } from "next-auth/react";
+import type { CustomUser } from "../../schema/user.schema";
 
 export default function Genres(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -28,6 +30,9 @@ export default function Genres(
     cursor: null,
     limit: 50,
   });
+  
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
 
   const genresWithOverallMetrics = genreQuery?.data?.items ?? [];
 
@@ -106,7 +111,7 @@ export default function Genres(
       <Head>
         <title>Genres</title>
       </Head>
-      <div className="space flex h-3/4 overflow-hidden text-neutral-50">
+      {user?.role === "admin" ? <div className="space flex h-3/4 overflow-hidden text-neutral-50">
         <Box
           sx={{
             display: 'flex',
@@ -131,7 +136,10 @@ export default function Genres(
             />
           </Fab>
         </Box>
-      </div>
+      </div> : 
+      <div className="space mt-3 mb-5 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl"> Genres </h1>
+      </div>}
       <div className="h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
