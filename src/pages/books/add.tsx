@@ -126,6 +126,12 @@ export default function AddBook() {
     const uniqueISBNs = [...new Set(isbnSearchList)];
     setParsedIsbns(uniqueISBNs);
     uniqueISBNs.forEach((isbn) => {
+      if (isbn.length !== 10 && isbn.length !== 13) {
+        if (retrieveDetailsQuery.isSuccess && isLoaded) {
+          toast.error(`ISBN ${isbn} is not a valid ISBN.`);
+        }
+        setParsedIsbns((prev) => prev.filter((item) => item !== isbn));
+      }
       if (allBooksISBNS.includes(isbn)) {
         if (retrieveDetailsQuery.isSuccess && isLoaded) {
           toast.error(`ISBN ${isbn} already exists in the database and was removed from search.`);

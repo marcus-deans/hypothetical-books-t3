@@ -96,6 +96,8 @@ model PurchaseLine {
 
 model SalesReconciliation {
   id         String      @id @default(cuid())
+  user       User?       @relation(fields: [userId], references: [id])
+  userId     String?
   date       DateTime
   salesLines SalesLine[]
   display    Boolean     @default(true)
@@ -222,18 +224,19 @@ model Session {
 }
 
 model User {
-  id              String          @id @default(cuid())
-  name            String          @default("default")
-  password        String
-  role            String          @default("user")
-  display         Boolean         @default(true)
-  accounts        Account[]
-  sessions        Session[]
-  Correction      Correction[]
-  PurchaseOrder   PurchaseOrder[]
-  BuybackOrder    BuybackOrder[]
-  casesCreated    Case[]          @relation(name: "creator")
-  casesLastEdited Case[]          @relation(name: "editor")
+  id                  String                @id @default(cuid())
+  name                String                @default("default")
+  password            String
+  role                String                @default("user")
+  display             Boolean               @default(true)
+  accounts            Account[]
+  sessions            Session[]
+  Correction          Correction[]
+  SalesReconciliation SalesReconciliation[]
+  PurchaseOrder       PurchaseOrder[]
+  BuybackOrder        BuybackOrder[]
+  casesCreated        Case[]                @relation(name: "creator")
+  casesLastEdited     Case[]                @relation(name: "editor")
 }
 
 model VerificationToken {
