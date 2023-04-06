@@ -4,13 +4,17 @@ import TextField from "@mui/material/TextField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
-import { api } from "../../../utils/api";
+import { api } from "../../utils/api";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import Head from "next/head";
+import { CustomUser } from "../../schema/user.schema";
+import { useSession } from "next-auth/react";
 
 export default function AddSalesReconciliation() {
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
   const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -29,6 +33,7 @@ export default function AddSalesReconciliation() {
       const addResult = addMutation.mutate({
         date: dateValue.toDate(),
         salesLines: [],
+        user: user!
       });
       setTimeout(() => {
         void router.push("/sales");
@@ -42,13 +47,13 @@ export default function AddSalesReconciliation() {
   return (
     <>
       <Head>
-        <title>Create Sales Record</title>
+        <title>Create Sales Reconciliation</title>
       </Head>
       <div className="text-neutral-50 overflow-hidden pt-6 inline-block">
         <form className="mb-4 items-center rounded bg-white shadow-md px-6 py-3">
           <div className="mb-4 space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
-              Create Sales Record
+              Create Sales Reconciliation
             </div>
             <div className="relative space-y-3">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>

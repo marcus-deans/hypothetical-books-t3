@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import type {
   GetServerSidePropsContext,
+  GetStaticPaths,
+  GetStaticPropsContext,
   InferGetServerSidePropsType,
+  InferGetStaticPropsType,
 } from "next";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
@@ -13,26 +16,18 @@ import { Autocomplete, InputAdornment, TextField } from "@mui/material";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
 import { matchSorter } from "match-sorter";
 import Head from "next/head";
+import { toast, ToastContainer } from "react-toastify";
+import { prisma } from "../../../server/db";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddSalesLine(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
+  props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
-  const salesReconciliationsQuery = api.salesReconciliations.getAll.useQuery({
-    cursor: null,
-    limit: 100,
-  });
-  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({
-    cursor: null,
-    limit: 100,
-  });
+  const { id } = props;
+  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({ cursor: null, limit: 100 });
 
   const router = useRouter();
-  const salesReconciliations = salesReconciliationsQuery?.data?.items ?? [];
   const books = booksQuery?.data?.items ?? [];
-  const [salesValue, setSalesValue] = useState<{
-    label: string;
-    id: string;
-  } | null>(null);
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
@@ -49,8 +44,9 @@ export default function AddSalesLine(
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      if (!bookValue || !salesValue) {
-        throw new Error("Book and Sales Reconciliation are required");
+      if (!bookValue) {
+        toast.error("Book is required");
+        throw new Error("Book is required");
       }
       const finalUnitWholesalePrice = Number(unitWholesalePrice);
       const finalQuantity = Number(quantity);
@@ -60,6 +56,7 @@ export default function AddSalesLine(
         finalUnitWholesalePrice <= 0 ||
         finalQuantity <= 0
       ) {
+        toast.error("Unit Wholesale Price and Quantity must be positive numbers");
         throw new Error(
           "Unit Wholesale Price and Quantity must be positive numbers"
         );
@@ -68,23 +65,16 @@ export default function AddSalesLine(
         bookId: bookValue.id,
         quantity: finalQuantity,
         unitWholesalePrice: finalUnitWholesalePrice,
-        salesReconciliationId: salesValue.id,
+        salesReconciliationId: id,
       });
       setTimeout(() => {
-        void router.push(`/sales/${encodeURIComponent(salesValue.id)}/detail`);
+        void router.push(`/sales/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
       console.log(error);
       setIsSubmitting(false);
     }
   };
-
-  const salesReconciliationOptions = salesReconciliations.map(
-    (salesReconciliation) => ({
-      label: salesReconciliation.date.toLocaleDateString(),
-      id: salesReconciliation.id,
-    })
-  );
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
@@ -107,31 +97,6 @@ export default function AddSalesLine(
               <div className="col-span-4">
                 <div className="space-y-20">
                   <div className="flex justify-center space-x-10">
-                    <FormControl>
-                      <Autocomplete
-                        options={salesReconciliationOptions}
-                        value={salesValue}
-                        onChange={(
-                          event,
-                          newValue: { label: string; id: string } | null
-                        ) => {
-                          setSalesValue(newValue);
-                        }}
-                        onInputChange={(event, newSalesInputValue: string) => {
-                          setSalesInputValue(newSalesInputValue);
-                        }}
-                        sx={{ width: 425 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            inputProps={{
-                              ...params.inputProps,
-                            }}
-                            label="Select a Sales Record by Date"
-                          />
-                        )}
-                      />
-                    </FormControl>
                     <FormControl>
                       <Autocomplete
                         options={bookOptions}
@@ -163,37 +128,32 @@ export default function AddSalesLine(
                     </FormControl>
                   </div>
                   <div className="flex justify-center space-x-10">
-                    <FormControl>
-                      <TextField
-                        id="quantity"
-                        name="quantity"
-                        type="text"
-                        label="Quantity"
-                        sx={{ width: 425 }}
-                        onChange={(
-                          event: React.ChangeEvent<HTMLInputElement>
-                        ): void => setQuantity(event.target.value)}
-                        required
-                      />
-                    </FormControl>
-                    <FormControl>
-                      <TextField
-                        id="UnitWholesalePrice"
-                        name="UnitWholesalePrice"
-                        label="Unit Wholesale Price"
-                        type="text"
-                        value={unitWholesalePrice}
-                        onChange={(
-                          event: React.ChangeEvent<HTMLInputElement>
-                        ): void => setUnitWholesalePrice(event.target.value)}
-                        required
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">$</InputAdornment>
-                          ),
-                        }}
-                      />
-                    </FormControl>
+                    <TextField
+                      id="quantity"
+                      name="quantity"
+                      label="Quantity"
+                      type="text"
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void => setQuantity(event.target.value)}
+                      required
+                    />
+                    <TextField
+                      id="UnitWholesalePrice"
+                      name="UnitWholesalePrice"
+                      label="Unit Wholesale Price"
+                      type="text"
+                      value={unitWholesalePrice}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ): void => setUnitWholesalePrice(event.target.value)}
+                      required
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">$</InputAdornment>
+                        ),
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -209,33 +169,42 @@ export default function AddSalesLine(
             </div>
           </div>
         </form>
+        <ToastContainer></ToastContainer>
       </div>
     </>
   );
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ id: string }>
+) {
   const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: createInnerTRPCContext({ session: null }),
-    //eslint-disable-next-line
     transformer: superjson,
   });
-  // const id = context.params?.id as string;
-  /*
-   * Prefetching the `post.byId` query here.
-   * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
-   */
-  await ssg.salesReconciliations.getAll.prefetch({ cursor: null, limit: 100 });
-  await ssg.books.getAllWithAuthorsAndGenre.prefetch({
-    cursor: null,
-    limit: 100,
-  });
-  // Make sure to return { props: { trpcState: ssg.dehydrate() } }
+  const id = context.params?.id as string;
+
+  await ssg.salesReconciliations.getById.prefetch({ id });
+
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      // id,
+      id,
     },
+    revalidate: 1,
   };
 }
+export const getStaticPaths: GetStaticPaths = async () => {
+  const salesReconciliations = await prisma.salesReconciliation.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  const paths = salesReconciliations.map((salesReconciliations) => ({
+    params: { id: salesReconciliations.id },
+  }));
+
+  return { paths, fallback: true };
+};

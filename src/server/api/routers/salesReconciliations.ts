@@ -82,6 +82,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
               },
             },
           },
+          user: true,
         },
         cursor: cursor
           ? {
@@ -247,6 +248,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
                 },
               },
             },
+            user: true,
           },
         });
       if (
@@ -377,6 +379,11 @@ export const salesReconciliationsRouter = createTRPCRouter({
       z.object({
         date: z.date(),
         salesLines: z.array(z.string()),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          role: z.string(),
+        }),
       })
     )
 
@@ -386,6 +393,11 @@ export const salesReconciliationsRouter = createTRPCRouter({
           date: input.date,
           salesLines: {
             create: [],
+          },
+          user: {
+            connect: {
+              id: input.user.id,
+            },
           },
         },
       });

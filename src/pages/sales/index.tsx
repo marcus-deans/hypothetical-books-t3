@@ -15,6 +15,8 @@ import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import DetailLink from "../../components/table-components/DetailLink";
+import Fab from '@mui/material/Fab';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -30,7 +32,7 @@ export default function sales(
   const columns: GridColDef[] = [
     {
       field: "id",
-      headerName: "Sales Record ID",
+      headerName: "Sales ID",
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
@@ -38,19 +40,36 @@ export default function sales(
     },
     {
       field: "date",
-      headerName: "Record Date",
+      headerName: "Sales Date",
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
+        const date = new Date(params.row.date);
         return (
           <div className="text-blue-600">
             {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <a href={`/sales/${params.id}/detail`}>{params.row.date} </a>
+            <a href={`/sales/${params.id}/detail`}>{date.toLocaleDateString()} </a>
           </div>
         );
       },
+    },
+    {
+      field: "user",
+      headerName: "User",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      flex: 1,
+    },
+    {
+      field: "salesType",
+      headerName: "Sales Type",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      flex: 1,
     },
     {
       field: "totalQuantity",
@@ -92,7 +111,9 @@ export default function sales(
   const rows = salesReconciliations.map((salesReconciliation) => {
     return {
       id: salesReconciliation.salesReconciliation.id,
-      date: salesReconciliation.salesReconciliation.date.toLocaleDateString(),
+      date: salesReconciliation.salesReconciliation.date.getTime(),
+      user: salesReconciliation.salesReconciliation.user?.name ?? "N/A",
+      salesType: salesReconciliation.salesReconciliation.user === null ? "Record" : "Reconciliation",
       totalQuantity: salesReconciliation.totalQuantity,
       totalPrice: `${salesReconciliation.totalPrice.toFixed(2)}`,
       totalUniqueBooks: salesReconciliation.totalUniqueBooks,
@@ -104,11 +125,33 @@ export default function sales(
       <Head>
         <title>Sales</title>
       </Head>
-      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Sales Records </h1>
+      <div className="space flex h-3/4 overflow-hidden text-neutral-50">
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            my: 1.5,
+          }}
+        >
+          <h1 className="inline-block text-2xl"> Sales Reconciliations / Records </h1>
+          <Fab size="small" aria-label="add" href="/sales/add"
+            sx={{
+              ml: 1,
+              backgroundColor: "rgb(59 130 246)",
+              "&:hover": {
+                backgroundColor: "rgb(29 78 216)",
+              },
+            }}
+          >
+            <AddIcon
+              sx={{
+                color: "white",
+              }}
+            />
+          </Fab>
+        </Box>
       </div>
-
-      <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+      <div className="h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
             height: "auto",

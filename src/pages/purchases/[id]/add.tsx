@@ -23,17 +23,10 @@ export default function AddPurchaseLine(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const purchaseOrdersQuery = api.purchaseOrders.getById.useQuery({
-    id,
-  });
   const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
 
   const router = useRouter();
   const books = booksQuery?.data?.items ?? [];
-  const [purchaseValue, setPurchaseValue] = useState<{
-    label: string;
-    id: string;
-  } | null>(null);
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
@@ -88,6 +81,9 @@ export default function AddPurchaseLine(
 
   return (
     <>
+      <Head>
+        <title>Create Purchase Line</title>
+      </Head>
       <div className="pt-6">
         <form className="inline-block rounded bg-white px-6 py-6">
           <div className="mb-2 block text-lg font-bold text-gray-700">

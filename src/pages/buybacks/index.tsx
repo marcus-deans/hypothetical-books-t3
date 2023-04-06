@@ -45,10 +45,11 @@ export default function sales(
       headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
+        const date = new Date(params.row.date);
         return (
           <div className="text-blue-600">
             {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <a href={`/buybacks/${params.id}/detail`}>{params.row.date} </a>
+            <a href={`/buybacks/${params.id}/detail`}>{date.toLocaleDateString()} </a>
           </div>
         );
       },
@@ -109,7 +110,7 @@ export default function sales(
   const rows = buybackOrders.map((buybackOrder) => {
     return {
       id: buybackOrder.buybackOrder.id,
-      date: buybackOrder.buybackOrder.date.toLocaleDateString(),
+      date: buybackOrder.buybackOrder.date.getTime(),
       user: buybackOrder.buybackOrder.user?.name ?? "N/A",
       totalQuantity: buybackOrder.totalQuantity,
       vendor: buybackOrder.buybackOrder.vendor.name,
