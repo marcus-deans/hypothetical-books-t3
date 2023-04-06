@@ -46,6 +46,7 @@ export default function sales(
       headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
+        /* eslint-diable */
         const date = new Date(params.row.date);
         return (
           <div className="text-blue-600">
@@ -53,6 +54,7 @@ export default function sales(
             <a href={`/sales/${params.id}/detail`}>{date.toLocaleDateString()} </a>
           </div>
         );
+        /* eslint-enable */
       },
     },
     {

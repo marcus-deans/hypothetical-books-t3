@@ -24,7 +24,7 @@ export default function AddSalesLine(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({ cursor: null, limit: 100 });
+  const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
 
   const router = useRouter();
   const books = booksQuery?.data?.items ?? [];
@@ -35,6 +35,7 @@ export default function AddSalesLine(
   const [unitWholesalePrice, setUnitWholesalePrice] = useState("");
   const [quantity, setQuantity] = useState("");
   const [salesInputValue, setSalesInputValue] = useState("");
+  const [bookInventory, setBookInventory] = useState(0);
   const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   //TODO: fix this
@@ -50,16 +51,25 @@ export default function AddSalesLine(
       }
       const finalUnitWholesalePrice = Number(unitWholesalePrice);
       const finalQuantity = Number(quantity);
-      if (
-        isNaN(finalUnitWholesalePrice) ||
-        isNaN(finalQuantity) ||
-        finalUnitWholesalePrice <= 0 ||
-        finalQuantity <= 0
-      ) {
-        toast.error("Unit Wholesale Price and Quantity must be positive numbers");
-        throw new Error(
-          "Unit Wholesale Price and Quantity must be positive numbers"
-        );
+      if (isNaN(finalUnitWholesalePrice)) {
+        toast.error("Unit Wholesale Price must be a number");
+        throw new Error("Unit Wholesale Price must be a number");
+      }
+      if (isNaN(finalQuantity)) {
+        toast.error("Quantity must be a number");
+        throw new Error("Quantity must be a number");
+      }
+      if (finalUnitWholesalePrice <= 0) {
+        toast.error("Unit Wholesale Price must be a positive number");
+        throw new Error("Unit Wholesale Price must be a positive number");
+      }
+      if (finalQuantity <= 0) {
+        toast.error("Quantity must be a positive number");
+        throw new Error("Quantity must be a positive number");
+      }
+      if (bookInventory - finalQuantity < 0) {
+        toast.error("The final inventory cannot go below 0");
+        throw new Error("Quantity must be less than or equal to inventory");
       }
       const addResult = addMutation.mutate({
         bookId: bookValue.id,
@@ -109,6 +119,10 @@ export default function AddSalesLine(
                           setUnitWholesalePrice(
                             bookOptions.find((book) => book.id === newValue?.id)
                               ?.retailPrice ?? ""
+                          );
+                          setBookInventory(
+                            books.find((book) => book.id === newValue?.id)
+                              ?.inventoryCount ?? 0
                           );
                         }}
                         onInputChange={(event, newBookInputValue: string) => {
