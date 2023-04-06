@@ -51,13 +51,13 @@ export default function AddBuyBackLine(
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
+    retailPrice: number;
   } | null>(null);
+  const [unitRetailPrice, setUnitRetailPrice] = useState(0);
   const [unitBuybackPrice, setUnitBuybackPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [bookInputValue, setBookInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  //TODO: fix this
-  // const filterOptions = (options, { inputValue }) => matchSorter(options, inputValue, { keys: ['label, id'] });
   const addMutation = api.buybackLines.add.useMutation();
 
   const handleSubmit = () => {
@@ -97,6 +97,7 @@ export default function AddBuyBackLine(
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
     id: book.id,
+    retailPrice: book.retailPrice,
   }));
 
   return (
@@ -120,9 +121,10 @@ export default function AddBuyBackLine(
                       value={bookValue}
                       onChange={(
                         event,
-                        newValue: { label: string; id: string } | null
+                        newValue: { label: string; id: string; retailPrice: number } | null
                       ) => {
                         setBookValue(newValue);
+                        setUnitRetailPrice((newValue?.retailPrice ?? 0));
                       }}
                       onInputChange={(event, newBookInputValue: string) => {
                         setBookInputValue(newBookInputValue);
@@ -156,9 +158,10 @@ export default function AddBuyBackLine(
                     name="UnitBuybackPrice"
                     label="Unit Buyback Price"
                     type="text"
+                    placeholder={(unitRetailPrice * ((buyBackOrder?.vendor.buybackRate ?? 0)/100)).toFixed(2)}
                     onChange={(
                       event: React.ChangeEvent<HTMLInputElement>
-                    ): void => setUnitBuybackPrice(Number(event.target.value))}
+                    ): void => setUnitBuybackPrice(Number(event.target.value === "" ? (unitRetailPrice * ((buyBackOrder?.vendor.buybackRate ?? 0)/100)).toFixed(2) : event.target.value))}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">$</InputAdornment>

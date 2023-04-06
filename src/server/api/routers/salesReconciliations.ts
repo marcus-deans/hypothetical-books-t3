@@ -27,8 +27,8 @@ export const salesReconciliationsRouter = createTRPCRouter({
         where: { display: true },
         cursor: cursor
           ? {
-              id: cursor,
-            }
+            id: cursor,
+          }
           : undefined,
         orderBy: {
           date: "desc",
@@ -82,11 +82,12 @@ export const salesReconciliationsRouter = createTRPCRouter({
               },
             },
           },
+          user: true,
         },
         cursor: cursor
           ? {
-              id: cursor,
-            }
+            id: cursor,
+          }
           : undefined,
         orderBy: {
           date: "desc",
@@ -170,8 +171,8 @@ export const salesReconciliationsRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-              id: cursor,
-            }
+            id: cursor,
+          }
           : undefined,
         orderBy: {
           date: "desc",
@@ -247,6 +248,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
                 },
               },
             },
+            user: true,
           },
         });
       if (
@@ -370,6 +372,50 @@ export const salesReconciliationsRouter = createTRPCRouter({
             date: input.date,
           },
         });
+    }),
+
+  addWithUser: publicProcedure
+    .input(
+      z.object({
+        date: z.date(),
+        salesLines: z.array(z.string()),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          role: z.string(),
+        }),
+      })
+    )
+
+    .mutation(async ({ input }) => {
+      const salesReconciliation = await prisma.salesReconciliation.create({
+        data: {
+          date: input.date,
+          salesLines: {
+            create: [],
+          },
+          user: {
+            connect: {
+              id: input.user.id,
+            },
+          },
+        },
+      });
+
+      for (const salesLineId of input.salesLines) {
+        await prisma.salesLine.update({
+          where: { id: salesLineId },
+          data: {
+            salesReconciliation: {
+              connect: {
+                id: salesReconciliation.id,
+              },
+            },
+          },
+        });
+      }
+
+      return salesReconciliation;
     }),
 
   add: publicProcedure
