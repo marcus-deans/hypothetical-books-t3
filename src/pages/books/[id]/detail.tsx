@@ -326,7 +326,7 @@ export default function BookDetail(
       ? `${shelfSpace.toString()}* in.`
       : `${shelfSpace.toString()} in.`;
   const bestBuybackString =
-    bestBuybackPrice === 0 ? "-" : `$${(bestBuybackPrice/100).toFixed(2)}`;
+    bestBuybackPrice === 0 ? "-" : `$${(bestBuybackPrice / 100).toFixed(2)}`;
 
   const bookDetailRows = [
     {
@@ -359,7 +359,10 @@ export default function BookDetail(
       id: salesReconciliation.id,
       date: salesReconciliation.date.getTime(),
       user: salesReconciliation.user?.name ?? "N/A",
-      recordType: salesReconciliation.user === null ? "Sales Record" : "Sales Reconciliation",
+      recordType:
+        salesReconciliation.user === null
+          ? "Sales Record"
+          : "Sales Reconciliation",
       quantity: salesLine.quantity,
       price: `${salesLine.unitWholesalePrice.toFixed(2)}`,
       vendor: "N/A",
@@ -450,13 +453,14 @@ export default function BookDetail(
         /* eslint-disable */
         // @ts-ignore
         const urlTag =
-          params.row.recordType === "Sales Reconciliation" || params.row.recordType === "Sales Record"
+          params.row.recordType === "Sales Reconciliation" ||
+          params.row.recordType === "Sales Record"
             ? "sales"
             : params.row.recordType === "Purchase"
-              ? "purchases"
-              : params.row.recordType === "Buyback"
-                ? "buybacks"
-                : "error";
+            ? "purchases"
+            : params.row.recordType === "Buyback"
+            ? "buybacks"
+            : "error";
         const date = new Date(params.row.date);
 
         if (
@@ -647,7 +651,7 @@ export default function BookDetail(
             },
           }}
         >
-          <div className="flex justify-center pt-3 justify-end">
+          <div className="flex justify-end justify-center pt-3">
             <div className="px-24 pt-2">
               <Image
                 alt={"Book cover"}
@@ -669,7 +673,12 @@ export default function BookDetail(
                     <div className="font-bold">{`Cover of: ${bookDetailRows[0]?.title}`}</div>
                     <div className="font-light">{`By ${bookDetailRows[0]?.author}`}</div>
                   </div>
-                  <Image alt={"Book cover"} src={bookDetailRows[0]?.imgUrl!} width={300} height={450} />
+                  <Image
+                    alt={"Book cover"}
+                    src={bookDetailRows[0]?.imgUrl!}
+                    width={300}
+                    height={450}
+                  />
                 </Box>
               </Modal>
               <div className="flex justify-center pt-3">
@@ -683,30 +692,66 @@ export default function BookDetail(
             </div>
             <div className="flex flex-col space-y-7 px-6 text-left">
               <div>
-              <div className="text-2xl font-bold">{bookDetailRows.at(0)?.title}</div>
-              <div className="text-lg font-light">{`By: ${bookDetailRows.at(0)?.author}`}</div>
+                <div className="text-2xl font-bold">
+                  {bookDetailRows.at(0)?.title}
+                </div>
+                <div className="text-lg font-light">{`By: ${
+                  bookDetailRows.at(0)?.author
+                }`}</div>
               </div>
               <div className="flex justify-between">
-                <div className="pr-6 text-left space-y-1">
-                  <div className="text-lg font-light">{`Released ${bookDetailRows.at(0)?.publicationYear}`}</div>
-                  <div className="text-lg font-light">{`Publisher: ${bookDetailRows.at(0)?.publisher}`}</div>
-                  <div className="text-lg font-light">{`ISBN-13: ${bookDetailRows.at(0)?.isbn_13}`}</div>
-                  <div className="text-lg font-light">{`ISBN-10: ${bookDetailRows.at(0)?.isbn_10}`}</div>
-                  <div className="text-lg font-light">{`Genre: ${bookDetailRows.at(0)?.genre}`}</div>
-                  <div className="text-lg font-light">{`Page Count: ${bookDetailRows.at(0)?.pageCount}`}</div>
-                  <div className="text-lg font-light">{`Inventory Count: ${bookDetailRows.at(0)?.inventoryCount}`}</div>
-                  <div className="text-lg font-light">{`Retail Price: ${bookDetailRows.at(0)?.retailPrice}`}</div>
+                <div className="space-y-1 pr-6 text-left">
+                  <div className="text-lg font-light">{`Released ${
+                    bookDetailRows.at(0)?.publicationYear
+                  }`}</div>
+                  <div className="text-lg font-light">{`Publisher: ${
+                    bookDetailRows.at(0)?.publisher
+                  }`}</div>
+                  <div className="text-lg font-light">{`ISBN-13: ${
+                    bookDetailRows.at(0)?.isbn_13
+                  }`}</div>
+                  <div className="text-lg font-light">{`ISBN-10: ${
+                    bookDetailRows.at(0)?.isbn_10
+                  }`}</div>
+                  <div className="text-lg font-light">{`Genre: ${
+                    bookDetailRows.at(0)?.genre
+                  }`}</div>
+                  <div className="text-lg font-light">{`Page Count: ${
+                    bookDetailRows.at(0)?.pageCount
+                  }`}</div>
+                  <div className="text-lg font-light">{`Inventory Count: ${
+                    bookDetailRows.at(0)?.inventoryCount
+                  }`}</div>
+                  <div className="text-lg font-light">{`Retail Price: ${
+                    bookDetailRows.at(0)?.retailPrice
+                  }`}</div>
                 </div>
                 <Divider orientation="vertical" flexItem />
-                <div className="pl-6 text-left space-y-1">
-                  <div className="text-lg font-light">{`Width: ${bookDetailRows.at(0)?.width}`}</div>
-                  <div className="text-lg font-light">{`Height: ${bookDetailRows.at(0)?.height}`}</div>
-                  <div className="text-lg font-light">{`Thickness: ${bookDetailRows.at(0)?.thickness}`}</div>
-                  <div className="text-lg font-light">{`Shelf Space: ${bookDetailRows.at(0)?.shelfSpace}`}</div>
-                  <div className="text-lg font-light">{`Last Month Sales: ${bookDetailRows.at(0)?.lastMonthSales}`}</div>
-                  <div className="text-lg font-light">{`Days in Supply: ${bookDetailRows.at(0)?.daysSupply}`}</div>
-                  <div className="text-lg font-light">{`Best Buyback Price: ${bookDetailRows.at(0)?.bestBuyback}`}</div>
-                  <div className="text-lg font-light">{`Related Book Count: ${bookDetailRows.at(0)?.relatedBookCount}`}</div>
+                <div className="space-y-1 pl-6 text-left">
+                  <div className="text-lg font-light">{`Width: ${
+                    bookDetailRows.at(0)?.width
+                  }`}</div>
+                  <div className="text-lg font-light">{`Height: ${
+                    bookDetailRows.at(0)?.height
+                  }`}</div>
+                  <div className="text-lg font-light">{`Thickness: ${
+                    bookDetailRows.at(0)?.thickness
+                  }`}</div>
+                  <div className="text-lg font-light">{`Shelf Space: ${
+                    bookDetailRows.at(0)?.shelfSpace
+                  }`}</div>
+                  <div className="text-lg font-light">{`Last Month Sales: ${
+                    bookDetailRows.at(0)?.lastMonthSales
+                  }`}</div>
+                  <div className="text-lg font-light">{`Days in Supply: ${
+                    bookDetailRows.at(0)?.daysSupply
+                  }`}</div>
+                  <div className="text-lg font-light">{`Best Buyback Price: ${
+                    bookDetailRows.at(0)?.bestBuyback
+                  }`}</div>
+                  <div className="text-lg font-light">{`Related Book Count: ${
+                    bookDetailRows.at(0)?.relatedBookCount
+                  }`}</div>
                 </div>
               </div>
             </div>

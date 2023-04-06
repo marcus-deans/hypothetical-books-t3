@@ -80,7 +80,11 @@ async function getAllDetailsById(id: string) {
       },
       salesLines: {
         include: {
-          salesReconciliation: true,
+          salesReconciliation: {
+            include: {
+              user: true,
+            },
+          },
         },
       },
       buybackLines: {
@@ -537,27 +541,16 @@ export const booksRouter = createTRPCRouter({
             );
             return null;
           } else {
-            const remoteBook = remoteBookResponse.data[0];
-            if (remoteBook) {
-              console.log("Remote Book Details: ");
-              console.log(remoteBook);
-              try {
-                const remoteBookDetails = BridgeBookSchema.safeParse(
-                  remoteBook[internalIsbn13]
-                );
-                if (!remoteBookDetails.success) {
-                  console.error(remoteBook[internalIsbn13]);
-                  console.error(
-                    `Could not parse remote book details for ISBN ${internalIsbn13}`
-                  );
-                  return null;
-                }
-                return convertBridgeBookToBook(remoteBookDetails.data);
-              } catch (err) {
-                console.error(err);
-                return null;
-              }
+            const remoteBookDetails = BridgeBookSchema.safeParse(
+              remoteBookResponse.data[internalIsbn13]
+            );
+            if (!remoteBookDetails.success) {
+              console.error(
+                `Could not parse remote book details for ISBN ${internalIsbn13}`
+              );
+              return null;
             }
+            return convertBridgeBookToBook(remoteBookDetails.data);
           }
         });
 
