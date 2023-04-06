@@ -17,15 +17,19 @@ import { GridToolbar } from "@mui/x-data-grid";
 import DetailLink from "../../components/table-components/DetailLink";
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
+import { useSession } from "next-auth/react";
+import { CustomUser } from "../../schema/user.schema";
 
 export default function sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const salesReconciliationQuery =
-    api.salesReconciliations.getAllWithOverallMetrics.useQuery({
-      cursor: null,
-      limit: 50,
-    });
+  const salesReconciliationQuery = api.salesReconciliations.getAllWithOverallMetrics.useQuery({
+    cursor: null,
+    limit: 50,
+  });
+
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
 
   const salesReconciliations = salesReconciliationQuery?.data?.items ?? [];
 
@@ -126,7 +130,7 @@ export default function sales(
       <Head>
         <title>Sales</title>
       </Head>
-      <div className="space flex h-3/4 overflow-hidden text-neutral-50">
+      {user?.role === "admin" ? <div className="space flex h-3/4 overflow-hidden text-neutral-50">
         <Box
           sx={{
             display: 'flex',
@@ -151,7 +155,10 @@ export default function sales(
             />
           </Fab>
         </Box>
-      </div>
+      </div> : 
+      <div className="space mt-3 mb-5 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl"> Sales Reconciliations / Records </h1>
+      </div>}
       <div className="h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{

@@ -18,6 +18,8 @@ import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
+import { useSession } from "next-auth/react";
+import { CustomUser } from "../../schema/user.schema";
 
 export default function Authors(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -26,6 +28,9 @@ export default function Authors(
     cursor: null,
     limit: 50,
   });
+
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
 
   const authors = authorQuery?.data?.items ?? [];
 
@@ -86,7 +91,7 @@ export default function Authors(
       <Head>
         <title>Authors</title>
       </Head>
-      <div className="space flex h-3/4 overflow-hidden text-neutral-50">
+      {user?.role === "admin" ? <div className="space flex h-3/4 overflow-hidden text-neutral-50">
         <Box
           sx={{
             display: 'flex',
@@ -111,7 +116,10 @@ export default function Authors(
             />
           </Fab>
         </Box>
-      </div>
+      </div> : 
+      <div className="space mt-3 mb-5 flex h-3/4 overflow-hidden text-neutral-50">
+        <h1 className="inline-block text-2xl"> Authors </h1>
+      </div>}
       <div className="h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
