@@ -648,7 +648,7 @@ export default function BookDetail(
           }}
         >
           <div className="flex justify-center pt-3">
-            <div className="px-24 pt-2">
+            <div className="px-16 pt-2">
               <Image
                 alt={"Book cover"}
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
@@ -689,7 +689,7 @@ export default function BookDetail(
                 <div className="grid grid-cols-3 text-lg font-bold space-x-8">
                   <div>
                     By: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.author}`}</span>
-                    <div>Subsidiary Details:</div>
+                    <div><button className="underline">Subsidiary Details:</button></div>
                   </div>
                   <div>
                     Retail Price: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.retailPrice}`}</span>

@@ -109,7 +109,7 @@ export default function Books(
           </div>
         );
       },
-      minWidth: 250,
+      minWidth: 350,
     },
     {
       field: "author",
@@ -143,7 +143,16 @@ export default function Books(
           </div>
         );
       },
-      minWidth: 80,
+      minWidth: 90,
+    },
+    {
+      field: "remotePrice",
+      headerName: "Remote Price",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      width: 90,
     },
     {
       field: "genre",
@@ -156,6 +165,15 @@ export default function Books(
     {
       field: "inventoryCount",
       headerName: "Inventory",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      type: "number",
+      width: 80,
+    },
+    {
+      field: "remoteInventoryCount",
+      headerName: "Remote Inv.",
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
@@ -208,7 +226,7 @@ export default function Books(
     },
     {
       field: "numRelatedBooks",
-      headerName: "Num Related Books",
+      headerName: "# Related Books",
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
