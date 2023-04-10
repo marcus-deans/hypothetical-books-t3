@@ -42,26 +42,18 @@ function Nav() {
               className="hidden w-full md:block md:w-auto"
               id="navbar-dropdown"
             >
-              <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:text-sm md:font-medium md:dark:bg-gray-900">
+              <ul className="mt-4 flex flex-col whitespace-nowrap rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:text-sm md:font-medium md:dark:bg-gray-900">
                 <li>
-                  <Button
-                    variant="text"
+                  <button
                     id="book-button"
                     aria-controls={openMenu ? "book-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
-                    sx={{
-                      p: 0,
-                      maxHeight: 30,
-                      minWidth: 140,
-                      color: "white",
-                      fontFamily: "unset",
-                      fontWeight: "bold",
-                    }}
+                    className={nonActive}
                   >
                     Book Details
-                  </Button>
+                  </button>
                   <Menu
                     id="book-menu"
                     anchorEl={openMenu ? anchorEl : null}
@@ -100,24 +92,16 @@ function Nav() {
                   </Menu>
                 </li>
                 <li>
-                  <Button
-                    variant="text"
+                  <button
                     id="operations-button"
                     aria-controls={openMenu ? 'operations-menu' : undefined}
                     aria-haspopup="true"
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
-                    sx={{
-                      p: 0,
-                      maxHeight: 30,
-                      minWidth: 120,
-                      color: "white",
-                      fontFamily: "unset",
-                      fontWeight: "bold",
-                    }}
+                    className={nonActive}
                   >
                     Operations
-                  </Button>
+                  </button>
                   <Menu
                     id="operations-menu"
                     anchorEl={openMenu ? anchorEl : null}
@@ -167,24 +151,16 @@ function Nav() {
                   </Menu>
                 </li>
                 <li>
-                  <Button
-                    variant="text"
+                  <button
                     id="tools-button"
                     aria-controls={openMenu ? "tools-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
-                    sx={{
-                      p: 0,
-                      maxHeight: 30,
-                      minWidth: 80,
-                      color: "white",
-                      fontFamily: "unset",
-                      fontWeight: "bold",
-                    }}
+                    className={nonActive}
                   >
                     Tools
-                  </Button>
+                  </button>
                   <Menu
                     id="tools-menu"
                     anchorEl={openMenu ? anchorEl : null}
@@ -240,24 +216,16 @@ function Nav() {
                   </Menu>
                 </li>
                 {user ? <li>
-                  <Button
-                    variant="text"
+                  <button
                     id="user-button"
                     aria-controls={openMenu ? "user-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={openMenu ? 'true' : undefined}
                     onClick={handleClick}
-                    sx={{
-                      p: 0,
-                      maxHeight: 30,
-                      minWidth: 80,
-                      color: "white",
-                      fontFamily: "unset",
-                      fontWeight: "bold",
-                    }}
+                    className={nonActive}
                   >
                     {user.name}
-                  </Button>
+                  </button>
                   <Menu
                     id="tools-menu"
                     anchorEl={openMenu ? anchorEl : null}
