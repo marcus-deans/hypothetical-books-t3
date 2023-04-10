@@ -30,7 +30,7 @@ export default function DeleteBook(
   const router = useRouter();
   // if (router.isFallback) {
   if (bookDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = bookDetailsQuery;
 

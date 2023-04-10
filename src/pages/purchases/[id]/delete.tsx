@@ -26,7 +26,7 @@ export default function DeletePurchaseOrder(
   const router = useRouter();
   // if (router.isFallback) {
   if (purchaseOrderDeleteQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = purchaseOrderDeleteQuery;
 

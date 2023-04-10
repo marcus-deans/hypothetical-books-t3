@@ -30,7 +30,7 @@ export default function DeleteSalesLine(
   const router = useRouter();
   // if (router.isFallback) {
   if (salesLineDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = salesLineDetailsQuery;
 

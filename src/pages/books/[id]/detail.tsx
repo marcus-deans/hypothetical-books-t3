@@ -45,7 +45,7 @@ export default function BookDetail(
   };
 
   if (bookDetailsQuery.status !== "success" || !data) {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   const modalCoverStyle = {

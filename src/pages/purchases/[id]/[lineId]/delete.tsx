@@ -28,7 +28,7 @@ export default function DeletePurchaseLine(
   const router = useRouter();
   // if (router.isFallback) {
   if (purchaseLineDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = purchaseLineDetailsQuery;
 
