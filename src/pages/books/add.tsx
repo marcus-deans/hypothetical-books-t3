@@ -18,7 +18,7 @@ import Typography from "@mui/material/Typography";
 import type { Book } from "@prisma/client";
 import { TextareaAutosize } from "@mui/material";
 
-interface BookDisplayDetails {
+export interface BookDisplayDetails {
   id: number;
   imgUrl: string;
   title: string;
@@ -55,7 +55,8 @@ export default function AddBook() {
     cursor: null,
     limit: 100,
   });
-  const allBooksISBNS = allBooksQuery?.data?.items.map((book) => book.isbn_13) ?? [];
+  const allBooksISBNS =
+    allBooksQuery?.data?.items.map((book) => book.isbn_13) ?? [];
   const router = useRouter();
 
   const performQuery = () => {
@@ -134,7 +135,9 @@ export default function AddBook() {
       }
       if (allBooksISBNS.includes(isbn)) {
         if (retrieveDetailsQuery.isSuccess && isLoaded) {
-          toast.error(`ISBN ${isbn} already exists in the database and was removed from search.`);
+          toast.error(
+            `ISBN ${isbn} already exists in the database and was removed from search.`
+          );
         }
         setParsedIsbns((prev) => prev.filter((item) => item !== isbn));
         if (parsedIsbns.length === 0) {
@@ -377,7 +380,13 @@ export default function AddBook() {
         /* eslint-enable */
         return (
           <div>
-            <button type="button" onClick={() => { handleOpen(); setModalId(id)}}>
+            <button
+              type="button"
+              onClick={() => {
+                handleOpen();
+                setModalId(id);
+              }}
+            >
               See Related Books ({relatedBooks.length})
             </button>
 
@@ -437,104 +446,122 @@ export default function AddBook() {
   // 9780812979688, 9781250158079
   return (
     <>
-        <Head>
-          <title>Books</title>
-        </Head>
-        <div className="pt-6"></div>
-        <div className={`${(retrieveDetailsQuery.isSuccess && isLoaded) ? "rounded-lg bg-white px-6 pt-6" : "inline-block rounded-lg bg-white px-6 pt-6"}`}>
-          <div className="mb-2 block text-lg font-bold text-gray-700">
-            Add Book
-          </div>
-          <div className="">
-            <div className="col-span-2 mb-3 flex items-end xl:w-96">
-              <div className="input-group relative mb-4 flex w-full flex-wrap items-stretch space-y-5">
-                <TextareaAutosize
-                  className="form-control relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none"
-                  placeholder="Enter ISBNs"
-                  aria-label="Search"
-                  aria-describedby="button-addon2"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {!(retrieveDetailsQuery.isFetching || retrieveDetailsQuery.isSuccess && isLoaded) ? <div className="font-sm font-light">
+      <Head>
+        <title>Books</title>
+      </Head>
+      <div className="pt-6"></div>
+      <div
+        className={`${
+          retrieveDetailsQuery.isSuccess && isLoaded
+            ? "rounded-lg bg-white px-6 pt-6"
+            : "inline-block rounded-lg bg-white px-6 pt-6"
+        }`}
+      >
+        <div className="mb-2 block text-lg font-bold text-gray-700">
+          Add Book
+        </div>
+        <div className="">
+          <div className="col-span-2 mb-3 flex items-end xl:w-96">
+            <div className="input-group relative mb-4 flex w-full flex-wrap items-stretch space-y-5">
+              <TextareaAutosize
+                className="form-control relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none"
+                placeholder="Enter ISBNs"
+                aria-label="Search"
+                aria-describedby="button-addon2"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {!(
+                retrieveDetailsQuery.isFetching ||
+                (retrieveDetailsQuery.isSuccess && isLoaded)
+              ) ? (
+                <div className="font-sm font-light">
                   Delimiters may be commas, tabs, semicolons, spaces, or
                   newlines.
-                </div> : null}
-                <button
-                  className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
-                  type="button"
-                  id="button-addon2"
-                  onClick={handleSearch}
+                </div>
+              ) : null}
+              <button
+                className="btn inline-block flex items-center rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition  duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
+                type="button"
+                id="button-addon2"
+                onClick={handleSearch}
+              >
+                <svg
+                  aria-hidden="true"
+                  focusable="false"
+                  data-prefix="fas"
+                  data-icon="search"
+                  className="w-4"
+                  role="img"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
                 >
-                  <svg
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fas"
-                    data-icon="search"
-                    className="w-4"
-                    role="img"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                    ></path>
-                  </svg>
-                </button>
-                {retrieveDetailsQuery.isFetching || retrieveDetailsQuery.isSuccess && isLoaded ? <div className="flex pl-6 text-sm justify-center items-center">
+                  <path
+                    fill="currentColor"
+                    d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                  ></path>
+                </svg>
+              </button>
+              {retrieveDetailsQuery.isFetching ||
+              (retrieveDetailsQuery.isSuccess && isLoaded) ? (
+                <div className="flex items-center justify-center pl-6 text-sm">
                   Click twice to complete search
-                </div> : null}
-              </div>
+                </div>
+              ) : null}
             </div>
           </div>
-          {retrieveDetailsQuery.isFetching ? <div className="pb-3">Loading...</div> : null}
-          {retrieveDetailsQuery.isSuccess && isLoaded ? <div>
-          <Box
-            sx={{
-              height: "auto",
-              width: "100%",
-              "& .header-theme": {
-                backgroundColor: "rgba(56, 116, 203, 0.35)",
-              },
-              "& .MuiDataGrid-cell--textLeft": {
-                textAlign: "left",
-              },
-            }}
-          >
-            <StripedDataGrid
-              rows={displayedBooks}
-              columns={columns}
-              components={{
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                Toolbar: GridToolbar,
-              }}
-              pageSize={10}
-              rowsPerPageOptions={[10]}
-              autoHeight={true}
-              getRowHeight={() => "auto"}
-              disableSelectionOnClick
-              processRowUpdate={processRowUpdate}
-              onProcessRowUpdateError={handleProcessRowUpdateError}
-              experimentalFeatures={{ newEditingApi: true }}
-              getRowClassName={(params) =>
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-              }
-            />
-          </Box>
-          <div className="space flex py-3">
-            <button
-              className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
-              type="button"
-              onClick={handleConfirm}
-            >
-              Confirm Add Books
-            </button>
-          </div> 
-          </div> : null}
         </div>
+        {retrieveDetailsQuery.isFetching ? (
+          <div className="pb-3">Loading...</div>
+        ) : null}
+        {retrieveDetailsQuery.isSuccess && isLoaded ? (
+          <div>
+            <Box
+              sx={{
+                height: "auto",
+                width: "100%",
+                "& .header-theme": {
+                  backgroundColor: "rgba(56, 116, 203, 0.35)",
+                },
+                "& .MuiDataGrid-cell--textLeft": {
+                  textAlign: "left",
+                },
+              }}
+            >
+              <StripedDataGrid
+                rows={displayedBooks}
+                columns={columns}
+                components={{
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  Toolbar: GridToolbar,
+                }}
+                pageSize={10}
+                rowsPerPageOptions={[10]}
+                autoHeight={true}
+                getRowHeight={() => "auto"}
+                disableSelectionOnClick
+                processRowUpdate={processRowUpdate}
+                onProcessRowUpdateError={handleProcessRowUpdateError}
+                experimentalFeatures={{ newEditingApi: true }}
+                getRowClassName={(params) =>
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                  params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+                }
+              />
+            </Box>
+            <div className="space flex py-3">
+              <button
+                className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
+                type="button"
+                onClick={handleConfirm}
+              >
+                Confirm Add Books
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </div>
       <ToastContainer></ToastContainer>
     </>
-  )
+  );
 }
