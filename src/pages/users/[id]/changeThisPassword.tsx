@@ -28,7 +28,7 @@ export default function ChangeThisPassword(
     id,
   });
   if (userDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = userDetailsQuery;
   const mutation = api.users.changeUserPassword.useMutation();

@@ -29,7 +29,7 @@ export default function DeleteCase(
   const router = useRouter();
   // if (router.isFallback) {
   if (caseDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = caseDetailsQuery;
 

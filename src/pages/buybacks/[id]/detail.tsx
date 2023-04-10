@@ -29,7 +29,7 @@ export default function BuybackOrderDetail(
 
   // if (router.isFallback) {
   if (buybackOrderDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   const { data } = buybackOrderDetailsQuery;
