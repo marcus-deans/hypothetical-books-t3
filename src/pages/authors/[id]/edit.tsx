@@ -28,7 +28,7 @@ export default function EditAuthor(
   const router = useRouter();
   // if (router.isFallback) {
   if (authorDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = authorDetailsQuery;
 

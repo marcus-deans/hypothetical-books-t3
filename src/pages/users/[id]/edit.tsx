@@ -32,7 +32,7 @@ export default function EditUser(
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
   if (userDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = userDetailsQuery;
 

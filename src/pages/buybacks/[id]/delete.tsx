@@ -26,7 +26,7 @@ export default function DeleteBuybackOrder(
   const router = useRouter();
   // if (router.isFallback) {
   if (buybackOrderDeleteQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = buybackOrderDeleteQuery;
 

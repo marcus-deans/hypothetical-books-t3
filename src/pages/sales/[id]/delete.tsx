@@ -24,7 +24,7 @@ export default function DeleteSalesReconciliation(
   const router = useRouter();
   // if (router.isFallback) {
   if (salesDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = salesDetailsQuery;
 

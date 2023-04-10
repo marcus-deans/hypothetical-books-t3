@@ -167,7 +167,7 @@ export default function AddShelf(
   const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
 
   if (booksQuery.isLoading || shelfQuery.isLoading) {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   // let computedTotalSpace = 0;
