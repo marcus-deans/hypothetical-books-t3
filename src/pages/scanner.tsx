@@ -1,6 +1,6 @@
 import { useZxing } from "react-zxing";
 import { useState } from "react";
-import { Button, Box } from "@mui/material";
+import { Button } from "@mui/material";
 import { api } from "../utils/api";
 import type { BookDisplayDetails } from "./books/add";
 import { useRouter } from "next/router";
@@ -31,7 +31,7 @@ export default function Scanner() {
     setIsbn(result);
     if (retrieveIdQuery.isSuccess) {
       setTimeout(() => {
-        void router.push(`/books/${retrieveIdQuery.data?.id}/detail`);
+        void router.push(`/books/${retrieveIdQuery.data?.id}/mobile`);
       }, 500);
     }
     console.log("ISBN: ", isbn);
