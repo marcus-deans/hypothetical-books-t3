@@ -19,7 +19,7 @@ import Box from "@mui/material/Box";
 import StripedDataGrid from "../../../components/table-components/StripedDataGrid";
 import Image from "next/image";
 import Modal from "@mui/material/Modal";
-import { Divider } from "@mui/material";
+import { Button, Divider } from "@mui/material";
 
 export default function BookDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -651,15 +651,15 @@ export default function BookDetail(
             },
           }}
         >
-          <div className="flex justify-end justify-center pt-3">
-            <div className="px-24 pt-2">
+          <div className="flex justify-center pt-3">
+            <div className="px-16 pt-2">
               <Image
                 alt={"Book cover"}
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
                 src={bookDetailRows[0]?.imgUrl!}
                 onClick={handleOpen}
-                width={210}
-                height={200}
+                width={190}
+                height={190}
               />
               <Modal
                 open={open}
@@ -681,84 +681,60 @@ export default function BookDetail(
                   />
                 </Box>
               </Modal>
-              <div className="flex justify-center pt-3">
-                <div className="mx-6">
-                  <EditLink url={`/books/${id}/edit`} />
-                </div>
-                <div className="mx-6">
-                  <DeleteLink url={`/books/${id}/delete`} />
-                </div>
-              </div>
             </div>
-            <div className="flex flex-col space-y-7 px-6 text-left">
+            <div className="flex flex-col space-y-3 text-left">
               <div>
-                <div className="text-2xl font-bold">
+                <div className="flex text-2xl font-bold">
                   {bookDetailRows.at(0)?.title}
+                  <div className="flex text-lg">
+                    <div className="pt-1.5 ml-6 mr-4">
+                      <EditLink url={`/books/${id}/edit`} />
+                    </div>
+                    <div className="pt-1.5 mx-4">
+                      <DeleteLink url={`/books/${id}/delete`} />
+                    </div>
+                  </div>
                 </div>
-                <div className="text-lg font-light">{`By: ${
-                  bookDetailRows.at(0)?.author
-                }`}</div>
+                <div className="grid grid-cols-3 text-lg font-bold space-x-8">
+                  <div>
+                    By: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.author}`}</span>
+                    <div><button className="underline">Subsidiary Details:</button></div>
+                  </div>
+                  <div>
+                    Retail Price: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.retailPrice}`}</span>
+                    <div>Retail Price: <span className="text-lg font-normal">{`TODO`}</span></div>
+                  </div>
+                  <div>
+                    In Stock: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.inventoryCount}`}</span>
+                    <div>In Stock: <span className="text-lg font-normal">{`TODO`}</span></div>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <div className="space-y-1 pr-6 text-left">
-                  <div className="text-lg font-light">{`Released ${
-                    bookDetailRows.at(0)?.publicationYear
-                  }`}</div>
-                  <div className="text-lg font-light">{`Publisher: ${
-                    bookDetailRows.at(0)?.publisher
-                  }`}</div>
-                  <div className="text-lg font-light">{`ISBN-13: ${
-                    bookDetailRows.at(0)?.isbn_13
-                  }`}</div>
-                  <div className="text-lg font-light">{`ISBN-10: ${
-                    bookDetailRows.at(0)?.isbn_10
-                  }`}</div>
-                  <div className="text-lg font-light">{`Genre: ${
-                    bookDetailRows.at(0)?.genre
-                  }`}</div>
-                  <div className="text-lg font-light">{`Page Count: ${
-                    bookDetailRows.at(0)?.pageCount
-                  }`}</div>
-                  <div className="text-lg font-light">{`Inventory Count: ${
-                    bookDetailRows.at(0)?.inventoryCount
-                  }`}</div>
-                  <div className="text-lg font-light">{`Retail Price: ${
-                    bookDetailRows.at(0)?.retailPrice
-                  }`}</div>
+              <Divider orientation="horizontal" flexItem />
+              <div className="flex justify-start">
+                <div className="pr-6 text-left space-y-1">
+                  <div className="text-lg font-bold">Released: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.publicationYear}`}</span></div>
+                  <div className="text-lg font-bold">Publisher: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.publisher}`}</span></div>
+                  <div className="text-lg font-bold">ISBN-13: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.isbn_13}`}</span></div>
+                  <div className="text-lg font-bold">ISBN-10: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.isbn_10}`}</span></div>
+                  <div className="text-lg font-bold">Genre: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.genre}`}</span></div>
+                  <div className="text-lg font-bold">Page Count: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.pageCount}`}</span></div>
                 </div>
                 <Divider orientation="vertical" flexItem />
-                <div className="space-y-1 pl-6 text-left">
-                  <div className="text-lg font-light">{`Width: ${
-                    bookDetailRows.at(0)?.width
-                  }`}</div>
-                  <div className="text-lg font-light">{`Height: ${
-                    bookDetailRows.at(0)?.height
-                  }`}</div>
-                  <div className="text-lg font-light">{`Thickness: ${
-                    bookDetailRows.at(0)?.thickness
-                  }`}</div>
-                  <div className="text-lg font-light">{`Shelf Space: ${
-                    bookDetailRows.at(0)?.shelfSpace
-                  }`}</div>
-                  <div className="text-lg font-light">{`Last Month Sales: ${
-                    bookDetailRows.at(0)?.lastMonthSales
-                  }`}</div>
-                  <div className="text-lg font-light">{`Days in Supply: ${
-                    bookDetailRows.at(0)?.daysSupply
-                  }`}</div>
-                  <div className="text-lg font-light">{`Best Buyback Price: ${
-                    bookDetailRows.at(0)?.bestBuyback
-                  }`}</div>
-                  <div className="text-lg font-light">{`Related Book Count: ${
-                    bookDetailRows.at(0)?.relatedBookCount
-                  }`}</div>
+                <div className="pl-6 text-left space-y-1">
+                  <div className="text-lg font-bold">Dimensions: <span className="text-lg font-normal">{`W: ${bookDetailRows.at(0)?.width}, H: ${bookDetailRows.at(0)?.height}, T: ${bookDetailRows.at(0)?.thickness}`}</span></div>
+                  <div className="text-lg font-bold">Shelf Space: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.shelfSpace}`}</span></div>
+                  <div className="text-lg font-bold">Last Month Sales: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.lastMonthSales}`}</span></div>
+                  <div className="text-lg font-bold">Days in Supply: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.daysSupply}`}</span></div>
+                  <div className="text-lg font-bold">Best Buyback Price: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.bestBuyback}`}</span></div>
+                  <div className="text-lg font-bold">Related Book Count <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.relatedBookCount}`}</span></div>
                 </div>
               </div>
             </div>
           </div>
         </Box>
         {/* eslint-enable */}
-        <div className="pt-10 text-sm">*: Estimated dimension</div>
+        <div className="pt-6 text-sm">*: Estimated dimension</div>
         <div className="pt-8 text-lg">Record History</div>
         <Box
           sx={{
