@@ -359,7 +359,10 @@ export default function BookDetail(
       id: salesReconciliation.id,
       date: salesReconciliation.date.getTime(),
       user: salesReconciliation.user?.name ?? "N/A",
-      recordType: salesReconciliation.user === null ? "Sales Record" : "Sales Reconciliation",
+      recordType:
+        salesReconciliation.user === null
+          ? "Sales Record"
+          : "Sales Reconciliation",
       quantity: salesLine.quantity,
       price: `${salesLine.unitWholesalePrice.toFixed(2)}`,
       vendor: "N/A",
@@ -450,13 +453,14 @@ export default function BookDetail(
         /* eslint-disable */
         // @ts-ignore
         const urlTag =
-          params.row.recordType === "Sales Reconciliation" || params.row.recordType === "Sales Record"
+          params.row.recordType === "Sales Reconciliation" ||
+          params.row.recordType === "Sales Record"
             ? "sales"
             : params.row.recordType === "Purchase"
-              ? "purchases"
-              : params.row.recordType === "Buyback"
-                ? "buybacks"
-                : "error";
+            ? "purchases"
+            : params.row.recordType === "Buyback"
+            ? "buybacks"
+            : "error";
         const date = new Date(params.row.date);
 
         if (
@@ -669,7 +673,12 @@ export default function BookDetail(
                     <div className="font-bold">{`Cover of: ${bookDetailRows[0]?.title}`}</div>
                     <div className="font-light">{`By ${bookDetailRows[0]?.author}`}</div>
                   </div>
-                  <Image alt={"Book cover"} src={bookDetailRows[0]?.imgUrl!} width={300} height={450} />
+                  <Image
+                    alt={"Book cover"}
+                    src={bookDetailRows[0]?.imgUrl!}
+                    width={300}
+                    height={450}
+                  />
                 </Box>
               </Modal>
             </div>
