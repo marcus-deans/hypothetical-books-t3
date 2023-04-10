@@ -414,6 +414,23 @@ export const booksRouter = createTRPCRouter({
       };
     }),
 
+  getIdByIsbn13: publicProcedure
+    .input(z.object({ isbn13: z.string().length(13) }))
+    .query(async ({ input }) => {
+      const book = await prisma.book.findFirst({
+        where: { isbn_13: input.isbn13 },
+      });
+
+      if (!book) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Book with ISBN13 ${input.isbn13} not found`,
+        });
+      }
+
+      return { id: book.id };
+    }),
+
   getByIsbn13WithAllDetails: publicProcedure
     .input(z.object({ isbn13: z.string() }))
     .query(async ({ input }) => {
