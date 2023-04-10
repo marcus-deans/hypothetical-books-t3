@@ -13,6 +13,7 @@ import superjson from "superjson";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
 import DeletePane from "../../../components/DeletePane";
+import { longFormatter } from "../../../utils/formatters";
 
 export default function DeleteSalesReconciliation(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -48,7 +49,7 @@ export default function DeleteSalesReconciliation(
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DeletePane
-        itemIdentifier={data?.date.toDateString() ?? id}
+        itemIdentifier={longFormatter.format(data?.date) ?? id}
         itemName={"Sales Record"}
         isDeleting={isDeleting}
         handleDelete={handleDelete}

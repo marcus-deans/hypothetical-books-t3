@@ -20,6 +20,7 @@ import StripedDataGrid from "../../../components/table-components/StripedDataGri
 import Image from "next/image";
 import Modal from "@mui/material/Modal";
 import { Button, Divider, FormControlLabel, Switch } from "@mui/material";
+import { longFormatter } from "../../../utils/formatters";
 
 export default function BookDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -503,13 +504,13 @@ export default function BookDetail(
         // @ts-ignore
         const urlTag =
           params.row.recordType === "Sales Reconciliation" ||
-            params.row.recordType === "Sales Record"
+          params.row.recordType === "Sales Record"
             ? "sales"
             : params.row.recordType === "Purchase"
-              ? "purchases"
-              : params.row.recordType === "Buyback"
-                ? "buybacks"
-                : "error";
+            ? "purchases"
+            : params.row.recordType === "Buyback"
+            ? "buybacks"
+            : "error";
         const date = new Date(params.row.date);
 
         if (
@@ -521,12 +522,12 @@ export default function BookDetail(
             <div className="text-blue-600">
               {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
               <a href={`/${urlTag}/${params.id}/detail`}>
-                {date.toLocaleDateString()}{" "}
+                {longFormatter.format(date)}{" "}
               </a>
             </div>
           );
         } else {
-          return <div>{date.toLocaleDateString()}</div>;
+          return <div>{longFormatter.format(date)}</div>;
         }
       },
     },
@@ -741,42 +742,279 @@ export default function BookDetail(
                 <div className="flex flex-col space-y-3 text-left">
                   <div>
                     <div className="text-2xl font-bold">
-                      {bookDetailRows.at(0)?.title !== bookSubsidiaryDetailRows.at(0)?.title && checked ? <span><span className="text-2xl font-bold line-through text-slate-500">{`${bookDetailRows.at(0)?.title}`}</span>{"  "}</span> : null}<span className="text-2xl font-bold">{`${bookSubsidiaryDetailRows.at(0)?.title}`}</span>
+                      {bookDetailRows.at(0)?.title !==
+                        bookSubsidiaryDetailRows.at(0)?.title && checked ? (
+                        <span>
+                          <span className="text-2xl font-bold text-slate-500 line-through">{`${
+                            bookDetailRows.at(0)?.title
+                          }`}</span>
+                          {"  "}
+                        </span>
+                      ) : null}
+                      <span className="text-2xl font-bold">{`${
+                        bookSubsidiaryDetailRows.at(0)?.title
+                      }`}</span>
                     </div>
                     <div className="grid grid-cols-3 text-lg font-bold">
                       <div>
-                        By: {bookDetailRows.at(0)?.author !== bookSubsidiaryDetailRows.at(0)?.author && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.author}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.author}`}</span>
+                        By:{" "}
+                        {bookDetailRows.at(0)?.author !==
+                          bookSubsidiaryDetailRows.at(0)?.author && checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.author
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.author
+                        }`}</span>
                       </div>
                       <div>
-                        Retail Price: {bookDetailRows.at(0)?.retailPrice !== bookSubsidiaryDetailRows.at(0)?.retailPrice && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.retailPrice}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.retailPrice}`}</span>
+                        Retail Price:{" "}
+                        {bookDetailRows.at(0)?.retailPrice !==
+                          bookSubsidiaryDetailRows.at(0)?.retailPrice &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.retailPrice
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.retailPrice
+                        }`}</span>
                       </div>
                       <div>
-                        In Stock: {bookDetailRows.at(0)?.inventoryCount !== bookSubsidiaryDetailRows.at(0)?.inventoryCount && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.inventoryCount}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.inventoryCount}`}</span>
+                        In Stock:{" "}
+                        {bookDetailRows.at(0)?.inventoryCount !==
+                          bookSubsidiaryDetailRows.at(0)?.inventoryCount &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.inventoryCount
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.inventoryCount
+                        }`}</span>
                       </div>
                     </div>
                   </div>
                   <Divider orientation="horizontal" flexItem />
                   <div className="flex justify-start">
-                    <div className="pr-6 text-left space-y-1">
-                      <div className="text-lg font-bold">Released: {bookDetailRows.at(0)?.publicationYear !== bookSubsidiaryDetailRows.at(0)?.publicationYear && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.publicationYear}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.publicationYear}`}</span></div>
-                      <div className="text-lg font-bold">Publisher: {bookDetailRows.at(0)?.publisher !== bookSubsidiaryDetailRows.at(0)?.publisher && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.publisher}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.publisher}`}</span></div>
-                      <div className="text-lg font-bold">ISBN-13: {bookDetailRows.at(0)?.isbn_13 !== bookSubsidiaryDetailRows.at(0)?.isbn_13 && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.isbn_13}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.isbn_13}`}</span></div>
-                      <div className="text-lg font-bold">ISBN-10: {bookDetailRows.at(0)?.isbn_10 !== bookSubsidiaryDetailRows.at(0)?.isbn_10 && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.isbn_10}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.isbn_10}`}</span></div>
-                      <div className="text-lg font-bold">Genre: {bookDetailRows.at(0)?.genre !== bookSubsidiaryDetailRows.at(0)?.genre && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.genre}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.genre}`}</span></div>
-                      <div className="text-lg font-bold">Page Count: {bookDetailRows.at(0)?.pageCount !== bookSubsidiaryDetailRows.at(0)?.pageCount && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.pageCount}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.pageCount}`}</span></div>
+                    <div className="space-y-1 pr-6 text-left">
+                      <div className="text-lg font-bold">
+                        Released:{" "}
+                        {bookDetailRows.at(0)?.publicationYear !==
+                          bookSubsidiaryDetailRows.at(0)?.publicationYear &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.publicationYear
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.publicationYear
+                        }`}</span>
+                      </div>
+                      <div className="text-lg font-bold">
+                        Publisher:{" "}
+                        {bookDetailRows.at(0)?.publisher !==
+                          bookSubsidiaryDetailRows.at(0)?.publisher &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.publisher
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.publisher
+                        }`}</span>
+                      </div>
+                      <div className="text-lg font-bold">
+                        ISBN-13:{" "}
+                        {bookDetailRows.at(0)?.isbn_13 !==
+                          bookSubsidiaryDetailRows.at(0)?.isbn_13 && checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.isbn_13
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.isbn_13
+                        }`}</span>
+                      </div>
+                      <div className="text-lg font-bold">
+                        ISBN-10:{" "}
+                        {bookDetailRows.at(0)?.isbn_10 !==
+                          bookSubsidiaryDetailRows.at(0)?.isbn_10 && checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.isbn_10
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.isbn_10
+                        }`}</span>
+                      </div>
+                      <div className="text-lg font-bold">
+                        Genre:{" "}
+                        {bookDetailRows.at(0)?.genre !==
+                          bookSubsidiaryDetailRows.at(0)?.genre && checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.genre
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.genre
+                        }`}</span>
+                      </div>
+                      <div className="text-lg font-bold">
+                        Page Count:{" "}
+                        {bookDetailRows.at(0)?.pageCount !==
+                          bookSubsidiaryDetailRows.at(0)?.pageCount &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.pageCount
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.pageCount
+                        }`}</span>
+                      </div>
                     </div>
                     <Divider orientation="vertical" flexItem />
-                    <div className="pl-6 text-left space-y-1">
-                      <div className="text-lg font-bold">Dimensions: {(bookDetailRows.at(0)?.width !== bookSubsidiaryDetailRows.at(0)?.width || bookDetailRows.at(0)?.height !== bookSubsidiaryDetailRows.at(0)?.height || bookDetailRows.at(0)?.thickness !== bookSubsidiaryDetailRows.at(0)?.thickness) && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`W: ${bookDetailRows.at(0)?.width}, H: ${bookDetailRows.at(0)?.height}, T: ${bookDetailRows.at(0)?.thickness}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`W: ${bookSubsidiaryDetailRows.at(0)?.width}, H: ${bookSubsidiaryDetailRows.at(0)?.height}, T: ${bookSubsidiaryDetailRows.at(0)?.thickness}`}</span></div>
-                      <div className="text-lg font-bold">Shelf Space: {bookDetailRows.at(0)?.shelfSpace !== bookSubsidiaryDetailRows.at(0)?.shelfSpace && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.shelfSpace}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.shelfSpace}`}</span></div>
-                      <div className="text-lg font-bold">Last Month Sales: {bookDetailRows.at(0)?.lastMonthSales !== bookSubsidiaryDetailRows.at(0)?.lastMonthSales && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.lastMonthSales}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.lastMonthSales}`}</span></div>
-                      <div className="text-lg font-bold">Days in Supply: {bookDetailRows.at(0)?.daysSupply !== bookSubsidiaryDetailRows.at(0)?.daysSupply && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.daysSupply}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.daysSupply}`}</span></div>
-                      <div className="text-lg font-bold">Best Buyback Price: {bookDetailRows.at(0)?.bestBuyback !== bookSubsidiaryDetailRows.at(0)?.bestBuyback && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.bestBuyback}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.bestBuyback}`}</span></div>
-                      <div className="text-lg font-bold">Related Book Count {bookDetailRows.at(0)?.relatedBookCount !== bookSubsidiaryDetailRows.at(0)?.relatedBookCount && checked ? <span><span className="text-lg font-normal line-through text-slate-500">{`${bookDetailRows.at(0)?.relatedBookCount}`}</span>{"  "}</span> : null}<span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.relatedBookCount}`}</span></div>
+                    <div className="space-y-1 pl-6 text-left">
+                      <div className="text-lg font-bold">
+                        Dimensions:{" "}
+                        {(bookDetailRows.at(0)?.width !==
+                          bookSubsidiaryDetailRows.at(0)?.width ||
+                          bookDetailRows.at(0)?.height !==
+                            bookSubsidiaryDetailRows.at(0)?.height ||
+                          bookDetailRows.at(0)?.thickness !==
+                            bookSubsidiaryDetailRows.at(0)?.thickness) &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`W: ${
+                              bookDetailRows.at(0)?.width
+                            }, H: ${bookDetailRows.at(0)?.height}, T: ${
+                              bookDetailRows.at(0)?.thickness
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`W: ${
+                          bookSubsidiaryDetailRows.at(0)?.width
+                        }, H: ${bookSubsidiaryDetailRows.at(0)?.height}, T: ${
+                          bookSubsidiaryDetailRows.at(0)?.thickness
+                        }`}</span>
+                      </div>
+                      <div className="text-lg font-bold">
+                        Shelf Space:{" "}
+                        {bookDetailRows.at(0)?.shelfSpace !==
+                          bookSubsidiaryDetailRows.at(0)?.shelfSpace &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.shelfSpace
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.shelfSpace
+                        }`}</span>
+                      </div>
+                      <div className="text-lg font-bold">
+                        Last Month Sales:{" "}
+                        {bookDetailRows.at(0)?.lastMonthSales !==
+                          bookSubsidiaryDetailRows.at(0)?.lastMonthSales &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.lastMonthSales
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.lastMonthSales
+                        }`}</span>
+                      </div>
+                      <div className="text-lg font-bold">
+                        Days in Supply:{" "}
+                        {bookDetailRows.at(0)?.daysSupply !==
+                          bookSubsidiaryDetailRows.at(0)?.daysSupply &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.daysSupply
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.daysSupply
+                        }`}</span>
+                      </div>
+                      <div className="text-lg font-bold">
+                        Best Buyback Price:{" "}
+                        {bookDetailRows.at(0)?.bestBuyback !==
+                          bookSubsidiaryDetailRows.at(0)?.bestBuyback &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.bestBuyback
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.bestBuyback
+                        }`}</span>
+                      </div>
+                      <div className="text-lg font-bold">
+                        Related Book Count{" "}
+                        {bookDetailRows.at(0)?.relatedBookCount !==
+                          bookSubsidiaryDetailRows.at(0)?.relatedBookCount &&
+                        checked ? (
+                          <span>
+                            <span className="text-lg font-normal text-slate-500 line-through">{`${
+                              bookDetailRows.at(0)?.relatedBookCount
+                            }`}</span>
+                            {"  "}
+                          </span>
+                        ) : null}
+                        <span className="text-lg font-normal">{`${
+                          bookSubsidiaryDetailRows.at(0)?.relatedBookCount
+                        }`}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <FormControlLabel control={<Switch onChange={handleDiffChange}/>} label="Show Differences" />
+                <FormControlLabel
+                  control={<Switch onChange={handleDiffChange} />}
+                  label="Show Differences"
+                />
               </Box>
             </Modal>
             <div className="flex flex-col space-y-3 text-left">
@@ -784,47 +1022,135 @@ export default function BookDetail(
                 <div className="flex text-2xl font-bold">
                   {bookDetailRows.at(0)?.title}
                   <div className="flex text-lg">
-                    <div className="pt-1.5 ml-6 mr-4">
+                    <div className="ml-6 mr-4 pt-1.5">
                       <EditLink url={`/books/${id}/edit`} />
                     </div>
-                    <div className="pt-1.5 mx-4">
+                    <div className="mx-4 pt-1.5">
                       <DeleteLink url={`/books/${id}/delete`} />
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 text-lg font-bold space-x-8">
+                <div className="grid grid-cols-3 space-x-8 text-lg font-bold">
                   <div>
-                    By: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.author}`}</span>
-                    <div><button className="underline" onClick={handleSubModalOpen}>Subsidiary Details:</button></div>
+                    By:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.author
+                    }`}</span>
+                    <div>
+                      <button
+                        className="underline"
+                        onClick={handleSubModalOpen}
+                      >
+                        Subsidiary Details:
+                      </button>
+                    </div>
                   </div>
                   <div>
-                    Retail Price: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.retailPrice}`}</span>
-                    <div>Retail Price: <span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.retailPrice}`}</span></div>
+                    Retail Price:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.retailPrice
+                    }`}</span>
+                    <div>
+                      Retail Price:{" "}
+                      <span className="text-lg font-normal">{`${
+                        bookSubsidiaryDetailRows.at(0)?.retailPrice
+                      }`}</span>
+                    </div>
                   </div>
                   <div>
-                    In Stock: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.inventoryCount}`}</span>
-                    <div>In Stock: <span className="text-lg font-normal">{`${bookSubsidiaryDetailRows.at(0)?.inventoryCount}`}</span></div>
+                    In Stock:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.inventoryCount
+                    }`}</span>
+                    <div>
+                      In Stock:{" "}
+                      <span className="text-lg font-normal">{`${
+                        bookSubsidiaryDetailRows.at(0)?.inventoryCount
+                      }`}</span>
+                    </div>
                   </div>
                 </div>
               </div>
               <Divider orientation="horizontal" flexItem />
               <div className="flex justify-start">
-                <div className="pr-6 text-left space-y-1">
-                  <div className="text-lg font-bold">Released: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.publicationYear}`}</span></div>
-                  <div className="text-lg font-bold">Publisher: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.publisher}`}</span></div>
-                  <div className="text-lg font-bold">ISBN-13: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.isbn_13}`}</span></div>
-                  <div className="text-lg font-bold">ISBN-10: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.isbn_10}`}</span></div>
-                  <div className="text-lg font-bold">Genre: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.genre}`}</span></div>
-                  <div className="text-lg font-bold">Page Count: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.pageCount}`}</span></div>
+                <div className="space-y-1 pr-6 text-left">
+                  <div className="text-lg font-bold">
+                    Released:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.publicationYear
+                    }`}</span>
+                  </div>
+                  <div className="text-lg font-bold">
+                    Publisher:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.publisher
+                    }`}</span>
+                  </div>
+                  <div className="text-lg font-bold">
+                    ISBN-13:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.isbn_13
+                    }`}</span>
+                  </div>
+                  <div className="text-lg font-bold">
+                    ISBN-10:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.isbn_10
+                    }`}</span>
+                  </div>
+                  <div className="text-lg font-bold">
+                    Genre:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.genre
+                    }`}</span>
+                  </div>
+                  <div className="text-lg font-bold">
+                    Page Count:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.pageCount
+                    }`}</span>
+                  </div>
                 </div>
                 <Divider orientation="vertical" flexItem />
-                <div className="pl-6 text-left space-y-1">
-                  <div className="text-lg font-bold">Dimensions: <span className="text-lg font-normal">{`W: ${bookDetailRows.at(0)?.width}, H: ${bookDetailRows.at(0)?.height}, T: ${bookDetailRows.at(0)?.thickness}`}</span></div>
-                  <div className="text-lg font-bold">Shelf Space: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.shelfSpace}`}</span></div>
-                  <div className="text-lg font-bold">Last Month Sales: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.lastMonthSales}`}</span></div>
-                  <div className="text-lg font-bold">Days in Supply: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.daysSupply}`}</span></div>
-                  <div className="text-lg font-bold">Best Buyback Price: <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.bestBuyback}`}</span></div>
-                  <div className="text-lg font-bold">Related Book Count <span className="text-lg font-normal">{`${bookDetailRows.at(0)?.relatedBookCount}`}</span></div>
+                <div className="space-y-1 pl-6 text-left">
+                  <div className="text-lg font-bold">
+                    Dimensions:{" "}
+                    <span className="text-lg font-normal">{`W: ${
+                      bookDetailRows.at(0)?.width
+                    }, H: ${bookDetailRows.at(0)?.height}, T: ${
+                      bookDetailRows.at(0)?.thickness
+                    }`}</span>
+                  </div>
+                  <div className="text-lg font-bold">
+                    Shelf Space:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.shelfSpace
+                    }`}</span>
+                  </div>
+                  <div className="text-lg font-bold">
+                    Last Month Sales:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.lastMonthSales
+                    }`}</span>
+                  </div>
+                  <div className="text-lg font-bold">
+                    Days in Supply:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.daysSupply
+                    }`}</span>
+                  </div>
+                  <div className="text-lg font-bold">
+                    Best Buyback Price:{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.bestBuyback
+                    }`}</span>
+                  </div>
+                  <div className="text-lg font-bold">
+                    Related Book Count{" "}
+                    <span className="text-lg font-normal">{`${
+                      bookDetailRows.at(0)?.relatedBookCount
+                    }`}</span>
+                  </div>
                 </div>
               </div>
             </div>

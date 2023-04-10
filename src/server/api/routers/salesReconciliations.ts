@@ -27,8 +27,8 @@ export const salesReconciliationsRouter = createTRPCRouter({
         where: { display: true },
         cursor: cursor
           ? {
-            id: cursor,
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
           date: "desc",
@@ -86,8 +86,8 @@ export const salesReconciliationsRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-            id: cursor,
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
           date: "desc",
@@ -171,8 +171,8 @@ export const salesReconciliationsRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-            id: cursor,
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
           date: "desc",
@@ -433,6 +433,7 @@ export const salesReconciliationsRouter = createTRPCRouter({
           salesLines: {
             create: [],
           },
+          display: true,
         },
       });
 
