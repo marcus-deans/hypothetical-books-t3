@@ -6,7 +6,6 @@ import { TRPCError } from "@trpc/server";
 import type { bookDetail } from "../../../schema/books.schema";
 import { bookDetailSchema } from "../../../schema/books.schema";
 import { env } from "../../../env/server.mjs";
-import type { S3 } from "aws-sdk/clients/browser_default";
 import * as AWS from "aws-sdk";
 
 import { v2 as cloudinary } from "cloudinary";
@@ -517,6 +516,47 @@ export const booksRouter = createTRPCRouter({
         });
       }
       return book;
+    }),
+
+  getByIsbnFromSubsidiary: publicProcedure
+    .input(z.object({ isbn13: z.string() }))
+    .query(async ({ input }) => {
+      const { isbn13 } = input;
+      return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isbns: [isbn13] }),
+      })
+        .then((response) => {
+          // if (!response.ok) {
+          //   console.log(response.json());
+          //   throw new TRPCError({
+          //     code: "INTERNAL_SERVER_ERROR",
+          //     message: "Could not obtain remote book details",
+          //   });
+          // }
+          return response.json();
+        })
+        .then((response) => {
+          console.log("Obtained response from subsidiary");
+          const remoteBookResponse = BridgeResponseSchema.safeParse(response);
+          if (!remoteBookResponse.success) {
+            console.error(remoteBookResponse);
+            console.error(
+              `Could not obtain remote book details for ISBN ${isbn13}`
+            );
+            return null;
+          } else {
+            const remoteBookDetails = BridgeBookSchema.safeParse(
+              remoteBookResponse.data[isbn13]
+            );
+            if (!remoteBookDetails.success) {
+              console.error(`Could not parse remote book details`);
+              return null;
+            }
+            return convertBridgeBookToBook(remoteBookDetails.data);
+          }
+        });
     }),
 
   getByIdWithAllDetailsAndSubsidiary: publicProcedure
