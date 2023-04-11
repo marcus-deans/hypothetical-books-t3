@@ -37,7 +37,10 @@ export default function BookDetail(
 
   const [subModalOpen, setSubModalOpen] = useState(false);
   const handleSubModalOpen = () => setSubModalOpen(true);
-  const handleSubModalClose = () => setSubModalOpen(false);
+  const handleSubModalClose = () => {
+    setSubModalOpen(false);
+    setChecked(false);
+  };
 
   const [checked, setChecked] = useState(false);
 
