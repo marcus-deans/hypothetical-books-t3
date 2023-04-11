@@ -105,7 +105,10 @@ export default function ImportPurchase(
         console.log(results);
         const parsedData: CSVInput[] = [];
         results.data.forEach(function (value) {
-          parsedData.push(value as CSVInput);
+          const newValue = value as CSVInput;
+          if(newValue.isbn != ""){
+            parsedData.push(value as CSVInput);
+          }
         });
         setParsedCsvData(parsedData);
       },

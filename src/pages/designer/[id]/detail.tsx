@@ -27,7 +27,7 @@ export default function CaseDetail(
 
   // if (router.isFallback) {
   if (casesDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   const { data } = casesDetailsQuery;

@@ -228,6 +228,9 @@ export const buybackOrdersRouter = createTRPCRouter({
       const { id } = input;
       const buybackOrder = await prisma.buybackOrder.findUnique({
         where: { id },
+        include: {
+          vendor: true,
+        },
       });
       if (!buybackOrder || !buybackOrder.display) {
         throw new TRPCError({

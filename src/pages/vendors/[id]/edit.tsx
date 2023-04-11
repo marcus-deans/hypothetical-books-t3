@@ -34,7 +34,7 @@ export default function EditVendor(
   const router = useRouter();
   // if (router.isFallback) {
   if (vendorDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = vendorDetailsQuery;
 
@@ -42,7 +42,8 @@ export default function EditVendor(
     setIsSubmitting(true);
     try {
       if (!vendorName || !buybackRate) {
-        toast.error("Vendor name and buyback rate are required");
+        toast.error("Vendor name and buyback rate are required. To not allow buybacks for this vendor, enter value of 0");
+        setIsSubmitting(false);
         return;
       }
       const finalBuybackRate = Number(buybackRate);
@@ -51,7 +52,7 @@ export default function EditVendor(
         finalBuybackRate < 0 ||
         finalBuybackRate > 100
       ) {
-        toast.error("Buyback rate must be a number between 0 and 100");
+        toast.error("Buyback rate must be a number between 0 and 100, or 0 to represent no buybacks for this vendor");
         setIsSubmitting(false);
         return;
       }

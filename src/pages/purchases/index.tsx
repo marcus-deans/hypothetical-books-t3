@@ -15,8 +15,13 @@ import { GridToolbar } from "@mui/x-data-grid";
 import DetailLink from "../../components/table-components/DetailLink";
 import Box from "@mui/material/Box";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
+import Fab from "@mui/material/Fab";
+import AddIcon from "@mui/icons-material/Add";
+import { useSession } from "next-auth/react";
+import type { CustomUser } from "../../schema/user.schema";
+import { longFormatter } from "../../utils/formatters";
 
-export default function sales(
+export default function Purchases(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
   const purchaseOrderQuery =
@@ -24,6 +29,9 @@ export default function sales(
       cursor: null,
       limit: 50,
     });
+
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
 
   const purchaseOrders = purchaseOrderQuery?.data?.items ?? [];
 
@@ -44,10 +52,14 @@ export default function sales(
       headerAlign: "left",
       flex: 1,
       renderCell: (params) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+        const date = new Date(params.row.date);
         return (
           <div className="text-blue-600">
             {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <a href={`/purchases/${params.id}/detail`}>{params.row.date} </a>
+            <a href={`/purchases/${params.id}/detail`}>
+              {longFormatter.format(date)}{" "}
+            </a>
           </div>
         );
       },
@@ -108,7 +120,7 @@ export default function sales(
   const rows = purchaseOrders.map((purchaseOrder) => {
     return {
       id: purchaseOrder.purchaseOrder.id,
-      date: purchaseOrder.purchaseOrder.date.toLocaleDateString(),
+      date: purchaseOrder.purchaseOrder.date.getTime(),
       user: purchaseOrder.purchaseOrder.user?.name ?? "N/A",
       totalQuantity: purchaseOrder.totalQuantity,
       vendor: purchaseOrder.purchaseOrder.vendor.name,
@@ -122,18 +134,42 @@ export default function sales(
       <Head>
         <title>Purchases</title>
       </Head>
-      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Purchase Orders </h1>
-        <Link
-          className="ml-2 inline-block text-2xl text-blue-600"
-          href="/purchases/add"
-        >
-          {" "}
-          +{" "}
-        </Link>
-      </div>
-
-      <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+      {user?.role === "admin" ? (
+        <div className="space flex h-3/4 overflow-hidden text-neutral-50">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-start",
+              my: 1.5,
+            }}
+          >
+            <h1 className="inline-block text-2xl"> Purchase Orders </h1>
+            <Fab
+              size="small"
+              aria-label="add"
+              href="/purchases/add"
+              sx={{
+                ml: 1,
+                backgroundColor: "rgb(59 130 246)",
+                "&:hover": {
+                  backgroundColor: "rgb(29 78 216)",
+                },
+              }}
+            >
+              <AddIcon
+                sx={{
+                  color: "white",
+                }}
+              />
+            </Fab>
+          </Box>
+        </div>
+      ) : (
+        <div className="space mt-3 mb-5 flex h-3/4 overflow-hidden text-neutral-50">
+          <h1 className="inline-block text-2xl"> Purchase Orders </h1>
+        </div>
+      )}
+      <div className="h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
             height: "auto",

@@ -19,6 +19,7 @@ import { GridToolbar } from "@mui/x-data-grid";
 import Head from "next/head";
 import Link from "next/link";
 import { Button } from "@mui/material";
+import { longFormatter } from "../../../utils/formatters";
 
 export default function PurchaseOrderDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -29,7 +30,7 @@ export default function PurchaseOrderDetail(
 
   // if (router.isFallback) {
   if (purchaseOrderDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   const { data } = purchaseOrderDetailsQuery;
@@ -151,12 +152,14 @@ export default function PurchaseOrderDetail(
   return (
     <>
       <Head>
-        <title>Purchases</title>
+        <title>Purchase Details</title>
       </Head>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Purchase Order on ${data.purchaseOrderWithOverallMetrics.date.toLocaleDateString()}`}{" "}
+          {`Purchase Order on ${longFormatter.format(
+            data.purchaseOrderWithOverallMetrics.date
+          )}`}{" "}
         </h1>
       </div>
       <div className="space flex pt-3">

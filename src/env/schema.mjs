@@ -6,18 +6,19 @@ import { z } from "zod";
  * This way you can ensure the app isn't built with invalid env vars.
  */
 export const serverSchema = z.object({
-  DATABASE_URL: z.string().url(),
-  GOOGLE_BOOKS_API_KEY: z.string(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
+  AWS_S3_REGION: z.string(),
+  AWS_S3_BUCKET: z.string(),
+  BOOKS_RUN_API_KEY: z.string(),
   CLOUDINARY_URL: z.string(),
   CLOUDINARY_CLOUD_NAME: z.string(),
   CLOUDINARY_API_KEY: z.string(),
   CLOUDINARY_API_SECRET: z.string(),
   CLOUDINARY_UPLOAD_PRESET: z.string(),
-  BOOKS_RUN_API_KEY: z.string(),
-  AWS_ACCESS_KEY_ID: z.string(),
-  AWS_SECRET_ACCESS_KEY: z.string(),
-  AWS_S3_REGION: z.string(),
-  AWS_S3_BUCKET: z.string(),
+  DATABASE_URL: z.string().url(),
+  GOOGLE_BOOKS_API_KEY: z.string(),
+  LOGTAIL_TOKEN: z.string(),
   NODE_ENV: z.enum(["development", "test", "production"]),
   NEXTAUTH_SECRET:
     process.env.NODE_ENV === "production"
@@ -30,7 +31,7 @@ export const serverSchema = z.object({
     // VERCEL_URL doesn't include `https` so it cant be validated as a URL
     process.env.VERCEL ? z.string() : z.string().url(),
   ),
-  LOGTAIL_TOKEN: z.string(),
+  SUBSIDIARY_RETRIEVE_URL: z.string().url(),
 });
 
 /**
@@ -39,7 +40,6 @@ export const serverSchema = z.object({
  * @type {{ [k in keyof z.infer<typeof serverSchema>]: z.infer<typeof serverSchema>[k] | undefined }}
  */
 export const serverEnv = {
-  DATABASE_URL: process.env.DATABASE_URL,
   AWS_ACCESS_KEY_ID: process.env.AWS_ID_FOR_ACCESS,
   AWS_SECRET_ACCESS_KEY: process.env.AWS_KEY_FOR_SECRET_ACCESS,
   AWS_S3_REGION: process.env.AWS_S3_REGION,
@@ -50,11 +50,13 @@ export const serverEnv = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   CLOUDINARY_UPLOAD_PRESET: process.env.CLOUDINARY_UPLOAD_PRESET,
+  DATABASE_URL: process.env.DATABASE_URL,
+  LOGTAIL_TOKEN: process.env.LOGTAIL_TOKEN,
   GOOGLE_BOOKS_API_KEY: process.env.GOOGLE_BOOKS_API_KEY,
   NODE_ENV: process.env.NODE_ENV,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-  LOGTAIL_TOKEN: process.env.LOGTAIL_TOKEN,
+  SUBSIDIARY_RETRIEVE_URL: process.env.SUBSIDIARY_RETRIEVE_URL,
 };
 
 /**

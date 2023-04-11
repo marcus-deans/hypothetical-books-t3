@@ -260,6 +260,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
                   id: true,
                   title: true,
                   isbn_13: true,
+                  retailPrice: true,
                 },
               },
             },

@@ -19,6 +19,7 @@ import StripedDataGrid from "../../../components/table-components/StripedDataGri
 import Link from "next/link";
 import { Button } from "@mui/material";
 import Head from "next/head";
+import { longFormatter } from "../../../utils/formatters";
 
 export default function SalesOrderDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -29,10 +30,14 @@ export default function SalesOrderDetail(
 
   // if (router.isFallback) {
   if (salesDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   const { data } = salesDetailsQuery;
+  const salesType =
+    data.salesReconciliationWithOverallMetrics.user === null
+      ? "Record"
+      : "Reconciliation";
 
   const columns: GridColDef[] = [
     {
@@ -126,24 +131,76 @@ export default function SalesOrderDetail(
   return (
     <>
       <Head>
-        <title>Sales Detail</title>
+        <title>Sale Details</title>
       </Head>
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Sales Record on ${data.salesReconciliationWithOverallMetrics.date.toLocaleDateString()}`}{" "}
+          {`Sales ${salesType} on `}
+          {`${longFormatter.format(
+            data.salesReconciliationWithOverallMetrics.date
+          )}`}{" "}
         </h1>
       </div>
-      <div className="space flex pt-3">
-        <Link className="items-end px-3" href={`/sales/${id}/delete`} passHref>
-          <Button
-            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-            variant="contained"
+      {salesType === "Reconciliation" ? (
+        <div className="space flex pt-3">
+          <Link className="items-end pr-3" href={`/sales/${id}/add`} passHref>
+            <Button
+              className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+              variant="contained"
+            >
+              Add Sales Line
+            </Button>
+          </Link>
+          <Link className="items-end px-3" href={`/sales/${id}/edit`} passHref>
+            <Button
+              className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+              variant="contained"
+            >
+              Edit Sales Reconciliation
+            </Button>
+          </Link>
+          <Link
+            className="items-end px-3"
+            href={`/sales/${id}/delete`}
+            passHref
           >
-            Delete Sales Record
-          </Button>
-        </Link>
-      </div>
+            <Button
+              className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+              variant="contained"
+            >
+              Delete Sales Reconciliation
+            </Button>
+          </Link>
+          <Link
+            className="items-end pl-3"
+            href={`/sales/${id}/import`}
+            passHref
+          >
+            <Button
+              className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+              variant="contained"
+            >
+              Import CSV
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="space flex pt-3">
+          <Link
+            className="items-end pr-3"
+            href={`/sales/${id}/delete`}
+            passHref
+          >
+            <Button
+              className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+              variant="contained"
+            >
+              Delete Sales Record
+            </Button>
+          </Link>
+        </div>
+      )}
       <div className="mt-5 h-3/4 space-y-4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{
