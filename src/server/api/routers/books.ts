@@ -883,7 +883,7 @@ export const booksRouter = createTRPCRouter({
             message: `Error uploading image to cloudinary`,
           });
         });
-      const cloudinaryUrl = cloudinary.url(book.id);
+      const cloudinaryUrl = cloudinary.url(book.id, {secure: true});
 
       await prisma.book.update({
         where: { id: book.id },
