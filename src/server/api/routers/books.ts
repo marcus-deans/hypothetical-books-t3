@@ -425,8 +425,10 @@ export const booksRouter = createTRPCRouter({
             console.error(`Could not obtain remote books`);
             return;
           } else {
+            console.log(remoteBookResponse.data);
             return Object.values(remoteBookResponse.data).map((book) => {
               try {
+                if (book === null) return null;
                 const remoteBookDetails = BridgeBookSchema.safeParse(book);
                 if (!remoteBookDetails.success) {
                   console.error(`Could not parse remote book details`);
@@ -444,13 +446,10 @@ export const booksRouter = createTRPCRouter({
         const remoteBook = remoteBooks?.find(
           (remoteBook) => remoteBook?.isbn_13 === internalBook.isbn_13
         );
-        if (remoteBook) {
-          return {
-            ...internalBook,
-            ...remoteBook,
-          };
-        }
-        return internalBook;
+        return {
+          internalBook: internalBook,
+          remoteBook: remoteBook ?? null,
+        };
       });
 
       return {
