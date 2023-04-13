@@ -6,7 +6,6 @@ import { TRPCError } from "@trpc/server";
 import type { bookDetail } from "../../../schema/books.schema";
 import { bookDetailSchema } from "../../../schema/books.schema";
 import { env } from "../../../env/server.mjs";
-import type { S3 } from "aws-sdk/clients/browser_default";
 import * as AWS from "aws-sdk";
 
 import { v2 as cloudinary } from "cloudinary";
@@ -415,6 +414,58 @@ export const booksRouter = createTRPCRouter({
       };
     }),
 
+  getIdByIsbn13: publicProcedure
+    .input(z.object({ isbn13: z.string().length(13) }))
+    .query(async ({ input }) => {
+      const book = await prisma.book.findFirst({
+        where: { isbn_13: input.isbn13 },
+      });
+
+      if (!book) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Book with ISBN13 ${input.isbn13} not found`,
+        });
+      }
+
+      return { id: book.id };
+    }),
+
+  getByIsbn13WithAllDetails: publicProcedure
+    .input(z.object({ isbn13: z.string() }))
+    .query(async ({ input }) => {
+      const book = await prisma.book.findFirst({
+        where: { isbn_13: input.isbn13 },
+        include: {
+          authors: true,
+          genre: true,
+        },
+      });
+
+      if (!book) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Book with ISBN13 ${input.isbn13} not found`,
+        });
+      }
+
+      return {
+        title: book?.title,
+        authors: book?.authors?.map((author) => author.name),
+        isbn_13: book?.isbn_13,
+        isbn_10: book?.isbn_10,
+        publisher: book?.publisher,
+        publication_year: book?.publicationYear,
+        page_count: book?.pageCount,
+        height: book?.height,
+        width: book?.width,
+        thickness: book?.thickness,
+        retail_price: book?.retailPrice,
+        genre: book?.genre.name,
+        inventory_count: book?.inventoryCount,
+      } as bookDetail;
+    }),
+
   getManyFromIsbn13WithDetails: publicProcedure
     .input(
       z.object({
@@ -517,6 +568,47 @@ export const booksRouter = createTRPCRouter({
         });
       }
       return book;
+    }),
+
+  getByIsbnFromSubsidiary: publicProcedure
+    .input(z.object({ isbn13: z.string() }))
+    .query(async ({ input }) => {
+      const { isbn13 } = input;
+      return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isbns: [isbn13] }),
+      })
+        .then((response) => {
+          // if (!response.ok) {
+          //   console.log(response.json());
+          //   throw new TRPCError({
+          //     code: "INTERNAL_SERVER_ERROR",
+          //     message: "Could not obtain remote book details",
+          //   });
+          // }
+          return response.json();
+        })
+        .then((response) => {
+          console.log("Obtained response from subsidiary");
+          const remoteBookResponse = BridgeResponseSchema.safeParse(response);
+          if (!remoteBookResponse.success) {
+            console.error(remoteBookResponse);
+            console.error(
+              `Could not obtain remote book details for ISBN ${isbn13}`
+            );
+            return null;
+          } else {
+            const remoteBookDetails = BridgeBookSchema.safeParse(
+              remoteBookResponse.data[isbn13]
+            );
+            if (!remoteBookDetails.success) {
+              console.error(`Could not parse remote book details`);
+              return null;
+            }
+            return convertBridgeBookToBook(remoteBookDetails.data);
+          }
+        });
     }),
 
   getByIdWithAllDetailsAndSubsidiary: publicProcedure
