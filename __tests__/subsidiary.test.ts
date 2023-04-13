@@ -34,3 +34,27 @@ test("Subsidiary details antifragile", async () => {
   // only check if titles are equal
   // expect(result.title).toEqual(expectedResult.title);
 });
+
+test("Subsidiary all books", async () => {
+  const caller = booksRouter.createCaller({
+    session: null,
+    prisma: prisma,
+  });
+
+  type Input = inferProcedureInput<
+    (typeof booksRouter)["getAllWithDetailsAndSubsidiary"]
+  >;
+  const input: Input = { limit: 50, cursor: null };
+
+  const expectedResult = {
+    "9780812979688": {
+      title: "Antifragile",
+      author: "Nassim Nicholas Taleb",
+    },
+  };
+
+  const result = await caller.getAllWithDetailsAndSubsidiary(input);
+  console.log(result);
+  // only check if titles are equal
+  // expect(result.title).toEqual(expectedResult.title);
+});

@@ -132,6 +132,44 @@ async function getAllDetailsById(id: string) {
   return internalBook;
 }
 
+async function getSingleBookFromSubsidiaryByIsbn(isbn13: string) {
+  return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ isbns: [isbn13] }),
+  })
+    .then((response) => {
+      // if (!response.ok) {
+      //   console.log(response.json());
+      //   throw new TRPCError({
+      //     code: "INTERNAL_SERVER_ERROR",
+      //     message: "Could not obtain remote book details",
+      //   });
+      // }
+      return response.json();
+    })
+    .then((response) => {
+      console.log("Obtained response from subsidiary");
+      const remoteBookResponse = BridgeResponseSchema.safeParse(response);
+      if (!remoteBookResponse.success) {
+        console.error(remoteBookResponse);
+        console.error(
+          `Could not obtain remote book details for ISBN ${isbn13}`
+        );
+        return null;
+      } else {
+        const remoteBookDetails = BridgeBookSchema.safeParse(
+          remoteBookResponse.data[isbn13]
+        );
+        if (!remoteBookDetails.success) {
+          console.error(`Could not parse remote book details`);
+          return null;
+        }
+        return convertBridgeBookToBook(remoteBookDetails.data);
+      }
+    });
+}
+
 export const booksRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
@@ -363,10 +401,19 @@ export const booksRouter = createTRPCRouter({
         nextCursor = nextItem.id;
       }
 
+      // return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ isbns: [isbn13] }),
+      // })
+
       const internalIsbn13s = internalBooks.map((book) => book.isbn_13);
+      const postObject = JSON.stringify({ isbns: internalIsbn13s });
+      console.log(postObject);
       const remoteBooks = await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
         method: "POST",
-        body: JSON.stringify([internalIsbn13s]),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isbns: internalIsbn13s }),
       })
         .then((response) => response.json())
         .then((response) => {
@@ -377,21 +424,18 @@ export const booksRouter = createTRPCRouter({
             console.error(`Could not obtain remote books`);
             return;
           } else {
-            const remoteBooks = Object.values(remoteBookResponse.data).map(
-              (book) => {
-                try {
-                  const remoteBookDetails = BridgeBookSchema.safeParse(book);
-                  if (!remoteBookDetails.success) {
-                    console.error(`Could not parse remote book details`);
-                    return;
-                  }
-                  return convertBridgeBookToBook(remoteBookDetails.data);
-                } catch (err) {
+            return Object.values(remoteBookResponse.data).map((book) => {
+              try {
+                const remoteBookDetails = BridgeBookSchema.safeParse(book);
+                if (!remoteBookDetails.success) {
+                  console.error(`Could not parse remote book details`);
                   return;
                 }
+                return convertBridgeBookToBook(remoteBookDetails.data);
+              } catch (err) {
+                return;
               }
-            );
-            return remoteBooks;
+            });
           }
         });
 
@@ -522,41 +566,7 @@ export const booksRouter = createTRPCRouter({
     .input(z.object({ isbn13: z.string() }))
     .query(async ({ input }) => {
       const { isbn13 } = input;
-      return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isbns: [isbn13] }),
-      })
-        .then((response) => {
-          // if (!response.ok) {
-          //   console.log(response.json());
-          //   throw new TRPCError({
-          //     code: "INTERNAL_SERVER_ERROR",
-          //     message: "Could not obtain remote book details",
-          //   });
-          // }
-          return response.json();
-        })
-        .then((response) => {
-          console.log("Obtained response from subsidiary");
-          const remoteBookResponse = BridgeResponseSchema.safeParse(response);
-          if (!remoteBookResponse.success) {
-            console.error(remoteBookResponse);
-            console.error(
-              `Could not obtain remote book details for ISBN ${isbn13}`
-            );
-            return null;
-          } else {
-            const remoteBookDetails = BridgeBookSchema.safeParse(
-              remoteBookResponse.data[isbn13]
-            );
-            if (!remoteBookDetails.success) {
-              console.error(`Could not parse remote book details`);
-              return null;
-            }
-            return convertBridgeBookToBook(remoteBookDetails.data);
-          }
-        });
+      return await getSingleBookFromSubsidiaryByIsbn(isbn13);
     }),
 
   getByIdWithAllDetailsAndSubsidiary: publicProcedure
@@ -566,33 +576,9 @@ export const booksRouter = createTRPCRouter({
       const internalBook = await getAllDetailsById(id);
 
       const internalIsbn13 = internalBook.isbn_13;
-      const remoteBook = await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
-        method: "POST",
-        body: JSON.stringify([internalIsbn13]),
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          console.log("Obtained response from subsidiary");
-          const remoteBookResponse = BridgeResponseSchema.safeParse(response);
-          if (!remoteBookResponse.success) {
-            console.error(response);
-            console.error(
-              `Could not obtain remote book details for ISBN ${internalIsbn13}`
-            );
-            return null;
-          } else {
-            const remoteBookDetails = BridgeBookSchema.safeParse(
-              remoteBookResponse.data[internalIsbn13]
-            );
-            if (!remoteBookDetails.success) {
-              console.error(
-                `Could not parse remote book details for ISBN ${internalIsbn13}`
-              );
-              return null;
-            }
-            return convertBridgeBookToBook(remoteBookDetails.data);
-          }
-        });
+      const remoteBook = await getSingleBookFromSubsidiaryByIsbn(
+        internalIsbn13
+      );
 
       return {
         internalBook: internalBook,
