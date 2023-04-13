@@ -56,7 +56,7 @@ export default function Books(
   const { data: session, status } = useSession();
   const user = session?.user as CustomUser;
 
-  const booksQuery = api.books.getAllWithDetails.useQuery({
+  const booksQuery = api.books.getAllWithDetailsAndSubsidiary.useQuery({
     cursor: null,
     limit: 50,
   });
@@ -147,7 +147,7 @@ export default function Books(
       minWidth: 90,
     },
     {
-      field: "remotePrice",
+      field: "remoteRetailPrice",
       headerName: "Remote Price",
       headerClassName: "header-theme",
       align: "left",
@@ -264,11 +264,14 @@ export default function Books(
   ];
 
   const rows = books.map((book) => {
-    const bookThickness = book.thickness;
+    const internalBook = book.internalBook;
+    const remoteBook = book.remoteBook;
+
+    const bookThickness = internalBook.thickness;
     let lastMonthSales = 0;
     const today = new Date();
     const thirtyDaysAgo = new Date(new Date().setDate(today.getDate() - 30));
-    for (const salesLine of book.salesLines) {
+    for (const salesLine of internalBook.salesLines) {
       const salesLineDate = salesLine.salesReconciliation.date;
       if (salesLineDate > thirtyDaysAgo) {
         lastMonthSales += salesLine.quantity;
@@ -277,9 +280,9 @@ export default function Books(
     const daysSupply =
       lastMonthSales === 0
         ? Infinity
-        : Math.floor((book.inventoryCount / lastMonthSales) * 30);
+        : Math.floor((internalBook.inventoryCount / lastMonthSales) * 30);
     let bestBuybackPrice = 0;
-    for (const costMostRecentVendor of book.costMostRecentVendor) {
+    for (const costMostRecentVendor of internalBook.costMostRecentVendor) {
       const currentVendorOffer =
         costMostRecentVendor.vendor.buybackRate *
         0.01 *
@@ -290,24 +293,26 @@ export default function Books(
     const bestBuybackString =
       bestBuybackPrice === 0 ? "0" : `${bestBuybackPrice.toFixed(2)}`;
 
-    const shelfSpace = (bookThickness * book.inventoryCount)
+    const shelfSpace = (bookThickness * internalBook.inventoryCount)
       .toFixed(2)
       .toString();
 
     return {
-      id: book.id,
-      title: book.title,
-      author: book.authors.map((author) => author.name).join(", "),
-      isbn_13: book.isbn_13,
-      retailPrice: `${book.retailPrice.toFixed(2)}`,
-      genre: book.genre.name,
-      inventoryCount: book.inventoryCount,
-      imgUrl: book.imgUrl,
+      id: internalBook.id,
+      title: internalBook.title,
+      author: internalBook.authors.map((author) => author.name).join(", "),
+      isbn_13: internalBook.isbn_13,
+      retailPrice: `${internalBook.retailPrice.toFixed(2)}`,
+      remoteRetailPrice: remoteBook?.retailPrice ?? "N/A",
+      genre: internalBook.genre.name,
+      inventoryCount: internalBook.inventoryCount,
+      remoteInventoryCount: remoteBook?.inventoryCount ?? "N/A",
+      imgUrl: internalBook.imgUrl,
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),
       bestBuyback: bestBuybackString,
       shelfSpace: shelfSpace,
-      numRelatedBooks: book.relatedBooks.length,
+      numRelatedBooks: internalBook.relatedBooks.length,
     };
   });
 
@@ -412,21 +417,12 @@ export default function Books(
           num_related_books: "0",
         };
         if (calculatedExportValues.at(index) !== undefined) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const calculatedEntry = calculatedExportValues.at(index)!;
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          entry.last_month_sales =
-            calculatedEntry.at(0) !== undefined ? calculatedEntry.at(0)! : "0";
+          const calculatedEntry = calculatedExportValues.at(index) ?? [];
+          entry.last_month_sales = calculatedEntry.at(0) ?? "0";
           console.log("last_month_sales: " + entry.last_month_sales);
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          entry.days_of_supply =
-            calculatedEntry.at(1) !== undefined ? calculatedEntry.at(1)! : "0";
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          entry.best_buyback_price =
-            calculatedEntry.at(2) !== undefined ? calculatedEntry.at(2)! : "0";
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          entry.num_related_books =
-            calculatedEntry.at(3) !== undefined ? calculatedEntry.at(3)! : "0";
+          entry.days_of_supply = calculatedEntry.at(1) ?? "0";
+          entry.best_buyback_price = calculatedEntry.at(2) ?? "0";
+          entry.num_related_books = calculatedEntry.at(3) ?? "0";
         }
         exportedData.data.push(entry);
       });
@@ -624,7 +620,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  await ssg.books.getAllWithDetails.prefetch({
+  await ssg.books.getAllWithDetailsAndSubsidiary.prefetch({
     cursor: null,
     limit: 50,
   });
