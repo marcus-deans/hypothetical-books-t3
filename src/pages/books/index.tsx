@@ -41,8 +41,8 @@ import type {
 import EditLink from "../../components/table-components/EditLink";
 import Image from "next/image";
 import DeleteLink from "../../components/table-components/DeleteLink";
-import Fab from '@mui/material/Fab';
-import AddIcon from '@mui/icons-material/Add';
+import Fab from "@mui/material/Fab";
+import AddIcon from "@mui/icons-material/Add";
 import { useSession } from "next-auth/react";
 import type { CustomUser } from "../../schema/user.schema";
 
@@ -50,7 +50,8 @@ export default function Books(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
   const [exportedBooks, setExportedBooks] = useState<string[]>();
-  const [calculatedExportValues, setCalculatedExportValues] = useState<string[][]>();
+  const [calculatedExportValues, setCalculatedExportValues] =
+    useState<string[][]>();
 
   const { data: session, status } = useSession();
   const user = session?.user as CustomUser;
@@ -289,6 +290,10 @@ export default function Books(
     const bestBuybackString =
       bestBuybackPrice === 0 ? "0" : `${bestBuybackPrice.toFixed(2)}`;
 
+    const shelfSpace = (bookThickness * book.inventoryCount)
+      .toFixed(2)
+      .toString();
+
     return {
       id: book.id,
       title: book.title,
@@ -301,6 +306,7 @@ export default function Books(
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupply === Infinity ? "(inf)" : daysSupply.toString(),
       bestBuyback: bestBuybackString,
+      shelfSpace: shelfSpace,
       numRelatedBooks: book.relatedBooks.length,
     };
   });
@@ -386,14 +392,19 @@ export default function Books(
           isbn_13: book.isbn_13 ? book.isbn_13 : "",
           isbn_10: book.isbn_10 ? book.isbn_10 : "",
           publisher: book.publisher ? book.publisher : "",
-          publication_year: book.publication_year ? book.publication_year.toString() : "",
+          publication_year: book.publication_year
+            ? book.publication_year.toString()
+            : "",
           page_count: book.page_count ? book.page_count.toString() : "",
           height: book.height ? book.height.toString() : "",
           width: book.width ? book.width.toString() : "",
           thickness: book.thickness ? book.thickness.toString() : "",
           retail_price: book.retail_price ? book.retail_price.toString() : "0",
           genre: book.genre ? book.genre : "",
-          inventory_count: book.inventory_count != null ? book.inventory_count.toString() : "0",
+          inventory_count:
+            book.inventory_count != null
+              ? book.inventory_count.toString()
+              : "0",
           shelf_space_inches: "0",
           last_month_sales: "0",
           days_of_supply: "(inf)",
@@ -404,14 +415,18 @@ export default function Books(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const calculatedEntry = calculatedExportValues.at(index)!;
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          entry.last_month_sales = (calculatedEntry.at(0) !== undefined ? calculatedEntry.at(0)! : "0");
+          entry.last_month_sales =
+            calculatedEntry.at(0) !== undefined ? calculatedEntry.at(0)! : "0";
           console.log("last_month_sales: " + entry.last_month_sales);
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          entry.days_of_supply = calculatedEntry.at(1) !== undefined ? calculatedEntry.at(1)! : "0";
+          entry.days_of_supply =
+            calculatedEntry.at(1) !== undefined ? calculatedEntry.at(1)! : "0";
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          entry.best_buyback_price = calculatedEntry.at(2) !== undefined ? calculatedEntry.at(2)! : "0";
+          entry.best_buyback_price =
+            calculatedEntry.at(2) !== undefined ? calculatedEntry.at(2)! : "0";
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          entry.num_related_books = calculatedEntry.at(3) !== undefined ? calculatedEntry.at(3)! : "0";
+          entry.num_related_books =
+            calculatedEntry.at(3) !== undefined ? calculatedEntry.at(3)! : "0";
         }
         exportedData.data.push(entry);
       });
@@ -519,35 +534,41 @@ export default function Books(
       <Head>
         <title>Books</title>
       </Head>
-      {user?.role === "admin" ? <div className="space flex h-3/4 overflow-hidden text-neutral-50">
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            my: 1.5,
-          }}
-        >
-          <h1 className="inline-block text-2xl"> Books </h1>
-          <Fab size="small" aria-label="add" href="/books/add"
+      {user?.role === "admin" ? (
+        <div className="space flex h-3/4 overflow-hidden text-neutral-50">
+          <Box
             sx={{
-              ml: 1,
-              backgroundColor: "rgb(59 130 246)",
-              "&:hover": {
-                backgroundColor: "rgb(29 78 216)",
-              },
+              display: "flex",
+              justifyContent: "flex-start",
+              my: 1.5,
             }}
           >
-            <AddIcon
+            <h1 className="inline-block text-2xl"> Books </h1>
+            <Fab
+              size="small"
+              aria-label="add"
+              href="/books/add"
               sx={{
-                color: "white",
+                ml: 1,
+                backgroundColor: "rgb(59 130 246)",
+                "&:hover": {
+                  backgroundColor: "rgb(29 78 216)",
+                },
               }}
-            />
-          </Fab>
-        </Box>
-      </div> : 
-      <div className="space mt-3 mb-5 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Books </h1>
-      </div>}
+            >
+              <AddIcon
+                sx={{
+                  color: "white",
+                }}
+              />
+            </Fab>
+          </Box>
+        </div>
+      ) : (
+        <div className="space mt-3 mb-5 flex h-3/4 overflow-hidden text-neutral-50">
+          <h1 className="inline-block text-2xl"> Books </h1>
+        </div>
+      )}
       <div className="h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{

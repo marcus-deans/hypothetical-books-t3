@@ -9,6 +9,7 @@ import { env } from "../../../env/server.mjs";
 import * as AWS from "aws-sdk";
 
 import { v2 as cloudinary } from "cloudinary";
+import type { BridgeBook } from "./bridge";
 import {
   BridgeBookSchema,
   BridgeResponseSchema,
@@ -439,17 +440,17 @@ export const booksRouter = createTRPCRouter({
           }
         });
 
-      const allBooks = internalBooks.reverse().map((book) => {
+      const allBooks = internalBooks.reverse().map((internalBook) => {
         const remoteBook = remoteBooks?.find(
-          (remoteBook) => remoteBook?.isbn_13 === book.isbn_13
+          (remoteBook) => remoteBook?.isbn_13 === internalBook.isbn_13
         );
         if (remoteBook) {
           return {
-            ...book,
+            ...internalBook,
             ...remoteBook,
           };
         }
-        return book;
+        return internalBook;
       });
 
       return {
@@ -869,7 +870,7 @@ export const booksRouter = createTRPCRouter({
             message: `Error uploading image to cloudinary`,
           });
         });
-      const cloudinaryUrl = cloudinary.url(book.id, {secure: true});
+      const cloudinaryUrl = cloudinary.url(book.id, { secure: true });
 
       await prisma.book.update({
         where: { id: book.id },
