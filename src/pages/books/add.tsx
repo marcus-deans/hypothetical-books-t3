@@ -17,21 +17,27 @@ import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import type { Book } from "@prisma/client";
 import { TextareaAutosize } from "@mui/material";
+import { placeholderUrl } from "../../utils/media";
 
 export interface BookDisplayDetails {
   id: number;
   imgUrl: string;
+  remoteImgUrl: string;
   title: string;
   authors: string;
   isbn_13: string;
   isbn_10: string;
   publicationYear: number;
   pageCount: number;
+  remotePageCount: number;
   publisher: string;
   genre: string;
   width: number;
+  remoteWidth: number;
   height: number;
+  remoteHeight: number;
   thickness: number;
+  remoteThickness: number;
   retailPrice: number;
   relatedBooks: (Book & { authors: { name: string }[] })[];
 }
@@ -63,7 +69,11 @@ export default function AddBook() {
     const retrievedBooksData = retrieveDetailsQuery?.data ?? [];
     if (retrievedBooksData) {
       retrievedBooksData.map((retrievedBook, index) => {
-        const googleBooksDetails = retrievedBook.googleBooKDetails;
+        const googleBooksDetails = retrievedBook.googleBookDetails;
+        const retailPrice = retrievedBook.booksRunPrice;
+        const relatedBooks = retrievedBook.relatedBooks;
+        const remoteBookDetails = retrievedBook.remoteBookDetails;
+
         console.log("Adding retrieved book to rows");
         console.log(retrievedBook);
         let isbn_10 = null;
@@ -81,14 +91,10 @@ export default function AddBook() {
             isbn_10 = googleBooksDetails.industryIdentifiers[0].identifier;
           }
         }
-        const retailPrice = retrievedBook.booksRunPrice;
-        const relatedBooks = retrievedBook.relatedBooks;
-
-        console.log("Related books:");
-        console.log(relatedBooks);
 
         const displayBook = {
           imgUrl: googleBooksDetails.imageLinks?.thumbnail ?? "",
+          remoteImgUrl: remoteBookDetails?.imgUrl ?? "",
           id: index,
           title: googleBooksDetails.title,
           authors: googleBooksDetails.authors.join(", "),
@@ -100,11 +106,15 @@ export default function AddBook() {
           pageCount: isNaN(googleBooksDetails.pageCount)
             ? 0
             : googleBooksDetails.pageCount,
+          remotePageCount: remoteBookDetails?.pageCount ?? "Unknown",
           publisher: googleBooksDetails?.publisher ?? "Unknown",
           genre: googleBooksDetails?.categories?.join(", ") ?? "Unknown",
           width: 0,
+          remoteWidth: remoteBookDetails?.width ?? "Unknown",
           height: 0,
+          remoteHeight: remoteBookDetails?.height ?? "Unknown",
           thickness: 0,
+          remoteThickness: remoteBookDetails?.thickness ?? "Unknown",
           retailPrice: retailPrice,
           relatedBooks: relatedBooks,
         };
@@ -216,10 +226,32 @@ export default function AddBook() {
         /* eslint-disable */
         let url = params.row.imgUrl as string;
         /* eslint-enable */
+        url ??= placeholderUrl;
+        // if (!url || url === "") {
+        //   url =
+        //     placeholderUrl;
+        // }
+        return (
+          <div className="text-blue-600">
+            <Image alt={"Book cover"} src={url} width={40} height={60} />
+          </div>
+        );
+      },
+    },
+    {
+      field: "remoteImage",
+      headerName: "Remote Cover",
+      headerClassName: "header-theme",
+      width: 125,
+      align: "center",
+      renderCell: (params) => {
+        /* eslint-disable */
+        let url = params.row.remoteImgUrl as string;
+        /* eslint-enable */
         if (!url || url === "") {
-          url =
-            "https://s3-us-west-2.amazonaws.com/s.cdpn.io/387928/book%20placeholder.png";
+          url = placeholderUrl;
         }
+        console.log(url);
         return (
           <div className="text-blue-600">
             <Image alt={"Book cover"} src={url} width={40} height={60} />
@@ -328,6 +360,15 @@ export default function AddBook() {
       editable: true,
     },
     {
+      field: "remoteWidth",
+      headerName: "Remote Width",
+      type: "number",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      width: 120,
+    },
+    {
       field: "height",
       headerName: "Height (in.)",
       type: "number",
@@ -343,6 +384,15 @@ export default function AddBook() {
       editable: true,
     },
     {
+      field: "remoteHeight",
+      headerName: "Remote Height",
+      type: "number",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      width: 120,
+    },
+    {
       field: "thickness",
       headerName: "Thickness (in.)",
       type: "number",
@@ -356,6 +406,15 @@ export default function AddBook() {
         return { ...params.props, error: hasError };
       },
       editable: true,
+    },
+    {
+      field: "remoteThickness",
+      headerName: "Remote Thickness",
+      type: "number",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      width: 145,
     },
     {
       field: "relatedBooks",
