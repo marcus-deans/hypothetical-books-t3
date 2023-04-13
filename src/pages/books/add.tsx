@@ -18,6 +18,7 @@ import Typography from "@mui/material/Typography";
 import type { Book } from "@prisma/client";
 import { TextareaAutosize } from "@mui/material";
 import { placeholderUrl } from "../../utils/media";
+import SubsidiaryButton from "../../components/table-components/SubsidiaryButton";
 
 export interface BookDisplayDetails {
   id: number;
@@ -94,7 +95,7 @@ export default function AddBook() {
 
         const displayBook = {
           imgUrl: googleBooksDetails.imageLinks?.thumbnail ?? "",
-          remoteImgUrl: remoteBookDetails?.imgUrl ?? "",
+          remoteImgUrl: remoteBookDetails?.imgUrl ?? placeholderUrl,
           id: index,
           title: googleBooksDetails.title,
           authors: googleBooksDetails.authors.join(", "),
@@ -226,11 +227,9 @@ export default function AddBook() {
         /* eslint-disable */
         let url = params.row.imgUrl as string;
         /* eslint-enable */
-        url ??= placeholderUrl;
-        // if (!url || url === "") {
-        //   url =
-        //     placeholderUrl;
-        // }
+        if (!url || url === "") {
+          url = placeholderUrl;
+        }
         return (
           <div className="text-blue-600">
             <Image alt={"Book cover"} src={url} width={40} height={60} />
@@ -248,13 +247,16 @@ export default function AddBook() {
         /* eslint-disable */
         let url = params.row.remoteImgUrl as string;
         /* eslint-enable */
-        if (!url || url === "") {
-          url = placeholderUrl;
-        }
-        console.log(url);
+
         return (
-          <div className="text-blue-600">
+          <div className="flex text-blue-600">
             <Image alt={"Book cover"} src={url} width={40} height={60} />
+            <SubsidiaryButton
+              onClick={() =>
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+                (params.row.imgUrl = params.row.remoteImgUrl)
+              }
+            />
           </div>
         );
       },
@@ -366,7 +368,26 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      width: 120,
+      width: 125,
+      renderCell: (params) => {
+        /* eslint-disable */
+        const remoteWidth = params.row.remoteWidth as string;
+        /* eslint-enable */
+
+        return (
+          <div>
+            <div>{remoteWidth}</div>
+            {remoteWidth === "Unknown" ? null : (
+              <SubsidiaryButton
+                onClick={() =>
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+                  (params.row.width = remoteWidth)
+                }
+              />
+            )}
+          </div>
+        );
+      },
     },
     {
       field: "height",
@@ -390,7 +411,26 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      width: 120,
+      width: 125,
+      renderCell: (params) => {
+        /* eslint-disable */
+        const remoteHeight = params.row.remoteHeight as string;
+        /* eslint-enable */
+
+        return (
+          <div>
+            <div>{remoteHeight}</div>
+            {remoteHeight === "Unknown" ? null : (
+              <SubsidiaryButton
+                onClick={() =>
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+                  (params.row.height = remoteHeight)
+                }
+              />
+            )}
+          </div>
+        );
+      },
     },
     {
       field: "thickness",
@@ -415,6 +455,25 @@ export default function AddBook() {
       align: "left",
       headerAlign: "left",
       width: 145,
+      renderCell: (params) => {
+        /* eslint-disable */
+        const remoteThickness = params.row.remoteThickness as string;
+        /* eslint-enable */
+
+        return (
+          <div>
+            <div>{remoteThickness}</div>
+            {remoteThickness === "Unknown" ? null : (
+              <SubsidiaryButton
+                onClick={() =>
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+                  (params.row.thickness = remoteThickness)
+                }
+              />
+            )}
+          </div>
+        );
+      },
     },
     {
       field: "relatedBooks",
