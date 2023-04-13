@@ -13,6 +13,7 @@ import superjson from "superjson";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
 import DeletePane from "../../../components/DeletePane";
+import { longFormatter } from "../../../utils/formatters";
 
 export default function DeleteBuybackOrder(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -26,7 +27,7 @@ export default function DeleteBuybackOrder(
   const router = useRouter();
   // if (router.isFallback) {
   if (buybackOrderDeleteQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = buybackOrderDeleteQuery;
 
@@ -50,7 +51,7 @@ export default function DeleteBuybackOrder(
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DeletePane
-        itemIdentifier={data?.date.toLocaleDateString() ?? id}
+        itemIdentifier={longFormatter.format(data?.date) ?? id}
         itemName={"Buy Back"}
         isDeleting={isDeleting}
         handleDelete={handleDelete}

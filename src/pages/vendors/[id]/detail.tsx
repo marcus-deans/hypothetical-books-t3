@@ -27,7 +27,7 @@ export default function VendorDetail(
 
   // if (router.isFallback) {
   if (vendorDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   const { data } = vendorDetailsQuery;

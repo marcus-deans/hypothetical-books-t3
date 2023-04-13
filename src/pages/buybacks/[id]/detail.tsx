@@ -19,6 +19,7 @@ import { GridToolbar } from "@mui/x-data-grid";
 import Head from "next/head";
 import Link from "next/link";
 import { Button } from "@mui/material";
+import { longFormatter } from "../../../utils/formatters";
 
 export default function BuybackOrderDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -29,7 +30,7 @@ export default function BuybackOrderDetail(
 
   // if (router.isFallback) {
   if (buybackOrderDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   const { data } = buybackOrderDetailsQuery;
@@ -152,7 +153,9 @@ export default function BuybackOrderDetail(
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Buy Back Order on ${data.buybackOrderWithOverallMetrics.date.toLocaleDateString()}`}{" "}
+          {`Buy Back Order on ${longFormatter.format(
+            data.buybackOrderWithOverallMetrics.date
+          )}`}{" "}
         </h1>
       </div>
       <div className="space flex pt-3">

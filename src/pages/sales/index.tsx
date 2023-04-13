@@ -15,18 +15,20 @@ import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GridToolbar } from "@mui/x-data-grid";
 import DetailLink from "../../components/table-components/DetailLink";
-import Fab from '@mui/material/Fab';
-import AddIcon from '@mui/icons-material/Add';
+import Fab from "@mui/material/Fab";
+import AddIcon from "@mui/icons-material/Add";
 import { useSession } from "next-auth/react";
 import type { CustomUser } from "../../schema/user.schema";
+import { longFormatter } from "../../utils/formatters";
 
 export default function Sales(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const salesReconciliationQuery = api.salesReconciliations.getAllWithOverallMetrics.useQuery({
-    cursor: null,
-    limit: 50,
-  });
+  const salesReconciliationQuery =
+    api.salesReconciliations.getAllWithOverallMetrics.useQuery({
+      cursor: null,
+      limit: 50,
+    });
 
   const { data: session, status } = useSession();
   const user = session?.user as CustomUser;
@@ -54,8 +56,9 @@ export default function Sales(
         const date = new Date(params.row.date);
         return (
           <div className="text-blue-600">
-            {/*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-            <a href={`/sales/${params.id}/detail`}>{date.toLocaleDateString()} </a>
+            <a href={`/sales/${params.id}/detail`}>
+              {longFormatter.format(date)}{" "}
+            </a>
           </div>
         );
       },
@@ -118,7 +121,10 @@ export default function Sales(
       id: salesReconciliation.salesReconciliation.id,
       date: salesReconciliation.salesReconciliation.date.getTime(),
       user: salesReconciliation.salesReconciliation.user?.name ?? "N/A",
-      salesType: salesReconciliation.salesReconciliation.user === null ? "Record" : "Reconciliation",
+      salesType:
+        salesReconciliation.salesReconciliation.user === null
+          ? "Record"
+          : "Reconciliation",
       totalQuantity: salesReconciliation.totalQuantity,
       totalPrice: `${salesReconciliation.totalPrice.toFixed(2)}`,
       totalUniqueBooks: salesReconciliation.totalUniqueBooks,
@@ -130,35 +136,47 @@ export default function Sales(
       <Head>
         <title>Sales</title>
       </Head>
-      {user?.role === "admin" ? <div className="space flex h-3/4 overflow-hidden text-neutral-50">
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            my: 1.5,
-          }}
-        >
-          <h1 className="inline-block text-2xl"> Sales Reconciliations / Records </h1>
-          <Fab size="small" aria-label="add" href="/sales/add"
+      {user?.role === "admin" ? (
+        <div className="space flex h-3/4 overflow-hidden text-neutral-50">
+          <Box
             sx={{
-              ml: 1,
-              backgroundColor: "rgb(59 130 246)",
-              "&:hover": {
-                backgroundColor: "rgb(29 78 216)",
-              },
+              display: "flex",
+              justifyContent: "flex-start",
+              my: 1.5,
             }}
           >
-            <AddIcon
+            <h1 className="inline-block text-2xl">
+              {" "}
+              Sales Reconciliations / Records{" "}
+            </h1>
+            <Fab
+              size="small"
+              aria-label="add"
+              href="/sales/add"
               sx={{
-                color: "white",
+                ml: 1,
+                backgroundColor: "rgb(59 130 246)",
+                "&:hover": {
+                  backgroundColor: "rgb(29 78 216)",
+                },
               }}
-            />
-          </Fab>
-        </Box>
-      </div> : 
-      <div className="space mt-3 mb-5 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl"> Sales Reconciliations / Records </h1>
-      </div>}
+            >
+              <AddIcon
+                sx={{
+                  color: "white",
+                }}
+              />
+            </Fab>
+          </Box>
+        </div>
+      ) : (
+        <div className="space mt-3 mb-5 flex h-3/4 overflow-hidden text-neutral-50">
+          <h1 className="inline-block text-2xl">
+            {" "}
+            Sales Reconciliations / Records{" "}
+          </h1>
+        </div>
+      )}
       <div className="h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
           sx={{

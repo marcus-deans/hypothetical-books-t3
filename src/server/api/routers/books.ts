@@ -458,6 +458,58 @@ export const booksRouter = createTRPCRouter({
       };
     }),
 
+  getIdByIsbn13: publicProcedure
+    .input(z.object({ isbn13: z.string().length(13) }))
+    .query(async ({ input }) => {
+      const book = await prisma.book.findFirst({
+        where: { isbn_13: input.isbn13 },
+      });
+
+      if (!book) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Book with ISBN13 ${input.isbn13} not found`,
+        });
+      }
+
+      return { id: book.id };
+    }),
+
+  getByIsbn13WithAllDetails: publicProcedure
+    .input(z.object({ isbn13: z.string() }))
+    .query(async ({ input }) => {
+      const book = await prisma.book.findFirst({
+        where: { isbn_13: input.isbn13 },
+        include: {
+          authors: true,
+          genre: true,
+        },
+      });
+
+      if (!book) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Book with ISBN13 ${input.isbn13} not found`,
+        });
+      }
+
+      return {
+        title: book?.title,
+        authors: book?.authors?.map((author) => author.name),
+        isbn_13: book?.isbn_13,
+        isbn_10: book?.isbn_10,
+        publisher: book?.publisher,
+        publication_year: book?.publicationYear,
+        page_count: book?.pageCount,
+        height: book?.height,
+        width: book?.width,
+        thickness: book?.thickness,
+        retail_price: book?.retailPrice,
+        genre: book?.genre.name,
+        inventory_count: book?.inventoryCount,
+      } as bookDetail;
+    }),
+
   getManyFromIsbn13WithDetails: publicProcedure
     .input(
       z.object({
@@ -817,7 +869,7 @@ export const booksRouter = createTRPCRouter({
             message: `Error uploading image to cloudinary`,
           });
         });
-      const cloudinaryUrl = cloudinary.url(book.id);
+      const cloudinaryUrl = cloudinary.url(book.id, {secure: true});
 
       await prisma.book.update({
         where: { id: book.id },

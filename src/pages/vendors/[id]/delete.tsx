@@ -39,7 +39,7 @@ export default function DeleteVendor(
   const router = useRouter();
   // if (router.isFallback) {
   if (vendorDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   const handleDelete = () => {

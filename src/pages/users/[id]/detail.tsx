@@ -33,7 +33,7 @@ export default function DetailUser(
 
   // if (router.isFallback) {
   if (genreDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   const { data } = genreDetailsQuery;

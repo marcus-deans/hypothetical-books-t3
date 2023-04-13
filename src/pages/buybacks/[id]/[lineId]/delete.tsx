@@ -28,7 +28,7 @@ export default function DeleteBuybackLine(
   const router = useRouter();
   // if (router.isFallback) {
   if (buybackLineDetailsQuery.status !== "success") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
   const { data } = buybackLineDetailsQuery;
 
