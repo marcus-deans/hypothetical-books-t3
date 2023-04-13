@@ -31,7 +31,7 @@ export default function Scanner() {
     setIsbn(result);
     if (retrieveIdQuery.isSuccess) {
       setTimeout(() => {
-        void router.push(`/books/${retrieveIdQuery.data?.id}/mobile`);
+        void router.push(`/books/${retrieveIdQuery.data?.id}/detail`);
       }, 500);
     }
     console.log("ISBN: ", isbn);

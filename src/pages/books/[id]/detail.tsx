@@ -686,8 +686,8 @@ export default function BookDetail(
       <Head>
         <title>Book Details</title>
       </Head>
-      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl">{"Book Details"}</h1>
+      <div className="space mt-12 block h-3/4 overflow-hidden text-neutral-50 md:mt-3 md:flex">
+        <h1 className="inline-block text-2xl">Book Details</h1>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
@@ -699,10 +699,11 @@ export default function BookDetail(
             "& .MuiDataGrid-cell--textLeft": {
               textAlign: "left",
             },
+            width: "auto",
           }}
         >
-          <div className="flex justify-center pt-3">
-            <div className="px-16 pt-2">
+          <div className="flex-auto justify-center px-3 pt-3">
+            <div className="shrink-0 px-4 pt-2 md:px-16">
               <Image
                 alt={"Book cover"}
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
@@ -1017,7 +1018,7 @@ export default function BookDetail(
                 />
               </Box>
             </Modal>
-            <div className="flex flex-col space-y-3 text-left">
+            <div className="flex-auto flex-col space-y-3 text-left">
               <div>
                 <div className="flex text-2xl font-bold">
                   {bookDetailRows.at(0)?.title}
