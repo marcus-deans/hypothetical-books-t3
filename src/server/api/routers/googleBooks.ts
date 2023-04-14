@@ -6,6 +6,11 @@ import { env } from "../../../env/server.mjs";
 import { prisma } from "../../db";
 import Fuse from "fuse.js";
 import type { Book } from "@prisma/client";
+import {
+  BridgeBookSchema,
+  BridgeResponseSchema,
+  convertBridgeBookToBook,
+} from "./bridge";
 
 const GoogleBooksDetailsSchema = z.object({
   title: z.string(),
@@ -177,18 +182,51 @@ const getRelatedBooks = async (book: GoogleBooksDetails) => {
   console.log("Related book search results");
   console.log(searchResults);
   const returnableSearchResult = searchResults as returnBookType[];
-  // console.log(
-  //   returnableSearchResult.map((result) =>
-  //     result.item.authors.map((author) => author.name).join(", ")
-  //   )
-  // );
   console.log("Related book search results: ");
   console.log(returnableSearchResult);
   return returnableSearchResult.map((result) => result.item);
 };
 
+const getRemoteBookDetails = async (isbn: string) => {
+  try {
+    return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isbns: [isbn] }),
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((response) => {
+        console.log("Obtained response from subsidiary");
+        const remoteBookResponse = BridgeResponseSchema.safeParse(response);
+        if (!remoteBookResponse.success) {
+          console.error(remoteBookResponse);
+          console.error(
+            `Could not obtain remote book details for ISBN ${isbn}`
+          );
+          return null;
+        } else {
+          const remoteBookDetails = BridgeBookSchema.safeParse(
+            remoteBookResponse.data[isbn]
+          );
+          if (!remoteBookDetails.success) {
+            console.error(`Could not parse remote book details`);
+            return null;
+          }
+          return convertBridgeBookToBook(remoteBookDetails.data);
+        }
+      });
+  } catch (err) {
+    console.log("Error retrieving book details from subsidiary");
+    console.log(err);
+    return null;
+  }
+};
+
 interface AllBookDetails {
-  googleBooKDetails: GoogleBooksDetails;
+  googleBookDetails: GoogleBooksDetails;
+  remoteBookDetails: ReturnType<typeof convertBridgeBookToBook>;
   booksRunPrice: number;
   relatedBooks: bookWithAuthorsType[];
 }
@@ -215,8 +253,10 @@ export const googleBooksRouter = createTRPCRouter({
           continue;
         }
         relatedBooks = await getRelatedBooks(bookDetails);
+        const remoteBookDetails = await getRemoteBookDetails(isbn);
         const retrievedBookDetails = {
-          googleBooKDetails: bookDetails,
+          googleBookDetails: bookDetails,
+          remoteBookDetails: remoteBookDetails,
           booksRunPrice: bookPrice,
           relatedBooks: relatedBooks,
         } as AllBookDetails;

@@ -425,7 +425,6 @@ export const booksRouter = createTRPCRouter({
             console.error(`Could not obtain remote books`);
             return;
           } else {
-            console.log(remoteBookResponse.data);
             return Object.values(remoteBookResponse.data).map((book) => {
               try {
                 if (book === null) return null;
