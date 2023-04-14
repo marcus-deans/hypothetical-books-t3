@@ -26,9 +26,10 @@ import type { CustomUser } from "../../../schema/user.schema";
 import { prisma } from "../../../server/db";
 import dayjs from "dayjs";
 import Head from "next/head";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EditCase(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -39,10 +40,9 @@ export default function EditCase(
   const { id } = props;
   const router = useRouter();
   const caseDetailsQuery = api.cases.getById.useQuery({ id: id });
-  console.log(caseDetailsQuery.data);
 
   const editMutation = api.cases.edit.useMutation();
-  const currentName = caseDetailsQuery?.data?.name ?? "";
+  const currentName = caseDetailsQuery?.data?.name ?? "Case Name";
   const currentWidth = caseDetailsQuery?.data?.width ?? 0;
   const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
   const [nameValue, setNameValue] = useState(currentName);
@@ -58,7 +58,6 @@ export default function EditCase(
         setIsSubmitting(false);
         return;
       }
-
       const editResult = editMutation.mutate({
         caseId: id,
         name: nameValue,
@@ -102,7 +101,7 @@ export default function EditCase(
                       value={nameValue}
                       onChange={(
                         event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setNameValue(event.target.value)}
+                      ): void => setNameValue(String(event.target.value))}
                       required
                     />
                     <TextField
@@ -150,6 +149,7 @@ export default function EditCase(
           </div>
         </form>
       </div>
+      <ToastContainer></ToastContainer>
     </>
   );
 }
@@ -161,8 +161,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
     },
   });
 
-  const paths = cases.map((caseA) => ({
-    params: { id: caseA.id },
+  const paths = cases.map((specCase) => ({
+    params: { id: specCase.id },
   }));
 
   return { paths, fallback: true };
