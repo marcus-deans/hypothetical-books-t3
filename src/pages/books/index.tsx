@@ -154,7 +154,7 @@ export default function Books(
       headerAlign: "left",
       type: "number",
       renderCell: (params) => {
-        /*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/
+        /*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions*/
         const remotePrice = params.row.remoteRetailPrice === "N/A" ? params.row.remoteRetailPrice : `$${params.row.remoteRetailPrice}`;
         return (
           <div>
