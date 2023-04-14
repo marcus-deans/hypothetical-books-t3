@@ -31,6 +31,7 @@ import type { Dayjs } from "dayjs";
 import type { CustomUser } from "../../../schema/user.schema";
 import { useSession } from "next-auth/react";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { throwError } from "rxjs";
 
 const ImageCard = ({
@@ -54,6 +55,29 @@ const ImageCard = ({
         />
         <div className="mt-2 flex justify-start">
           <button onClick={deleteImage}>Remove</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ImageCardSubsidiary = ({
+  url
+}: {
+  url: string;
+}) => {
+  return (
+    <div className="mt-6 flex flex-1 justify-center">
+      <div className="transform rounded-xl bg-white p-3 shadow-xl transition-all duration-500 hover:shadow-2xl">
+        <Image
+          className="object-cover"
+          src={url}
+          alt="Book Cover"
+          width={100}
+          height={100}
+        />
+        <div className="mt-2 flex sjustify-start">
+          Alt Image
         </div>
       </div>
     </div>
@@ -111,6 +135,7 @@ export default function EditBook(
   const [inventory, setInventory] = useState(
     data?.internalBook.inventoryCount.toString() ?? ""
   );
+  const [isSwapped, swapImage] = useState(false);
   const [tempInventory, setTempInventory] = useState("0");
   const [finalInventoryCorrection, setFinalInventoryCorrection] = useState("0");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -126,7 +151,11 @@ export default function EditBook(
   const [genreInputValue, setGenreInputValue] = useState("");
   const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs(new Date()));
   const [inventoryCorrection, setInventoryCorrection] = useState(false);
-
+  const handleImgSwap = () => {
+    setImgUrl(data?.remoteBook?.imgUrl ?? "");
+    swapImage(true);
+    toast.success("Image successfully switched from subsidiary, please submit to make changes permanent");
+  };
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
@@ -719,14 +748,31 @@ export default function EditBook(
                     Delete Image
                   </button>
                 </div>
-                <div className="flex justify-center">
-                  <ImageCard
-                    deleteImage={handleRemoveImage}
-                    url={imgUrl ?? defaultUrl}
-                    id={id}
-                    key={id}
-                  />
-                </div>
+                {subData && !isSwapped ?
+                  <div className="flex justify-center items-center">
+                    <ImageCard
+                      deleteImage={handleRemoveImage}
+                      url={imgUrl ?? defaultUrl}
+                      id={id}
+                      key={id}
+                    />
+                    <IconButton className="bg-blue-500 hover:bg-blue-700" size="small" onClick={() => {
+                      handleImgSwap();
+                    }}>
+                      <SwapHorizIcon style={{ color: "white" }} />
+                    </IconButton>
+                    <ImageCardSubsidiary
+                      url={data?.remoteBook?.imgUrl ?? defaultUrl}
+                    />
+                  </div> :
+                  <div className="flex justify-center">
+                    <ImageCard
+                      deleteImage={handleRemoveImage}
+                      url={imgUrl ?? defaultUrl}
+                      id={id}
+                      key={id}
+                    />
+                  </div>}
                 <div className="flex items-center justify-between pt-4">
                   <button
                     className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
