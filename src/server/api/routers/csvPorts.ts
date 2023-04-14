@@ -156,7 +156,7 @@ export const csvPortsRouter = createTRPCRouter({
         parsedData: parsedData,
       };
     }),
-  verifyCSV: publicProcedure
+  verifyPurchaseCSV: publicProcedure
     .input(z.array(CSVInputSchema).optional())
     .output(
       z.object({
@@ -240,6 +240,132 @@ export const csvPortsRouter = createTRPCRouter({
           newEntry.title = "BOOK NOT FOUND"
           parsedData.push(newEntry);
           continue; 
+        }
+        newEntry.bookId = bookInDatabase.id;
+        newEntry.title = bookInDatabase.title;
+        if (
+          newEntry.bookId == "" ||
+          newEntry.quantity == -1 ||
+          newEntry.unit_price == -1
+        ) {
+          newEntry.verified = false;
+          newEntry.reason += "Data row not filled completely. "
+        }
+        parsedData.push(newEntry);
+      }
+      let allVerified = true;
+      parsedData.forEach(function (entry){
+        if(!entry.verified) allVerified = false;
+      })
+      return {
+        verified: allVerified,
+        message: "Data Successfully Parsed",
+        parsedData: parsedData,
+      };
+    }),
+  verifyBuybackCSV: publicProcedure
+    .input(
+      z.object({
+        data: z.array(CSVInputSchema).optional(),
+        buybackOrderId: z.string(),
+      })
+    )
+    .output(
+      z.object({
+        verified: z.boolean(),
+        message: z.string(),
+        parsedData: z.array(CSVInputIdSchema),
+      })
+    )
+    // eslint-disable-next-line @typescript-eslint/require-await
+    .query(async ({ input }) => {
+      if (!input || !input.data) {
+        return {
+          verified: false,
+          message: "No Input",
+          parsedData: [],
+        };
+      }
+      const buybackOrder = await prisma.buybackOrder.findUnique({
+        where: {id: input.buybackOrderId},
+        include: {
+          vendor: true
+        }
+      })
+      if(!buybackOrder){
+        return {
+          verified: false,
+          message: "Buyback Order does not exist",
+          parsedData: [],
+        };
+      }
+      const buybackRate = buybackOrder.vendor.buybackRate;
+      const parsedData: CSVInputId[] = [];
+      let index = 0;
+      for (const entry of input.data) {
+        const newEntry: CSVInputId = {
+          id: index,
+          bookId: "",
+          title: "",
+          isbn: entry.isbn,
+          quantity: -1,
+          unit_price: -1,
+          verified: true,
+          reason: ""
+        };
+        index ++;
+        const quantitySplit = entry.quantity.split(".");
+        if (quantitySplit.length > 1) {
+          newEntry.verified = false;
+          newEntry.reason += "Has a decimal quantity. ";
+        }
+        const unitPriceNoDollarSign = entry.unit_price.replace("$", "");
+        const unitPriceSplit = unitPriceNoDollarSign.split(".");
+        if (unitPriceSplit.length > 1) {
+          if (unitPriceSplit[1] && unitPriceSplit[1].length > 2) {
+            newEntry.verified = false;
+            newEntry.reason += "Has a a price with more than 2 decimal places. ";
+          }
+        }
+        newEntry.quantity = parseFloat(entry.quantity);
+        newEntry.unit_price = parseFloat(unitPriceNoDollarSign);
+        if(Number.isNaN(newEntry.quantity)){
+          newEntry.verified = false;
+          newEntry.reason += "Quantity is Either not in data row or NaN. ";
+          newEntry.quantity = 0;
+        }
+        // cast it to either an isbn-13 or isbn-10
+        const inputIsbn = entry.isbn.replace(/\s+/g, "").replace(/-/g, "");
+        const validIsbnLengths: number[] = [10, 13];
+        if (!validIsbnLengths.includes(inputIsbn.length)) {
+          newEntry.verified = false;
+          newEntry.reason += "Not a valid ISBN due to length. ";
+          parsedData.push(newEntry);
+          continue; 
+        }
+        let bookInDatabase: Book | null = null;
+        if (inputIsbn.length === 10) {
+          const isbn_10 = inputIsbn;
+          bookInDatabase = await prisma.book.findFirst({
+            where: { isbn_10 },
+          });
+        } else if (inputIsbn.length === 13) {
+          const isbn_13 = inputIsbn;
+          bookInDatabase = await prisma.book.findFirst({
+            where: { isbn_13 },
+          });
+        }
+        if (!bookInDatabase) {
+          newEntry.verified == false;
+          newEntry.reason += "This book is not in the database. "
+          newEntry.title = "BOOK NOT FOUND"
+          parsedData.push(newEntry);
+          continue; 
+        }
+        if(Number.isNaN(newEntry.unit_price)){
+          console.log("Unit Price: " + bookInDatabase.retailPrice.toString())
+          console.log("BuybackRate: " + buybackRate.toString())
+          newEntry.unit_price = Math.round(bookInDatabase.retailPrice * buybackRate) / 100
         }
         newEntry.bookId = bookInDatabase.id;
         newEntry.title = bookInDatabase.title;
