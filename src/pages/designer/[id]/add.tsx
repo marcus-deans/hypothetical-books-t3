@@ -47,6 +47,12 @@ export default function AddShelf(
   const id = props.id;
   const router = useRouter();
 
+  const caseDetailsQuery = api.cases.getById.useQuery({ id: id });
+  const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
+  const currentName = caseDetailsQuery?.data?.name ?? "Case Name";
+  const currentWidth = caseDetailsQuery?.data?.width ?? 0;
+  const editMutation = api.cases.edit.useMutation();
+
   const columns: GridColDef[] = [
     {
       field: "title",
@@ -218,6 +224,16 @@ export default function AddShelf(
             orientation: book.displayStyle,
           };
         }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        user: user!,
+      });
+      const newCount = currentShelfCount+1
+      const editResult = editMutation.mutate({
+        caseId: id,
+        name: currentName,
+        width: currentWidth,
+        shelfCount: newCount,
+        shelvesIds: [],
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!,
       });

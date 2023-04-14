@@ -47,14 +47,13 @@ export default function EditCase(
   const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
   const [nameValue, setNameValue] = useState(currentName);
   const [widthValue, setWidthValue] = useState(currentWidth);
-  const [shelfCountValue, setShelfCountValue] = useState(currentShelfCount);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      if (isNaN(widthValue) || isNaN(shelfCountValue)) {
-        toast.error("Width and Shelf Count must be numbers");
+      if (isNaN(widthValue)) {
+        toast.error("Width must be a number");
         setIsSubmitting(false);
         return;
       }
@@ -62,7 +61,7 @@ export default function EditCase(
         caseId: id,
         name: nameValue,
         width: widthValue,
-        shelfCount: shelfCountValue,
+        shelfCount: currentShelfCount,
         shelvesIds: [],
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!,
@@ -116,18 +115,6 @@ export default function EditCase(
                           <InputAdornment position="end">inches</InputAdornment>
                         ),
                       }}
-                      required
-                      sx={{
-                        width: 150,
-                      }}
-                    />
-                    <TextField
-                      id="shelfCount"
-                      label="Shelf Count"
-                      value={shelfCountValue}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setShelfCountValue(Number(event.target.value))}
                       required
                       sx={{
                         width: 150,
