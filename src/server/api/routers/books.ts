@@ -6,10 +6,10 @@ import { TRPCError } from "@trpc/server";
 import type { bookDetail } from "../../../schema/books.schema";
 import { bookDetailSchema } from "../../../schema/books.schema";
 import { env } from "../../../env/server.mjs";
-import type { S3 } from "aws-sdk/clients/browser_default";
 import * as AWS from "aws-sdk";
 
 import { v2 as cloudinary } from "cloudinary";
+import type { BridgeBook } from "./bridge";
 import {
   BridgeBookSchema,
   BridgeResponseSchema,
@@ -131,6 +131,44 @@ async function getAllDetailsById(id: string) {
     });
   }
   return internalBook;
+}
+
+async function getSingleBookFromSubsidiaryByIsbn(isbn13: string) {
+  return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ isbns: [isbn13] }),
+  })
+    .then((response) => {
+      // if (!response.ok) {
+      //   console.log(response.json());
+      //   throw new TRPCError({
+      //     code: "INTERNAL_SERVER_ERROR",
+      //     message: "Could not obtain remote book details",
+      //   });
+      // }
+      return response.json();
+    })
+    .then((response) => {
+      console.log("Obtained response from subsidiary");
+      const remoteBookResponse = BridgeResponseSchema.safeParse(response);
+      if (!remoteBookResponse.success) {
+        console.error(remoteBookResponse);
+        console.error(
+          `Could not obtain remote book details for ISBN ${isbn13}`
+        );
+        return null;
+      } else {
+        const remoteBookDetails = BridgeBookSchema.safeParse(
+          remoteBookResponse.data[isbn13]
+        );
+        if (!remoteBookDetails.success) {
+          console.error(`Could not parse remote book details`);
+          return null;
+        }
+        return convertBridgeBookToBook(remoteBookDetails.data);
+      }
+    });
 }
 
 export const booksRouter = createTRPCRouter({
@@ -364,10 +402,19 @@ export const booksRouter = createTRPCRouter({
         nextCursor = nextItem.id;
       }
 
+      // return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ isbns: [isbn13] }),
+      // })
+
       const internalIsbn13s = internalBooks.map((book) => book.isbn_13);
+      const postObject = JSON.stringify({ isbns: internalIsbn13s });
+      console.log(postObject);
       const remoteBooks = await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
         method: "POST",
-        body: JSON.stringify([internalIsbn13s]),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isbns: internalIsbn13s }),
       })
         .then((response) => response.json())
         .then((response) => {
@@ -378,41 +425,88 @@ export const booksRouter = createTRPCRouter({
             console.error(`Could not obtain remote books`);
             return;
           } else {
-            const remoteBooks = Object.values(remoteBookResponse.data).map(
-              (book) => {
-                try {
-                  const remoteBookDetails = BridgeBookSchema.safeParse(book);
-                  if (!remoteBookDetails.success) {
-                    console.error(`Could not parse remote book details`);
-                    return;
-                  }
-                  return convertBridgeBookToBook(remoteBookDetails.data);
-                } catch (err) {
+            return Object.values(remoteBookResponse.data).map((book) => {
+              try {
+                if (book === null) return null;
+                const remoteBookDetails = BridgeBookSchema.safeParse(book);
+                if (!remoteBookDetails.success) {
+                  console.error(`Could not parse remote book details`);
                   return;
                 }
+                return convertBridgeBookToBook(remoteBookDetails.data);
+              } catch (err) {
+                return;
               }
-            );
-            return remoteBooks;
+            });
           }
         });
 
-      const allBooks = internalBooks.reverse().map((book) => {
+      const allBooks = internalBooks.reverse().map((internalBook) => {
         const remoteBook = remoteBooks?.find(
-          (remoteBook) => remoteBook?.isbn_13 === book.isbn_13
+          (remoteBook) => remoteBook?.isbn_13 === internalBook.isbn_13
         );
-        if (remoteBook) {
-          return {
-            ...book,
-            ...remoteBook,
-          };
-        }
-        return book;
+        return {
+          internalBook: internalBook,
+          remoteBook: remoteBook ?? null,
+        };
       });
 
       return {
         items: allBooks,
         nextCursor,
       };
+    }),
+
+  getIdByIsbn13: publicProcedure
+    .input(z.object({ isbn13: z.string().length(13) }))
+    .query(async ({ input }) => {
+      const book = await prisma.book.findFirst({
+        where: { isbn_13: input.isbn13 },
+      });
+
+      if (!book) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Book with ISBN13 ${input.isbn13} not found`,
+        });
+      }
+
+      return { id: book.id };
+    }),
+
+  getByIsbn13WithAllDetails: publicProcedure
+    .input(z.object({ isbn13: z.string() }))
+    .query(async ({ input }) => {
+      const book = await prisma.book.findFirst({
+        where: { isbn_13: input.isbn13 },
+        include: {
+          authors: true,
+          genre: true,
+        },
+      });
+
+      if (!book) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Book with ISBN13 ${input.isbn13} not found`,
+        });
+      }
+
+      return {
+        title: book?.title,
+        authors: book?.authors?.map((author) => author.name),
+        isbn_13: book?.isbn_13,
+        isbn_10: book?.isbn_10,
+        publisher: book?.publisher,
+        publication_year: book?.publicationYear,
+        page_count: book?.pageCount,
+        height: book?.height,
+        width: book?.width,
+        thickness: book?.thickness,
+        retail_price: book?.retailPrice,
+        genre: book?.genre.name,
+        inventory_count: book?.inventoryCount,
+      } as bookDetail;
     }),
 
   getManyFromIsbn13WithDetails: publicProcedure
@@ -519,6 +613,13 @@ export const booksRouter = createTRPCRouter({
       return book;
     }),
 
+  getByIsbnFromSubsidiary: publicProcedure
+    .input(z.object({ isbn13: z.string() }))
+    .query(async ({ input }) => {
+      const { isbn13 } = input;
+      return await getSingleBookFromSubsidiaryByIsbn(isbn13);
+    }),
+
   getByIdWithAllDetailsAndSubsidiary: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
@@ -526,33 +627,9 @@ export const booksRouter = createTRPCRouter({
       const internalBook = await getAllDetailsById(id);
 
       const internalIsbn13 = internalBook.isbn_13;
-      const remoteBook = await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
-        method: "POST",
-        body: JSON.stringify([internalIsbn13]),
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          console.log("Obtained response from subsidiary");
-          const remoteBookResponse = BridgeResponseSchema.safeParse(response);
-          if (!remoteBookResponse.success) {
-            console.error(response);
-            console.error(
-              `Could not obtain remote book details for ISBN ${internalIsbn13}`
-            );
-            return null;
-          } else {
-            const remoteBookDetails = BridgeBookSchema.safeParse(
-              remoteBookResponse.data[internalIsbn13]
-            );
-            if (!remoteBookDetails.success) {
-              console.error(
-                `Could not parse remote book details for ISBN ${internalIsbn13}`
-              );
-              return null;
-            }
-            return convertBridgeBookToBook(remoteBookDetails.data);
-          }
-        });
+      const remoteBook = await getSingleBookFromSubsidiaryByIsbn(
+        internalIsbn13
+      );
 
       return {
         internalBook: internalBook,
@@ -791,7 +868,7 @@ export const booksRouter = createTRPCRouter({
             message: `Error uploading image to cloudinary`,
           });
         });
-      const cloudinaryUrl = cloudinary.url(book.id);
+      const cloudinaryUrl = cloudinary.url(book.id, { secure: true });
 
       await prisma.book.update({
         where: { id: book.id },

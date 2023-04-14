@@ -31,6 +31,7 @@ export const BridgeResponseSchema = z.record(
 export const convertBridgeBookToBook = (bridgeBook: BridgeBook) => {
   return {
     title: bridgeBook.title,
+    authors: bridgeBook.authors,
     isbn_13: bridgeBook.isbn13,
     isbn_10: bridgeBook.isbn10,
     publisher: bridgeBook.publisher,
@@ -42,7 +43,7 @@ export const convertBridgeBookToBook = (bridgeBook: BridgeBook) => {
     retailPrice: bridgeBook.retailPrice,
     inventoryCount: bridgeBook.inventoryCount,
     imgUrl: bridgeBook.imageUrl,
-  } as Book;
+  };
 };
 
 export const bridgeRouter = createTRPCRouter({
