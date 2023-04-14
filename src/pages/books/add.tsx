@@ -50,6 +50,8 @@ export default function AddBook() {
     []
   );
 
+  const [subData, setSubData] = useState(false);
+
   const [parsedIsbns, setParsedIsbns] = useState<string[]>([]);
   const retrieveDetailsQuery = api.googleBooks.retrieveDetailsByISBNs.useQuery(
     { isbns: parsedIsbns },
@@ -74,7 +76,6 @@ export default function AddBook() {
         const retailPrice = retrievedBook.booksRunPrice;
         const relatedBooks = retrievedBook.relatedBooks;
         const remoteBookDetails = retrievedBook.remoteBookDetails;
-
         console.log("Adding retrieved book to rows");
         console.log(retrievedBook);
         let isbn_10 = null;
@@ -241,7 +242,7 @@ export default function AddBook() {
       field: "remoteImage",
       headerName: "Remote Cover",
       headerClassName: "header-theme",
-      width: 125,
+      width: 100,
       align: "center",
       renderCell: (params) => {
         /* eslint-disable */
@@ -267,7 +268,7 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 100,
+      minWidth: 250,
       flex: 1,
     },
     {
@@ -276,7 +277,7 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 100,
+      minWidth: 200,
       flex: 1,
     },
     {
@@ -368,7 +369,7 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      width: 125,
+      width: 110,
       renderCell: (params) => {
         /* eslint-disable */
         const remoteWidth = params.row.remoteWidth as string;
@@ -411,7 +412,7 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      width: 125,
+      width: 110,
       renderCell: (params) => {
         /* eslint-disable */
         const remoteHeight = params.row.remoteHeight as string;
