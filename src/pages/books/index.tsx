@@ -426,6 +426,8 @@ export default function Books(
           days_of_supply: "(inf)",
           best_buyback_price: "0",
           num_related_books: "0",
+          remote_inventory_count: "0",
+          remote_retail_price: "0",
         };
         if (calculatedExportValues.at(index) !== undefined) {
           const calculatedEntry = calculatedExportValues.at(index) ?? [];
