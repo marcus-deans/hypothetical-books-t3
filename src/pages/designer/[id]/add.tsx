@@ -148,8 +148,9 @@ export default function AddShelf(
   const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
   const [totalSpaceSum, setTotalSpaceSum] = useState(0);
 
-  const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
+  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({ cursor: null, limit: 100 });
   const books = booksQuery?.data?.items ?? [];
+  console.log(books)
   const addMutation = api.shelves.add.useMutation();
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
@@ -267,7 +268,7 @@ export default function AddShelf(
           displayStyle: "Spine Out",
           shelfSpace: "",
           usedDefault: false,
-          author: "default"
+          author: specificBook.authors[0]?.name??""
         };
         displayBook.shelfSpace = calcShelfSpace(
           displayBook.width,
