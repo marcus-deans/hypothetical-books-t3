@@ -203,6 +203,7 @@ export const shelvesRouter = createTRPCRouter({
 
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
+    
     .mutation(async ({ input }) => {
       const { id } = input;
       const deletedShelf = await prisma.shelf.delete({

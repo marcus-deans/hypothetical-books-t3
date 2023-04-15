@@ -25,7 +25,7 @@ import type { CustomUser } from "../../schema/user.schema";
 import { appRouter } from "../../server/api/root";
 import { api } from "../../utils/api";
 
-export default function EditBuyBack(
+export default function AddCase(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
   const { data: session, status } = useSession();
@@ -34,13 +34,21 @@ export default function EditBuyBack(
   const router = useRouter();
 
   const addMutation = api.cases.add.useMutation();
+  const casesQuery = api.cases.getAll.useQuery({
+    cursor: null,
+    limit: 50,
+  });
+
+  const casesWithShelves = casesQuery?.data?.items ?? [];
+
 
   const [nameValue, setNameValue] = useState("");
   const [widthValue, setWidthValue] = useState(0);
-  const [shelfCountValue, setShelfCountValue] = useState(0);
+  const [shelfCountValue, setShelfCountValue] = useState(7);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = () => {
+    
     setIsSubmitting(true);
     try {
       if (isNaN(widthValue) || isNaN(shelfCountValue)) {
@@ -48,6 +56,22 @@ export default function EditBuyBack(
         setIsSubmitting(false);
         return;
       }
+      if(casesWithShelves.some(obj => obj.name === nameValue)){
+        toast.error("A case with this name already exists");
+        setIsSubmitting(false);
+        return;
+      }
+      //Create shelfCountValue new blank shelves and link them
+      // const blankShelves = []
+      // for(let i =0; i < shelfCountValue; i++){
+      //   edit.mutate({
+      //     caseId: id,
+      //     spaceUsed: 0,
+      //     bookDetails: [],
+      //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      //     user: user!,
+      //   });
+      // }
       const addResult = addMutation.mutate({
         name: nameValue,
         width: widthValue,
@@ -68,13 +92,13 @@ export default function EditBuyBack(
   return (
     <>
       <Head>
-        <title>Edit Case</title>
+        <title>Add Case</title>
       </Head>
       <div className="pt-6">
         <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
-              Edit Case Design
+              Add Case Design
             </div>
             <div className="relative space-y-3">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>

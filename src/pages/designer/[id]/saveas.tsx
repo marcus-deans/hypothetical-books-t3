@@ -41,6 +41,7 @@ export default function SaveAs(
   const caseDetailsQuery = api.cases.getById.useQuery({ id: id });
   const addMutation = api.cases.add.useMutation();
   console.log(caseDetailsQuery.data);
+  const { data } = caseDetailsQuery;
 
   const editMutation = api.cases.edit.useMutation();
   const currentName = caseDetailsQuery?.data?.name ?? "";
@@ -54,11 +55,12 @@ export default function SaveAs(
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
+      const shelvesById = data?.shelves.map((shelf) => shelf.id)
       const addResult = addMutation.mutate({
         name: nameValue,
         width: currentWidth,
         shelfCount: currentShelfCount,
-        shelvesIds: [],
+        shelvesIds: shelvesById ?? [],
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!,
       });

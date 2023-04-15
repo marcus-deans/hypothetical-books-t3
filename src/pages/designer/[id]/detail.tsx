@@ -18,6 +18,8 @@ import { GridToolbar } from "@mui/x-data-grid";
 import Head from "next/head";
 import Link from "next/link";
 import { Button } from "@mui/material";
+import { CustomUser } from "../../../schema/user.schema";
+import { useSession } from "next-auth/react";
 
 export default function CaseDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -29,9 +31,22 @@ export default function CaseDetail(
   if (casesDetailsQuery.status !== "success") {
     return <div className="text-white">Loading...</div>;
   }
-
+  const addMutation = api.shelves.add.useMutation();
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser; 
   const { data } = casesDetailsQuery;
-
+  //Populate default shelves
+  // if(data.shelves.length !== data.shelfCount){
+  //   console.log("here")
+  //   addMutation.mutate({
+  //     caseId: id,
+  //     spaceUsed: 0,
+  //     bookDetails: [],
+  //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  //     user: user!,
+  //   });
+  // }
+  
   const columns: GridColDef[] = [
     {
       field: "shelf",

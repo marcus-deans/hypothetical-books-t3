@@ -119,15 +119,14 @@ export default function index() {
       ),
     },
   ];
-
   const rows = casesWithShelves.map((caseWithShelves) => {
     return {
       id: caseWithShelves.id,
       name: caseWithShelves.name,
       shelfCount: caseWithShelves.shelfCount,
       width: caseWithShelves.width,
-      creator: "bob",
-      editor:"bill",
+      creator: caseWithShelves.creator.name,
+      editor: caseWithShelves.editor.name,
       editedAt: caseWithShelves.editedAt.toLocaleString(),
     };
   });

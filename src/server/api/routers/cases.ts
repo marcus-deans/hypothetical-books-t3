@@ -156,9 +156,9 @@ export const casesRouter = createTRPCRouter({
           },
           width: input.width,
           shelfCount: input.shelfCount,
-          // shelves: {
-          //   connect: input.shelvesIds.map((id) => ({ id })),
-          // },
+          shelves: {
+            connect: input.shelvesIds.map((id) => ({ id })),
+           },
         },
       });
       return newCase;
