@@ -47,7 +47,7 @@ export default function CaseDetail(
   //     user: user!,
   //   });
   // }
-
+  const caseWidth = data.width;
   const displayedBooks = data.shelves.map((shelf:any) => shelf.booksOnShelf).flat()
   console.log(displayedBooks)
   const filteredBooks = displayedBooks.map(({ book: {id, title, isbn_13, isbn_10, }, displayCount, author}) => ({id, title, isbn_13, isbn_10, displayCount, author}));
@@ -124,6 +124,15 @@ export default function CaseDetail(
         <DeleteLink url={`/designer/${id}/${params.id}/delete`} />
       ),
     },
+    {
+      field: "valid",
+      headerName: "Valid",
+      headerClassName: "header-theme",
+      maxWidth: 70,
+      align: "center",
+      sortable: false,
+      filterable: false,
+    },
   ];
   const rows = data.shelves.map((shelf) => {
     const bookDetails = shelf.booksOnShelf.map((bookOnShelf) => {
@@ -132,13 +141,14 @@ export default function CaseDetail(
         title: bookOnShelf.book.title,
       };
     });
-
+    const isValid  = (shelf.spaceUsed > caseWidth) ? "No" : "Yes";
     return {
       id: shelf.id,
       caseId: shelf.caseId,
       spaceUsed: shelf.spaceUsed,
       books: bookDetails,
       numberBooks: bookDetails.length,
+      valid: isValid,
     };
   });
 
