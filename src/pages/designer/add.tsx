@@ -13,7 +13,7 @@ import {
 
 import dayjs from "dayjs";
 import Head from "next/head";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
 import type {
@@ -24,6 +24,7 @@ import { createInnerTRPCContext } from "../../server/api/trpc";
 import type { CustomUser } from "../../schema/user.schema";
 import { appRouter } from "../../server/api/root";
 import { api } from "../../utils/api";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddCase(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -162,6 +163,7 @@ export default function AddCase(
           </div>
         </form>
       </div>
+      <ToastContainer></ToastContainer>
     </>
   );
 }
