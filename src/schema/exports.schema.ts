@@ -19,6 +19,8 @@ export const CSVBookExportEntrySchema = z.object({
     days_of_supply: z.string(),
     best_buyback_price: z.string(),
     num_related_books: z.string(),
+    remote_inventory_count: z.string(),
+    remote_retail_price: z.string(),
 })
 
 export const CSVBookExportSchema = z.object({
