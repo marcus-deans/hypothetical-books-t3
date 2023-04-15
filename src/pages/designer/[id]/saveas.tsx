@@ -6,6 +6,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
+import "react-toastify/dist/ReactToastify.css";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
@@ -26,7 +27,7 @@ import type { CustomUser } from "../../../schema/user.schema";
 import { prisma } from "../../../server/db";
 import dayjs from "dayjs";
 import Head from "next/head";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
 
@@ -48,13 +49,24 @@ export default function SaveAs(
   const currentWidth = caseDetailsQuery?.data?.width ?? 0;
   const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
   
-  
+  const allcasesQuery = api.cases.getAll.useQuery({
+    cursor: null,
+    limit: 50,
+  });
+
+  const casesWithShelves = allcasesQuery?.data?.items ?? [];
+
   const [nameValue, setNameValue] = useState(currentName);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
+      if(casesWithShelves.some(obj => obj.name === nameValue)){
+        toast.error("A case with this name already exists");
+        setIsSubmitting(false);
+        return;
+      }
       const shelvesById = data?.shelves.map((shelf) => shelf.id)
       const addResult = addMutation.mutate({
         name: nameValue,
@@ -117,6 +129,7 @@ export default function SaveAs(
           </div>
         </form>
       </div>
+      <ToastContainer></ToastContainer>
     </>
   );
 }
