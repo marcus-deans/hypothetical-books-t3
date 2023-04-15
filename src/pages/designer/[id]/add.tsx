@@ -137,6 +137,7 @@ export default function AddShelf(
     displayStyle: string;
     shelfSpace: string;
     usedDefault: boolean;
+    author: string;
   }
 
   const [bookValue, setBookValue] = useState<{
@@ -222,6 +223,8 @@ export default function AddShelf(
           return {
             bookId: book.internalId,
             orientation: book.displayStyle,
+            displayCount: Number(book.displayCount),
+            author: book.author,
           };
         }),
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -264,6 +267,7 @@ export default function AddShelf(
           displayStyle: "Spine Out",
           shelfSpace: "",
           usedDefault: false,
+          author: "default"
         };
         displayBook.shelfSpace = calcShelfSpace(
           displayBook.width,

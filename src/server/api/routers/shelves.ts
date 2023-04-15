@@ -86,6 +86,8 @@ export const shelvesRouter = createTRPCRouter({
           .object({
             bookId: z.string(),
             orientation: z.string(),
+            displayCount: z.number(), 
+            author: z.string()
           })
           .array(),
         user: z.object({
@@ -121,6 +123,8 @@ export const shelvesRouter = createTRPCRouter({
       for (const bookDetails of input.bookDetails) {
         const bookId = bookDetails.bookId;
         const bookOrientation = bookDetails.orientation;
+        const displayCount = bookDetails.displayCount;
+        const author = bookDetails.author;
         const newBookOnShelf = await prisma.bookOnShelf.create({
           data: {
             book: {
@@ -134,6 +138,9 @@ export const shelvesRouter = createTRPCRouter({
               },
             },
             orientation: bookOrientation,
+            displayCount: displayCount,
+            author: author
+
           },
         });
       }

@@ -182,12 +182,14 @@ model Shelf {
 }
 
 model BookOnShelf {
-  id          String @id @default(cuid())
-  book        Book   @relation(fields: [bookId], references: [id])
-  bookId      String
-  shelf       Shelf  @relation(fields: [shelfId], references: [id])
-  shelfId     String
-  orientation String
+  id           String @id @default(cuid())
+  book         Book   @relation(fields: [bookId], references: [id])
+  bookId       String
+  shelf        Shelf  @relation(fields: [shelfId], references: [id])
+  shelfId      String
+  orientation  String
+  displayCount Int    @default(0)
+  author       String @default("default author")
 }
 
 model Example {

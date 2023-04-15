@@ -20,7 +20,8 @@ import Link from "next/link";
 import { Button } from "@mui/material";
 import { CustomUser } from "../../../schema/user.schema";
 import { useSession } from "next-auth/react";
-
+import jsPDF from "jspdf";
+import autoTable, { RowInput } from "jspdf-autotable";
 export default function CaseDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
@@ -46,7 +47,10 @@ export default function CaseDetail(
   //     user: user!,
   //   });
   // }
-  
+
+  const displayedBooks = data.shelves.map((shelf:any) => shelf.booksOnShelf).flat()
+  console.log(displayedBooks)
+  const filteredBooks = displayedBooks.map(({ book: {id, title, isbn_13, isbn_10, }, displayCount, author}) => ({id, title, isbn_13, isbn_10, displayCount, author}));
   const columns: GridColDef[] = [
     {
       field: "shelf",
@@ -184,18 +188,12 @@ export default function CaseDetail(
             Save As 
           </Button>
         </Link>
-        <Link
-          className="items-end px-3"
-          href={`/designer/${id}/planogram`}
-          passHref
-        >
-          <Button
+          <button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-            variant="contained"
+            onClick = {()=>{generatePlanogram(data.name, data.shelves, filteredBooks)}}
           >
             Generate Planogram
-          </Button>
-        </Link>
+          </button>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
         <Box
@@ -232,6 +230,128 @@ export default function CaseDetail(
     </>
   );
 }
+import type { bookDetail } from "../../../schema/books.schema";
+import { type } from "os";
+
+function generatePlanogram(name:string, shelves:any, displayedBooks:any) {
+  const doc = new jsPDF();
+
+  autoTable(doc, {
+    body: [
+      [
+        {
+          content: name,
+          styles: {
+            halign: "left",
+            fontSize: 20,
+            textColor: "#ffffff",
+          },
+        },
+        {
+          content: "Planogram",
+          styles: {
+            halign: "right",
+            fontSize: 20,
+            textColor: "#ffffff",
+          },
+        },
+      ],
+    ],
+    theme: "plain",
+    styles: {
+      fillColor: "#3366ff",
+    },
+  });
+
+  autoTable(doc, {
+    body: [
+      [
+        {
+          content: "Date: " + new Date().toLocaleDateString(),
+          styles: {
+            halign: "right",
+          },
+        },
+      ],
+    ],
+    theme: "plain",
+  });
+
+  autoTable(doc, {
+    body: [
+      [
+        {
+          content: "Books Included",
+          styles: {
+            halign: "left",
+            fontSize: 14,
+          },
+        },
+      ],
+    ],
+    theme: "plain",
+  });
+
+  //Inputs in array format
+  const tableAllBooks: RowInput[] = [];
+  displayedBooks.forEach((book: any) => {
+
+    const insideInput: RowInput = [];
+    insideInput.push(book.title);
+    insideInput.push(book.author);
+    insideInput.push(book.isbn_10);
+    insideInput.push(book.isbn_13);
+    insideInput.push(book.displayCount);
+    tableAllBooks.push(insideInput)
+  });
+
+  autoTable(doc, {
+    head: [
+      [
+        "Title",
+        "Author",
+        "ISBN 10",
+        "ISBN 13",
+        "Display Count",
+      ],
+    ],
+    body: tableAllBooks,
+    theme: "striped",
+    headStyles: {
+      fillColor: "#343a40",
+    },
+  });
+
+  autoTable(doc, {
+    body: [
+      [
+        {
+          content: "Display Layout",
+          styles: {
+            halign: "left",
+            fontSize: 20,
+            textColor: "#ffffff",
+          },
+        },
+      
+      ],
+    ],
+    theme: "plain",
+    styles: {
+      fillColor: "#3366ff",
+    },
+  });
+
+  
+
+  //const bookIdToQuantity = new Map<book, number>();
+  //const bookIdToRevenue = new Map<book, number>();  
+  return doc.output("dataurlnewwindow");
+}
+
+
+
+
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const casesList = await prisma.case.findMany({
