@@ -13,7 +13,7 @@ import { api } from "../../../utils/api";
 import Head from "next/head";
 import React, { useRef, useState } from "react";
 import { FormControl, FormHelperText, FormLabel } from "@mui/joy";
-import { Autocomplete, InputAdornment, TextField } from "@mui/material";
+import { Autocomplete, Button, IconButton, InputAdornment, TextField } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import type { S3 } from "aws-sdk/clients/browser_default";
 import Image from "next/image";
@@ -30,6 +30,8 @@ import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import type { CustomUser } from "../../../schema/user.schema";
 import { useSession } from "next-auth/react";
+import SwapVertIcon from '@mui/icons-material/SwapVert';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { throwError } from "rxjs";
 
 const ImageCard = ({
@@ -59,6 +61,29 @@ const ImageCard = ({
   );
 };
 
+const ImageCardSubsidiary = ({
+  url
+}: {
+  url: string;
+}) => {
+  return (
+    <div className="mt-6 flex flex-1 justify-center">
+      <div className="transform rounded-xl bg-white p-3 shadow-xl transition-all duration-500 hover:shadow-2xl">
+        <Image
+          className="object-cover"
+          src={url}
+          alt="Book Cover"
+          width={100}
+          height={100}
+        />
+        <div className="mt-2 flex sjustify-start">
+          Alt Image
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /* eslint-disable */
 // @ts-ignore
 const modalStyle = {
@@ -80,15 +105,12 @@ export default function EditBook(
   const user = session?.user as CustomUser;
   const { id } = props;
   const router = useRouter();
-  const bookDetailsQuery = api.books.getByIdWithAllDetails.useQuery({
-    id: id,
-  });
+  const bookDetailsQuery = api.books.getByIdWithAllDetailsAndSubsidiary.useQuery({ id });
   const genreDetailsQuery = api.genres.getAll.useQuery({
     cursor: null,
     limit: 100,
   });
   const genres = genreDetailsQuery?.data?.items ?? [];
-  ``;
   const editMutation = api.books.edit.useMutation();
   const addInventoryCorrectionMutation = api.corrections.add.useMutation();
   const { data } = bookDetailsQuery;
@@ -98,20 +120,22 @@ export default function EditBook(
   const defaultUrl =
     "https://s3-us-west-2.amazonaws.com/s.cdpn.io/387928/book%20placeholder.png";
   const [retailPrice, setRetailPrice] = useState(
-    data?.retailPrice.toString() ?? ""
+    data?.internalBook.retailPrice.toString() ?? ""
   );
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const [imageDeleted, setImageDeleted] = useState(false);
   const [imgUrl, setImgUrl] = useState(
-    imageDeleted ? defaultUrl : data?.imgUrl ?? ""
+    imageDeleted ? defaultUrl : data?.internalBook.imgUrl ?? ""
   );
-  const [pageCount, setPageCount] = useState(data?.pageCount.toString() ?? "");
-  const [width, setWidth] = useState(data?.width.toString() ?? "");
-  const [height, setHeight] = useState(data?.height.toString() ?? "");
-  const [thickness, setThickness] = useState(data?.thickness.toString() ?? "");
+  const [subData, setSubData] = useState(data?.remoteBook !== null);
+  const [pageCount, setPageCount] = useState(data?.internalBook.pageCount.toString() ?? "");
+  const [width, setWidth] = useState(data?.internalBook.width.toString() ?? "");
+  const [height, setHeight] = useState(data?.internalBook.height.toString() ?? "");
+  const [thickness, setThickness] = useState(data?.internalBook.thickness.toString() ?? "");
   const [inventory, setInventory] = useState(
-    data?.inventoryCount.toString() ?? ""
+    data?.internalBook.inventoryCount.toString() ?? ""
   );
+  const [isSwapped, swapImage] = useState(false);
   const [tempInventory, setTempInventory] = useState("0");
   const [finalInventoryCorrection, setFinalInventoryCorrection] = useState("0");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -121,13 +145,17 @@ export default function EditBook(
     label: string;
     id: string;
   } | null>({
-    label: bookDetailsQuery?.data?.genre.name ?? "",
-    id: bookDetailsQuery?.data?.genre.id ?? "",
+    label: bookDetailsQuery?.data?.internalBook.genre.name ?? "",
+    id: bookDetailsQuery?.data?.internalBook.genre.id ?? "",
   });
   const [genreInputValue, setGenreInputValue] = useState("");
   const [dateValue, setDateValue] = useState<Dayjs | null>(dayjs(new Date()));
   const [inventoryCorrection, setInventoryCorrection] = useState(false);
-
+  const handleImgSwap = () => {
+    setImgUrl(data?.remoteBook?.imgUrl ?? "");
+    swapImage(true);
+    toast.success("Image successfully switched from subsidiary, please submit to make changes permanent");
+  };
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
@@ -379,49 +407,73 @@ export default function EditBook(
                 <div className="space-y-10">
                   <div className="flex justify-center space-x-10">
                     <div className="text-gra-700 text-md font-bold">
-                      {`${bookDetailsQuery?.data?.title ?? ""} by ${
-                        bookDetailsQuery?.data?.authors
-                          .map((author) => author.name)
-                          .join(", ") ?? ""
-                      }`}
+                      {`${bookDetailsQuery?.data?.internalBook.title ?? ""} by ${bookDetailsQuery?.data?.internalBook.authors
+                        .map((author) => author.name)
+                        .join(", ") ?? ""
+                        }`}
                     </div>
                     <div className="text-gra-700 text-md font-bold">
-                      {`ISBN-13: ${bookDetailsQuery?.data?.isbn_13 ?? ""}`}
+                      {`ISBN-13: ${bookDetailsQuery?.data?.internalBook.isbn_13 ?? ""}`}
                     </div>
                   </div>
                   <div className="flex justify-center space-x-10">
-                    <TextField
-                      id="retailPrice"
-                      label="Retail Price"
-                      value={retailPrice}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setRetailPrice(event.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">$</InputAdornment>
-                        ),
-                      }}
-                      required
-                      sx={{
-                        width: 120,
-                      }}
-                    />
-                    <TextField
-                      id="pageCount"
-                      label="Page Count"
-                      value={pageCount}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setPageCount(event.target.value)}
-                      required
-                      sx={{
-                        width: 120,
-                      }}
-                    />
+                    <div>
+                      <TextField
+                        id="retailPrice"
+                        label="Retail Price"
+                        value={retailPrice}
+                        defaultValue={data?.internalBook?.retailPrice ?? 0}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ): void => setRetailPrice(event.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">$</InputAdornment>
+                          ),
+                        }}
+                        required
+                        sx={{
+                          width: 120,
+                        }}
+                      />
+                      {subData ? <div>
+                        <div className="flex justify-center items-center mr-2 pt-1">
+                          <IconButton className="bg-blue-500 hover:bg-blue-700" size="small" onClick={() => {
+                            setRetailPrice((data?.remoteBook?.retailPrice ?? 0).toString());
+                          }}>
+                            <SwapVertIcon style={{ color: "white" }} />
+                          </IconButton>
+                          <label htmlFor="retailPrice-checkbox" className="ml-2 text-sm font-normal text-gray-900">${data?.remoteBook?.retailPrice}</label>
+                        </div>
+                      </div> : null}
+                    </div>
+                    <div>
+                      <TextField
+                        id="pageCount"
+                        label="Page Count"
+                        value={pageCount}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ): void => setPageCount(event.target.value)}
+                        required
+                        sx={{
+                          width: 120,
+                        }}
+                      />
+                      {subData ? <div>
+                        <div className="flex justify-center items-center mr-2 pt-1">
+                          <IconButton className="bg-blue-500 hover:bg-blue-700" size="small" onClick={() => {
+                            setPageCount((data?.remoteBook?.pageCount ?? 0).toString());
+                          }}>
+                            <SwapVertIcon style={{ color: "white" }} />
+                          </IconButton>
+                          <label className="ml-2 text-sm font-normal text-gray-900">{data?.remoteBook?.pageCount}</label>
+                        </div>
+                      </div> : null}
+                    </div>
                     {user?.role == "admin" ? (
                       <button
-                        className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+                        className="padding-top:10px rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700 h-14"
                         type="button"
                         onClick={handleOpen}
                       >
@@ -489,10 +541,10 @@ export default function EditBook(
                                 )
                                   ? "black"
                                   : parseInt(tempInventory) +
-                                      parseInt(inventory) >=
+                                    parseInt(inventory) >=
                                     0
-                                  ? "green"
-                                  : "red",
+                                    ? "green"
+                                    : "red",
                               },
 
                               width: 125,
@@ -500,7 +552,16 @@ export default function EditBook(
                             disabled
                           />
                         </Typography>
-                        <div className="pt-6" />
+                        {subData ? <div>
+                          <div className="flex items-center py-3">
+                            <IconButton className="bg-blue-500 hover:bg-blue-700" size="small" onClick={() => {
+                              setTempInventory((parseInt(inventory) - (data?.remoteBook?.inventoryCount ?? 0)).toString());
+                            }}>
+                              <SwapVertIcon style={{ color: "white" }} />
+                            </IconButton>
+                            <label htmlFor="inventory-checkbox" className="ml-2 text-sm font-normal text-gray-900">Subsidiary Inventory: {data?.remoteBook?.inventoryCount}</label>
+                          </div>
+                        </div> : <div className="pt-6" />}
                         <button
                           className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
                           type="button"
@@ -547,57 +608,93 @@ export default function EditBook(
                     </Modal>
                   </div>
                   <div className="flex justify-center space-x-10">
-                    <TextField
-                      id="thickness"
-                      label="Thickness"
-                      value={thickness}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setThickness(event.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">inches</InputAdornment>
-                        ),
-                      }}
-                      required
-                      sx={{
-                        width: 150,
-                      }}
-                    />
-                    <TextField
-                      id="width"
-                      label="Width"
-                      value={width}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setWidth(event.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">inches</InputAdornment>
-                        ),
-                      }}
-                      required
-                      sx={{
-                        width: 150,
-                      }}
-                    />
-                    <TextField
-                      id="height"
-                      label="Height"
-                      value={height}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setHeight(event.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">inches</InputAdornment>
-                        ),
-                      }}
-                      required
-                      sx={{
-                        width: 150,
-                      }}
-                    />
+                    <div>
+                      <TextField
+                        id="thickness"
+                        label="Thickness"
+                        value={thickness}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ): void => setThickness(event.target.value)}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">inches</InputAdornment>
+                          ),
+                        }}
+                        required
+                        sx={{
+                          width: 150,
+                        }}
+                      />
+                      {subData ? <div>
+                        <div className="flex justify-center items-center mr-2 pt-1">
+                          <IconButton className="bg-blue-500 hover:bg-blue-700" size="small" onClick={() => {
+                            setThickness((data?.remoteBook?.thickness ?? 0).toString());
+                          }}>
+                            <SwapVertIcon style={{ color: "white" }} />
+                          </IconButton>
+                          <label className="ml-2 text-sm font-normal text-gray-900">{data?.remoteBook?.thickness} inches</label>
+                        </div>
+                      </div> : null}
+                    </div>
+                    <div>
+                      <TextField
+                        id="width"
+                        label="Width"
+                        value={width}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ): void => setWidth(event.target.value)}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">inches</InputAdornment>
+                          ),
+                        }}
+                        required
+                        sx={{
+                          width: 150,
+                        }}
+                      />
+                      {subData ? <div>
+                        <div className="flex justify-center items-center mr-2 pt-1">
+                          <IconButton className="bg-blue-500 hover:bg-blue-700" size="small" onClick={() => {
+                            setWidth((data?.remoteBook?.width ?? 0).toString());
+                          }}>
+                            <SwapVertIcon style={{ color: "white" }} />
+                          </IconButton>
+                          <label className="ml-2 text-sm font-normal text-gray-900">{data?.remoteBook?.width} inches</label>
+                        </div>
+                      </div> : null}
+                    </div>
+                    <div>
+                      <TextField
+                        id="height"
+                        label="Height"
+                        value={height}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ): void => setHeight(event.target.value)}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">inches</InputAdornment>
+                          ),
+                        }}
+                        required
+                        sx={{
+                          width: 150,
+                        }}
+                      />
+                      {subData ? <div>
+                        <div className="flex justify-center items-center mr-2 pt-1">
+                          <IconButton className="bg-blue-500 hover:bg-blue-700" size="small" onClick={() => {
+                            setHeight((data?.remoteBook?.height ?? 0).toString());
+                          }}>
+                            <SwapVertIcon style={{ color: "white" }} />
+                          </IconButton>
+                          <label className="ml-2 text-sm font-normal text-gray-900">{data?.remoteBook?.height} inches</label>
+                        </div>
+                      </div> : null}
+                    </div>
                   </div>
                   <div className="flex justify-center space-x-10">
                     <FormControl>
@@ -651,14 +748,31 @@ export default function EditBook(
                     Delete Image
                   </button>
                 </div>
-                <div className="flex justify-center">
-                  <ImageCard
-                    deleteImage={handleRemoveImage}
-                    url={imgUrl ?? defaultUrl}
-                    id={id}
-                    key={id}
-                  />
-                </div>
+                {subData && !isSwapped ?
+                  <div className="flex justify-center items-center">
+                    <ImageCard
+                      deleteImage={handleRemoveImage}
+                      url={imgUrl ?? defaultUrl}
+                      id={id}
+                      key={id}
+                    />
+                    <IconButton className="bg-blue-500 hover:bg-blue-700" size="small" onClick={() => {
+                      handleImgSwap();
+                    }}>
+                      <SwapHorizIcon style={{ color: "white" }} />
+                    </IconButton>
+                    <ImageCardSubsidiary
+                      url={data?.remoteBook?.imgUrl ?? defaultUrl}
+                    />
+                  </div> :
+                  <div className="flex justify-center">
+                    <ImageCard
+                      deleteImage={handleRemoveImage}
+                      url={imgUrl ?? defaultUrl}
+                      id={id}
+                      key={id}
+                    />
+                  </div>}
                 <div className="flex items-center justify-between pt-4">
                   <button
                     className="space focus:shadow-outline flex rounded bg-blue-500 py-2 px-4 align-middle font-bold text-white hover:bg-blue-700 focus:outline-none"
@@ -705,7 +819,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.books.getByIdWithAllDetails.prefetch({ id });
+  await ssg.books.getByIdWithAllDetailsAndSubsidiary.prefetch({ id });
   await ssg.genres.getAll.prefetch({ cursor: null, limit: 100 });
 
   return {

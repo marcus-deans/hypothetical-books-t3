@@ -26,7 +26,8 @@ export default function BookDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const bookDetailsQuery = api.books.getByIdWithAllDetails.useQuery({ id });
+  const bookDetailsQuery =
+    api.books.getByIdWithAllDetailsAndSubsidiary.useQuery({ id });
 
   // if (router.isFallback) {
 
@@ -37,7 +38,11 @@ export default function BookDetail(
 
   const [subModalOpen, setSubModalOpen] = useState(false);
   const handleSubModalOpen = () => setSubModalOpen(true);
-  const handleSubModalClose = () => setSubModalOpen(false);
+  const handleSubModalClose = () => {
+    setSubModalOpen(false);
+    setChecked(false);
+  };
+  const [subData, setSubData] = useState(data?.remoteBook !== null);
 
   const [checked, setChecked] = useState(false);
 
@@ -48,6 +53,9 @@ export default function BookDetail(
   if (bookDetailsQuery.status !== "success" || !data) {
     return <div className="text-white">Loading...</div>;
   }
+
+  const internalBook = data.internalBook;
+  const remoteBook = data.remoteBook;
 
   const modalCoverStyle = {
     position: "absolute" as const,
@@ -316,20 +324,26 @@ export default function BookDetail(
   // inventoryCount           Int
 
   const bookWidth =
-    data.width === 0 ? "5* in." : `${data.width.toFixed(2)} in.`;
+    internalBook.width === 0
+      ? "5* in."
+      : `${internalBook.width.toFixed(2)} in.`;
   const bookThickness =
-    data.thickness === 0 ? "0.5* in." : `${data.thickness.toFixed(2)} in.`;
+    internalBook.thickness === 0
+      ? "0.5* in."
+      : `${internalBook.thickness.toFixed(2)} in.`;
   const bookHeight =
-    data.height === 0 ? "8* in." : `${data.height.toFixed(2)} in.`;
+    internalBook.height === 0
+      ? "8* in."
+      : `${internalBook.height.toFixed(2)} in.`;
 
   const shelfSpace =
-    data.thickness === 0
-      ? (0.8 * data.inventoryCount).toFixed(2)
-      : (data.thickness * data.inventoryCount).toFixed(2);
+    internalBook.thickness === 0
+      ? (0.8 * internalBook.inventoryCount).toFixed(2)
+      : (internalBook.thickness * internalBook.inventoryCount).toFixed(2);
   let lastMonthSales = 0;
   const today = new Date();
   const thirtyDaysAgo = new Date(new Date().setDate(today.getDate() - 30));
-  for (const salesLine of data.salesLines) {
+  for (const salesLine of internalBook.salesLines) {
     const salesLineDate = salesLine.salesReconciliation.date;
     if (salesLineDate > thirtyDaysAgo) {
       lastMonthSales += salesLine.quantity;
@@ -338,16 +352,18 @@ export default function BookDetail(
   const daysSupplyString =
     lastMonthSales === 0
       ? "(inf)"
-      : Math.floor((data.inventoryCount / lastMonthSales) * 30).toString();
+      : Math.floor(
+          (internalBook.inventoryCount / lastMonthSales) * 30
+        ).toString();
   let bestBuybackPrice = 0;
-  for (const costMostRecentVendor of data.costMostRecentVendor) {
+  for (const costMostRecentVendor of internalBook.costMostRecentVendor) {
     const currentVendorOffer =
       costMostRecentVendor.vendor.buybackRate *
       costMostRecentVendor.purchaseLine.unitWholesalePrice;
     bestBuybackPrice = Math.max(bestBuybackPrice, currentVendorOffer);
   }
   const shelfSpaceString =
-    data.thickness === 0
+    internalBook.thickness === 0
       ? `${shelfSpace.toString()}* in.`
       : `${shelfSpace.toString()} in.`;
   const bestBuybackString =
@@ -355,18 +371,18 @@ export default function BookDetail(
 
   const bookDetailRows = [
     {
-      imgUrl: data.imgUrl,
-      id: data.id,
-      title: data.title,
-      isbn_13: data.isbn_13,
-      genre: data.genre.name,
-      retailPrice: `$${data.retailPrice.toFixed(2)}`,
-      inventoryCount: data.inventoryCount,
-      isbn_10: data.isbn_10,
-      publisher: data.publisher,
-      publicationYear: data.publicationYear,
-      pageCount: data.pageCount,
-      author: data.authors.map((author) => author.name).join(", "),
+      imgUrl: internalBook.imgUrl,
+      id: internalBook.id,
+      title: internalBook.title,
+      isbn_13: internalBook.isbn_13,
+      genre: internalBook.genre.name,
+      retailPrice: `$${internalBook.retailPrice.toFixed(2)}`,
+      inventoryCount: internalBook.inventoryCount,
+      isbn_10: internalBook.isbn_10,
+      publisher: internalBook.publisher,
+      publicationYear: internalBook.publicationYear,
+      pageCount: internalBook.pageCount,
+      author: internalBook.authors.map((author) => author.name).join(", "),
       width: bookWidth,
       thickness: bookThickness,
       height: bookHeight,
@@ -374,36 +390,36 @@ export default function BookDetail(
       lastMonthSales: lastMonthSales.toString(),
       daysSupply: daysSupplyString,
       bestBuyback: bestBuybackString,
-      relatedBookCount: data.relatedBooks.length.toString(),
+      relatedBookCount: internalBook.relatedBooks.length.toString(),
     },
   ];
 
   const bookSubsidiaryDetailRows = [
     {
-      imgUrl: data.imgUrl,
-      id: "TODO",
-      title: "TODO",
-      isbn_13: "TODO",
-      genre: "TODO",
-      retailPrice: "TODO",
-      inventoryCount: "TODO",
-      isbn_10: "TODO",
-      publisher: "TODO",
-      publicationYear: "TODO",
-      pageCount: "TODO",
-      author: "TODO",
-      width: "TODO",
-      thickness: "TODO",
-      height: "TODO",
-      shelfSpace: "TODO",
-      lastMonthSales: "TODO",
-      daysSupply: "TODO",
-      bestBuyback: "TODO",
-      relatedBookCount: "TODO",
+      imgUrl: remoteBook?.imgUrl ?? "N/A",
+      id: "N/A",
+      title: remoteBook?.title ?? "N/A",
+      isbn_13: remoteBook?.isbn_13 ?? "N/A",
+      genre: "N/A",
+      retailPrice: `$${remoteBook?.retailPrice.toFixed(2) ?? "N/A"}`,
+      inventoryCount: remoteBook?.inventoryCount ?? "N/A",
+      isbn_10: remoteBook?.isbn_10 ?? "N/A",
+      publisher: remoteBook?.publisher ?? "N/A",
+      publicationYear: remoteBook?.publicationYear ?? "N/A",
+      pageCount: remoteBook?.pageCount ?? "N/A",
+      author: remoteBook?.authors ?? "N/A",
+      width: remoteBook?.width ?? "N/A",
+      thickness: remoteBook?.thickness ?? "N/A",
+      height: remoteBook?.height ?? "N/A",
+      shelfSpace: "N/A",
+      lastMonthSales: "N/A",
+      daysSupply: "N/A",
+      bestBuyback: "N/A",
+      relatedBookCount: "N/A",
     },
   ];
 
-  const salesReconciliationsRows = data.salesLines.map((salesLine) => {
+  const salesReconciliationsRows = internalBook.salesLines.map((salesLine) => {
     const salesReconciliation = salesLine.salesReconciliation;
     return {
       id: salesReconciliation.id,
@@ -420,7 +436,7 @@ export default function BookDetail(
     };
   });
 
-  const purchaseOrderRows = data.purchaseLines.map((purchaseLine) => {
+  const purchaseOrderRows = internalBook.purchaseLines.map((purchaseLine) => {
     const purchaseOrder = purchaseLine.purchaseOrder;
     return {
       id: purchaseOrder.id,
@@ -434,7 +450,7 @@ export default function BookDetail(
     };
   });
 
-  const buybackOrderRows = data.buybackLines.map((buybackLine) => {
+  const buybackOrderRows = internalBook.buybackLines.map((buybackLine) => {
     const buybackOrder = buybackLine.buybackOrder;
     return {
       id: buybackOrder.id,
@@ -448,18 +464,20 @@ export default function BookDetail(
     };
   });
 
-  const inventoryCorrectionRows = data.correction.map((inventoryCorrection) => {
-    return {
-      id: inventoryCorrection.id,
-      date: inventoryCorrection.date.getTime(),
-      user: inventoryCorrection.user?.name ?? "N/A",
-      recordType: "Inventory Correction",
-      quantity: inventoryCorrection.quantity,
-      price: "0",
-      vendor: "N/A",
-      inventoryTotal: "N/A",
-    };
-  });
+  const inventoryCorrectionRows = internalBook.correction.map(
+    (inventoryCorrection) => {
+      return {
+        id: inventoryCorrection.id,
+        date: inventoryCorrection.date.getTime(),
+        user: inventoryCorrection.user?.name ?? "N/A",
+        recordType: "Inventory Correction",
+        quantity: inventoryCorrection.quantity,
+        price: "0",
+        vendor: "N/A",
+        inventoryTotal: "N/A",
+      };
+    }
+  );
 
   const masterRows = [
     ...purchaseOrderRows,
@@ -596,7 +614,7 @@ export default function BookDetail(
     },
   ];
 
-  const relatedBooksRows = data.relatedBooks.map((relatedBook) => {
+  const relatedBooksRows = internalBook.relatedBooks.map((relatedBook) => {
     return {
       /* eslint-disable */
       id: relatedBook.id,
@@ -686,8 +704,8 @@ export default function BookDetail(
       <Head>
         <title>Book Details</title>
       </Head>
-      <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
-        <h1 className="inline-block text-2xl">{"Book Details"}</h1>
+      <div className="space mt-12 block h-3/4 overflow-hidden text-neutral-50 md:mt-3 md:flex">
+        <h1 className="inline-block text-2xl">Book Details</h1>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
         <Box
@@ -699,14 +717,15 @@ export default function BookDetail(
             "& .MuiDataGrid-cell--textLeft": {
               textAlign: "left",
             },
+            width: "auto",
           }}
         >
-          <div className="flex justify-center pt-3">
-            <div className="px-16 pt-2">
+          <div className="flex-auto justify-center px-3 pt-3">
+            <div className="shrink-0 px-4 pt-2 md:px-16">
               <Image
                 alt={"Book cover"}
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
-                src={bookDetailRows[0]?.imgUrl!}
+                src={bookDetailRows[0]?.imgUrl ?? ""}
                 onClick={handleCoverModalOpen}
                 width={190}
                 height={190}
@@ -1036,38 +1055,38 @@ export default function BookDetail(
                     <span className="text-lg font-normal">{`${
                       bookDetailRows.at(0)?.author
                     }`}</span>
-                    <div>
+                    {subData ? <div>
                       <button
                         className="underline"
                         onClick={handleSubModalOpen}
                       >
                         Subsidiary Details:
                       </button>
-                    </div>
+                    </div> : null}
                   </div>
                   <div>
                     Retail Price:{" "}
                     <span className="text-lg font-normal">{`${
                       bookDetailRows.at(0)?.retailPrice
                     }`}</span>
-                    <div>
+                    {subData ? <div>
                       Retail Price:{" "}
                       <span className="text-lg font-normal">{`${
                         bookSubsidiaryDetailRows.at(0)?.retailPrice
                       }`}</span>
-                    </div>
+                    </div> : null}
                   </div>
                   <div>
                     In Stock:{" "}
                     <span className="text-lg font-normal">{`${
                       bookDetailRows.at(0)?.inventoryCount
                     }`}</span>
-                    <div>
+                    {subData ? <div>
                       In Stock:{" "}
                       <span className="text-lg font-normal">{`${
                         bookSubsidiaryDetailRows.at(0)?.inventoryCount
                       }`}</span>
-                    </div>
+                    </div> : null}
                   </div>
                 </div>
               </div>
@@ -1266,7 +1285,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.books.getByIdWithAllDetails.prefetch({ id });
+  await ssg.books.getByIdWithAllDetailsAndSubsidiary.prefetch({ id });
 
   return {
     props: {
