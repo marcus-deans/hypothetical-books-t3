@@ -23,6 +23,7 @@ import { useSession } from "next-auth/react";
 import jsPDF from "jspdf";
 import type { RowInput } from "jspdf-autotable";
 import autoTable from "jspdf-autotable";
+import { longFormatter } from "../../../utils/formatters";
 
 export default function CaseDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -181,9 +182,9 @@ export default function CaseDetail(
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Case ${
-            data.name
-          } - Last edited at ${data.editedAt.toLocaleDateString()}`}{" "}
+          {`Case ${data.name} - Last edited at ${longFormatter.format(
+            data.editedAt
+          )}`}{" "}
         </h1>
       </div>
       <div className="space flex pt-3">
@@ -298,7 +299,7 @@ function generatePlanogram(name: string, shelves: any, displayedBooks: any) {
     body: [
       [
         {
-          content: "Date: " + new Date().toLocaleDateString(),
+          content: "Date: " + longFormatter.format(new Date()),
           styles: {
             halign: "right",
           },
