@@ -24,6 +24,19 @@ import jsPDF from "jspdf";
 import type { RowInput } from "jspdf-autotable";
 import autoTable from "jspdf-autotable";
 import { longFormatter } from "../../../utils/formatters";
+import type { Book, BookOnShelf, Shelf } from "@prisma/client";
+interface FlatDisplayBook {
+  id: string;
+  title: string;
+  author: string;
+  isbn_10: string;
+  isbn_13: string;
+  displayCount: number;
+}
+
+type ShelfQueryData = (Shelf & {
+  booksOnShelf: (BookOnShelf & { book: Book })[];
+})[];
 
 export default function CaseDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -54,14 +67,15 @@ export default function CaseDetail(
   const displayedBooks = data.shelves.map((shelf) => shelf.booksOnShelf).flat();
   console.log(displayedBooks);
   const filteredBooks = displayedBooks.map(
-    ({ book: { id, title, isbn_13, isbn_10 }, displayCount, author }) => ({
-      id,
-      title,
-      isbn_13,
-      isbn_10,
-      displayCount,
-      author,
-    })
+    ({ book: { id, title, isbn_13, isbn_10 }, displayCount, author }) =>
+      ({
+        id,
+        title,
+        isbn_13,
+        isbn_10,
+        displayCount,
+        author,
+      } as FlatDisplayBook)
   );
   // const filteredBooks = displayedBooks.map((displayBook) => {
   //   return {
@@ -265,11 +279,11 @@ export default function CaseDetail(
   );
 }
 
-import type { bookDetail } from "../../../schema/books.schema";
-import { type } from "os";
-import { stringList } from "aws-sdk/clients/datapipeline";
-
-function generatePlanogram(name: string, shelves: any, displayedBooks: any) {
+function generatePlanogram(
+  name: string,
+  shelves: ShelfQueryData,
+  displayedBooks: FlatDisplayBook[]
+) {
   const doc = new jsPDF();
 
   autoTable(doc, {
@@ -328,46 +342,43 @@ function generatePlanogram(name: string, shelves: any, displayedBooks: any) {
     theme: "plain",
   });
 
-
   // Create a new object to store the concatenated entries
-  const concatenatedBooks: {[key: string]: ConcatenatedBook} = {};
+  const concatenatedBooks: { [key: string]: ConcatenatedBook } = {};
 
-interface displayedBook{
-  title: string;
-  author: string;
-  isbn_10: string;
-  isbn_13: string;
-  displayCount: number;
-}
-interface ConcatenatedBook {
-  title: string;
-  author: string;
-  isbn_10: string;
-  isbn_13: string;
-  displayCount: number;
-}
-
-// Loop through each book in the array
-
-displayedBooks.forEach((book: displayedBook) => {
-  const concatenatedBook = concatenatedBooks[book.title];
-  if (concatenatedBook) {
-    concatenatedBook.displayCount += book.displayCount;
-  } else {
-    concatenatedBooks[book.title] = { ...book };
+  interface displayedBook {
+    title: string;
+    author: string;
+    isbn_10: string;
+    isbn_13: string;
+    displayCount: number;
   }
-});
 
-const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
+  interface ConcatenatedBook {
+    title: string;
+    author: string;
+    isbn_10: string;
+    isbn_13: string;
+    displayCount: number;
+  }
 
+  // Loop through each book in the array
 
+  displayedBooks.forEach((book: displayedBook) => {
+    const concatenatedBook = concatenatedBooks[book.title];
+    if (concatenatedBook) {
+      concatenatedBook.displayCount += book.displayCount;
+    } else {
+      concatenatedBooks[book.title] = { ...book };
+    }
+  });
 
+  const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
 
   //Inputs in array format
   const tableAllBooks: RowInput[] = [];
   // displayedBooks.forEach((book: any) => {
-  
-  tableVals.forEach((book: any) => {
+
+  tableVals.forEach((book) => {
     const insideInput: RowInput = [];
     //Just sum display values for books of the same name
     insideInput.push(book.title);
@@ -402,19 +413,18 @@ const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
     theme: "plain",
   });
   //Implement each shelf's display
-  shelves.forEach((shelf: any) =>{
+  shelves.forEach((shelf) => {
     autoTable(doc, {
       body: [
         [
           {
-            content: "Shelf "+ String(shelves.indexOf(shelf)+1),
+            content: "Shelf " + String(shelves.indexOf(shelf) + 1),
             styles: {
               halign: "left",
               fontSize: 20,
               textColor: "#ffffff",
             },
           },
-        
         ],
       ],
       theme: "plain",
@@ -423,25 +433,15 @@ const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
       },
     });
     autoTable(doc, {
-      head: [
-        [
-          "Title",
-          "Author",
-          "ISBN 10",
-          "ISBN 13",
-          "Display Count",
-        ],
-      ],
+      head: [["Title", "Author", "ISBN 10", "ISBN 13", "Display Count"]],
       body: tableAllBooks,
       theme: "striped",
       headStyles: {
         fillColor: "#343a40",
       },
     });
-  
+  });
 
-  })
-  
   //const bookIdToQuantity = new Map<book, number>();
   //const bookIdToRevenue = new Map<book, number>();
   return doc.output("dataurlnewwindow");
