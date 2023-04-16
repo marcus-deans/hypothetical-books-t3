@@ -38,7 +38,7 @@ export default function ImportPurchase(
     },
     { enabled: parsedHeaders.length !== 0 }
   );
-  const importVerified = api.csvPorts.verifyCSV.useQuery(
+  const importVerified = api.csvPorts.verifyPurchaseCSV.useQuery(
     parsedCsvData,
     { enabled: headersVerified.isSuccess && headersVerified.data?.verified }
   );
