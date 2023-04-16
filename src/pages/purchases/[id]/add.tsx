@@ -43,23 +43,18 @@ export default function AddPurchaseLine(
     setIsSubmitting(true);
     try {
       if (!bookValue) {
-        toast.error("Book is required");
         throw new Error("Book is required");
       }
       if (isNaN(unitWholesalePrice)) {
-        toast.error("Unit Wholesale Price must be a number");
         throw new Error("Unit Wholesale Price must be a number");
       }
       if (isNaN(quantity)) {
-        toast.error("Quantity must be a number");
         throw new Error("Quantity must be a number");
       }
       if (unitWholesalePrice <= 0) {
-        toast.error("Unit Wholesale Price must be a positive number");
         throw new Error("Unit Wholesale Price must be a positive number");
       }
       if (quantity <= 0) {
-        toast.error("Quantity must be a positive number");
         throw new Error("Quantity must be a positive number");
       }
       const addResult = addMutation.mutate({
@@ -72,7 +67,8 @@ export default function AddPurchaseLine(
         void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };

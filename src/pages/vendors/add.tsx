@@ -16,9 +16,7 @@ export default function AddVendor() {
     try {
       setIsSubmitting(true);
       if (!vendorName || !buybackRate) {
-        toast.error("Vendor name and buyback rate are required. To not allow buybacks for this vendor, enter value of 0");
-        setIsSubmitting(false);
-        return;
+        throw new Error("Vendor name and buyback rate are required. To not allow buybacks for this vendor, enter value of 0");
       }
       const finalBuybackRate = Number(buybackRate);
       if (
@@ -26,16 +24,15 @@ export default function AddVendor() {
         finalBuybackRate < 0 ||
         finalBuybackRate > 100
       ) {
-        toast.error("Buyback rate must be a number between 0 and 100, or 0 to represent no buybacks for this vendor");
-        setIsSubmitting(false);
-        return;
+        throw new Error("Buyback rate must be a number between 0 and 100, or 0 to represent no buybacks for this vendor");
       }
       addMutation.mutate({ name: vendorName, buybackRate: finalBuybackRate });
       setTimeout(() => {
         void router.push(`/vendors/`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };

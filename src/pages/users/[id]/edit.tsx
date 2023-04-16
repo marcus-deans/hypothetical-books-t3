@@ -37,18 +37,13 @@ export default function EditUser(
   const { data } = userDetailsQuery;
 
   const handleEdit = () => {
-    if (userDetailsQuery.data.name == "admin") {
-      toast.error("The admin account cannot have its privileges revoked");
-      return;
-    } else if (userDetailsQuery.data.name == user?.name) {
-      toast.error(
-        "This account cannot have its privileges revoked because it your own account"
-      );
-      return;
-    } else {
       setIsEditing(true);
-      console.log("User Edit proceeded");
       try {
+        if (userDetailsQuery.data.name == "admin") {
+          throw new Error("The admin account cannot have its privileges revoked");
+        } else if (userDetailsQuery.data.name == user?.name) {
+          throw new Error("This account cannot have its privileges revoked because it your own account");
+        }
         const deleteResult = deleteMutation.mutate({
           id: id,
           admin: !(data.role == "admin"),
@@ -57,10 +52,10 @@ export default function EditUser(
           void router.push("/users/" + id + "/detail");
         }, 500);
       } catch (error) {
-        console.log(error);
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        toast.error(`${error}`);
         setIsEditing(false);
       }
-    }
   };
 
   return (

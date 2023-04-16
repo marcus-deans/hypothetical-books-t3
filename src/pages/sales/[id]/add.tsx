@@ -52,23 +52,18 @@ export default function AddSalesLine(
       const finalUnitWholesalePrice = Number(unitWholesalePrice);
       const finalQuantity = Number(quantity);
       if (isNaN(finalUnitWholesalePrice)) {
-        toast.error("Unit Wholesale Price must be a number");
         throw new Error("Unit Wholesale Price must be a number");
       }
       if (isNaN(finalQuantity)) {
-        toast.error("Quantity must be a number");
         throw new Error("Quantity must be a number");
       }
       if (finalUnitWholesalePrice <= 0) {
-        toast.error("Unit Wholesale Price must be a positive number");
         throw new Error("Unit Wholesale Price must be a positive number");
       }
       if (finalQuantity <= 0) {
-        toast.error("Quantity must be a positive number");
         throw new Error("Quantity must be a positive number");
       }
       if (bookInventory - finalQuantity < 0) {
-        toast.error("The final inventory cannot go below 0");
         throw new Error("Quantity must be less than or equal to inventory");
       }
       const addResult = addMutation.mutate({
@@ -81,7 +76,8 @@ export default function AddSalesLine(
         void router.push(`/sales/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };

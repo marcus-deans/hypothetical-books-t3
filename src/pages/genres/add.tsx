@@ -2,6 +2,8 @@ import { useState } from "react";
 import { api } from "../../utils/api";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddGenre() {
   const [genreName, setGenreName] = useState("");
@@ -16,12 +18,16 @@ export default function AddGenre() {
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
+      if(genreName === ""){
+        throw new Error("Please enter a genre name")
+      }
       const addResult = addMutation.mutate({ name: genreName });
       setTimeout(() => {
         void router.push("/genres");
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };
@@ -61,6 +67,7 @@ export default function AddGenre() {
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </button>
+              <ToastContainer></ToastContainer>
             </div>
           </div>
         </form>

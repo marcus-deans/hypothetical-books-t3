@@ -18,6 +18,8 @@ import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EditSalesReconciliation(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -62,7 +64,8 @@ export default function EditSalesReconciliation(
         void router.push(`/sales/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };
@@ -109,6 +112,7 @@ export default function EditSalesReconciliation(
             </div>
           </div>
         </form>
+        <ToastContainer></ToastContainer>
       </div>
     </>
   );

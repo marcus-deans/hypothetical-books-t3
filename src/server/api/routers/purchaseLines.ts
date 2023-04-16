@@ -77,6 +77,7 @@ export const purchaseLinesRouter = createTRPCRouter({
                 title: true,
                 authors: true,
                 isbn_13: true,
+                inventoryCount: true,
               },
             },
           },
