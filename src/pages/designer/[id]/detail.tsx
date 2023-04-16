@@ -25,6 +25,7 @@ import type { RowInput } from "jspdf-autotable";
 import autoTable from "jspdf-autotable";
 import { longFormatter } from "../../../utils/formatters";
 import type { Book, BookOnShelf, Shelf } from "@prisma/client";
+
 interface FlatDisplayBook {
   id: string;
   title: string;
@@ -67,26 +68,18 @@ export default function CaseDetail(
   const displayedBooks = data.shelves.map((shelf) => shelf.booksOnShelf).flat();
   console.log(displayedBooks);
   const filteredBooks = displayedBooks.map(
-    ({ book: { id, title, isbn_13, isbn_10 }, displayCount, author }) =>
-      ({
-        id,
-        title,
-        isbn_13,
-        isbn_10,
-        displayCount,
-        author,
-      } as FlatDisplayBook)
+    ({ book: { id, title, isbn_13, isbn_10 }, displayCount, author }) => {
+      return {
+        id: id,
+        title: title,
+        author: author,
+        isbn_10: isbn_10 ?? "N/A",
+        isbn_13: isbn_13,
+        displayCount: displayCount,
+      } as FlatDisplayBook;
+    }
   );
-  // const filteredBooks = displayedBooks.map((displayBook) => {
-  //   return {
-  //     displayBook.book.id,
-  //     displayBook.book.title,
-  //     displayBook.book.isbn_13,
-  //     displayBook.book.isbn_10,
-  //     displayBook.displayCount,
-  //     displayBook.author
-  //   };
-  // });
+
   const columns: GridColDef[] = [
     {
       field: "shelf",
