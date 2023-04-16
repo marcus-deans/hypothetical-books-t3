@@ -22,7 +22,7 @@ const Home: NextPage = (): JSX.Element => {
             Welcome to Hypothetical Books!
           </h2>
           {exist ? (auth ?
-            <h3 className="text-2xl mb-8 pt-4 text-gray-200"> Welcome Back{user && user.name ? " " + user.name : "Nobody"}!</h3>
+            <h3 className="text-2xl mb-8 pt-4 text-gray-200"> Welcome Back{user && user.name ? " " + user.name : " Nobody"}!</h3>
             : <h3 className="text-2xl mb-8 pt-4 text-gray-200">Please Log In</h3>)
             : <h3 className="text-2xl mb-8 pt-4 text-gray-200">Please Create Admin Account</h3>}
           <div className="space-x-2 mb-2">
