@@ -47,6 +47,12 @@ export default function AddShelf(
   const id = props.id;
   const router = useRouter();
 
+  const caseDetailsQuery = api.cases.getById.useQuery({ id: id });
+  const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
+  const currentName = caseDetailsQuery?.data?.name ?? "Case Name";
+  const currentWidth = caseDetailsQuery?.data?.width ?? 0;
+  const editMutation = api.cases.edit.useMutation();
+
   const columns: GridColDef[] = [
     {
       field: "title",
@@ -131,6 +137,7 @@ export default function AddShelf(
     displayStyle: string;
     shelfSpace: string;
     usedDefault: boolean;
+    author: string;
   }
 
   const [bookValue, setBookValue] = useState<{
@@ -141,8 +148,9 @@ export default function AddShelf(
   const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>([]);
   const [totalSpaceSum, setTotalSpaceSum] = useState(0);
 
-  const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
+  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({ cursor: null, limit: 100 });
   const books = booksQuery?.data?.items ?? [];
+  console.log(books)
   const addMutation = api.shelves.add.useMutation();
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
@@ -216,8 +224,20 @@ export default function AddShelf(
           return {
             bookId: book.internalId,
             orientation: book.displayStyle,
+            displayCount: Number(book.displayCount),
+            author: book.author,
           };
         }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        user: user!,
+      });
+      const newCount = currentShelfCount+1
+      const editResult = editMutation.mutate({
+        caseId: id,
+        name: currentName,
+        width: currentWidth,
+        shelfCount: newCount,
+        shelvesIds: [],
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!,
       });
@@ -248,6 +268,7 @@ export default function AddShelf(
           displayStyle: "Spine Out",
           shelfSpace: "",
           usedDefault: false,
+          author: specificBook.authors[0]?.name??""
         };
         displayBook.shelfSpace = calcShelfSpace(
           displayBook.width,
