@@ -232,6 +232,8 @@ export const BookOnShelfSchema = z.object({
   bookId: z.string(),
   shelfId: z.string(),
   orientation: z.string(),
+  displayCount: z.number().int(),
+  author: z.string(),
 });
 
 // EXAMPLE
@@ -779,6 +781,8 @@ export const BookOnShelfSelectSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfS
   bookId: z.boolean().optional(),
   shelfId: z.boolean().optional(),
   orientation: z.boolean().optional(),
+  displayCount: z.boolean().optional(),
+  author: z.boolean().optional(),
   book: z.union([z.boolean(), z.lazy(() => BookArgsSchema)]).optional(),
   shelf: z.union([z.boolean(), z.lazy(() => ShelfArgsSchema)]).optional(),
 }).strict();
@@ -1681,6 +1685,8 @@ export const BookOnShelfWhereInputSchema: z.ZodType<PrismaClient.Prisma.BookOnSh
   bookId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   shelfId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   orientation: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  displayCount: z.union([z.lazy(() => IntFilterSchema), z.number()]).optional(),
+  author: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   book: z.union([z.lazy(() => BookRelationFilterSchema), z.lazy(() => BookWhereInputSchema)]).optional(),
   shelf: z.union([z.lazy(() => ShelfRelationFilterSchema), z.lazy(() => ShelfWhereInputSchema)]).optional(),
 }).strict();
@@ -1690,6 +1696,8 @@ export const BookOnShelfOrderByWithRelationInputSchema: z.ZodType<PrismaClient.P
   bookId: z.lazy(() => SortOrderSchema).optional(),
   shelfId: z.lazy(() => SortOrderSchema).optional(),
   orientation: z.lazy(() => SortOrderSchema).optional(),
+  displayCount: z.lazy(() => SortOrderSchema).optional(),
+  author: z.lazy(() => SortOrderSchema).optional(),
   book: z.lazy(() => BookOrderByWithRelationInputSchema).optional(),
   shelf: z.lazy(() => ShelfOrderByWithRelationInputSchema).optional(),
 }).strict();
@@ -1703,9 +1711,13 @@ export const BookOnShelfOrderByWithAggregationInputSchema: z.ZodType<PrismaClien
   bookId: z.lazy(() => SortOrderSchema).optional(),
   shelfId: z.lazy(() => SortOrderSchema).optional(),
   orientation: z.lazy(() => SortOrderSchema).optional(),
+  displayCount: z.lazy(() => SortOrderSchema).optional(),
+  author: z.lazy(() => SortOrderSchema).optional(),
   _count: z.lazy(() => BookOnShelfCountOrderByAggregateInputSchema).optional(),
+  _avg: z.lazy(() => BookOnShelfAvgOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => BookOnShelfMaxOrderByAggregateInputSchema).optional(),
   _min: z.lazy(() => BookOnShelfMinOrderByAggregateInputSchema).optional(),
+  _sum: z.lazy(() => BookOnShelfSumOrderByAggregateInputSchema).optional(),
 }).strict();
 
 export const BookOnShelfScalarWhereWithAggregatesInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfScalarWhereWithAggregatesInput> = z.object({
@@ -1716,6 +1728,8 @@ export const BookOnShelfScalarWhereWithAggregatesInputSchema: z.ZodType<PrismaCl
   bookId: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
   shelfId: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
   orientation: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
+  displayCount: z.union([z.lazy(() => IntWithAggregatesFilterSchema), z.number()]).optional(),
+  author: z.union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()]).optional(),
 }).strict();
 
 export const ExampleWhereInputSchema: z.ZodType<PrismaClient.Prisma.ExampleWhereInput> = z.object({
@@ -2908,6 +2922,8 @@ export const ShelfUncheckedUpdateManyInputSchema: z.ZodType<PrismaClient.Prisma.
 export const BookOnShelfCreateInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfCreateInput> = z.object({
   id: z.string().cuid().optional(),
   orientation: z.string(),
+  displayCount: z.number().optional(),
+  author: z.string().optional(),
   book: z.lazy(() => BookCreateNestedOneWithoutBooksOnShelvesInputSchema),
   shelf: z.lazy(() => ShelfCreateNestedOneWithoutBooksOnShelfInputSchema),
 }).strict();
@@ -2917,11 +2933,15 @@ export const BookOnShelfUncheckedCreateInputSchema: z.ZodType<PrismaClient.Prism
   bookId: z.string(),
   shelfId: z.string(),
   orientation: z.string(),
+  displayCount: z.number().optional(),
+  author: z.string().optional(),
 }).strict();
 
 export const BookOnShelfUpdateInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfUpdateInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   orientation: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  displayCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  author: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   book: z.lazy(() => BookUpdateOneRequiredWithoutBooksOnShelvesNestedInputSchema).optional(),
   shelf: z.lazy(() => ShelfUpdateOneRequiredWithoutBooksOnShelfNestedInputSchema).optional(),
 }).strict();
@@ -2931,6 +2951,8 @@ export const BookOnShelfUncheckedUpdateInputSchema: z.ZodType<PrismaClient.Prism
   bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   shelfId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   orientation: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  displayCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  author: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const BookOnShelfCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfCreateManyInput> = z.object({
@@ -2938,11 +2960,15 @@ export const BookOnShelfCreateManyInputSchema: z.ZodType<PrismaClient.Prisma.Boo
   bookId: z.string(),
   shelfId: z.string(),
   orientation: z.string(),
+  displayCount: z.number().optional(),
+  author: z.string().optional(),
 }).strict();
 
 export const BookOnShelfUpdateManyMutationInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfUpdateManyMutationInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   orientation: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  displayCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  author: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const BookOnShelfUncheckedUpdateManyInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfUncheckedUpdateManyInput> = z.object({
@@ -2950,6 +2976,8 @@ export const BookOnShelfUncheckedUpdateManyInputSchema: z.ZodType<PrismaClient.P
   bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   shelfId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   orientation: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  displayCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  author: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const ExampleCreateInputSchema: z.ZodType<PrismaClient.Prisma.ExampleCreateInput> = z.object({
@@ -4085,6 +4113,12 @@ export const BookOnShelfCountOrderByAggregateInputSchema: z.ZodType<PrismaClient
   bookId: z.lazy(() => SortOrderSchema).optional(),
   shelfId: z.lazy(() => SortOrderSchema).optional(),
   orientation: z.lazy(() => SortOrderSchema).optional(),
+  displayCount: z.lazy(() => SortOrderSchema).optional(),
+  author: z.lazy(() => SortOrderSchema).optional(),
+}).strict();
+
+export const BookOnShelfAvgOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfAvgOrderByAggregateInput> = z.object({
+  displayCount: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
 export const BookOnShelfMaxOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfMaxOrderByAggregateInput> = z.object({
@@ -4092,6 +4126,8 @@ export const BookOnShelfMaxOrderByAggregateInputSchema: z.ZodType<PrismaClient.P
   bookId: z.lazy(() => SortOrderSchema).optional(),
   shelfId: z.lazy(() => SortOrderSchema).optional(),
   orientation: z.lazy(() => SortOrderSchema).optional(),
+  displayCount: z.lazy(() => SortOrderSchema).optional(),
+  author: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
 export const BookOnShelfMinOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfMinOrderByAggregateInput> = z.object({
@@ -4099,6 +4135,12 @@ export const BookOnShelfMinOrderByAggregateInputSchema: z.ZodType<PrismaClient.P
   bookId: z.lazy(() => SortOrderSchema).optional(),
   shelfId: z.lazy(() => SortOrderSchema).optional(),
   orientation: z.lazy(() => SortOrderSchema).optional(),
+  displayCount: z.lazy(() => SortOrderSchema).optional(),
+  author: z.lazy(() => SortOrderSchema).optional(),
+}).strict();
+
+export const BookOnShelfSumOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfSumOrderByAggregateInput> = z.object({
+  displayCount: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
 export const ExampleCountOrderByAggregateInputSchema: z.ZodType<PrismaClient.Prisma.ExampleCountOrderByAggregateInput> = z.object({
@@ -6388,6 +6430,8 @@ export const BookCreateOrConnectWithoutRelatedBooksInputSchema: z.ZodType<Prisma
 export const BookOnShelfCreateWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfCreateWithoutBookInput> = z.object({
   id: z.string().optional(),
   orientation: z.string(),
+  displayCount: z.number().optional(),
+  author: z.string().optional(),
   shelf: z.lazy(() => ShelfCreateNestedOneWithoutBooksOnShelfInputSchema),
 }).strict();
 
@@ -6395,6 +6439,8 @@ export const BookOnShelfUncheckedCreateWithoutBookInputSchema: z.ZodType<PrismaC
   id: z.string().optional(),
   shelfId: z.string(),
   orientation: z.string(),
+  displayCount: z.number().optional(),
+  author: z.string().optional(),
 }).strict();
 
 export const BookOnShelfCreateOrConnectWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfCreateOrConnectWithoutBookInput> = z.object({
@@ -6664,6 +6710,8 @@ export const BookOnShelfScalarWhereInputSchema: z.ZodType<PrismaClient.Prisma.Bo
   bookId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   shelfId: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
   orientation: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+  displayCount: z.union([z.lazy(() => IntFilterSchema), z.number()]).optional(),
+  author: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
 }).strict();
 
 export const BookCreateWithoutGenreInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateWithoutGenreInput> = z.object({
@@ -8592,6 +8640,8 @@ export const CaseCreateOrConnectWithoutShelvesInputSchema: z.ZodType<PrismaClien
 export const BookOnShelfCreateWithoutShelfInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfCreateWithoutShelfInput> = z.object({
   id: z.string().optional(),
   orientation: z.string(),
+  displayCount: z.number().optional(),
+  author: z.string().optional(),
   book: z.lazy(() => BookCreateNestedOneWithoutBooksOnShelvesInputSchema),
 }).strict();
 
@@ -8599,6 +8649,8 @@ export const BookOnShelfUncheckedCreateWithoutShelfInputSchema: z.ZodType<Prisma
   id: z.string().optional(),
   bookId: z.string(),
   orientation: z.string(),
+  displayCount: z.number().optional(),
+  author: z.string().optional(),
 }).strict();
 
 export const BookOnShelfCreateOrConnectWithoutShelfInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfCreateOrConnectWithoutShelfInput> = z.object({
@@ -9383,6 +9435,8 @@ export const BookOnShelfCreateManyBookInputSchema: z.ZodType<PrismaClient.Prisma
   id: z.string().cuid().optional(),
   shelfId: z.string(),
   orientation: z.string(),
+  displayCount: z.number().optional(),
+  author: z.string().optional(),
 }).strict();
 
 export const AuthorUpdateWithoutBooksInputSchema: z.ZodType<PrismaClient.Prisma.AuthorUpdateWithoutBooksInput> = z.object({
@@ -9662,6 +9716,8 @@ export const BookUncheckedUpdateManyWithoutSymmetricRelatedBooksInputSchema: z.Z
 export const BookOnShelfUpdateWithoutBookInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfUpdateWithoutBookInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   orientation: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  displayCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  author: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   shelf: z.lazy(() => ShelfUpdateOneRequiredWithoutBooksOnShelfNestedInputSchema).optional(),
 }).strict();
 
@@ -9669,12 +9725,16 @@ export const BookOnShelfUncheckedUpdateWithoutBookInputSchema: z.ZodType<PrismaC
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   shelfId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   orientation: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  displayCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  author: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const BookOnShelfUncheckedUpdateManyWithoutBooksOnShelvesInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfUncheckedUpdateManyWithoutBooksOnShelvesInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   shelfId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   orientation: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  displayCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  author: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const BookCreateManyGenreInputSchema: z.ZodType<PrismaClient.Prisma.BookCreateManyGenreInput> = z.object({
@@ -10019,11 +10079,15 @@ export const BookOnShelfCreateManyShelfInputSchema: z.ZodType<PrismaClient.Prism
   id: z.string().cuid().optional(),
   bookId: z.string(),
   orientation: z.string(),
+  displayCount: z.number().optional(),
+  author: z.string().optional(),
 }).strict();
 
 export const BookOnShelfUpdateWithoutShelfInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfUpdateWithoutShelfInput> = z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   orientation: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  displayCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  author: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   book: z.lazy(() => BookUpdateOneRequiredWithoutBooksOnShelvesNestedInputSchema).optional(),
 }).strict();
 
@@ -10031,12 +10095,16 @@ export const BookOnShelfUncheckedUpdateWithoutShelfInputSchema: z.ZodType<Prisma
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   orientation: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  displayCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  author: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const BookOnShelfUncheckedUpdateManyWithoutBooksOnShelfInputSchema: z.ZodType<PrismaClient.Prisma.BookOnShelfUncheckedUpdateManyWithoutBooksOnShelfInput> = z.object({
   id: z.union([z.string().cuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   bookId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
   orientation: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
+  displayCount: z.union([z.number(), z.lazy(() => IntFieldUpdateOperationsInputSchema)]).optional(),
+  author: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)]).optional(),
 }).strict();
 
 export const AccountCreateManyUserInputSchema: z.ZodType<PrismaClient.Prisma.AccountCreateManyUserInput> = z.object({

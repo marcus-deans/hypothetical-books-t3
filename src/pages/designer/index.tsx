@@ -119,7 +119,6 @@ export default function index() {
       ),
     },
   ];
-
   const rows = casesWithShelves.map((caseWithShelves) => {
     return {
       id: caseWithShelves.id,
