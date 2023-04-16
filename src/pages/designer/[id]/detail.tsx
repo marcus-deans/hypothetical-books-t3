@@ -18,23 +18,25 @@ import { GridToolbar } from "@mui/x-data-grid";
 import Head from "next/head";
 import Link from "next/link";
 import { Button } from "@mui/material";
-import { CustomUser } from "../../../schema/user.schema";
+import type { CustomUser } from "../../../schema/user.schema";
 import { useSession } from "next-auth/react";
 import jsPDF from "jspdf";
-import autoTable, { RowInput } from "jspdf-autotable";
+import type { RowInput } from "jspdf-autotable";
+import autoTable from "jspdf-autotable";
+
 export default function CaseDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
   const casesDetailsQuery = api.cases.getById.useQuery({ id });
+  const { data: session, status } = useSession();
 
   // if (router.isFallback) {
   if (casesDetailsQuery.status !== "success") {
     return <div className="text-white">Loading...</div>;
   }
   const addMutation = api.shelves.add.useMutation();
-  const { data: session, status } = useSession();
-  const user = session?.user as CustomUser; 
+  const user = session?.user as CustomUser;
   const { data } = casesDetailsQuery;
   //Populate default shelves
   // if(data.shelves.length !== data.shelfCount){
@@ -48,9 +50,28 @@ export default function CaseDetail(
   //   });
   // }
   const caseWidth = data.width;
-  const displayedBooks = data.shelves.map((shelf:any) => shelf.booksOnShelf).flat()
-  console.log(displayedBooks)
-  const filteredBooks = displayedBooks.map(({ book: {id, title, isbn_13, isbn_10, }, displayCount, author}) => ({id, title, isbn_13, isbn_10, displayCount, author}));
+  const displayedBooks = data.shelves.map((shelf) => shelf.booksOnShelf).flat();
+  console.log(displayedBooks);
+  const filteredBooks = displayedBooks.map(
+    ({ book: { id, title, isbn_13, isbn_10 }, displayCount, author }) => ({
+      id,
+      title,
+      isbn_13,
+      isbn_10,
+      displayCount,
+      author,
+    })
+  );
+  // const filteredBooks = displayedBooks.map((displayBook) => {
+  //   return {
+  //     displayBook.book.id,
+  //     displayBook.book.title,
+  //     displayBook.book.isbn_13,
+  //     displayBook.book.isbn_10,
+  //     displayBook.displayCount,
+  //     displayBook.author
+  //   };
+  // });
   const columns: GridColDef[] = [
     {
       field: "shelf",
@@ -141,7 +162,7 @@ export default function CaseDetail(
         title: bookOnShelf.book.title,
       };
     });
-    const isValid  = (shelf.spaceUsed > caseWidth) ? "No" : "Yes";
+    const isValid = shelf.spaceUsed > caseWidth ? "No" : "Yes";
     return {
       id: shelf.id,
       caseId: shelf.caseId,
@@ -195,15 +216,17 @@ export default function CaseDetail(
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
           >
-            Save As 
+            Save As
           </Button>
         </Link>
-          <button
-            className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
-            onClick = {()=>{generatePlanogram(data.name, data.shelves, filteredBooks)}}
-          >
-            Generate Planogram
-          </button>
+        <button
+          className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+          onClick={() => {
+            generatePlanogram(data.name, data.shelves, filteredBooks);
+          }}
+        >
+          Generate Planogram
+        </button>
       </div>
       <div className="mt-5 h-3/4 overflow-hidden rounded-t-lg border border-gray-200 bg-white shadow-md">
         <Box
@@ -240,10 +263,8 @@ export default function CaseDetail(
     </>
   );
 }
-import type { bookDetail } from "../../../schema/books.schema";
-import { type } from "os";
 
-function generatePlanogram(name:string, shelves:any, displayedBooks:any) {
+function generatePlanogram(name: string, shelves: any, displayedBooks: any) {
   const doc = new jsPDF();
 
   autoTable(doc, {
@@ -305,26 +326,17 @@ function generatePlanogram(name:string, shelves:any, displayedBooks:any) {
   //Inputs in array format
   const tableAllBooks: RowInput[] = [];
   displayedBooks.forEach((book: any) => {
-
     const insideInput: RowInput = [];
     insideInput.push(book.title);
     insideInput.push(book.author);
     insideInput.push(book.isbn_10);
     insideInput.push(book.isbn_13);
     insideInput.push(book.displayCount);
-    tableAllBooks.push(insideInput)
+    tableAllBooks.push(insideInput);
   });
 
   autoTable(doc, {
-    head: [
-      [
-        "Title",
-        "Author",
-        "ISBN 10",
-        "ISBN 13",
-        "Display Count",
-      ],
-    ],
+    head: [["Title", "Author", "ISBN 10", "ISBN 13", "Display Count"]],
     body: tableAllBooks,
     theme: "striped",
     headStyles: {
@@ -343,7 +355,6 @@ function generatePlanogram(name:string, shelves:any, displayedBooks:any) {
             textColor: "#ffffff",
           },
         },
-      
       ],
     ],
     theme: "plain",
@@ -352,16 +363,10 @@ function generatePlanogram(name:string, shelves:any, displayedBooks:any) {
     },
   });
 
-  
-
   //const bookIdToQuantity = new Map<book, number>();
-  //const bookIdToRevenue = new Map<book, number>();  
+  //const bookIdToRevenue = new Map<book, number>();
   return doc.output("dataurlnewwindow");
 }
-
-
-
-
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const casesList = await prisma.case.findMany({

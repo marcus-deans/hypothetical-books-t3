@@ -3,9 +3,7 @@ import type {
   GridPreProcessEditCellProps,
   GridRowModel,
 } from "@mui/x-data-grid";
-import type { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
-import type { getServerSideProps } from "../report";
 import StripedDataGrid from "../../components/table-components/StripedDataGrid";
 import Box from "@mui/material/Box";
 import { api } from "../../utils/api";
@@ -17,10 +15,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 as uuidv4 } from "uuid";
 
-
-export default function Calculator(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
-) {
+export default function Calculator() {
   const columns: GridColDef[] = [
     {
       field: "title",
@@ -137,14 +132,18 @@ export default function Calculator(
         );
         const spaceVal = newSpace.toFixed(2).toString();
         newRow.shelfSpace = newRow.usedDefault ? spaceVal + "*" : spaceVal;
-        let thickness = newRow.thickness;
-        if(thickness == 0){
+        /* eslint-disable */
+        let thickness = newRow.thickness as number;
+        /* eslint-enable */
+        if (thickness == 0) {
           thickness = 0.8;
         }
         //Case of old count now violating new cover out config
-        if(newRow.displayStyle == "Cover Out" && thickness * newRow.displayCount > 8 ){
-          newRow.displayCount = Math.floor(8/thickness)
-
+        if (
+          newRow.displayStyle == "Cover Out" &&
+          thickness * newRow.displayCount > 8
+        ) {
+          newRow.displayCount = Math.floor(8 / thickness);
         }
         return newRow as BookCalcDetails;
         //Recalculate the shelf space

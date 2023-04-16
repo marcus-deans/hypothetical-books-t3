@@ -10,23 +10,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import TextField from "@mui/material/TextField";
 import { api } from "../../../utils/api";
-import { createInnerTRPCContext } from "../../../server/api/trpc";
-import { appRouter } from "../../../server/api/root";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import type {
-  GetServerSidePropsContext,
-  InferGetServerSidePropsType,
-} from "next";
-import superjson from "superjson";
 import type { purchaseOrders } from "../../../schema/purchases.schema";
 import type { salesReconciliation } from "../../../schema/sales.schema";
-import type { book } from "../../../schema/books.schema";
 import type { buyBackOrders } from "../../../schema/buybacks.schema";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function Planogram(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
-) {
+export default function Planogram() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [startDateString, setStartDate] = useState(new Date());
   const [endDateString, setEndDate] = useState(new Date());
@@ -78,6 +66,7 @@ export default function Planogram(
       setIsSubmitting(false);
     } else {
       setIsSubmitting(true);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       generateReport(
         startDate,
         endDate,
@@ -97,7 +86,6 @@ export default function Planogram(
       <div className="pt-6">
         <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
-            
             <div className="relative space-y-3">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
               <div className="col-span-4">
@@ -144,5 +132,3 @@ export default function Planogram(
     </>
   );
 }
-
-
