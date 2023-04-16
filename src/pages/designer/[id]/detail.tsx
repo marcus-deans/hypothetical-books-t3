@@ -265,6 +265,10 @@ export default function CaseDetail(
   );
 }
 
+import type { bookDetail } from "../../../schema/books.schema";
+import { type } from "os";
+import { stringList } from "aws-sdk/clients/datapipeline";
+
 function generatePlanogram(name: string, shelves: any, displayedBooks: any) {
   const doc = new jsPDF();
 
@@ -324,10 +328,48 @@ function generatePlanogram(name: string, shelves: any, displayedBooks: any) {
     theme: "plain",
   });
 
+
+  // Create a new object to store the concatenated entries
+  const concatenatedBooks: {[key: string]: ConcatenatedBook} = {};
+
+interface displayedBook{
+  title: string;
+  author: string;
+  isbn_10: string;
+  isbn_13: string;
+  displayCount: number;
+}
+interface ConcatenatedBook {
+  title: string;
+  author: string;
+  isbn_10: string;
+  isbn_13: string;
+  displayCount: number;
+}
+
+// Loop through each book in the array
+
+displayedBooks.forEach((book: displayedBook) => {
+  const concatenatedBook = concatenatedBooks[book.title];
+  if (concatenatedBook) {
+    concatenatedBook.displayCount += book.displayCount;
+  } else {
+    concatenatedBooks[book.title] = { ...book };
+  }
+});
+
+const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
+
+
+
+
   //Inputs in array format
   const tableAllBooks: RowInput[] = [];
-  displayedBooks.forEach((book: any) => {
+  // displayedBooks.forEach((book: any) => {
+  
+  tableVals.forEach((book: any) => {
     const insideInput: RowInput = [];
+    //Just sum display values for books of the same name
     insideInput.push(book.title);
     insideInput.push(book.author);
     insideInput.push(book.isbn_10);
@@ -352,18 +394,54 @@ function generatePlanogram(name: string, shelves: any, displayedBooks: any) {
           content: "Display Layout",
           styles: {
             halign: "left",
-            fontSize: 20,
-            textColor: "#ffffff",
+            fontSize: 14,
           },
         },
       ],
     ],
     theme: "plain",
-    styles: {
-      fillColor: "#3366ff",
-    },
   });
+  //Implement each shelf's display
+  shelves.forEach((shelf: any) =>{
+    autoTable(doc, {
+      body: [
+        [
+          {
+            content: "Shelf "+ String(shelves.indexOf(shelf)+1),
+            styles: {
+              halign: "left",
+              fontSize: 20,
+              textColor: "#ffffff",
+            },
+          },
+        
+        ],
+      ],
+      theme: "plain",
+      styles: {
+        fillColor: "#3366ff",
+      },
+    });
+    autoTable(doc, {
+      head: [
+        [
+          "Title",
+          "Author",
+          "ISBN 10",
+          "ISBN 13",
+          "Display Count",
+        ],
+      ],
+      body: tableAllBooks,
+      theme: "striped",
+      headStyles: {
+        fillColor: "#343a40",
+      },
+    });
+  
 
+  })
+  
   //const bookIdToQuantity = new Map<book, number>();
   //const bookIdToRevenue = new Map<book, number>();
   return doc.output("dataurlnewwindow");
