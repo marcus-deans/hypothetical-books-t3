@@ -242,6 +242,7 @@ export default function CaseDetail(
 }
 import type { bookDetail } from "../../../schema/books.schema";
 import { type } from "os";
+import { stringList } from "aws-sdk/clients/datapipeline";
 
 function generatePlanogram(name:string, shelves:any, displayedBooks:any) {
   const doc = new jsPDF();
@@ -302,11 +303,49 @@ function generatePlanogram(name:string, shelves:any, displayedBooks:any) {
     theme: "plain",
   });
 
+
+  // Create a new object to store the concatenated entries
+  const concatenatedBooks: {[key: string]: ConcatenatedBook} = {};
+
+interface displayedBook{
+  title: string;
+  author: string;
+  isbn_10: string;
+  isbn_13: string;
+  displayCount: number;
+}
+interface ConcatenatedBook {
+  title: string;
+  author: string;
+  isbn_10: string;
+  isbn_13: string;
+  displayCount: number;
+}
+
+// Loop through each book in the array
+
+displayedBooks.forEach((book: displayedBook) => {
+  const concatenatedBook = concatenatedBooks[book.title];
+  if (concatenatedBook) {
+    concatenatedBook.displayCount += book.displayCount;
+  } else {
+    concatenatedBooks[book.title] = { ...book };
+  }
+});
+
+const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
+
+
+
+
   //Inputs in array format
   const tableAllBooks: RowInput[] = [];
-  displayedBooks.forEach((book: any) => {
+  
+  tableVals.forEach((book: any) => {
 
     const insideInput: RowInput = [];
+    //Just sum display values for books of the same name
+      
     insideInput.push(book.title);
     insideInput.push(book.author);
     insideInput.push(book.isbn_10);
