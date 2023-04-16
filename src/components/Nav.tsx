@@ -23,9 +23,9 @@ function Nav() {
     setOpenMenu(null)
   }
   const nonActive =
-    "block py-2 pl-3 pr-4 text-blue bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-white dark:bg-blue-600 md:dark:bg-transparent hover:blue";
+    "text-sm font-medium inline-block py-2 pl-3 pr-4 text-blue bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-white dark:bg-blue-600 md:dark:bg-transparent hover:blue";
   const active =
-    "block py-2 pl-3 pr-4 text-blue bg-blue-700 rounded md:bg-transparent md:text-blue-400 md:p-0 md:dark:text-blue dark:bg-blue-600 md:dark:bg-transparent ";
+    "text-sm font-medium inline-block py-2 pl-3 pr-4 text-blue bg-blue-700 rounded md:bg-transparent md:text-blue-400 md:p-0 md:dark:text-blue dark:bg-blue-600 md:dark:bg-transparent ";
   return (
     <nav className="border-gray-200 bg-white px-2 dark:border-gray-700 dark:bg-gray-900">
       <div className="flex justify-between">
@@ -61,7 +61,7 @@ function Nav() {
                     onClose={handleClose}
                     MenuListProps={{
                       'aria-labelledby': 'book-button',
-                      'className': "border-gray-700 bg-gray-700 px-8 dark:border-gray-700 dark:bg-gray-700",
+                      'className': "text-sm font-medium border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-700",
                     }}
                   >
                     <MenuItem onClick={handleClose}><Link
@@ -109,7 +109,7 @@ function Nav() {
                     onClose={handleClose}
                     MenuListProps={{
                       'aria-labelledby': 'operations-button',
-                      'className': "border-gray-700 bg-gray-700 px-8 dark:border-gray-700 dark:bg-gray-700",
+                      'className': "text-sm font-medium border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-700",
                     }}
                   >
                     <MenuItem onClick={handleClose}><Link
@@ -168,7 +168,7 @@ function Nav() {
                     onClose={handleClose}
                     MenuListProps={{
                       'aria-labelledby': 'tools-button',
-                      'className': "border-gray-700 bg-gray-700 px-8 dark:border-gray-700 dark:bg-gray-700",
+                      'className': "text-sm font-medium border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-700",
                     }}
                   >
                     <MenuItem onClick={handleClose}><Link
@@ -233,7 +233,7 @@ function Nav() {
                     onClose={handleClose}
                     MenuListProps={{
                       'aria-labelledby': 'user-button',
-                      'className': "border-gray-700 bg-gray-700 px-8 dark:border-gray-700 dark:bg-gray-700",
+                      'className': "text-sm font-medium border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-700",
                     }}
                   >
                     {user.role == "admin" ? <MenuItem onClick={handleClose}><Link
