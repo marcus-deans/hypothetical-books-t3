@@ -118,6 +118,14 @@ export default function AddShelf(
       valueOptions: ["Spine Out", "Cover Out"],
     },
     {
+      field: "position",
+      headerName: "Position",
+      headerClassName: "header-theme",
+      flex: 1,
+      editable: true,
+
+    },
+    {
       field: "shelfSpace",
       headerName: "Shelf Space",
       headerClassName: "header-theme",
@@ -138,6 +146,7 @@ export default function AddShelf(
     shelfSpace: string;
     usedDefault: boolean;
     author: string;
+    position: number;
   }
 
   const [bookValue, setBookValue] = useState<{
@@ -150,7 +159,6 @@ export default function AddShelf(
 
   const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({ cursor: null, limit: 100 });
   const books = booksQuery?.data?.items ?? [];
-  console.log(books)
   const addMutation = api.shelves.add.useMutation();
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
@@ -181,6 +189,16 @@ export default function AddShelf(
           newRow.displayCount = Math.floor(8/thickness)
 
         }
+        if(newRow.position > displayedBooks.length){
+          return oldRow as BookCalcDetails
+        }
+        displayedBooks.forEach((book)=>{
+          if(book.position==newRow.position){
+            book.position = oldRow.position
+            
+            }
+        })
+        
         return newRow as BookCalcDetails;
         //Recalculate the shelf space
       } else {
@@ -188,7 +206,11 @@ export default function AddShelf(
         return displayedBook;
       }
     });
-    setDisplayedBooks(newDisplayedBooks);
+    let newArray:BookCalcDetails[] = [];
+    newDisplayedBooks.forEach(function(element) {
+          newArray[element.position-1] = element;
+        });
+      setDisplayedBooks(newArray)
     const newSpace =
       totalSpaceSum -
       parseSpace(String(oldRow.shelfSpace)) +
@@ -275,7 +297,8 @@ export default function AddShelf(
           displayStyle: "Spine Out",
           shelfSpace: "",
           usedDefault: false,
-          author: specificBook.authors[0]?.name??""
+          author: specificBook.authors[0]?.name??"",
+          position: 0,
         };
         displayBook.shelfSpace = calcShelfSpace(
           displayBook.width,
@@ -292,6 +315,7 @@ export default function AddShelf(
           displayBook.usedDefault = true;
         }
         setDisplayedBooks((prev) => [...prev, displayBook]);
+        displayBook.position = displayedBooks.length+1;
         setTotalSpaceSum(totalSpaceSum + parseFloat(displayBook.shelfSpace));
         const spaceVal = Number.parseFloat(displayBook.shelfSpace)
           .toFixed(2)
@@ -336,12 +360,12 @@ export default function AddShelf(
   return (
     <>
       <Head>
-        <title>Shelf Calculator</title>
+        <title>Shelf Designer</title>
       </Head>
       <div className="pt-6"></div>
       <div className="rounded-lg bg-white pt-3">
         <div className="mb-2 block text-lg font-bold text-gray-700">
-          Shelf Calculator
+          Shelf Designer (Positions Numbered from Left to Right)
         </div>
         <Autocomplete
           options={bookOptions}
