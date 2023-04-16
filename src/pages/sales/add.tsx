@@ -11,6 +11,8 @@ import dayjs from "dayjs";
 import Head from "next/head";
 import type { CustomUser } from "../../schema/user.schema";
 import { useSession } from "next-auth/react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddSalesReconciliation() {
   const { data: session, status } = useSession();
@@ -40,7 +42,8 @@ export default function AddSalesReconciliation() {
         void router.push("/sales");
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };
@@ -79,6 +82,7 @@ export default function AddSalesReconciliation() {
                 {isSubmitting ? "Submitting..." : "Submit"}
               </button>
             </div>
+            <ToastContainer></ToastContainer>
           </div>
         </form>
       </div>

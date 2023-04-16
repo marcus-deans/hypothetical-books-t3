@@ -39,24 +39,21 @@ export default function DeleteUser(
   const { data } = userDetailsQuery;
 
   const handleDelete = () => {
-    if (userDetailsQuery.data.name == "admin") {
-      toast.error("This account cannot be deleted because it is named admin");
-      return;
-    } else if (userDetailsQuery.data.name == user?.name) {
-      toast.error("This account cannot be deleted because it your own account");
-      return;
-    } else {
-      setIsDeleting(true);
-      console.log("delete proceeded");
-      try {
-        const deleteResult = deleteMutation.mutate({ id: id });
-        setTimeout(() => {
-          void router.push("/users");
-        }, 500);
-      } catch (error) {
-        console.log(error);
-        setIsDeleting(false);
+    setIsDeleting(true);
+    try {
+      if (userDetailsQuery.data.name == "admin") {
+        throw new Error("This account cannot be deleted because it is named admin");
+      } else if (userDetailsQuery.data.name == user?.name) {
+        throw new Error("This account cannot be deleted because it your own account");
       }
+      const deleteResult = deleteMutation.mutate({ id: id });
+      setTimeout(() => {
+        void router.push("/users");
+      }, 500);
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
+      setIsDeleting(false);
     }
   };
 
