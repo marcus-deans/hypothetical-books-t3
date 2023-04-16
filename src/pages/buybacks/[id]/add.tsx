@@ -73,8 +73,6 @@ export default function AddBuyBackLine(
         unitBuybackPrice <= 0 ||
         quantity <= 0
       ) {
-        toast.error("Unit Buyback Price and Quantity must be positive numbers");
-
         throw new Error(
           "Unit Buyback Price and Quantity must be positive numbers"
         );
@@ -89,7 +87,8 @@ export default function AddBuyBackLine(
         void router.push(`/buybacks/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };

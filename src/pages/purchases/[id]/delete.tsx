@@ -14,32 +14,38 @@ import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
 import DeletePane from "../../../components/DeletePane";
 import { longFormatter } from "../../../utils/formatters";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function DeletePurchaseOrder(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const purchaseOrderDeleteQuery = api.purchaseOrders.getById.useQuery({
+  const purchaseOrderQuery = api.purchaseOrders.getByIdWithOverallMetrics.useQuery({
     id,
   });
   const deleteMutation = api.purchaseOrders.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   // if (router.isFallback) {
-  if (purchaseOrderDeleteQuery.status !== "success") {
+  if (purchaseOrderQuery.status !== "success") {
     return <div className="text-white">Loading...</div>;
   }
-  const { data } = purchaseOrderDeleteQuery;
+  const { data } = purchaseOrderQuery;
 
   const handleDelete = () => {
     setIsDeleting(true);
     try {
+      if(data.purchaseOrderWithOverallMetrics.purchaseLines.length != 0){
+        throw new Error("Purchase Order must have zero purchase lines to be deleted");
+      }
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
         void router.push("/purchases");
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsDeleting(false);
     }
   };
@@ -51,12 +57,13 @@ export default function DeletePurchaseOrder(
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DeletePane
-        itemIdentifier={longFormatter.format(data?.date) ?? id}
+        itemIdentifier={longFormatter.format(data?.purchaseOrderWithOverallMetrics.date) ?? id}
         itemName={"Purchase Order"}
         isDeleting={isDeleting}
         handleDelete={handleDelete}
         cancelUrl={`/purchases/${encodeURIComponent(id)}/detail`}
       />
+      <ToastContainer></ToastContainer>
     </div>
   );
 }
@@ -85,7 +92,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.purchaseOrders.getById.prefetch({ id });
+  await ssg.purchaseOrders.getByIdWithOverallMetrics.prefetch({ id });
 
   return {
     props: {

@@ -41,21 +41,19 @@ export default function DeleteGenre(
   )?.bookCount;
 
   const handleDelete = () => {
-    if (currGenreCount && currGenreCount > 0) {
-      toast.error("This genre has more than 0 books and can not be deleted.");
-      return;
-    } else {
-      setIsDeleting(true);
-      console.log("delete proceeded");
-      try {
-        const deleteResult = deleteMutation.mutate({ id: id });
-        setTimeout(() => {
-          void router.push("/genres");
-        }, 500);
-      } catch (error) {
-        console.log(error);
-        setIsDeleting(false);
-      }
+    setIsDeleting(true);
+    try {
+      if (currGenreCount && currGenreCount > 0) {
+        throw new Error("This genre has more than 0 books and can not be deleted.");
+      } 
+      const deleteResult = deleteMutation.mutate({ id: id });
+      setTimeout(() => {
+        void router.push("/genres");
+      }, 500);
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
+      setIsDeleting(false);
     }
   };
 

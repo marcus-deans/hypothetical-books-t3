@@ -197,14 +197,10 @@ export default function ImportPurchase(
     setIsSubmitting(true)
     try {
       if(importVerified.data === undefined){
-        toast.error("The data was never parsed through in the database. This Error should not be possible due to the submit button only being enabled if the data was parsed");
-        setIsSubmitting(false);
-        return;
+        throw new Error("The data was never parsed through in the database. This Error should not be possible due to the submit button only being enabled if the data was parsed");
       }
       if(!importVerified.data.verified){
-        toast.error("Data Not Verified. This Error should not be possible due to the submit button only being enabled if the data was verified");
-        setIsSubmitting(false);
-        return;
+        throw new Error("Data Not Verified. This Error should not be possible due to the submit button only being enabled if the data was verified");
       }
       const parsedDataTyped: CSVInputId[] = importVerified.data.parsedData;
       mutatedImport.mutate({
@@ -216,7 +212,8 @@ export default function ImportPurchase(
         void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };

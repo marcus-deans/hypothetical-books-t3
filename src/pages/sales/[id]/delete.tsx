@@ -14,12 +14,14 @@ import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
 import DeletePane from "../../../components/DeletePane";
 import { longFormatter } from "../../../utils/formatters";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function DeleteSalesReconciliation(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
-  const salesDetailsQuery = api.salesReconciliations.getById.useQuery({ id });
+  const salesDetailsQuery = api.salesReconciliations.getByIdWithSalesLineIds.useQuery({ id });
   const deleteMutation = api.salesReconciliations.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -32,12 +34,16 @@ export default function DeleteSalesReconciliation(
   const handleDelete = () => {
     setIsDeleting(true);
     try {
+      if(data.salesLines.length != 0){
+        throw new Error("Purchase Order must have zero purchase lines to be deleted");
+      }
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
         void router.push("/sales");
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsDeleting(false);
     }
   };
@@ -55,6 +61,7 @@ export default function DeleteSalesReconciliation(
         handleDelete={handleDelete}
         cancelUrl={`/sales/${encodeURIComponent(id)}/detail`}
       />
+      <ToastContainer></ToastContainer>
     </div>
   );
 }
@@ -85,7 +92,7 @@ export async function getStaticProps(
   });
   const id = context.params?.id as string;
 
-  await ssg.salesReconciliations.getById.prefetch({ id });
+  await ssg.salesReconciliations.getByIdWithSalesLineIds.prefetch({ id });
 
   return {
     props: {

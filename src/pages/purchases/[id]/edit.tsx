@@ -24,8 +24,10 @@ import type {
 } from "next";
 import { prisma } from "../../../server/db";
 import dayjs from "dayjs";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-export default function AddPurchaseOrder(
+export default function EditPurchaseOrder(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
@@ -77,7 +79,8 @@ export default function AddPurchaseOrder(
         void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };
@@ -156,6 +159,7 @@ export default function AddPurchaseOrder(
             </div>
           </div>
         </form>
+        <ToastContainer></ToastContainer>
       </div>
     </>
   );

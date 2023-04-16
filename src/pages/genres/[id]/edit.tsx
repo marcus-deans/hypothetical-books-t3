@@ -12,6 +12,9 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { prisma } from "../../../server/db";
 import Head from "next/head";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 export default function EditGenre(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -40,12 +43,16 @@ export default function EditGenre(
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
+      if(genreName === "" || genreName === "Genre Name"){
+        throw new Error("Please enter a genre name")
+      }
       const editResult = editMutation.mutate({ id: id, name: genreName });
       setTimeout(() => {
         void router.push("/genres");
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };
@@ -85,9 +92,11 @@ export default function EditGenre(
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </button>
+              
             </div>
           </div>
         </form>
+        <ToastContainer></ToastContainer>
       </div>
     </>
   );
