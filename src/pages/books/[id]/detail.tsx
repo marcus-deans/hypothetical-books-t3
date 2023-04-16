@@ -720,7 +720,7 @@ export default function BookDetail(
             width: "auto",
           }}
         >
-          <div className="flex-auto justify-center px-3 pt-3">
+          <div className="md:flex sm:flex-auto justify-center px-3 pt-3">
             <div className="shrink-0 px-4 pt-2 md:px-16">
               <Image
                 alt={"Book cover"}

@@ -6,6 +6,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
+import "react-toastify/dist/ReactToastify.css";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
@@ -29,9 +30,8 @@ import Head from "next/head";
 import { ToastContainer, toast } from "react-toastify";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
-import "react-toastify/dist/ReactToastify.css";
 
-export default function EditCase(
+export default function SaveAs(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { data: session, status } = useSession();
@@ -40,34 +40,44 @@ export default function EditCase(
   const { id } = props;
   const router = useRouter();
   const caseDetailsQuery = api.cases.getById.useQuery({ id: id });
+  const addMutation = api.cases.add.useMutation();
+  console.log(caseDetailsQuery.data);
+  const { data } = caseDetailsQuery;
 
   const editMutation = api.cases.edit.useMutation();
-  const currentName = caseDetailsQuery?.data?.name ?? "Case Name";
+  const currentName = caseDetailsQuery?.data?.name ?? "";
   const currentWidth = caseDetailsQuery?.data?.width ?? 0;
   const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
+  
+  const allcasesQuery = api.cases.getAll.useQuery({
+    cursor: null,
+    limit: 50,
+  });
+
+  const casesWithShelves = allcasesQuery?.data?.items ?? [];
+
   const [nameValue, setNameValue] = useState(currentName);
-  const [widthValue, setWidthValue] = useState(currentWidth);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      if (isNaN(widthValue)) {
-        toast.error("Width must be a number");
+      if(casesWithShelves.some(obj => obj.name === nameValue)){
+        toast.error("A case with this name already exists");
         setIsSubmitting(false);
         return;
       }
-      const editResult = editMutation.mutate({
-        caseId: id,
+      const shelvesById = data?.shelves.map((shelf) => shelf.id)
+      const addResult = addMutation.mutate({
         name: nameValue,
-        width: widthValue,
+        width: currentWidth,
         shelfCount: currentShelfCount,
-        shelvesIds: [],
+        shelvesIds: shelvesById ?? [],
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!,
       });
       setTimeout(() => {
-        void router.push(`/designer/`);
+        void router.push("/designer");
       }, 500);
     } catch (error) {
       console.log(error);
@@ -78,13 +88,13 @@ export default function EditCase(
   return (
     <>
       <Head>
-        <title>Edit Case</title>
+        <title>Save Case As</title>
       </Head>
       <div className="pt-6">
         <form className="inline-block rounded bg-white px-6 py-6">
           <div className="space-y-5">
             <div className="mb-2 block text-lg font-bold text-gray-700">
-              Edit Case Design
+              Duplicate Case As
             </div>
             <div className="relative space-y-3">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
@@ -94,31 +104,14 @@ export default function EditCase(
                     <TextField
                       id="nameValue"
                       name="nameValue"
-                      label="Case Name"
+                      label="New Case Name"
                       type="text"
                       sx={{ width: 250 }}
                       value={nameValue}
                       onChange={(
                         event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setNameValue(String(event.target.value))}
+                      ): void => setNameValue(event.target.value)}
                       required
-                    />
-                    <TextField
-                      id="width"
-                      label="Shelf Width"
-                      value={widthValue}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ): void => setWidthValue(Number(event.target.value))}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">inches</InputAdornment>
-                        ),
-                      }}
-                      required
-                      sx={{
-                        width: 150,
-                      }}
                     />
                   </div>
                 </div>
@@ -148,8 +141,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
     },
   });
 
-  const paths = cases.map((specCase) => ({
-    params: { id: specCase.id },
+  const paths = cases.map((caseA) => ({
+    params: { id: caseA.id },
   }));
 
   return { paths, fallback: true };
