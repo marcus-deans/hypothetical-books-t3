@@ -345,7 +345,6 @@ const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
 
     const insideInput: RowInput = [];
     //Just sum display values for books of the same name
-      
     insideInput.push(book.title);
     insideInput.push(book.author);
     insideInput.push(book.isbn_10);
@@ -378,19 +377,53 @@ const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
           content: "Display Layout",
           styles: {
             halign: "left",
-            fontSize: 20,
-            textColor: "#ffffff",
+            fontSize: 14,
           },
         },
-      
       ],
     ],
     theme: "plain",
-    styles: {
-      fillColor: "#3366ff",
-    },
   });
+  //Implement each shelf's display
+  shelves.forEach((shelf: any) =>{
+    autoTable(doc, {
+      body: [
+        [
+          {
+            content: "Shelf "+ String(shelves.indexOf(shelf)+1),
+            styles: {
+              halign: "left",
+              fontSize: 20,
+              textColor: "#ffffff",
+            },
+          },
+        
+        ],
+      ],
+      theme: "plain",
+      styles: {
+        fillColor: "#3366ff",
+      },
+    });
+    autoTable(doc, {
+      head: [
+        [
+          "Title",
+          "Author",
+          "ISBN 10",
+          "ISBN 13",
+          "Display Count",
+        ],
+      ],
+      body: tableAllBooks,
+      theme: "striped",
+      headStyles: {
+        fillColor: "#343a40",
+      },
+    });
+  
 
+  })
   
 
   //const bookIdToQuantity = new Map<book, number>();
