@@ -194,8 +194,8 @@ export const booksRouter = createTRPCRouter({
         where: { display: true },
         cursor: cursor
           ? {
-              id: cursor,
-            }
+            id: cursor,
+          }
           : undefined,
         orderBy: {
           title: "desc",
@@ -249,8 +249,8 @@ export const booksRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-              id: cursor,
-            }
+            id: cursor,
+          }
           : undefined,
         orderBy: {
           title: "asc",
@@ -318,8 +318,8 @@ export const booksRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-              id: cursor,
-            }
+            id: cursor,
+          }
           : undefined,
         orderBy: {
           title: "desc",
@@ -387,8 +387,8 @@ export const booksRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-              id: cursor,
-            }
+            id: cursor,
+          }
           : undefined,
         orderBy: {
           title: "desc",
@@ -411,46 +411,55 @@ export const booksRouter = createTRPCRouter({
       const internalIsbn13s = internalBooks.map((book) => book.isbn_13);
       const postObject = JSON.stringify({ isbns: internalIsbn13s });
       console.log(postObject);
-      const remoteBooks = await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isbns: internalIsbn13s }),
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          console.log("Obtained response from subsidiary");
-          const remoteBookResponse = BridgeResponseSchema.safeParse(response);
-          if (!remoteBookResponse.success) {
-            console.error(response);
-            console.error(`Could not obtain remote books`);
-            return;
-          } else {
-            console.log(remoteBookResponse.data);
-            return Object.values(remoteBookResponse.data).map((book) => {
-              try {
-                if (book === null) return null;
-                const remoteBookDetails = BridgeBookSchema.safeParse(book);
-                if (!remoteBookDetails.success) {
-                  console.error(`Could not parse remote book details`);
-                  return;
+      let allBooks;
+      try {
+        const remoteBooks = await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isbns: internalIsbn13s }),
+        })
+          .then((response) => response.json())
+          .then((response) => {
+            console.log("Obtained response from subsidiary");
+            const remoteBookResponse = BridgeResponseSchema.safeParse(response);
+            if (!remoteBookResponse.success) {
+              console.error(response);
+              console.error(`Could not obtain remote books`);
+              throw new Error(`Could not parse remote book response`);
+            } else {
+              return Object.values(remoteBookResponse.data).map((book) => {
+                try {
+                  if (book === null) return null;
+                  const remoteBookDetails = BridgeBookSchema.safeParse(book);
+                  if (!remoteBookDetails.success) {
+                    console.error(`Could not parse remote book details`);
+                    throw new Error(`Could not parse remote book details`);
+                  }
+                  return convertBridgeBookToBook(remoteBookDetails.data);
+                } catch (err) {
+                  throw new Error(`Could not parse remote book details`);
                 }
-                return convertBridgeBookToBook(remoteBookDetails.data);
-              } catch (err) {
-                return;
-              }
-            });
-          }
-        });
+              });
+            }
+          });
 
-      const allBooks = internalBooks.reverse().map((internalBook) => {
-        const remoteBook = remoteBooks?.find(
-          (remoteBook) => remoteBook?.isbn_13 === internalBook.isbn_13
-        );
-        return {
-          internalBook: internalBook,
-          remoteBook: remoteBook ?? null,
-        };
-      });
+        allBooks = internalBooks.reverse().map((internalBook) => {
+          const remoteBook = remoteBooks?.find(
+            (remoteBook) => remoteBook?.isbn_13 === internalBook.isbn_13
+          );
+          return {
+            internalBook: internalBook,
+            remoteBook: remoteBook ?? null,
+          };
+        });
+      } catch (err) {
+        allBooks = internalBooks.reverse().map((internalBook) => {
+          return {
+            internalBook: internalBook,
+            remoteBook: null,
+          };
+        });
+      }
 
       return {
         items: allBooks,

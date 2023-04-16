@@ -40,6 +40,7 @@ interface BookCalcDetails {
   displayStyle: string;
   shelfSpace: string;
   usedDefault: boolean;
+  author: string;
 }
 
 export default function AddShelf(
@@ -157,7 +158,10 @@ export default function AddShelf(
   const [bookInputValue, setBookInputValue] = useState("");
   const [totalSpaceSum, setTotalSpaceSum] = useState(0);
   const [fetchShelfDetails, setFetchShelfDetails] = useState(true);
-  const booksQuery = api.books.getAll.useQuery({ cursor: null, limit: 100 });
+  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({
+    cursor: null,
+    limit: 100,
+  });
   const shelfQuery = api.shelves.getById.useQuery(
     { id: shelfId },
     { enabled: fetchShelfDetails, staleTime: 1200000 }
@@ -194,6 +198,7 @@ export default function AddShelf(
             displayStyle: bookOnShelf.orientation,
             shelfSpace: "",
             usedDefault: false,
+            author: bookOnShelf.author,
           };
           displayBook.shelfSpace = calcShelfSpace(
             displayBook.width,
@@ -284,6 +289,8 @@ export default function AddShelf(
           return {
             bookId: book.internalId,
             orientation: book.displayStyle,
+            displayCount: book.displayCount,
+            author: book.author,
           };
         }),
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -316,6 +323,7 @@ export default function AddShelf(
           displayStyle: "Spine Out",
           shelfSpace: "",
           usedDefault: false,
+          author: specificBook.authors.join(", "),
         };
         displayBook.shelfSpace = calcShelfSpace(
           displayBook.width,
@@ -471,7 +479,10 @@ export async function getStaticProps(
   const shelfId = context.params?.shelfId as string;
 
   await ssg.shelves.getById.prefetch({ id: shelfId });
-  await ssg.books.getAll.prefetch({ limit: 100, cursor: null });
+  await ssg.books.getAllWithAuthorsAndGenre.prefetch({
+    limit: 100,
+    cursor: null,
+  });
 
   return {
     props: {

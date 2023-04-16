@@ -42,6 +42,7 @@ export default function BookDetail(
     setSubModalOpen(false);
     setChecked(false);
   };
+  const [subData, setSubData] = useState(data?.remoteBook !== null);
 
   const [checked, setChecked] = useState(false);
 
@@ -719,7 +720,7 @@ export default function BookDetail(
             width: "auto",
           }}
         >
-          <div className="flex-auto justify-center px-3 pt-3">
+          <div className="md:flex sm:flex-auto justify-center px-3 pt-3">
             <div className="shrink-0 px-4 pt-2 md:px-16">
               <Image
                 alt={"Book cover"}
@@ -1035,7 +1036,7 @@ export default function BookDetail(
                 />
               </Box>
             </Modal>
-            <div className="flex-auto flex-col space-y-3 text-left">
+            <div className="flex flex-col space-y-3 text-left">
               <div>
                 <div className="flex text-2xl font-bold">
                   {bookDetailRows.at(0)?.title}
@@ -1054,38 +1055,38 @@ export default function BookDetail(
                     <span className="text-lg font-normal">{`${
                       bookDetailRows.at(0)?.author
                     }`}</span>
-                    <div>
+                    {subData ? <div>
                       <button
                         className="underline"
                         onClick={handleSubModalOpen}
                       >
                         Subsidiary Details:
                       </button>
-                    </div>
+                    </div> : null}
                   </div>
                   <div>
                     Retail Price:{" "}
                     <span className="text-lg font-normal">{`${
                       bookDetailRows.at(0)?.retailPrice
                     }`}</span>
-                    <div>
+                    {subData ? <div>
                       Retail Price:{" "}
                       <span className="text-lg font-normal">{`${
                         bookSubsidiaryDetailRows.at(0)?.retailPrice
                       }`}</span>
-                    </div>
+                    </div> : null}
                   </div>
                   <div>
                     In Stock:{" "}
                     <span className="text-lg font-normal">{`${
                       bookDetailRows.at(0)?.inventoryCount
                     }`}</span>
-                    <div>
+                    {subData ? <div>
                       In Stock:{" "}
                       <span className="text-lg font-normal">{`${
                         bookSubsidiaryDetailRows.at(0)?.inventoryCount
                       }`}</span>
-                    </div>
+                    </div> : null}
                   </div>
                 </div>
               </div>

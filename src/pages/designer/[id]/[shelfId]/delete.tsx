@@ -23,7 +23,7 @@ export default function DeleteShelf(
   const shelfId = props.shelfId;
 
   const shelfDetailsQuery = api.shelves.getById.useQuery({
-    id,
+    id:shelfId,
   });
 
   const deleteMutation = api.shelves.delete.useMutation();
@@ -37,9 +37,12 @@ export default function DeleteShelf(
 
   const handleDelete = () => {
     setIsDeleting(true);
-    console.log("delete proceeded");
     try {
-      const deleteResult = deleteMutation.mutate({ id: shelfId });
+      const deleteResult = deleteMutation.mutate( {id: shelfId} );
+      console.log("deleted: ")
+      console.log(deleteResult)
+      console.log("id deleted: ")
+      console.log(shelfId)
       setTimeout(() => {
         void router.push(`/designer/${encodeURIComponent(id)}/detail`);
       }, 500);

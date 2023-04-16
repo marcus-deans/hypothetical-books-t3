@@ -17,21 +17,28 @@ import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import type { Book } from "@prisma/client";
 import { TextareaAutosize } from "@mui/material";
+import { placeholderUrl } from "../../utils/media";
+import SubsidiaryButton from "../../components/table-components/SubsidiaryButton";
 
 export interface BookDisplayDetails {
   id: number;
   imgUrl: string;
+  remoteImgUrl: string;
   title: string;
   authors: string;
   isbn_13: string;
   isbn_10: string;
   publicationYear: number;
   pageCount: number;
+  remotePageCount: number;
   publisher: string;
   genre: string;
   width: number;
+  remoteWidth: number;
   height: number;
+  remoteHeight: number;
   thickness: number;
+  remoteThickness: number;
   retailPrice: number;
   relatedBooks: (Book & { authors: { name: string }[] })[];
 }
@@ -42,6 +49,8 @@ export default function AddBook() {
   const [displayedBooks, setDisplayedBooks] = useState<BookDisplayDetails[]>(
     []
   );
+
+  const [subData, setSubData] = useState(false);
 
   const [parsedIsbns, setParsedIsbns] = useState<string[]>([]);
   const retrieveDetailsQuery = api.googleBooks.retrieveDetailsByISBNs.useQuery(
@@ -63,7 +72,10 @@ export default function AddBook() {
     const retrievedBooksData = retrieveDetailsQuery?.data ?? [];
     if (retrievedBooksData) {
       retrievedBooksData.map((retrievedBook, index) => {
-        const googleBooksDetails = retrievedBook.googleBooKDetails;
+        const googleBooksDetails = retrievedBook.googleBookDetails;
+        const retailPrice = retrievedBook.booksRunPrice;
+        const relatedBooks = retrievedBook.relatedBooks;
+        const remoteBookDetails = retrievedBook.remoteBookDetails;
         console.log("Adding retrieved book to rows");
         console.log(retrievedBook);
         let isbn_10 = null;
@@ -81,14 +93,10 @@ export default function AddBook() {
             isbn_10 = googleBooksDetails.industryIdentifiers[0].identifier;
           }
         }
-        const retailPrice = retrievedBook.booksRunPrice;
-        const relatedBooks = retrievedBook.relatedBooks;
-
-        console.log("Related books:");
-        console.log(relatedBooks);
 
         const displayBook = {
           imgUrl: googleBooksDetails.imageLinks?.thumbnail ?? "",
+          remoteImgUrl: remoteBookDetails?.imgUrl ?? placeholderUrl,
           id: index,
           title: googleBooksDetails.title,
           authors: googleBooksDetails.authors.join(", "),
@@ -100,11 +108,15 @@ export default function AddBook() {
           pageCount: isNaN(googleBooksDetails.pageCount)
             ? 0
             : googleBooksDetails.pageCount,
+          remotePageCount: remoteBookDetails?.pageCount ?? "Unknown",
           publisher: googleBooksDetails?.publisher ?? "Unknown",
           genre: googleBooksDetails?.categories?.join(", ") ?? "Unknown",
           width: 0,
+          remoteWidth: remoteBookDetails?.width ?? "Unknown",
           height: 0,
+          remoteHeight: remoteBookDetails?.height ?? "Unknown",
           thickness: 0,
+          remoteThickness: remoteBookDetails?.thickness ?? "Unknown",
           retailPrice: retailPrice,
           relatedBooks: relatedBooks,
         };
@@ -217,12 +229,35 @@ export default function AddBook() {
         let url = params.row.imgUrl as string;
         /* eslint-enable */
         if (!url || url === "") {
-          url =
-            "https://s3-us-west-2.amazonaws.com/s.cdpn.io/387928/book%20placeholder.png";
+          url = placeholderUrl;
         }
         return (
           <div className="text-blue-600">
             <Image alt={"Book cover"} src={url} width={40} height={60} />
+          </div>
+        );
+      },
+    },
+    {
+      field: "remoteImage",
+      headerName: "Remote Cover",
+      headerClassName: "header-theme",
+      width: 100,
+      align: "center",
+      renderCell: (params) => {
+        /* eslint-disable */
+        let url = params.row.remoteImgUrl as string;
+        /* eslint-enable */
+
+        return (
+          <div className="flex text-blue-600">
+            <Image alt={"Book cover"} src={url} width={40} height={60} />
+            <SubsidiaryButton
+              onClick={() =>
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+                (params.row.imgUrl = params.row.remoteImgUrl)
+              }
+            />
           </div>
         );
       },
@@ -233,7 +268,7 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 100,
+      minWidth: 250,
       flex: 1,
     },
     {
@@ -242,7 +277,7 @@ export default function AddBook() {
       headerClassName: "header-theme",
       align: "left",
       headerAlign: "left",
-      minWidth: 100,
+      minWidth: 200,
       flex: 1,
     },
     {
@@ -328,6 +363,34 @@ export default function AddBook() {
       editable: true,
     },
     {
+      field: "remoteWidth",
+      headerName: "Remote Width",
+      type: "number",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      width: 110,
+      renderCell: (params) => {
+        /* eslint-disable */
+        const remoteWidth = params.row.remoteWidth as string;
+        /* eslint-enable */
+
+        return (
+          <div>
+            <div>{remoteWidth}</div>
+            {remoteWidth === "Unknown" ? null : (
+              <SubsidiaryButton
+                onClick={() =>
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+                  (params.row.width = remoteWidth)
+                }
+              />
+            )}
+          </div>
+        );
+      },
+    },
+    {
       field: "height",
       headerName: "Height (in.)",
       type: "number",
@@ -343,6 +406,34 @@ export default function AddBook() {
       editable: true,
     },
     {
+      field: "remoteHeight",
+      headerName: "Remote Height",
+      type: "number",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      width: 110,
+      renderCell: (params) => {
+        /* eslint-disable */
+        const remoteHeight = params.row.remoteHeight as string;
+        /* eslint-enable */
+
+        return (
+          <div>
+            <div>{remoteHeight}</div>
+            {remoteHeight === "Unknown" ? null : (
+              <SubsidiaryButton
+                onClick={() =>
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+                  (params.row.height = remoteHeight)
+                }
+              />
+            )}
+          </div>
+        );
+      },
+    },
+    {
       field: "thickness",
       headerName: "Thickness (in.)",
       type: "number",
@@ -356,6 +447,34 @@ export default function AddBook() {
         return { ...params.props, error: hasError };
       },
       editable: true,
+    },
+    {
+      field: "remoteThickness",
+      headerName: "Remote Thickness",
+      type: "number",
+      headerClassName: "header-theme",
+      align: "left",
+      headerAlign: "left",
+      width: 145,
+      renderCell: (params) => {
+        /* eslint-disable */
+        const remoteThickness = params.row.remoteThickness as string;
+        /* eslint-enable */
+
+        return (
+          <div>
+            <div>{remoteThickness}</div>
+            {remoteThickness === "Unknown" ? null : (
+              <SubsidiaryButton
+                onClick={() =>
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+                  (params.row.thickness = remoteThickness)
+                }
+              />
+            )}
+          </div>
+        );
+      },
     },
     {
       field: "relatedBooks",
