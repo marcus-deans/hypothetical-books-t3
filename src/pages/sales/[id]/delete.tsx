@@ -34,8 +34,8 @@ export default function DeleteSalesReconciliation(
   const handleDelete = () => {
     setIsDeleting(true);
     try {
-      if(data.salesLines.length != 0){
-        throw new Error("Purchase Order must have zero purchase lines to be deleted");
+      if (data.salesLines.length != 0){
+        throw new Error("Sales Record/Reconciliation must have zero sales lines to be deleted");
       }
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
