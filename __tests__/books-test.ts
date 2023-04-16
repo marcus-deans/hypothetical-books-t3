@@ -19,7 +19,6 @@ test("add a book", async () => {
     height: 8.25,
     thickness: 0.75,
     retailPrice: 14.99,
-    genreId: "Fiction",
     inventoryCount: 10,
     purchaseLines: ["test"],
     saleReconciliationLines: ["test"],
