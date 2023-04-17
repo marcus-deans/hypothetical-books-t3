@@ -43,7 +43,9 @@ import type {
       { enabled: headersVerified.isSuccess && headersVerified.data?.verified }
     );
     const mutatedImport = api.csvPorts.addSaleImport.useMutation();
-  
+    if(importVerified.isError){
+      toast.error(importVerified.error.message)
+    }
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
       if (e.target.files === null){
         toast.error(
@@ -113,13 +115,9 @@ import type {
           setParsedCsvData(parsedData);
         },
       });
-  
-      console.log("Parsed Data: ");
-      console.log(parsedCsvData);
     };
     const rows = importVerified.isSuccess && !!importVerified.data ? importVerified.data.parsedData : [];
     const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
-      console.log("New row: ", newRow);
       if (!importVerified.data) {
         return newRow;
       }
@@ -143,7 +141,6 @@ import type {
           return displayedRowTyped;
         }
       });
-      console.log("New import list: ", newParsedData);
       setParsedCsvData(newParsedData);
       return newRow;
     };
