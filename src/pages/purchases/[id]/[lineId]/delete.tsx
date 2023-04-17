@@ -37,7 +37,7 @@ export default function DeletePurchaseLine(
   const handleDelete = () => {
     setIsDeleting(true);
     try {
-      if(purchaseLineDetailsQuery.data.book.inventoryCount < purchaseLineDetailsQuery.data.quantity){
+      if (purchaseLineDetailsQuery.data.book.inventoryCount < purchaseLineDetailsQuery.data.quantity){
         throw new Error("Deleting this purchase line would make inventory negative for this book");
       }
       const deleteResult = deleteMutation.mutate({ id: lineId });

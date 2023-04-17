@@ -36,9 +36,11 @@ export default function DeletePurchaseOrder(
   const handleDelete = () => {
     setIsDeleting(true);
     try {
-      if(data.purchaseOrderWithOverallMetrics.purchaseLines.length != 0){
-        throw new Error("Purchase Order must have zero purchase lines to be deleted");
-      }
+      data.purchaseOrderWithOverallMetrics.purchaseLines.forEach((purchaseLine) => {
+        if (purchaseLine.book.inventoryCount < purchaseLine.quantity) {
+          throw new Error("Deleting this purchase order would make inventory negative for ISBN: ".concat(purchaseLine.book.isbn_13));
+        }
+      });
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
         void router.push("/purchases");

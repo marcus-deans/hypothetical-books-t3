@@ -37,13 +37,6 @@ export default function DeleteSalesReconciliation(
   const handleDelete = () => {
     setIsDeleting(true);
     try {
-      if (salesType === "Reconciliation" && data.salesLines.length != 0){
-        throw new Error("Sales Reconciliation must have zero sales lines to be deleted");
-      } else if (salesType === "Record"){
-        data.salesLines.forEach((line) => {
-          const deleteLineResult = deleteLineMutation.mutate({ id: line.id });
-        });
-      }
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
         void router.push("/sales");
