@@ -99,7 +99,7 @@ export default async function addToBookhookHandler(
   } else {
     console.log("Data is valid");
     salesDate = inputData.data.sale["@_date"];
-    salesDate.setUTCHours(4, 0, 0, 0);
+    salesDate.setUTCHours(5, 0, 0, 0);
     inputData.data.sale.item.forEach((item) => {
       const itemData = BookHookItemSchema.safeParse(item);
       if (!itemData.success) {
