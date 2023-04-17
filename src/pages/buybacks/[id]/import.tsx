@@ -104,7 +104,6 @@ export default function ImportBuyback(
       header: true,
       dynamicTyping: false,
       complete: function (results) {
-        console.log(results);
         const parsedData: CSVInput[] = [];
         results.data.forEach(function (value) {
           const newValue = value as CSVInput;
@@ -115,13 +114,9 @@ export default function ImportBuyback(
         setParsedCsvData(parsedData);
       },
     });
-
-    console.log("Parsed Data: ");
-    console.log(parsedCsvData);
   };
   const rows = importVerified.isSuccess && !!importVerified.data ? importVerified.data.parsedData : [];
   const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
-    console.log("New row: ", newRow);
     if (!importVerified.data) {
       return newRow;
     }
@@ -145,7 +140,6 @@ export default function ImportBuyback(
         return displayedRowTyped;
       }
     });
-    console.log("New import list: ", newParsedData);
     setParsedCsvData(newParsedData);
     return newRow;
   };
