@@ -83,15 +83,16 @@ export const csvPortsRouter = createTRPCRouter({
           newEntry.reason += "Has a decimal quantity. ";
         }
         const unitPriceNoDollarSign = entry.unit_price.replace("$", "");
-        const unitPriceSplit = unitPriceNoDollarSign.split(".");
+        const unitPrice = parseFloat(unitPriceNoDollarSign);
+        const unitPriceSplit = unitPrice.toString().split(".");
         if (unitPriceSplit.length > 1) {
           if (unitPriceSplit[1] && unitPriceSplit[1].length > 2) {
             newEntry.verified = false;
-            newEntry.reason += "Has a a price with more than 2 decimal places. ";
+            newEntry.reason += "Has a a price with more than 2 decimal digits. ";
           }
         }
         newEntry.quantity = parseFloat(entry.quantity);
-        newEntry.unit_price = parseFloat(unitPriceNoDollarSign);
+        newEntry.unit_price = unitPrice;
         if(Number.isNaN(newEntry.quantity)){
           newEntry.verified = false;
           newEntry.reason += "Quantity is Either not in data row or NaN. ";
@@ -199,15 +200,16 @@ export const csvPortsRouter = createTRPCRouter({
           newEntry.reason += "Has a decimal quantity. ";
         }
         const unitPriceNoDollarSign = entry.unit_price.replace("$", "");
-        const unitPriceSplit = unitPriceNoDollarSign.split(".");
+        const unitPrice = parseFloat(unitPriceNoDollarSign);
+        const unitPriceSplit = unitPrice.toString().split(".");
         if (unitPriceSplit.length > 1) {
           if (unitPriceSplit[1] && unitPriceSplit[1].length > 2) {
             newEntry.verified = false;
-            newEntry.reason += "Has a a price with more than 2 decimal places. ";
+            newEntry.reason += "Has a a price with more than 2 decimal digits. ";
           }
         }
         newEntry.quantity = parseFloat(entry.quantity);
-        newEntry.unit_price = parseFloat(unitPriceNoDollarSign);
+        newEntry.unit_price = unitPrice;
         if(Number.isNaN(newEntry.quantity)){
           newEntry.verified = false;
           newEntry.reason += "Quantity is Either not in data row or NaN. ";
@@ -331,15 +333,18 @@ export const csvPortsRouter = createTRPCRouter({
           newEntry.reason += "Has a decimal quantity. ";
         }
         const unitPriceNoDollarSign = entry.unit_price.replace("$", "");
-        const unitPriceSplit = unitPriceNoDollarSign.split(".");
+        const unitPrice = parseFloat(unitPriceNoDollarSign);
+        const unitPriceSplit = unitPrice.toString().split(".");
         if (unitPriceSplit.length > 1) {
           if (unitPriceSplit[1] && unitPriceSplit[1].length > 2) {
+            console.log(entry.unit_price)
+            console.log(unitPriceSplit)
             newEntry.verified = false;
-            newEntry.reason += "Has a a price with more than 2 decimal places. ";
+            newEntry.reason += "Has a a price with more than 2 decimal digits. ";
           }
         }
         newEntry.quantity = parseFloat(entry.quantity);
-        newEntry.unit_price = parseFloat(unitPriceNoDollarSign);
+        newEntry.unit_price = unitPrice;
         if(Number.isNaN(newEntry.quantity)){
           newEntry.verified = false;
           newEntry.reason += "Quantity is Either not in data row or NaN. ";
