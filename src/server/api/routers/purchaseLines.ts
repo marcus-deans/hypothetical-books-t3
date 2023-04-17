@@ -378,12 +378,9 @@ export const purchaseLinesRouter = createTRPCRouter({
           message: `No purchase line found with id '${id}'`,
         });
       }
-
       const purchasedCount = currentPurchaseLine?.quantity ?? 0;
-
       const bookInventoryCount =
         currentPurchaseLine?.book.inventoryCount ?? 100000;
-
       if (bookInventoryCount < purchasedCount) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
@@ -391,28 +388,10 @@ export const purchaseLinesRouter = createTRPCRouter({
         });
       }
 
-      const purchaseLine = await prisma.purchaseLine.delete({
-        where: { id },
-      });
-      if (!purchaseLine) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `No purchase line to delete with id '${id}'`,
-        });
-      }
-
       const currentBookId = currentPurchaseLine.bookId;
       const currentVendorId = currentPurchaseLine.purchaseOrder.vendorId;
-      await prisma.book.update({
-        where: { id: currentBookId },
-        data: {
-          inventoryCount: {
-            decrement: purchasedCount,
-          },
-        },
-      });
 
-      // Check if this was part of cost-most-recent for this book and vendor combination
+      // Check if this purchase line was part of cost-most-recent for this book and vendor combination
       const costMostRecentVendor = await prisma.costMostRecentVendor.findUnique(
         {
           where: {
@@ -432,8 +411,53 @@ export const purchaseLinesRouter = createTRPCRouter({
       );
 
       if (costMostRecentVendor?.purchaseLineId !== currentPurchaseLine.id) {
-        return purchaseLine; // CMR is not affected
+        // CMR is not affected, delete the purchase line
+        const deletedPurchaseLine = await prisma.purchaseLine.delete({
+          where: { id: currentPurchaseLine.id },
+        });
+        if (!deletedPurchaseLine) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `No purchase line to delete with id '${id}'`,
+          });
+        }
+        await prisma.book.update({
+          where: { id: currentPurchaseLine?.book.id },
+          data: {
+            inventoryCount: {
+              decrement: purchasedCount,
+            },
+          },
+        });
       } else {
+        await prisma.costMostRecentVendor.delete({
+          where: {
+            costMostRecentVendorId: {
+              bookId: currentBookId,
+              vendorId: currentVendorId,
+            },
+          },
+        });
+
+        // CMR is affected, delete the purchase line and recompute
+        const deletedPurchaseLine = await prisma.purchaseLine.delete({
+          where: { id: currentPurchaseLine.id },
+        });
+        if (!deletedPurchaseLine) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `No purchase line to delete with id '${id}'`,
+          });
+        }
+        await prisma.book.update({
+          where: { id: currentPurchaseLine?.book.id },
+          data: {
+            inventoryCount: {
+              decrement: purchasedCount,
+            },
+          },
+        });
+
         // need to recompute CMR
         const mostRecentPurchaseLine = await prisma.purchaseLine.findFirst({
           where: {
@@ -451,24 +475,8 @@ export const purchaseLinesRouter = createTRPCRouter({
           },
         });
 
-        if (!mostRecentPurchaseLine) {
-          await prisma.costMostRecentVendor.delete({
-            where: {
-              costMostRecentVendorId: {
-                bookId: currentBookId,
-                vendorId: currentVendorId,
-              },
-            },
-          });
-          return purchaseLine;
-        } else {
-          await prisma.costMostRecentVendor.update({
-            where: {
-              costMostRecentVendorId: {
-                bookId: currentBookId,
-                vendorId: currentVendorId,
-              },
-            },
+        if (mostRecentPurchaseLine) {
+          await prisma.costMostRecentVendor.create({
             data: {
               purchaseLine: {
                 connect: {
@@ -480,10 +488,19 @@ export const purchaseLinesRouter = createTRPCRouter({
                   id: mostRecentPurchaseLine.purchaseOrderId,
                 },
               },
+              book: {
+                connect: {
+                  id: currentBookId,
+                },
+              },
+              vendor: {
+                connect: {
+                  id: currentVendorId,
+                },
+              },
             },
           });
         }
-        return purchaseLine;
       }
     }),
 
