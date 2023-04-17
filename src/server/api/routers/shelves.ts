@@ -171,6 +171,7 @@ export const shelvesRouter = createTRPCRouter({
         where: { id: input.id },
         data: {
           spaceUsed: input.spaceUsed,
+
         },
       });
 
