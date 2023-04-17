@@ -156,6 +156,7 @@ export const casesRouter = createTRPCRouter({
                 id: newCase.id,
               },
             },
+            spaceUsed: shelf.spaceUsed,
             booksOnShelf: {
               create: shelf.booksOnShelf.map((bookOnShelf) => ({
                 book: {
