@@ -39,6 +39,12 @@ type ShelfQueryData = (Shelf & {
   booksOnShelf: (BookOnShelf & { book: Book })[];
 })[];
 
+interface bookToInc {
+  title: string;
+  displayCount: number;
+  orientation: string;
+}
+
 type PlanogramShelvesData = {
   books: bookToInc[] | null;
   spaceUsed: number;
@@ -86,12 +92,6 @@ export default function CaseDetail(
   const shelvedBooks = data.shelves.map((shelf) => {
     return { booksOnShelf: shelf.booksOnShelf, spaceUsed: shelf.spaceUsed };
   });
-
-  interface bookToInc {
-    title: string;
-    displayCount: number;
-    orientation: string;
-  }
 
   const shelvesTabularArrangement: PlanogramShelvesData = [];
 
@@ -453,16 +453,17 @@ function generatePlanogram(
 
   shelves.forEach((shelf) => {
     const shelvesBooks: RowInput[] = [];
-
-    shelf.books.forEach((book) => {
-      const insideInput: RowInput = [];
-      //Just sum display values for books of the same name
-      insideInput.push(book.title);
-      insideInput.push(book.displayCount);
-      insideInput.push(book.orientation);
-      insideInput.push(shelf.books.indexOf(book) + 1);
-      shelvesBooks.push(insideInput);
-    });
+    if (shelf.books) {
+      shelf.books.forEach((book, index) => {
+        const insideInput: RowInput = [];
+        //Just sum display values for books of the same name
+        insideInput.push(book.title);
+        insideInput.push(book.displayCount);
+        insideInput.push(book.orientation);
+        insideInput.push(index + 1);
+        shelvesBooks.push(insideInput);
+      });
+    }
 
     autoTable(doc, {
       body: [

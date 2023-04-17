@@ -203,8 +203,9 @@ export default function EditShelf(
     id: string;
   } | null>(null);
   const [bookInputValue, setBookInputValue] = useState("");
-  const [displayedBooks, setDisplayedBooks] =
-    useState<BookCalcDetails[]>(initialStateBooks);
+  const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>(
+    initialStateBooks ?? []
+  );
   const [totalSpaceSum, setTotalSpaceSum] = useState(0);
 
   const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({
@@ -232,7 +233,9 @@ export default function EditShelf(
         );
         const spaceVal = newSpace.toFixed(2).toString();
         newRow.shelfSpace = newRow.usedDefault ? spaceVal + "*" : spaceVal;
-        let thickness = newRow.thickness;
+        /* eslint-disable */
+        let thickness = newRow.thickness as number;
+        /* eslint-enable */
         if (thickness == 0) {
           thickness = 0.8;
         }
@@ -247,8 +250,13 @@ export default function EditShelf(
           return oldRow as BookCalcDetails;
         }
         displayedBooks.forEach((book) => {
-          if (book.position == newRow.position) {
-            book.position = oldRow.position;
+          /* eslint-disable */
+          const newPosition = newRow.position as number;
+          const oldPosition = oldRow.position as number;
+          /* eslint-enable */
+
+          if (book.position == newPosition) {
+            book.position = oldPosition;
           }
         });
 
