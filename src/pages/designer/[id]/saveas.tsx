@@ -57,6 +57,7 @@ export default function SaveAs(
       const shelvesById = data?.shelves.map((shelf) => shelf.id);
       const addResult = duplicateMutation.mutate({
         name: nameValue,
+        caseId: id,
         width: currentWidth,
         shelfCount: currentShelfCount,
         shelvesIds: shelvesById ?? [],
