@@ -38,7 +38,6 @@ export default function EditShelf(
   const shelfId = props.shelfId;
   const id = props.id;
 
-
   const router = useRouter();
 
   const caseDetailsQuery = api.cases.getById.useQuery({ id: id });
@@ -46,10 +45,10 @@ export default function EditShelf(
   const currentName = caseDetailsQuery?.data?.name ?? "Case Name";
   const currentWidth = caseDetailsQuery?.data?.width ?? 0;
   const editShelfMutation = api.shelves.edit.useMutation();
-  const shelfDetailsQuery = api.shelves.getById.useQuery({id:shelfId})
+  const shelfDetailsQuery = api.shelves.getById.useQuery({ id: shelfId });
   const currentShelf = shelfDetailsQuery.data;
   const currentBooksToDisplay = currentShelf?.booksOnShelf;
-  console.log(currentBooksToDisplay)
+  console.log(currentBooksToDisplay);
   const calcShelfSpace = (
     width: number,
     height: number,
@@ -146,7 +145,6 @@ export default function EditShelf(
       headerClassName: "header-theme",
       flex: 1,
       editable: true,
-
     },
     {
       field: "shelfSpace",
@@ -171,17 +169,49 @@ export default function EditShelf(
     author: string;
     position: number;
   }
-  const initialStateBooks = currentBooksToDisplay?.map((book) =>{return({id:uuidv4(), internalId:book.bookId, title:book.book.title, inventoryCount:book.book.inventoryCount, displayCount:book.displayCount, width:book.book.width, height:book.book.height, thickness:book.book.thickness, displayStyle: book.orientation, shelfSpace: String(calcShelfSpace(book.book.width,book.book.height,book.book.thickness,book.orientation, book.displayCount)), usedDefault:false, author:book.author, position:0} as BookCalcDetails)})
-  initialStateBooks?.forEach((book) => {book.position = initialStateBooks?.indexOf(book)+1})
+
+  const initialStateBooks = currentBooksToDisplay?.map((book) => {
+    return {
+      id: uuidv4(),
+      internalId: book.bookId,
+      title: book.book.title,
+      inventoryCount: book.book.inventoryCount,
+      displayCount: book.displayCount,
+      width: book.book.width,
+      height: book.book.height,
+      thickness: book.book.thickness,
+      displayStyle: book.orientation,
+      shelfSpace: String(
+        calcShelfSpace(
+          book.book.width,
+          book.book.height,
+          book.book.thickness,
+          book.orientation,
+          book.displayCount
+        )
+      ),
+      usedDefault: false,
+      author: book.author,
+      position: 0,
+    } as BookCalcDetails;
+  });
+  initialStateBooks?.forEach((book) => {
+    book.position = initialStateBooks?.indexOf(book) + 1;
+  });
   const [bookValue, setBookValue] = useState<{
     label: string;
     id: string;
   } | null>(null);
   const [bookInputValue, setBookInputValue] = useState("");
-  const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>(initialStateBooks);
+  const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>(
+    initialStateBooks ?? []
+  );
   const [totalSpaceSum, setTotalSpaceSum] = useState(0);
 
-  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({ cursor: null, limit: 100 });
+  const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({
+    cursor: null,
+    limit: 100,
+  });
   const books = booksQuery?.data?.items ?? [];
   const bookOptions = books.map((book) => ({
     label: `${book.title} (${book.isbn_13})`,
@@ -203,25 +233,33 @@ export default function EditShelf(
         );
         const spaceVal = newSpace.toFixed(2).toString();
         newRow.shelfSpace = newRow.usedDefault ? spaceVal + "*" : spaceVal;
-        let thickness = newRow.thickness;
-        if(thickness == 0){
+        /* eslint-disable */
+        let thickness = newRow.thickness as number;
+        /* eslint-enable */
+        if (thickness == 0) {
           thickness = 0.8;
         }
         //Case of old count now violating new cover out config
-        if(newRow.displayStyle == "Cover Out" && thickness * newRow.displayCount > 8 ){
-          newRow.displayCount = Math.floor(8/thickness)
+        if (
+          newRow.displayStyle == "Cover Out" &&
+          thickness * newRow.displayCount > 8
+        ) {
+          newRow.displayCount = Math.floor(8 / thickness);
+        }
+        if (newRow.position > displayedBooks.length) {
+          return oldRow as BookCalcDetails;
+        }
+        displayedBooks.forEach((book) => {
+          /* eslint-disable */
+          const newPosition = newRow.position as number;
+          const oldPosition = oldRow.position as number;
+          /* eslint-enable */
 
-        }
-        if(newRow.position > displayedBooks.length){
-          return oldRow as BookCalcDetails
-        }
-        displayedBooks.forEach((book)=>{
-          if(book.position==newRow.position){
-            book.position = oldRow.position
-            
-            }
-        })
-        
+          if (book.position == newPosition) {
+            book.position = oldPosition;
+          }
+        });
+
         return newRow as BookCalcDetails;
         //Recalculate the shelf space
       } else {
@@ -229,11 +267,11 @@ export default function EditShelf(
         return displayedBook;
       }
     });
-    let newArray:BookCalcDetails[] = [];
-    newDisplayedBooks.forEach(function(element) {
-          newArray[element.position-1] = element;
-        });
-      setDisplayedBooks(newArray)
+    const newArray: BookCalcDetails[] = [];
+    newDisplayedBooks.forEach(function (element) {
+      newArray[element.position - 1] = element;
+    });
+    setDisplayedBooks(newArray);
     const newSpace =
       totalSpaceSum -
       parseSpace(String(oldRow.shelfSpace)) +
@@ -241,9 +279,6 @@ export default function EditShelf(
     setTotalSpaceSum(newSpace);
     return newRow;
   };
-
-
-
 
   const parseSpace = (shelfSpaceStr: string): number => {
     return parseFloat(shelfSpaceStr);
@@ -296,7 +331,7 @@ export default function EditShelf(
           shelfSpace: "",
           usedDefault: false,
           author: specificBook.authors.join(", "),
-          position: 0
+          position: 0,
         };
         displayBook.shelfSpace = calcShelfSpace(
           displayBook.width,
@@ -313,7 +348,7 @@ export default function EditShelf(
           displayBook.usedDefault = true;
         }
         setDisplayedBooks((prev) => [...prev, displayBook]);
-        displayBook.position = displayedBooks.length+1;
+        displayBook.position = displayedBooks.length + 1;
         setTotalSpaceSum(totalSpaceSum + parseFloat(displayBook.shelfSpace));
         const spaceVal = Number.parseFloat(displayBook.shelfSpace)
           .toFixed(2)
@@ -329,7 +364,6 @@ export default function EditShelf(
     setBookValue(null);
   };
 
-  
   return (
     <>
       <Head>

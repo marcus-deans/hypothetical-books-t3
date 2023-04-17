@@ -1,8 +1,4 @@
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import type { Dayjs } from "dayjs";
 import TextField from "@mui/material/TextField";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
@@ -11,13 +7,6 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-import {
-  Autocomplete,
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  InputAdornment,
-} from "@mui/material";
 import type {
   GetStaticPaths,
   GetStaticPropsContext,
@@ -25,10 +14,8 @@ import type {
 } from "next";
 import type { CustomUser } from "../../../schema/user.schema";
 import { prisma } from "../../../server/db";
-import dayjs from "dayjs";
 import Head from "next/head";
-import { ToastContainer, toast } from "react-toastify";
-import { z } from "zod";
+import { toast, ToastContainer } from "react-toastify";
 import { useSession } from "next-auth/react";
 
 export default function SaveAs(
@@ -44,11 +31,11 @@ export default function SaveAs(
   console.log(caseDetailsQuery.data);
   const { data } = caseDetailsQuery;
 
-  const editMutation = api.cases.edit.useMutation();
+  const duplicateMutation = api.cases.duplicate.useMutation();
   const currentName = caseDetailsQuery?.data?.name ?? "";
   const currentWidth = caseDetailsQuery?.data?.width ?? 0;
   const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
-  
+
   const allcasesQuery = api.cases.getAll.useQuery({
     cursor: null,
     limit: 50,
@@ -62,14 +49,15 @@ export default function SaveAs(
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      if(casesWithShelves.some(obj => obj.name === nameValue)){
+      if (casesWithShelves.some((obj) => obj.name === nameValue)) {
         toast.error("A case with this name already exists");
         setIsSubmitting(false);
         return;
       }
-      const shelvesById = data?.shelves.map((shelf) => shelf.id)
-      const addResult = addMutation.mutate({
+      const shelvesById = data?.shelves.map((shelf) => shelf.id);
+      const addResult = duplicateMutation.mutate({
         name: nameValue,
+        caseId: id,
         width: currentWidth,
         shelfCount: currentShelfCount,
         shelvesIds: shelvesById ?? [],
