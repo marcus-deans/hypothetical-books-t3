@@ -96,11 +96,9 @@ export const csvPortsRouter = createTRPCRouter({
           newEntry.verified = false;
           newEntry.reason += "Quantity is Either not in data row or NaN. ";
           newEntry.quantity = 0;
-        }
-        if(Number.isNaN(newEntry.unit_price)){
+        } else if (newEntry.quantity == 0){
           newEntry.verified = false;
-          newEntry.reason += "UWP is Either not in data row or NaN. ";
-          newEntry.unit_price = 0;
+          newEntry.reason += "Quantity cannot be 0. ";
         }
         // cast it to either an isbn-13 or isbn-10
         const inputIsbn = entry.isbn.replace(/\s+/g, "").replace(/-/g, "");
@@ -133,6 +131,13 @@ export const csvPortsRouter = createTRPCRouter({
         if (bookInDatabase.inventoryCount < newEntry.quantity) {
           newEntry.verified == false;
           newEntry.reason += "Book " + entry.isbn +" has quantity " + newEntry.quantity.toString() +" when the inventory count is only " + bookInDatabase.inventoryCount.toString();
+        }
+        if(Number.isNaN(newEntry.unit_price)){
+          newEntry.unit_price = bookInDatabase.retailPrice
+        }
+        if(newEntry.unit_price == 0){
+          newEntry.verified = false;
+          newEntry.reason += "Unit Price cannot be 0. ";
         }
         newEntry.bookId = bookInDatabase.id;
         newEntry.title = bookInDatabase.title;
@@ -207,11 +212,17 @@ export const csvPortsRouter = createTRPCRouter({
           newEntry.verified = false;
           newEntry.reason += "Quantity is Either not in data row or NaN. ";
           newEntry.quantity = 0;
+        } else if (newEntry.quantity == 0){
+          newEntry.verified = false;
+          newEntry.reason += "Quantity cannot be 0. ";
         }
         if(Number.isNaN(newEntry.unit_price)){
           newEntry.verified = false;
           newEntry.reason += "UWP is Either not in data row or NaN. ";
           newEntry.unit_price = 0;
+        } else if (newEntry.unit_price == 0){
+          newEntry.verified = false;
+          newEntry.reason += "Unit Price cannot be 0. ";
         }
         // cast it to either an isbn-13 or isbn-10
         const inputIsbn = entry.isbn.replace(/\s+/g, "").replace(/-/g, "");
@@ -333,6 +344,9 @@ export const csvPortsRouter = createTRPCRouter({
           newEntry.verified = false;
           newEntry.reason += "Quantity is Either not in data row or NaN. ";
           newEntry.quantity = 0;
+        } else if (newEntry.quantity == 0){
+          newEntry.verified = false;
+          newEntry.reason += "Quantity cannot be 0. ";
         }
         // cast it to either an isbn-13 or isbn-10
         const inputIsbn = entry.isbn.replace(/\s+/g, "").replace(/-/g, "");
@@ -362,10 +376,15 @@ export const csvPortsRouter = createTRPCRouter({
           parsedData.push(newEntry);
           continue; 
         }
+        if (bookInDatabase.inventoryCount < newEntry.quantity) {
+          newEntry.verified == false;
+          newEntry.reason += "This Book has quantity " + newEntry.quantity.toString() +" when the inventory count is only " + bookInDatabase.inventoryCount.toString();
+        }
         if(Number.isNaN(newEntry.unit_price)){
-          console.log("Unit Price: " + bookInDatabase.retailPrice.toString())
-          console.log("BuybackRate: " + buybackRate.toString())
           newEntry.unit_price = Math.round(bookInDatabase.retailPrice * buybackRate) / 100
+        } else if (newEntry.unit_price == 0){
+          newEntry.verified = false;
+          newEntry.reason += "Unit Price cannot be 0. ";
         }
         newEntry.bookId = bookInDatabase.id;
         newEntry.title = bookInDatabase.title;

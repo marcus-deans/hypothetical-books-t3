@@ -104,7 +104,6 @@ export default function ImportBuyback(
       header: true,
       dynamicTyping: false,
       complete: function (results) {
-        console.log(results);
         const parsedData: CSVInput[] = [];
         results.data.forEach(function (value) {
           const newValue = value as CSVInput;
@@ -115,13 +114,9 @@ export default function ImportBuyback(
         setParsedCsvData(parsedData);
       },
     });
-
-    console.log("Parsed Data: ");
-    console.log(parsedCsvData);
   };
   const rows = importVerified.isSuccess && !!importVerified.data ? importVerified.data.parsedData : [];
   const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
-    console.log("New row: ", newRow);
     if (!importVerified.data) {
       return newRow;
     }
@@ -145,7 +140,6 @@ export default function ImportBuyback(
         return displayedRowTyped;
       }
     });
-    console.log("New import list: ", newParsedData);
     setParsedCsvData(newParsedData);
     return newRow;
   };
@@ -199,14 +193,10 @@ export default function ImportBuyback(
     setIsSubmitting(true)
     try {
       if(importVerified.data === undefined){
-        toast.error("The data was never parsed through in the database. This Error should not be possible due to the submit button only being enabled if the data was parsed");
-        setIsSubmitting(false);
-        return;
+        throw new Error("The data was never parsed through in the database. This Error should not be possible due to the submit button only being enabled if the data was parsed");
       }
       if(!importVerified.data.verified){
-        toast.error("Data Not Verified. This Error should not be possible due to the submit button only being enabled if the data was verified");
-        setIsSubmitting(false);
-        return;
+        throw new Error("Data Not Verified. This Error should not be possible due to the submit button only being enabled if the data was verified");
       }
       const parsedDataTyped: CSVInputId[] = importVerified.data.parsedData;
       mutatedImport.mutate({
@@ -218,7 +208,8 @@ export default function ImportBuyback(
         void router.push(`/buybacks/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };
