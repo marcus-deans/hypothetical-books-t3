@@ -39,6 +39,11 @@ type ShelfQueryData = (Shelf & {
   booksOnShelf: (BookOnShelf & { book: Book })[];
 })[];
 
+type PlanogramShelvesData = {
+  books: bookToInc[] | null;
+  spaceUsed: number;
+}[];
+
 export default function CaseDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
@@ -65,46 +70,55 @@ export default function CaseDetail(
   //   });
   // }
   const caseWidth = data.width;
-  const displayedBooks = data.shelves
-    .map((shelf: any) => shelf.booksOnShelf)
-    .flat();
+  const displayedBooks = data.shelves.map((shelf) => shelf.booksOnShelf).flat();
   const filteredBooks = displayedBooks.map(
-    ({ book: { id, title, isbn_13, isbn_10 }, displayCount, author }) => ({
-      id,
-      title,
-      isbn_13,
-      isbn_10,
-      displayCount,
-      author,
-    })
+    ({ book: { id, title, isbn_13, isbn_10 }, displayCount, author }) => {
+      return {
+        id: id,
+        title: title,
+        author: author,
+        isbn_10: isbn_10 ?? "N/A",
+        isbn_13: isbn_13,
+        displayCount: displayCount,
+      } as FlatDisplayBook;
+    }
   );
   const shelvedBooks = data.shelves.map((shelf) => {
     return { booksOnShelf: shelf.booksOnShelf, spaceUsed: shelf.spaceUsed };
   });
-  const shelvesTabularArangement: any[] = [];
+
+  interface bookToInc {
+    title: string;
+    displayCount: number;
+    orientation: string;
+  }
+
+  const shelvesTabularArrangement: PlanogramShelvesData = [];
+
   for (let i = 0; i < shelvedBooks.length; i++) {
     const currShelf = shelvedBooks[i];
-    const addingShelf: { books: any[] | null; spaceUsed: number } = {
+
+    const addingShelf: { books: bookToInc[] | null; spaceUsed: number } = {
       books: null,
       spaceUsed: 0,
     };
     if (currShelf) {
-      const booksToInc: any[] = [];
+      const booksToInc: bookToInc[] = [];
       for (let j = 0; j < currShelf.booksOnShelf.length; j++) {
         const currBook = currShelf.booksOnShelf[j];
         const addingBook = {
           title: currBook?.book.title,
           displayCount: currBook?.displayCount,
           orientation: currBook?.orientation,
-        };
+        } as bookToInc;
         booksToInc.push(addingBook);
       }
       addingShelf.books = booksToInc;
       addingShelf.spaceUsed = currShelf?.spaceUsed;
-      shelvesTabularArangement.push(addingShelf);
+      shelvesTabularArrangement.push(addingShelf);
     }
   }
-  console.log(shelvesTabularArangement);
+  console.log(shelvesTabularArrangement);
   //const bookInputs = shelvedBooks.map(({ book: {title}, displayCount, orientation}) => ({title, displayCount,orientation}));
   const columns: GridColDef[] = [
     {
@@ -258,7 +272,7 @@ export default function CaseDetail(
           onClick={() => {
             generatePlanogram(
               data.name,
-              shelvesTabularArangement,
+              shelvesTabularArrangement,
               filteredBooks
             );
           }}
@@ -304,7 +318,7 @@ export default function CaseDetail(
 
 function generatePlanogram(
   name: string,
-  shelves: ShelfQueryData,
+  shelves: PlanogramShelvesData,
   displayedBooks: FlatDisplayBook[]
 ) {
   const doc = new jsPDF();
@@ -437,10 +451,10 @@ function generatePlanogram(
   });
   //Implement each shelf's display
 
-  shelves.forEach((shelf: any) => {
+  shelves.forEach((shelf) => {
     const shelvesBooks: RowInput[] = [];
 
-    shelf.books.forEach((book: any) => {
+    shelf.books.forEach((book) => {
       const insideInput: RowInput = [];
       //Just sum display values for books of the same name
       insideInput.push(book.title);
@@ -472,7 +486,7 @@ function generatePlanogram(
       body: [
         [
           {
-            content: "Space Used:  " + shelf.spaceUsed,
+            content: `Space Used:  ${shelf.spaceUsed}`,
             styles: {
               halign: "left",
               fontSize: 10,
