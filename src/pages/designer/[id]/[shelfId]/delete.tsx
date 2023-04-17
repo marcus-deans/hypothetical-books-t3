@@ -15,6 +15,8 @@ import { api } from "../../../../utils/api";
 import { createInnerTRPCContext } from "../../../../server/api/trpc";
 import DeletePane from "../../../../components/DeletePane";
 import { prisma } from "../../../../server/db";
+import { CustomUser } from "../../../../schema/user.schema";
+import { useSession } from "next-auth/react";
 
 export default function DeleteShelf(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -25,6 +27,15 @@ export default function DeleteShelf(
   const shelfDetailsQuery = api.shelves.getById.useQuery({
     id:shelfId,
   });
+  const caseDetailsQuery = api.cases.getById.useQuery({id:id});
+  const currentShelfCount = caseDetailsQuery.data?.shelfCount??0;
+  const currentName = caseDetailsQuery.data?.name??"";
+  const currentWidth = caseDetailsQuery.data?.width??0;
+  const editMutation = api.cases.edit.useMutation();
+  const { data: session, status } = useSession();
+  const user = session?.user as CustomUser;
+
+
 
   const deleteMutation = api.shelves.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -39,10 +50,16 @@ export default function DeleteShelf(
     setIsDeleting(true);
     try {
       const deleteResult = deleteMutation.mutate( {id: shelfId} );
-      console.log("deleted: ")
-      console.log(deleteResult)
-      console.log("id deleted: ")
-      console.log(shelfId)
+      const newCount = currentShelfCount-1
+      const editResult = editMutation.mutate({
+        caseId: id,
+        name: currentName,
+        width: currentWidth,
+        shelfCount: newCount,
+        shelvesIds: [],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        user: user!,
+      });
       setTimeout(() => {
         void router.push(`/designer/${encodeURIComponent(id)}/detail`);
       }, 500);
