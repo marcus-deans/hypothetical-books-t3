@@ -89,6 +89,92 @@ export const casesRouter = createTRPCRouter({
       return caseDesign;
     }),
 
+  duplicate: publicProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        caseId: z.string(), // id of the case to duplicate
+        width: z.number(),
+        shelfCount: z.number(),
+        shelvesIds: z.string().array(),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          role: z.string(),
+        }),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { caseId, name, width, shelfCount, shelvesIds, user } = input;
+
+      const caseToDuplicate = await prisma.case.findUnique({
+        where: { id: caseId },
+        include: {
+          shelves: {
+            include: {
+              booksOnShelf: {
+                include: {
+                  book: true,
+                },
+              },
+            },
+          },
+          creator: true,
+          editor: true,
+        },
+      });
+      if (!caseToDuplicate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No case with id '${caseId}'`,
+        });
+      }
+
+      const newCase = await prisma.case.create({
+        data: {
+          name,
+          creator: {
+            connect: {
+              id: user.id,
+            },
+          },
+          editor: {
+            connect: {
+              id: user.id,
+            },
+          },
+          width,
+          shelfCount,
+        },
+      });
+
+      for (const shelf of caseToDuplicate.shelves) {
+        const newShelf = await prisma.shelf.create({
+          data: {
+            case: {
+              connect: {
+                id: newCase.id,
+              },
+            },
+            booksOnShelf: {
+              create: shelf.booksOnShelf.map((bookOnShelf) => ({
+                book: {
+                  connect: {
+                    id: bookOnShelf.book.id,
+                  },
+                },
+                orientation: bookOnShelf.orientation,
+                displayCount: bookOnShelf.displayCount,
+                author: bookOnShelf.author,
+              })),
+            },
+          },
+        });
+      }
+
+      return newCase;
+    }),
+
   edit: publicProcedure
     .input(
       z.object({

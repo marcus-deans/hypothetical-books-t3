@@ -44,11 +44,11 @@ export default function SaveAs(
   console.log(caseDetailsQuery.data);
   const { data } = caseDetailsQuery;
 
-  const editMutation = api.cases.edit.useMutation();
+  const duplicateMutation = api.cases.duplicate.useMutation();
   const currentName = caseDetailsQuery?.data?.name ?? "";
   const currentWidth = caseDetailsQuery?.data?.width ?? 0;
   const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
-  
+
   const allcasesQuery = api.cases.getAll.useQuery({
     cursor: null,
     limit: 50,
@@ -62,13 +62,13 @@ export default function SaveAs(
   const handleSubmit = () => {
     setIsSubmitting(true);
     try {
-      if(casesWithShelves.some(obj => obj.name === nameValue)){
+      if (casesWithShelves.some((obj) => obj.name === nameValue)) {
         toast.error("A case with this name already exists");
         setIsSubmitting(false);
         return;
       }
-      const shelvesById = data?.shelves.map((shelf) => shelf.id)
-      const addResult = addMutation.mutate({
+      const shelvesById = data?.shelves.map((shelf) => shelf.id);
+      const addResult = duplicateMutation.mutate({
         name: nameValue,
         width: currentWidth,
         shelfCount: currentShelfCount,
