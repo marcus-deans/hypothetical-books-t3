@@ -1,8 +1,4 @@
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import type { Dayjs } from "dayjs";
 import TextField from "@mui/material/TextField";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState } from "react";
 import { api } from "../../../utils/api";
 import { useRouter } from "next/router";
@@ -10,13 +6,7 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../../server/api/root";
 import { createInnerTRPCContext } from "../../../server/api/trpc";
 import superjson from "superjson";
-import {
-  Autocomplete,
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  InputAdornment,
-} from "@mui/material";
+import { InputAdornment } from "@mui/material";
 import type {
   GetStaticPaths,
   GetStaticPropsContext,
@@ -24,10 +14,8 @@ import type {
 } from "next";
 import type { CustomUser } from "../../../schema/user.schema";
 import { prisma } from "../../../server/db";
-import dayjs from "dayjs";
 import Head from "next/head";
-import { ToastContainer, toast } from "react-toastify";
-import { z } from "zod";
+import { toast, ToastContainer } from "react-toastify";
 import { useSession } from "next-auth/react";
 import "react-toastify/dist/ReactToastify.css";
 
