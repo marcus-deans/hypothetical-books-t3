@@ -23,6 +23,7 @@ export default function DeleteSalesReconciliation(
   const { id } = props;
   const salesDetailsQuery = api.salesReconciliations.getByIdWithSalesLineIds.useQuery({ id });
   const deleteMutation = api.salesReconciliations.delete.useMutation();
+  const deleteLineMutation = api.salesLines.delete.useMutation();
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   // if (router.isFallback) {
@@ -31,11 +32,17 @@ export default function DeleteSalesReconciliation(
   }
   const { data } = salesDetailsQuery;
 
+  const salesType = data.userId === null ? "Record" : "Reconciliation";
+
   const handleDelete = () => {
     setIsDeleting(true);
     try {
-      if (data.salesLines.length != 0){
-        throw new Error("Sales Record/Reconciliation must have zero sales lines to be deleted");
+      if (salesType === "Reconciliation" && data.salesLines.length != 0){
+        throw new Error("Sales Reconciliation must have zero sales lines to be deleted");
+      } else if (salesType === "Record"){
+        data.salesLines.forEach((line) => {
+          const deleteLineResult = deleteLineMutation.mutate({ id: line.id });
+        });
       }
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
@@ -51,12 +58,12 @@ export default function DeleteSalesReconciliation(
   return (
     <div className="flex flex-col items-center justify-center py-2">
       <Head>
-        <title>Delete Sales Record</title>
+        <title>{"Delete Sales ".concat(salesType)}</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DeletePane
         itemIdentifier={longFormatter.format(data?.date) ?? id}
-        itemName={"Sales Record"}
+        itemName={"Sales ".concat(salesType)}
         isDeleting={isDeleting}
         handleDelete={handleDelete}
         cancelUrl={`/sales/${encodeURIComponent(id)}/detail`}
