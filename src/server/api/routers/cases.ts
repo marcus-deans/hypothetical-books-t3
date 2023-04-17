@@ -164,6 +164,43 @@ export const casesRouter = createTRPCRouter({
       return newCase;
     }),
 
+    // saveAs: publicProcedure
+    // .input(
+    //   z.object({
+    //     name: z.string(),
+    //     width: z.number(),
+    //     shelfCount: z.number(),
+    //     user: z.object({
+    //       id: z.string(),
+    //       name: z.string(),
+    //       role: z.string(),
+    //     }),
+    //   })
+    // )
+    // .mutation(async ({ input }) => {
+    //   const newCase = await prisma.case.create({
+    //     data: {
+    //       name: input.name,
+    //       creator: {
+    //         connect: {
+    //           id: input.user.id,
+    //         },
+    //       },
+    //       editor: {
+    //         connect: {
+    //           id: input.user.id,
+    //         },
+    //       },
+    //       width: input.width,
+    //       shelfCount: input.shelfCount,
+    //       shelves: {
+    //         connect: input.shelvesIds.map((id) => ({ id })),
+    //       },
+    //     },
+    //   });
+    //   return newCase;
+    // }),
+
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {

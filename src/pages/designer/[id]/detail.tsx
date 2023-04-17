@@ -65,13 +65,15 @@ export default function CaseDetail(
   //   });
   // }
   const caseWidth = data.width;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
   const displayedBooks = data.shelves.map((shelf:any) => shelf.booksOnShelf).flat()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const filteredBooks = displayedBooks.map(({ book: {id, title, isbn_13, isbn_10, }, displayCount, author}) => ({id, title, isbn_13, isbn_10, displayCount, author}));
   const shelvedBooks = data.shelves.map((shelf) => {return({booksOnShelf:shelf.booksOnShelf, spaceUsed:shelf.spaceUsed })})
   const shelvesTabularArangement : any[] = [];
   for(let i = 0; i < shelvedBooks.length; i++){
-    let currShelf = shelvedBooks[i];
-    let addingShelf : { books: any[] | null, spaceUsed: number } = {
+    const currShelf = shelvedBooks[i];
+    const addingShelf : { books: any[] | null, spaceUsed: number } = {
       books:null,
       spaceUsed:0
       
@@ -241,6 +243,7 @@ export default function CaseDetail(
         </Link>
           <button
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
+            //eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             onClick = {()=>{generatePlanogram(data.name, shelvesTabularArangement, filteredBooks)}}
           >
             Generate Planogram
@@ -423,14 +426,18 @@ function generatePlanogram(
 
   shelves.forEach((shelf: any) =>{
     const shelvesBooks: RowInput[] = [];
-
+    //eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     shelf.books.forEach((book: any) =>
       {const insideInput: RowInput = [];
       //Just sum display values for books of the same name
+      //eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, 
       insideInput.push(book.title);
+      //eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, 
       insideInput.push(book.displayCount);
+      //eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, 
       insideInput.push(book.orientation);
-      insideInput.push(shelf.books.indexOf(book)+1)
+      //eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      insideInput.push(Number(shelf.books.indexOf(book))+1)
       shelvesBooks.push(insideInput)}
   
     )
@@ -439,7 +446,8 @@ function generatePlanogram(
       body: [
         [
           {
-            content: "Shelf " + String(shelves.indexOf(shelf) + 1),
+            //eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            content: "Shelf " + String(Number(shelves.indexOf(shelf)) + 1),
             styles: {
               halign: "left",
               fontSize: 20,
@@ -457,7 +465,8 @@ function generatePlanogram(
       body: [
         [
           {
-            content: "Space Used:  "+ shelf.spaceUsed,
+            //eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            content: "Space Used:  "+ String(shelf.spaceUsed),
             styles: {
               halign: "left",
               fontSize: 10,

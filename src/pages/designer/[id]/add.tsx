@@ -180,6 +180,7 @@ export default function AddShelf(
         );
         const spaceVal = newSpace.toFixed(2).toString();
         newRow.shelfSpace = newRow.usedDefault ? spaceVal + "*" : spaceVal;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         let thickness = newRow.thickness;
         if(thickness == 0){
           thickness = 0.8;
@@ -194,6 +195,7 @@ export default function AddShelf(
         }
         displayedBooks.forEach((book)=>{
           if(book.position==newRow.position){
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             book.position = oldRow.position
             
             }
@@ -206,7 +208,7 @@ export default function AddShelf(
         return displayedBook;
       }
     });
-    let newArray:BookCalcDetails[] = [];
+    const newArray:BookCalcDetails[] = [];
     newDisplayedBooks.forEach(function(element) {
           newArray[element.position-1] = element;
         });
