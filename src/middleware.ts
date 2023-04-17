@@ -79,15 +79,19 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/books/:path*",
-    "/sales/:path*",
-    "/purchases/:path*",
-    "/buybacks/:path*",
-    "/vendors/:path*",
     "/authors/:path*",
+    "/books/:path*",
+    "/buybacks/:path*",
+    "/designer/:path*",
     "/genres/:path*",
-    "/report/:path*",
-    "/users/:path*",
+    "/purchases/:path*",
+    "/sales/:path*",
     "/shelfcalculator/:path*",
+    "/users/:path*",
+    "/vendors/:path*",
+
+
+    "/report/:path*",
+    "/scanner/:path*",
   ],
 };
