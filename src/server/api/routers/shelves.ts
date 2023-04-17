@@ -86,8 +86,8 @@ export const shelvesRouter = createTRPCRouter({
           .object({
             bookId: z.string(),
             orientation: z.string(),
-            displayCount: z.number(), 
-            author: z.string()
+            displayCount: z.number(),
+            author: z.string(),
           })
           .array(),
         user: z.object({
@@ -139,8 +139,7 @@ export const shelvesRouter = createTRPCRouter({
             },
             orientation: bookOrientation,
             displayCount: displayCount,
-            author: author
-
+            author: author,
           },
         });
       }
@@ -211,9 +210,14 @@ export const shelvesRouter = createTRPCRouter({
 
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
-    
+
     .mutation(async ({ input }) => {
       const { id } = input;
+
+      const deletedBookOnShelf = await prisma.bookOnShelf.deleteMany({
+        where: { shelfId: id },
+      });
+
       const deletedShelf = await prisma.shelf.delete({
         where: { id },
       });

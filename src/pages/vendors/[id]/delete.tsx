@@ -43,21 +43,20 @@ export default function DeleteVendor(
   }
 
   const handleDelete = () => {
-    console.log(currVendorCount);
-    if (currVendorCount && currVendorCount > 0) {
-      toast.error(
-        "This vendor has associated purchase orders, so it can not be deleted."
-      );
-      return;
-    }
     setIsDeleting(true);
     try {
+      if (currVendorCount && currVendorCount > 0) {
+        throw new Error(
+          "This vendor has associated purchase orders, so it can not be deleted."
+        );
+      }
       const deleteResult = deleteMutation.mutate({ id: id });
       setTimeout(() => {
         void router.push("/vendors");
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsDeleting(false);
     }
   };

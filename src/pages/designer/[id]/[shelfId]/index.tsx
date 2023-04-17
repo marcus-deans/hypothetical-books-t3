@@ -295,8 +295,8 @@ export default function EditShelf(
           displayStyle: "Spine Out",
           shelfSpace: "",
           usedDefault: false,
-          author: specificBook.authors[0]?.name??"",
-          position: 0,
+          author: specificBook.authors.join(", "),
+          position: 0
         };
         displayBook.shelfSpace = calcShelfSpace(
           displayBook.width,

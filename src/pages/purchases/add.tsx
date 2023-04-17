@@ -19,6 +19,8 @@ import dayjs from "dayjs";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import type { CustomUser } from "../../schema/user.schema";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddPurchaseOrder(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -62,7 +64,9 @@ export default function AddPurchaseOrder(
         void router.push("/purchases");
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
+
       setIsSubmitting(false);
     }
   };
@@ -135,6 +139,7 @@ export default function AddPurchaseOrder(
             </div>
           </div>
         </form>
+        <ToastContainer></ToastContainer>
       </div>
     </>
   );

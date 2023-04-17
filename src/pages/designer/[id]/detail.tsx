@@ -18,23 +18,40 @@ import { GridToolbar } from "@mui/x-data-grid";
 import Head from "next/head";
 import Link from "next/link";
 import { Button } from "@mui/material";
-import { CustomUser } from "../../../schema/user.schema";
+import type { CustomUser } from "../../../schema/user.schema";
 import { useSession } from "next-auth/react";
 import jsPDF from "jspdf";
-import autoTable, { RowInput } from "jspdf-autotable";
+import type { RowInput } from "jspdf-autotable";
+import autoTable from "jspdf-autotable";
+import { longFormatter } from "../../../utils/formatters";
+import type { Book, BookOnShelf, Shelf } from "@prisma/client";
+
+interface FlatDisplayBook {
+  id: string;
+  title: string;
+  author: string;
+  isbn_10: string;
+  isbn_13: string;
+  displayCount: number;
+}
+
+type ShelfQueryData = (Shelf & {
+  booksOnShelf: (BookOnShelf & { book: Book })[];
+})[];
+
 export default function CaseDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { id } = props;
   const casesDetailsQuery = api.cases.getById.useQuery({ id });
+  const { data: session, status } = useSession();
 
   // if (router.isFallback) {
   if (casesDetailsQuery.status !== "success") {
     return <div className="text-white">Loading...</div>;
   }
   const addMutation = api.shelves.add.useMutation();
-  const { data: session, status } = useSession();
-  const user = session?.user as CustomUser; 
+  const user = session?.user as CustomUser;
   const { data } = casesDetailsQuery;
   //Populate default shelves
   // if(data.shelves.length !== data.shelfCount){
@@ -165,7 +182,7 @@ export default function CaseDetail(
         title: bookOnShelf.book.title,
       };
     });
-    const isValid  = (shelf.spaceUsed > caseWidth) ? "No" : "Yes";
+    const isValid = shelf.spaceUsed > caseWidth ? "No" : "Yes";
     return {
       id: shelf.id,
       caseId: shelf.caseId,
@@ -184,9 +201,9 @@ export default function CaseDetail(
       <div className="space mt-3 flex h-3/4 overflow-hidden text-neutral-50">
         <h1 className="inline-block text-2xl">
           {" "}
-          {`Case ${
-            data.name
-          } - Last edited at ${data.editedAt.toLocaleDateString()}`}{" "}
+          {`Case ${data.name} - Last edited at ${longFormatter.format(
+            data.editedAt
+          )}`}{" "}
         </h1>
       </div>
       <div className="space flex pt-3">
@@ -219,7 +236,7 @@ export default function CaseDetail(
             className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
             variant="contained"
           >
-            Save As 
+            Save As
           </Button>
         </Link>
           <button
@@ -269,7 +286,11 @@ import { type } from "os";
 import { stringList } from "aws-sdk/clients/datapipeline";
 import { shelvesRouter } from "../../../server/api/routers/shelves";
 
-function generatePlanogram(name:string, shelves:any, displayedBooks:any) {
+function generatePlanogram(
+  name: string,
+  shelves: ShelfQueryData,
+  displayedBooks: FlatDisplayBook[]
+) {
   const doc = new jsPDF();
 
   autoTable(doc, {
@@ -303,7 +324,7 @@ function generatePlanogram(name:string, shelves:any, displayedBooks:any) {
     body: [
       [
         {
-          content: "Date: " + new Date().toLocaleDateString(),
+          content: "Date: " + longFormatter.format(new Date()),
           styles: {
             halign: "right",
           },
@@ -328,46 +349,43 @@ function generatePlanogram(name:string, shelves:any, displayedBooks:any) {
     theme: "plain",
   });
 
-
   // Create a new object to store the concatenated entries
-  const concatenatedBooks: {[key: string]: ConcatenatedBook} = {};
+  const concatenatedBooks: { [key: string]: ConcatenatedBook } = {};
 
-interface displayedBook{
-  title: string;
-  author: string;
-  isbn_10: string;
-  isbn_13: string;
-  displayCount: number;
-}
-interface ConcatenatedBook {
-  title: string;
-  author: string;
-  isbn_10: string;
-  isbn_13: string;
-  displayCount: number;
-}
-
-// Loop through each book in the array
-
-displayedBooks.forEach((book: displayedBook) => {
-  const concatenatedBook = concatenatedBooks[book.title];
-  if (concatenatedBook) {
-    concatenatedBook.displayCount += book.displayCount;
-  } else {
-    concatenatedBooks[book.title] = { ...book };
+  interface displayedBook {
+    title: string;
+    author: string;
+    isbn_10: string;
+    isbn_13: string;
+    displayCount: number;
   }
-});
 
-const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
+  interface ConcatenatedBook {
+    title: string;
+    author: string;
+    isbn_10: string;
+    isbn_13: string;
+    displayCount: number;
+  }
 
+  // Loop through each book in the array
 
+  displayedBooks.forEach((book: displayedBook) => {
+    const concatenatedBook = concatenatedBooks[book.title];
+    if (concatenatedBook) {
+      concatenatedBook.displayCount += book.displayCount;
+    } else {
+      concatenatedBooks[book.title] = { ...book };
+    }
+  });
 
+  const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
 
   //Inputs in array format
   const tableAllBooks: RowInput[] = [];
-  
-  tableVals.forEach((book: any) => {
+  // displayedBooks.forEach((book: any) => {
 
+  tableVals.forEach((book) => {
     const insideInput: RowInput = [];
     //Just sum display values for books of the same name
     insideInput.push(book.title);
@@ -375,19 +393,11 @@ const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
     insideInput.push(book.isbn_10);
     insideInput.push(book.isbn_13);
     insideInput.push(book.displayCount);
-    tableAllBooks.push(insideInput)
+    tableAllBooks.push(insideInput);
   });
 
   autoTable(doc, {
-    head: [
-      [
-        "Title",
-        "Author",
-        "ISBN 10",
-        "ISBN 13",
-        "Display Count",
-      ],
-    ],
+    head: [["Title", "Author", "ISBN 10", "ISBN 13", "Display Count"]],
     body: tableAllBooks,
     theme: "striped",
     headStyles: {
@@ -429,14 +439,13 @@ const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
       body: [
         [
           {
-            content: "Shelf "+ String(shelves.indexOf(shelf)+1),
+            content: "Shelf " + String(shelves.indexOf(shelf) + 1),
             styles: {
               halign: "left",
               fontSize: 20,
               textColor: "#ffffff",
             },
           },
-        
         ],
       ],
       theme: "plain",
@@ -474,19 +483,12 @@ const tableVals: ConcatenatedBook[] = Object.values(concatenatedBooks);
         fillColor: "#343a40",
       },
     });
-  
-
-  })
-  
+  });
 
   //const bookIdToQuantity = new Map<book, number>();
-  //const bookIdToRevenue = new Map<book, number>();  
+  //const bookIdToRevenue = new Map<book, number>();
   return doc.output("dataurlnewwindow");
 }
-
-
-
-
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const casesList = await prisma.case.findMany({

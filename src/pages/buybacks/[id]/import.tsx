@@ -38,8 +38,10 @@ export default function ImportBuyback(
     },
     { enabled: parsedHeaders.length !== 0 }
   );
-  const importVerified = api.csvPorts.verifyCSV.useQuery(
-    parsedCsvData,
+  const importVerified = api.csvPorts.verifyBuybackCSV.useQuery({
+    data: parsedCsvData,
+    buybackOrderId: id,
+  },
     { enabled: headersVerified.isSuccess && headersVerified.data?.verified }
   );
   const mutatedImport = api.csvPorts.addBuybackImport.useMutation();

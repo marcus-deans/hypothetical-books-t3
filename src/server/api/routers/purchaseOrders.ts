@@ -347,6 +347,7 @@ export const purchaseOrdersRouter = createTRPCRouter({
                     id: true,
                     title: true,
                     isbn_13: true,
+                    inventoryCount: true,
                   },
                 },
               },
@@ -714,16 +715,6 @@ export const purchaseOrdersRouter = createTRPCRouter({
         });
       }
 
-      const deletedPurchaseOrder = await prisma.purchaseOrder.delete({
-        where: { id },
-      });
-      if (!deletedPurchaseOrder) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `No purchase order to delete with id '${id}'`,
-        });
-      }
-
       for (const currentPurchaseLine of currentPurchaseOrder.purchaseLines ??
         []) {
         const purchasedCount = currentPurchaseLine?.quantity ?? 0;
@@ -735,23 +726,6 @@ export const purchaseOrdersRouter = createTRPCRouter({
             message: `Cannot delete purchase order of ${purchasedCount} boks`,
           });
         }
-        const deletedPurchaseLine = await prisma.purchaseLine.delete({
-          where: { id: currentPurchaseLine.id },
-        });
-        if (!deletedPurchaseLine) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: `No purchase line to delete with id '${id}'`,
-          });
-        }
-        await prisma.book.update({
-          where: { id: currentPurchaseLine?.book.id },
-          data: {
-            inventoryCount: {
-              decrement: purchasedCount,
-            },
-          },
-        });
 
         const currentBookId = currentPurchaseLine.bookId;
         const currentVendorId = currentPurchaseOrder.vendorId;
@@ -775,8 +749,53 @@ export const purchaseOrdersRouter = createTRPCRouter({
           });
 
         if (costMostRecentVendor?.purchaseLineId !== currentPurchaseLine.id) {
-          continue; // CMR is not affected
+          // CMR is not affected, delete the purchase line
+          const deletedPurchaseLine = await prisma.purchaseLine.delete({
+            where: { id: currentPurchaseLine.id },
+          });
+          if (!deletedPurchaseLine) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: `No purchase line to delete with id '${id}'`,
+            });
+          }
+          await prisma.book.update({
+            where: { id: currentPurchaseLine?.book.id },
+            data: {
+              inventoryCount: {
+                decrement: purchasedCount,
+              },
+            },
+          });
         } else {
+          await prisma.costMostRecentVendor.delete({
+            where: {
+              costMostRecentVendorId: {
+                bookId: currentBookId,
+                vendorId: currentVendorId,
+              },
+            },
+          });
+
+          // CMR is affected, delete the purchase line and recompute
+          const deletedPurchaseLine = await prisma.purchaseLine.delete({
+            where: { id: currentPurchaseLine.id },
+          });
+          if (!deletedPurchaseLine) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: `No purchase line to delete with id '${id}'`,
+            });
+          }
+          await prisma.book.update({
+            where: { id: currentPurchaseLine?.book.id },
+            data: {
+              inventoryCount: {
+                decrement: purchasedCount,
+              },
+            },
+          });
+
           // need to recompute CMR
           const mostRecentPurchaseLine = await prisma.purchaseLine.findFirst({
             where: {
@@ -795,23 +814,9 @@ export const purchaseOrdersRouter = createTRPCRouter({
           });
 
           if (!mostRecentPurchaseLine) {
-            await prisma.costMostRecentVendor.delete({
-              where: {
-                costMostRecentVendorId: {
-                  bookId: currentBookId,
-                  vendorId: currentVendorId,
-                },
-              },
-            });
             continue;
           } else {
-            await prisma.costMostRecentVendor.update({
-              where: {
-                costMostRecentVendorId: {
-                  bookId: currentBookId,
-                  vendorId: currentVendorId,
-                },
-              },
+            await prisma.costMostRecentVendor.create({
               data: {
                 purchaseLine: {
                   connect: {
@@ -823,12 +828,32 @@ export const purchaseOrdersRouter = createTRPCRouter({
                     id: mostRecentPurchaseLine.purchaseOrderId,
                   },
                 },
+                book: {
+                  connect: {
+                    id: currentBookId,
+                  },
+                },
+                vendor: {
+                  connect: {
+                    id: currentVendorId,
+                  },
+                },
               },
             });
           }
         }
-        return deletedPurchaseOrder;
       }
+      const deletedPurchaseOrder = await prisma.purchaseOrder.delete({
+        where: { id },
+      });
+      if (!deletedPurchaseOrder) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No purchase order to delete with id '${id}'`,
+        });
+      }
+
+      return deletedPurchaseOrder;
     }),
 
   getSecretMessage: protectedProcedure.query(() => {

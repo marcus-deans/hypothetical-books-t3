@@ -392,6 +392,8 @@ export default function Books(
           "days_of_supply",
           "best_buyback_price",
           "num_related_books",
+          "remote_inventory_count",
+          "remote_retail_price",
         ],
         data: [],
       };
@@ -424,6 +426,8 @@ export default function Books(
           days_of_supply: "(inf)",
           best_buyback_price: "0",
           num_related_books: "0",
+          remote_inventory_count: "0",
+          remote_retail_price: "0",
         };
         if (calculatedExportValues.at(index) !== undefined) {
           const calculatedEntry = calculatedExportValues.at(index) ?? [];
@@ -432,6 +436,8 @@ export default function Books(
           entry.days_of_supply = calculatedEntry.at(1) ?? "0";
           entry.best_buyback_price = calculatedEntry.at(2) ?? "0";
           entry.num_related_books = calculatedEntry.at(3) ?? "0";
+          entry.remote_inventory_count = calculatedEntry.at(4) ?? "0";
+          entry.remote_retail_price = calculatedEntry.at(5) ?? "0";
         }
         exportedData.data.push(entry);
       });
@@ -455,6 +461,8 @@ export default function Books(
         { id: "days_of_supply", title: "days_of_supply" },
         { id: "best_buyback_price", title: "best_buyback_price" },
         { id: "num_related_books", title: "num_related_books" },
+        { id: "remote_inventory_count", title: "remote_inventory_count"},
+        { id: "remote_retail_price", title: "remote_retail_price"},
       ];
 
       const csvRows: string[][] = [];
@@ -479,6 +487,8 @@ export default function Books(
         lineArray.push(value.days_of_supply);
         lineArray.push(value.best_buyback_price);
         lineArray.push(value.num_related_books);
+        lineArray.push(value.remote_inventory_count);
+        lineArray.push(value.remote_retail_price);
         csvRows.push(lineArray);
       });
 
@@ -515,6 +525,8 @@ export default function Books(
                 "daysSupply",
                 "bestBuyback",
                 "numRelatedBooks",
+                "remoteInventoryCount",
+                "remoteRetailPrice",
               ],
               delimiter: ",",
             })
