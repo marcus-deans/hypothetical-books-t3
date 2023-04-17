@@ -24,6 +24,8 @@ import type {
 import { prisma } from "../../../server/db";
 import dayjs from "dayjs";
 import Head from "next/head";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EditBuyBack(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -76,7 +78,8 @@ export default function EditBuyBack(
         void router.push(`/buybacks/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };
@@ -155,6 +158,7 @@ export default function EditBuyBack(
             </div>
           </div>
         </form>
+        <ToastContainer></ToastContainer>
       </div>
     </>
   );

@@ -69,7 +69,6 @@ export default function EditBuybackLine(
     setIsSubmitting(true);
     try {
       if (!bookValue || !buybackValue) {
-        toast.error("Book and Buyback Order are required");
         throw new Error("Book and Buyback Order are required");
       }
       if (
@@ -78,7 +77,6 @@ export default function EditBuybackLine(
         unitBuybackPrice <= 0 ||
         quantity <= 0
       ) {
-        toast.error("Unit Buyback Price and Quantity must be positive numbers");
         throw new Error(
           "Unit Buyback Price and Quantity must be positive numbers"
         );
@@ -96,7 +94,8 @@ export default function EditBuybackLine(
         );
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsSubmitting(false);
     }
   };

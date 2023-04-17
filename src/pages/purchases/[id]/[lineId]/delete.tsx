@@ -13,6 +13,8 @@ import { createInnerTRPCContext } from "../../../../server/api/trpc";
 import DeletePane from "../../../../components/DeletePane";
 import { useRouter } from "next/router";
 import { prisma } from "../../../../server/db";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function DeletePurchaseLine(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -35,12 +37,16 @@ export default function DeletePurchaseLine(
   const handleDelete = () => {
     setIsDeleting(true);
     try {
+      if (purchaseLineDetailsQuery.data.book.inventoryCount < purchaseLineDetailsQuery.data.quantity){
+        throw new Error("Deleting this purchase line would make inventory negative for this book");
+      }
       const deleteResult = deleteMutation.mutate({ id: lineId });
       setTimeout(() => {
         void router.push(`/purchases/${encodeURIComponent(id)}/detail`);
       }, 500);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      toast.error(`${error}`);
       setIsDeleting(false);
     }
   };
@@ -58,6 +64,7 @@ export default function DeletePurchaseLine(
         handleDelete={handleDelete}
         cancelUrl={`/purchases/${encodeURIComponent(id)}/detail`}
       />
+    <ToastContainer></ToastContainer>
     </div>
   );
 }
