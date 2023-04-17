@@ -39,6 +39,17 @@ type ShelfQueryData = (Shelf & {
   booksOnShelf: (BookOnShelf & { book: Book })[];
 })[];
 
+interface bookToInc {
+  title: string;
+  displayCount: number;
+  orientation: string;
+}
+
+type PlanogramShelvesData = {
+  books: bookToInc[] | null;
+  spaceUsed: number;
+}[];
+
 export default function CaseDetail(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
@@ -66,7 +77,6 @@ export default function CaseDetail(
   // }
   const caseWidth = data.width;
   const displayedBooks = data.shelves.map((shelf) => shelf.booksOnShelf).flat();
-  console.log(displayedBooks);
   const filteredBooks = displayedBooks.map(
     ({ book: { id, title, isbn_13, isbn_10 }, displayCount, author }) => {
       return {
@@ -79,7 +89,37 @@ export default function CaseDetail(
       } as FlatDisplayBook;
     }
   );
+  const shelvedBooks = data.shelves.map((shelf) => {
+    return { booksOnShelf: shelf.booksOnShelf, spaceUsed: shelf.spaceUsed };
+  });
 
+  const shelvesTabularArrangement: PlanogramShelvesData = [];
+
+  for (let i = 0; i < shelvedBooks.length; i++) {
+    const currShelf = shelvedBooks[i];
+
+    const addingShelf: { books: bookToInc[] | null; spaceUsed: number } = {
+      books: null,
+      spaceUsed: 0,
+    };
+    if (currShelf) {
+      const booksToInc: bookToInc[] = [];
+      for (let j = 0; j < currShelf.booksOnShelf.length; j++) {
+        const currBook = currShelf.booksOnShelf[j];
+        const addingBook = {
+          title: currBook?.book.title,
+          displayCount: currBook?.displayCount,
+          orientation: currBook?.orientation,
+        } as bookToInc;
+        booksToInc.push(addingBook);
+      }
+      addingShelf.books = booksToInc;
+      addingShelf.spaceUsed = currShelf?.spaceUsed;
+      shelvesTabularArrangement.push(addingShelf);
+    }
+  }
+  console.log(shelvesTabularArrangement);
+  //const bookInputs = shelvedBooks.map(({ book: {title}, displayCount, orientation}) => ({title, displayCount,orientation}));
   const columns: GridColDef[] = [
     {
       field: "shelf",
@@ -230,7 +270,11 @@ export default function CaseDetail(
         <button
           className="rounded border border-blue-700 bg-blue-500 py-2 px-4 text-white hover:bg-blue-700"
           onClick={() => {
-            generatePlanogram(data.name, data.shelves, filteredBooks);
+            generatePlanogram(
+              data.name,
+              shelvesTabularArrangement,
+              filteredBooks
+            );
           }}
         >
           Generate Planogram
@@ -274,7 +318,7 @@ export default function CaseDetail(
 
 function generatePlanogram(
   name: string,
-  shelves: ShelfQueryData,
+  shelves: PlanogramShelvesData,
   displayedBooks: FlatDisplayBook[]
 ) {
   const doc = new jsPDF();
@@ -395,7 +439,7 @@ function generatePlanogram(
     body: [
       [
         {
-          content: "Display Layout",
+          content: "Display Layout (Positioned from Left to Right)",
           styles: {
             halign: "left",
             fontSize: 14,
@@ -406,7 +450,21 @@ function generatePlanogram(
     theme: "plain",
   });
   //Implement each shelf's display
+
   shelves.forEach((shelf) => {
+    const shelvesBooks: RowInput[] = [];
+    if (shelf.books) {
+      shelf.books.forEach((book, index) => {
+        const insideInput: RowInput = [];
+        //Just sum display values for books of the same name
+        insideInput.push(book.title);
+        insideInput.push(book.displayCount);
+        insideInput.push(book.orientation);
+        insideInput.push(index + 1);
+        shelvesBooks.push(insideInput);
+      });
+    }
+
     autoTable(doc, {
       body: [
         [
@@ -426,8 +484,22 @@ function generatePlanogram(
       },
     });
     autoTable(doc, {
-      head: [["Title", "Author", "ISBN 10", "ISBN 13", "Display Count"]],
-      body: tableAllBooks,
+      body: [
+        [
+          {
+            content: `Space Used:  ${shelf.spaceUsed}`,
+            styles: {
+              halign: "left",
+              fontSize: 10,
+              textColor: "#00000",
+            },
+          },
+        ],
+      ],
+    });
+    autoTable(doc, {
+      head: [["Title", "Display Count", "Orientation", "Position"]],
+      body: shelvesBooks,
       theme: "striped",
       headStyles: {
         fillColor: "#343a40",

@@ -38,7 +38,7 @@ export default function DeleteCase(
     console.log("delete proceeded");
     try {
       const deleteResult = deleteMutation.mutate({ id: id });
-      console.log(deleteResult)
+      console.log(deleteResult);
       setTimeout(() => {
         void router.push("/designer");
       }, 500);
