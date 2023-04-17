@@ -155,7 +155,7 @@ export default function Books(
       type: "number",
       renderCell: (params) => {
         /*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions*/
-        const remotePrice = params.row.remoteRetailPrice === "N/A" ? params.row.remoteRetailPrice : `$${params.row.remoteRetailPrice}`;
+        const remotePrice = params.row.remoteRetailPrice === "" ? "N/A" : `$${params.row.remoteRetailPrice}`;
         return (
           <div>
             {remotePrice}
@@ -188,6 +188,15 @@ export default function Books(
       align: "left",
       headerAlign: "left",
       type: "number",
+      renderCell: (params) => {
+        /*eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions*/
+        const remotePrice = params.row.remoteInventoryCount === "" ? "N/A" : `${params.row.remoteInventoryCount}`;
+        return (
+          <div>
+            {remotePrice}
+          </div>
+        );
+      },
       width: 80,
     },
     {
