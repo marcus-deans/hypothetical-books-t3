@@ -15,6 +15,7 @@ import {
   BridgeResponseSchema,
   convertBridgeBookToBook,
 } from "./bridge";
+import { fetchWithTimeout } from "./googleBooks";
 // Configuration
 cloudinary.config({
   cloud_name: env.CLOUDINARY_CLOUD_NAME,
@@ -134,7 +135,7 @@ async function getAllDetailsById(id: string) {
 }
 
 async function getSingleBookFromSubsidiaryByIsbn(isbn13: string) {
-  return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+  return await fetchWithTimeout(env.SUBSIDIARY_RETRIEVE_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ isbns: [isbn13] }),
@@ -194,8 +195,8 @@ export const booksRouter = createTRPCRouter({
         where: { display: true },
         cursor: cursor
           ? {
-            id: cursor,
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
           title: "desc",
@@ -249,8 +250,8 @@ export const booksRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-            id: cursor,
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
           title: "asc",
@@ -318,8 +319,8 @@ export const booksRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-            id: cursor,
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
           title: "desc",
@@ -387,8 +388,8 @@ export const booksRouter = createTRPCRouter({
         },
         cursor: cursor
           ? {
-            id: cursor,
-          }
+              id: cursor,
+            }
           : undefined,
         orderBy: {
           title: "desc",
@@ -402,22 +403,19 @@ export const booksRouter = createTRPCRouter({
         nextCursor = nextItem.id;
       }
 
-      // return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ isbns: [isbn13] }),
-      // })
-
       const internalIsbn13s = internalBooks.map((book) => book.isbn_13);
       const postObject = JSON.stringify({ isbns: internalIsbn13s });
       console.log(postObject);
       let allBooks;
       try {
-        const remoteBooks = await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ isbns: internalIsbn13s }),
-        })
+        const remoteBooks = await fetchWithTimeout(
+          env.SUBSIDIARY_RETRIEVE_URL,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isbns: internalIsbn13s }),
+          }
+        )
           .then((response) => response.json())
           .then((response) => {
             console.log("Obtained response from subsidiary");
