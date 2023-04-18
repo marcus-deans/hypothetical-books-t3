@@ -56,7 +56,7 @@ type GoogleBooksResponse = z.infer<typeof GoogleBooksResponseSchema>;
 export const fetchWithTimeout = async (
   resource: RequestInfo,
   options: RequestInit = {},
-  timeout = 5000
+  timeout = 15000
 ) => {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
