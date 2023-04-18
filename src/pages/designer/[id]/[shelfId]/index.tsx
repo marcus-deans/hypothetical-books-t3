@@ -48,6 +48,8 @@ export default function EditShelf(
   const shelfDetailsQuery = api.shelves.getById.useQuery({ id: shelfId });
   const initialSpace = shelfDetailsQuery.data?.spaceUsed;
   const currentShelf = shelfDetailsQuery.data;
+  console.log(currentShelf)
+
   const currentBooksToDisplay = currentShelf?.booksOnShelf;
   console.log(currentBooksToDisplay);
   const calcShelfSpace = (
@@ -179,7 +181,7 @@ export default function EditShelf(
     author: string;
     position: number;
   }
-
+  console.log(currentBooksToDisplay)
   const initialStateBooks = currentBooksToDisplay?.map((book) => {
     return {
       id: uuidv4(),
@@ -205,6 +207,8 @@ export default function EditShelf(
       position: 0,
     } as BookCalcDetails;
   });
+  console.log(initialStateBooks)
+
   initialStateBooks?.forEach((book) => {
     book.position = initialStateBooks?.indexOf(book) + 1;
   });
@@ -340,7 +344,7 @@ export default function EditShelf(
           displayStyle: "Spine Out",
           shelfSpace: "",
           usedDefault: false,
-          author: specificBook.authors.join(", "),
+          author: String(specificBook.authors[0]),
           position: 0,
         };
         displayBook.shelfSpace = calcShelfSpace(

@@ -132,7 +132,7 @@ export default function CaseDetail(
             {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions */}
             <a href={`/designer/${id}/${params.row.id}`}>
               {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
-              {params.row.id}{" "}
+              {"View Shelf"}{" "}
             </a>
           </div>
         );
