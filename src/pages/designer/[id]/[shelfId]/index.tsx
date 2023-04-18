@@ -46,6 +46,7 @@ export default function EditShelf(
   const currentWidth = caseDetailsQuery?.data?.width ?? 0;
   const editShelfMutation = api.shelves.edit.useMutation();
   const shelfDetailsQuery = api.shelves.getById.useQuery({ id: shelfId });
+  const initialSpace = shelfDetailsQuery.data?.spaceUsed;
   const currentShelf = shelfDetailsQuery.data;
   const currentBooksToDisplay = currentShelf?.booksOnShelf;
   console.log(currentBooksToDisplay);
@@ -206,7 +207,7 @@ export default function EditShelf(
   const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>(
     initialStateBooks ?? []
   );
-  const [totalSpaceSum, setTotalSpaceSum] = useState(0);
+  const [totalSpaceSum, setTotalSpaceSum] = useState(initialSpace ??0);
 
   const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({
     cursor: null,
