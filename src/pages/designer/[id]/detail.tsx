@@ -55,14 +55,15 @@ export default function CaseDetail(
 ) {
   const { id } = props;
   const casesDetailsQuery = api.cases.getById.useQuery({ id });
+
   const { data: session, status } = useSession();
   const addMutation = api.shelves.add.useMutation();
+  const user = session?.user as CustomUser;
 
   // if (router.isFallback) {
   if (casesDetailsQuery.status !== "success") {
     return <div className="text-white">Loading...</div>;
   }
-  const user = session?.user as CustomUser;
   const { data } = casesDetailsQuery;
   //Populate default shelves
   // if(data.shelves.length !== data.shelfCount){
@@ -169,10 +170,10 @@ export default function CaseDetail(
           <div>
             {/* eslint-disable */}
             {params.row.books.map((book: BookDetail) => (
-              <a className="text-blue-600" href={`/books/${book.id}/detail`}>
+              <Link className="text-blue-600" href={`/books/${book.id}/detail`}>
                 {book.title}
                 {", "}
-              </a>
+              </Link>
             ))}
             {/* eslint-enable */}
           </div>
@@ -231,7 +232,7 @@ export default function CaseDetail(
           {" "}
           {`Case ${data.name} - Last edited at ${longFormatter.format(
             data.editedAt
-          )}`}{" "}
+          )} - Width ${caseWidth}\"`}{" "}
         </h1>
       </div>
       <div className="space flex pt-3">
