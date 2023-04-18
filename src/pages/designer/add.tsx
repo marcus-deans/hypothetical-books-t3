@@ -63,7 +63,7 @@ export default function AddCase(
       });
       setTimeout(() => {
         void router.push("/designer");
-      }, 150);
+      }, 500);
     } catch (error) {
       console.log(error);
       setIsSubmitting(false);
