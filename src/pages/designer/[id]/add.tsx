@@ -49,9 +49,6 @@ export default function AddShelf(
   const editMutation = api.cases.edit.useMutation();
 
   const caseDetailsQuery = api.cases.getById.useQuery({ id: id });
-  if (caseDetailsQuery.status !== "success") {
-    return <div className="text-white">Loading...</div>;
-  }
   const currentShelfCount = caseDetailsQuery?.data?.shelfCount ?? 0;
   const currentName = caseDetailsQuery?.data?.name ?? "Case Name";
   const currentWidth = caseDetailsQuery?.data?.width ?? 0;
