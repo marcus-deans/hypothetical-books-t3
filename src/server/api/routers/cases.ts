@@ -219,7 +219,6 @@ export const casesRouter = createTRPCRouter({
         name: z.string(),
         width: z.number(),
         shelfCount: z.number(),
-        shelvesIds: z.string().array(),
         user: z.object({
           id: z.string(),
           name: z.string(),
@@ -243,11 +242,21 @@ export const casesRouter = createTRPCRouter({
           },
           width: input.width,
           shelfCount: input.shelfCount,
-          shelves: {
-            connect: input.shelvesIds.map((id) => ({ id })),
-          },
         },
       });
+
+      for (let i = 0; i < input.shelfCount; i++) {
+        const newShelf = await prisma.shelf.create({
+          data: {
+            case: {
+              connect: {
+                id: newCase.id,
+              },
+            },
+            spaceUsed: 0,
+          },
+        });
+      }
       return newCase;
     }),
 

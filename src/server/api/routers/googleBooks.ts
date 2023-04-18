@@ -52,12 +52,29 @@ const GoogleBooksResponseSchema = z.object({
 type GoogleBooksDetails = z.infer<typeof GoogleBooksDetailsSchema>;
 type GoogleBooksItems = z.infer<typeof GoogleBooksItemsSchema>;
 type GoogleBooksResponse = z.infer<typeof GoogleBooksResponseSchema>;
+
+export const fetchWithTimeout = async (
+  resource: RequestInfo,
+  options: RequestInit = {},
+  timeout = 5000
+) => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+
+  const response = await fetch(resource, {
+    ...options,
+    signal: controller.signal,
+  });
+  clearTimeout(id);
+
+  return response;
+};
 const getGoogleBooksDetails = async (
   isbn: string
 ): Promise<GoogleBooksDetails | null> => {
   const queryURL = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${env.GOOGLE_BOOKS_API_KEY}`;
   console.log("Starting the Google Books call");
-  return await fetch(queryURL)
+  return await fetchWithTimeout(queryURL)
     .then((response) => response.json())
     .then((response) => {
       console.log("Obtained below response from Google Books API");
@@ -103,7 +120,7 @@ const getBooksRunPrices = async (isbn: string): Promise<number> => {
   console.log(`Fetching price details for ${isbn}`);
   const queryURL = `https://booksrun.com/api/v3/price/buy/${isbn}?key=${env.BOOKS_RUN_API_KEY}`;
   try {
-    return await fetch(queryURL)
+    return await fetchWithTimeout(queryURL)
       .then((response) => response.json())
       .then((response) => {
         const bookPriceResponse = BooksRunResponseSchema.safeParse(response);
@@ -189,7 +206,7 @@ const getRelatedBooks = async (book: GoogleBooksDetails) => {
 
 const getRemoteBookDetails = async (isbn: string) => {
   try {
-    return await fetch(env.SUBSIDIARY_RETRIEVE_URL, {
+    return await fetchWithTimeout(env.SUBSIDIARY_RETRIEVE_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isbns: [isbn] }),

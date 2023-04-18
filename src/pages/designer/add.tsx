@@ -3,13 +3,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import superjson from "superjson";
-import {
-  Autocomplete,
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  InputAdornment,
-} from "@mui/material";
+import { InputAdornment } from "@mui/material";
 
 import dayjs from "dayjs";
 import Head from "next/head";
@@ -42,14 +36,12 @@ export default function AddCase(
 
   const casesWithShelves = casesQuery?.data?.items ?? [];
 
-
   const [nameValue, setNameValue] = useState("");
-  const [widthValue, setWidthValue] = useState(0);
+  const [widthValue, setWidthValue] = useState(60);
   const [shelfCountValue, setShelfCountValue] = useState(7);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = () => {
-    
     setIsSubmitting(true);
     try {
       if (isNaN(widthValue) || isNaN(shelfCountValue)) {
@@ -57,27 +49,15 @@ export default function AddCase(
         setIsSubmitting(false);
         return;
       }
-      if(casesWithShelves.some(obj => obj.name === nameValue)){
+      if (casesWithShelves.some((obj) => obj.name === nameValue)) {
         toast.error("A case with this name already exists");
         setIsSubmitting(false);
         return;
       }
-      //Create shelfCountValue new blank shelves and link them
-      // const blankShelves = []
-      // for(let i =0; i < shelfCountValue; i++){
-      //   edit.mutate({
-      //     caseId: id,
-      //     spaceUsed: 0,
-      //     bookDetails: [],
-      //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      //     user: user!,
-      //   });
-      // }
       const addResult = addMutation.mutate({
         name: nameValue,
         width: widthValue,
         shelfCount: shelfCountValue,
-        shelvesIds: [],
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user: user!,
       });
