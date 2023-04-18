@@ -46,6 +46,7 @@ export default function EditShelf(
   const currentWidth = caseDetailsQuery?.data?.width ?? 0;
   const editShelfMutation = api.shelves.edit.useMutation();
   const shelfDetailsQuery = api.shelves.getById.useQuery({ id: shelfId });
+  const initialSpace = shelfDetailsQuery.data?.spaceUsed;
   const currentShelf = shelfDetailsQuery.data;
   const currentBooksToDisplay = currentShelf?.booksOnShelf;
   console.log(currentBooksToDisplay);
@@ -60,7 +61,7 @@ export default function EditShelf(
       if (thickness === 0) {
         thickness = 0.8;
       }
-      return Number(thickness * displayCount);
+      return Number(thickness * displayCount).toFixed(2);
     }
     if (displayStyle === "Cover Out") {
       if (displayCount == 0) {
@@ -69,9 +70,9 @@ export default function EditShelf(
       if (width == 0) {
         width = 6;
       }
-      return Number(width);
+      return Number(width).toFixed(2);
     } else {
-      return Number(0);
+      return Number(0).toString();
     }
   };
 
@@ -106,6 +107,8 @@ export default function EditShelf(
       headerClassName: "header-theme",
       flex: 1,
       editable: true,
+      align: "left",
+      type: "number",
       preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
         const hasError =
           isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
@@ -145,6 +148,13 @@ export default function EditShelf(
       headerClassName: "header-theme",
       flex: 1,
       editable: true,
+      type: "number",
+      align: "left",
+      preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
+        const hasError =
+          isNaN(Number(params.props.value)) || Number(params.props.value) < 0;
+        return { ...params.props, error: hasError };
+      },
     },
     {
       field: "shelfSpace",
@@ -206,7 +216,7 @@ export default function EditShelf(
   const [displayedBooks, setDisplayedBooks] = useState<BookCalcDetails[]>(
     initialStateBooks ?? []
   );
-  const [totalSpaceSum, setTotalSpaceSum] = useState(0);
+  const [totalSpaceSum, setTotalSpaceSum] = useState(initialSpace ??0);
 
   const booksQuery = api.books.getAllWithAuthorsAndGenre.useQuery({
     cursor: null,
@@ -231,8 +241,8 @@ export default function EditShelf(
           String(newRow.displayStyle),
           Number(newRow.displayCount)
         );
-        const spaceVal = newSpace.toFixed(2).toString();
-        newRow.shelfSpace = newRow.usedDefault ? spaceVal + "*" : spaceVal;
+        const spaceVal = newSpace;
+        newRow.shelfSpace = newRow.usedDefault ? `${spaceVal} *` : spaceVal;
         /* eslint-disable */
         let thickness = newRow.thickness as number;
         /* eslint-enable */

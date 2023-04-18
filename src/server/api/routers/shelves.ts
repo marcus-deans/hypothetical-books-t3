@@ -156,6 +156,8 @@ export const shelvesRouter = createTRPCRouter({
           .object({
             bookId: z.string(),
             orientation: z.string(),
+            displayCount: z.number(),
+            author: z.string(),
           })
           .array(),
         user: z.object({
@@ -166,11 +168,14 @@ export const shelvesRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input }) => {
+      const deletedBookOnShelf = await prisma.bookOnShelf.deleteMany({
+        where: { shelfId: input.id },
+      });
+
       const newShelf = await prisma.shelf.update({
         where: { id: input.id },
         data: {
           spaceUsed: input.spaceUsed,
-
         },
       });
 
@@ -185,25 +190,37 @@ export const shelvesRouter = createTRPCRouter({
         },
       });
 
-      for (const bookDetails of input.bookDetails) {
-        const bookId = bookDetails.bookId;
-        const bookOrientation = bookDetails.orientation;
-        const newBookOnShelf = await prisma.bookOnShelf.create({
-          data: {
-            book: {
-              connect: {
-                id: bookId,
-              },
-            },
-            shelf: {
-              connect: {
-                id: newShelf.id,
-              },
-            },
-            orientation: bookOrientation,
-          },
-        });
-      }
+      await prisma.bookOnShelf.createMany({
+        data: input.bookDetails.map((bookDetails) => ({
+          bookId: bookDetails.bookId,
+          shelfId: input.id,
+          orientation: bookDetails.orientation,
+          displayCount: bookDetails.displayCount,
+          author: bookDetails.author,
+        })),
+      });
+
+      // for (const bookDetails of input.bookDetails) {
+      //   const bookId = bookDetails.bookId;
+      //   const bookOrientation = bookDetails.orientation;
+      //   const newBookOnShelf = await prisma.bookOnShelf.create({
+      //     data: {
+      //       book: {
+      //         connect: {
+      //           id: bookId,
+      //         },
+      //       },
+      //       shelf: {
+      //         connect: {
+      //           id: newShelf.id,
+      //         },
+      //       },
+      //       orientation: bookOrientation,
+      //       displayCount: bookDetails.displayCount,
+      //       author: bookDetails.author,
+      //     },
+      //   });
+      // }
 
       return newShelf;
     }),
