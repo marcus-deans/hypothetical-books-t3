@@ -56,12 +56,12 @@ export default function CaseDetail(
   const { id } = props;
   const casesDetailsQuery = api.cases.getById.useQuery({ id });
   const { data: session, status } = useSession();
+  const addMutation = api.shelves.add.useMutation();
 
   // if (router.isFallback) {
   if (casesDetailsQuery.status !== "success") {
     return <div className="text-white">Loading...</div>;
   }
-  const addMutation = api.shelves.add.useMutation();
   const user = session?.user as CustomUser;
   const { data } = casesDetailsQuery;
   //Populate default shelves
